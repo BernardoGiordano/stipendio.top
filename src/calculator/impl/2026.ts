@@ -321,6 +321,7 @@ function calcolaBenefitNonTassati(
       buoniPastoEsenti: 0,
       buoniPastoTassati: 0,
       altriWelfare: 0,
+      altriWelfareMensile: 0,
       totaleEsente: 0,
       totaleTassato: 0,
     };
@@ -351,8 +352,20 @@ function calcolaBenefitNonTassati(
   const buoniPastoEsenti = Math.min(buoniPastoTotale, sogliaAnnuaBuoniPasto);
   const buoniPastoTassati = Math.max(0, buoniPastoTotale - sogliaAnnuaBuoniPasto);
 
+  // Calculate altri total (prefer split values if available, fallback to others field)
+  const altriMensili = benefit.altriMensili ?? 0;
+  const altriAnnuali = benefit.altriAnnuali ?? 0;
+  const altriTotal = altriMensili * 12 + altriAnnuali;
+
   const altriWelfare =
-    (benefit.abbonamentoTrasporto ?? 0) + (benefit.serviziWelfare ?? 0) + (benefit.altri ?? 0);
+    (benefit.abbonamentoTrasporto ?? 0) + (benefit.serviziWelfare ?? 0) + altriTotal;
+
+  // Monthly welfare benefit: monthly portion of "altri" + annual welfare items spread monthly + explicit monthly benefits
+  const altriWelfareMensile =
+    altriMensili +
+    altriAnnuali / 12 +
+    (benefit.abbonamentoTrasporto ?? 0) / 12 +
+    (benefit.serviziWelfare ?? 0) / 12;
 
   const totaleEsente = previdenza + sanita + buoniPastoEsenti + altriWelfare;
   const totaleTassato = previdenzaEccedente + sanitaEccedente + buoniPastoTassati;
@@ -363,6 +376,7 @@ function calcolaBenefitNonTassati(
     buoniPastoEsenti,
     buoniPastoTassati,
     altriWelfare,
+    altriWelfareMensile,
     totaleEsente,
     totaleTassato,
   };
@@ -868,8 +882,8 @@ export class Calculator2026 implements StipendioCalculator {
       benefitNonTassati.totaleTassato;
     const nettoAnnuo = baseImponibile - totaleTrattenute + totaleBonus;
 
-    // Stipendio netto mensile
-    const nettoMensile = nettoAnnuo / mensilita;
+    // Stipendio netto mensile (include benefit mensili non tassati)
+    const nettoMensile = nettoAnnuo / mensilita + benefitNonTassati.altriWelfareMensile;
 
     // Aliquota effettiva
     const aliquotaEffettiva = (totaleTrattenute - totaleBonus) / ral;

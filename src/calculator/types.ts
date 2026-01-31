@@ -72,8 +72,10 @@ export interface BenefitNonTassati {
   abbonamentoTrasporto?: number;
   /** Servizi welfare (asili nido, borse studio, centri estivi, ecc.) */
   serviziWelfare?: number;
-  /** Altri rimborsi non tassati */
-  altri?: number;
+  /** Altri rimborsi non tassati - mensili (€/mese su 12 mesi) */
+  altriMensili?: number;
+  /** Altri rimborsi non tassati - annuali (€/anno) */
+  altriAnnuali?: number;
 }
 
 /** Anno fiscale di riferimento */
@@ -313,6 +315,8 @@ export interface DettaglioBenefitNonTassati {
   buoniPastoTassati: number;
   /** Altri welfare (esenti) */
   altriWelfare: number;
+  /** Importo mensile dei benefit altri welfare (da aggiungere a nettoMensile) */
+  altriWelfareMensile: number;
   /** Totale benefit esenti */
   totaleEsente: number;
   /** Totale benefit tassati (eccedenze) */
