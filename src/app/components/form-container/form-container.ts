@@ -6,8 +6,8 @@ import {
   StipendioFieldTree,
   StipendioFormModel,
 } from './form-group';
-import { ADDIZIONALI_REGIONALI, ADDIZIONALI_COMUNALI } from '../../../calculator/addizionali';
-import { AnnoFiscale, TipoContratto, TipoAlimentazioneAuto } from '../../../calculator/types';
+import { ADDIZIONALI_COMUNALI, ADDIZIONALI_REGIONALI } from '../../../calculator/addizionali';
+import { TipoAlimentazioneAuto, TipoContratto } from '../../../calculator/types';
 
 @Component({
   selector: 'app-form-container',
@@ -47,11 +47,15 @@ export class FormContainer {
     { value: 'apprendistato', label: 'Apprendistato' },
   ];
 
-  readonly anniFiscali: AnnoFiscale[] = [2025, 2026];
+  readonly anniFiscali = ['2025', '2026', '2027', '2028', '2029', '2030'];
 
-  readonly mensilita = [15, 14, 13, 12];
+  readonly mensilita = ['15', '14', '13', '12'];
 
-  readonly modalitaRimborso: { value: 'forfettario' | 'misto' | 'analitico'; label: string }[] = [
+  readonly modalitaRimborso: {
+    value: 'nessuna' | 'forfettario' | 'misto' | 'analitico';
+    label: string;
+  }[] = [
+    { value: 'nessuna', label: '-- Seleziona --' },
     { value: 'forfettario', label: 'Forfettario' },
     { value: 'misto', label: 'Misto' },
     { value: 'analitico', label: 'Analitico' },

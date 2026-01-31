@@ -89,9 +89,9 @@ export interface AscendenteACaricoFormModel {
 export interface StipendioFormModel {
   // Mandatory fields
   ral: number;
-  mensilita: number;
+  mensilita: string;
   tipoContratto: TipoContratto;
-  annoFiscale: AnnoFiscale;
+  annoFiscale: string;
   regione: string;
   comune: string;
 
@@ -195,9 +195,9 @@ const currentYear = new Date().getFullYear() as AnnoFiscale;
 export function createDefaultFormModel(): StipendioFormModel {
   return {
     ral: 0,
-    mensilita: 13,
+    mensilita: '13',
     tipoContratto: 'indeterminato',
-    annoFiscale: currentYear,
+    annoFiscale: String(currentYear),
     regione: 'DEFAULT',
     comune: 'DEFAULT',
     giorniLavorati: 0,
@@ -313,8 +313,12 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
     return null;
   });
 
-  min(path.mensilita, 12, { message: 'Minimo 12 mensilità' });
-  max(path.mensilita, 15, { message: 'Massimo 15 mensilità' });
+  validate(path.mensilita, ({ value }) => {
+    const v = Number(value());
+    if (v < 12) return { kind: 'min', message: 'Minimo 12 mensilità' };
+    if (v > 15) return { kind: 'max', message: 'Massimo 15 mensilità' };
+    return null;
+  });
 
   required(path.regione, { message: 'Regione obbligatoria' });
   minLength(path.regione, 2, { message: 'Codice regione non valido' });
@@ -402,10 +406,8 @@ function toRimborsiTrasferta(model: RimborsiTrasfertaFormModel): RimborsiTrasfer
   const result: RimborsiTrasferta = {};
 
   if (model.modalitaRimborso !== 'nessuna') result.modalitaRimborso = model.modalitaRimborso;
-  if (model.giorniTrasfertaItalia > 0)
-    result.giorniTrasfertaItalia = model.giorniTrasfertaItalia;
-  if (model.giorniTrasfertaEstero > 0)
-    result.giorniTrasfertaEstero = model.giorniTrasfertaEstero;
+  if (model.giorniTrasfertaItalia > 0) result.giorniTrasfertaItalia = model.giorniTrasfertaItalia;
+  if (model.giorniTrasfertaEstero > 0) result.giorniTrasfertaEstero = model.giorniTrasfertaEstero;
   if (model.rimborsoVitto > 0) result.rimborsoVitto = model.rimborsoVitto;
   if (model.rimborsoAlloggio > 0) result.rimborsoAlloggio = model.rimborsoAlloggio;
   if (model.rimborsoViaggio > 0) result.rimborsoViaggio = model.rimborsoViaggio;
@@ -473,9 +475,9 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
 
   return {
     ral: model.ral,
-    mensilita: model.mensilita,
+    mensilita: Number(model.mensilita) as 12 | 13 | 14 | 15,
     tipoContratto: model.tipoContratto,
-    annoFiscale: model.annoFiscale,
+    annoFiscale: Number(model.annoFiscale) as AnnoFiscale,
     regione: model.regione.toUpperCase(),
     comune: model.comune.toUpperCase(),
 

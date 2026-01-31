@@ -144,11 +144,7 @@
 
       <div class="form-group">
         <label for="coniugePercentuale">Percentuale a carico (%)</label>
-        <input
-          id="coniugePercentuale"
-          type="number"
-          [formField]="form.coniuge.percentualeCarico"
-        />
+        <input id="coniugePercentuale" type="number" [formField]="form.coniuge.percentualeCarico" />
       </div>
     }
   </fieldset>
@@ -168,11 +164,7 @@
 
         <div class="form-group">
           <label [for]="'figlioEta' + $index">Età</label>
-          <input
-            [id]="'figlioEta' + $index"
-            type="number"
-            [formField]="form.figli[$index].eta"
-          />
+          <input [id]="'figlioEta' + $index" type="number" [formField]="form.figli[$index].eta" />
         </div>
 
         <div class="form-group checkbox">
@@ -379,7 +371,6 @@
       <div class="form-group">
         <label for="modalitaRimborso">Modalità rimborso</label>
         <select id="modalitaRimborso" [formField]="form.rimborsiTrasferta.modalitaRimborso">
-          <option [value]="null">-- Seleziona --</option>
           @for (modalita of modalitaRimborso; track modalita.value) {
             <option [value]="modalita.value">{{ modalita.label }}</option>
           }
