@@ -1,13 +1,13 @@
-<form class="form-container">
+<form class="flex flex-col gap-4">
   @let form = stipendioForm();
   @let model = formModel()();
 
   <!-- Sezione Dati Principali -->
-  <fieldset>
-    <legend>Dati Principali</legend>
+  <fieldset class="bg-white border border-stone-200 rounded-lg p-5">
+    <legend class="px-2 text-sm font-semibold text-stone-800">Dati Principali</legend>
 
-    <div class="form-group">
-      <label for="ral">RAL (Reddito Annuo Lordo) *</label>
+    <div class="flex flex-col gap-1 mb-4">
+      <label for="ral" class="text-sm text-stone-600">RAL (Reddito Annuo Lordo) *</label>
       <input
         id="ral"
         type="number"
@@ -16,22 +16,28 @@
         aria-required="true"
         [attr.aria-invalid]="form.ral().invalid()"
         [attr.aria-describedby]="form.ral().invalid() ? 'ral-error' : null"
+        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+               focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+               aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
       />
       @if (form.ral().invalid()) {
         @for (error of form.ral().errors(); track error.kind) {
-          <span id="ral-error" class="error-message" role="alert">{{ error.message }}</span>
+          <span id="ral-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
         }
       }
     </div>
 
-    <div class="form-group">
-      <label for="mensilita">Mensilità *</label>
+    <div class="flex flex-col gap-1 mb-4">
+      <label for="mensilita" class="text-sm text-stone-600">Mensilità *</label>
       <select
         id="mensilita"
         [formField]="form.mensilita"
         aria-required="true"
         [attr.aria-invalid]="form.mensilita().invalid()"
         [attr.aria-describedby]="form.mensilita().invalid() ? 'mensilita-error' : null"
+        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+               focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+               aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
       >
         @for (m of mensilita; track m) {
           <option [value]="m">{{ m }}</option>
@@ -39,37 +45,52 @@
       </select>
       @if (form.mensilita().invalid()) {
         @for (error of form.mensilita().errors(); track error.kind) {
-          <span id="mensilita-error" class="error-message" role="alert">{{ error.message }}</span>
+          <span id="mensilita-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
         }
       }
     </div>
 
-    <div class="form-group">
-      <label for="tipoContratto">Tipo Contratto *</label>
-      <select id="tipoContratto" [formField]="form.tipoContratto" aria-required="true">
+    <div class="flex flex-col gap-1 mb-4">
+      <label for="tipoContratto" class="text-sm text-stone-600">Tipo Contratto *</label>
+      <select
+        id="tipoContratto"
+        [formField]="form.tipoContratto"
+        aria-required="true"
+        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+               focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent"
+      >
         @for (tipo of tipiContratto; track tipo.value) {
           <option [value]="tipo.value">{{ tipo.label }}</option>
         }
       </select>
     </div>
 
-    <div class="form-group">
-      <label for="annoFiscale">Anno Fiscale *</label>
-      <select id="annoFiscale" [formField]="form.annoFiscale" aria-required="true">
+    <div class="flex flex-col gap-1 mb-4">
+      <label for="annoFiscale" class="text-sm text-stone-600">Anno Fiscale *</label>
+      <select
+        id="annoFiscale"
+        [formField]="form.annoFiscale"
+        aria-required="true"
+        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+               focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent"
+      >
         @for (anno of anniFiscali; track anno) {
           <option [value]="anno">{{ anno }}</option>
         }
       </select>
     </div>
 
-    <div class="form-group">
-      <label for="regione">Regione *</label>
+    <div class="flex flex-col gap-1 mb-4">
+      <label for="regione" class="text-sm text-stone-600">Regione *</label>
       <select
         id="regione"
         [formField]="form.regione"
         aria-required="true"
         [attr.aria-invalid]="form.regione().invalid()"
         [attr.aria-describedby]="form.regione().invalid() ? 'regione-error' : null"
+        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+               focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+               aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
       >
         @for (regione of regioniDisponibili; track regione.value) {
           <option [value]="regione.value">{{ regione.label }}</option>
@@ -77,19 +98,22 @@
       </select>
       @if (form.regione().invalid()) {
         @for (error of form.regione().errors(); track error.kind) {
-          <span id="regione-error" class="error-message" role="alert">{{ error.message }}</span>
+          <span id="regione-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
         }
       }
     </div>
 
-    <div class="form-group">
-      <label for="comune">Comune *</label>
+    <div class="flex flex-col gap-1">
+      <label for="comune" class="text-sm text-stone-600">Comune *</label>
       <select
         id="comune"
         [formField]="form.comune"
         aria-required="true"
         [attr.aria-invalid]="form.comune().invalid()"
         [attr.aria-describedby]="form.comune().invalid() ? 'comune-error' : null"
+        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+               focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+               aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
       >
         @for (comune of comuniDisponibili; track comune.value) {
           <option [value]="comune.value">{{ comune.label }}</option>
@@ -97,18 +121,18 @@
       </select>
       @if (form.comune().invalid()) {
         @for (error of form.comune().errors(); track error.kind) {
-          <span id="comune-error" class="error-message" role="alert">{{ error.message }}</span>
+          <span id="comune-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
         }
       }
     </div>
   </fieldset>
 
   <!-- Sezione Opzioni Contrattuali -->
-  <fieldset>
-    <legend>Opzioni Contrattuali</legend>
+  <fieldset class="bg-white border border-stone-200 rounded-lg p-5">
+    <legend class="px-2 text-sm font-semibold text-stone-800">Opzioni Contrattuali</legend>
 
-    <div class="form-group">
-      <label for="giorniLavorati">Giorni Lavorati (opzionale)</label>
+    <div class="flex flex-col gap-1 mb-4">
+      <label for="giorniLavorati" class="text-sm text-stone-600">Giorni Lavorati (opzionale)</label>
       <input
         id="giorniLavorati"
         type="number"
@@ -116,42 +140,54 @@
         placeholder="Default: 365"
         [attr.aria-invalid]="form.giorniLavorati().invalid()"
         [attr.aria-describedby]="form.giorniLavorati().invalid() ? 'giorniLavorati-error' : null"
+        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+               focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+               aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
       />
       @if (form.giorniLavorati().invalid()) {
         @for (error of form.giorniLavorati().errors(); track error.kind) {
-          <span id="giorniLavorati-error" class="error-message" role="alert">{{
-            error.message
-          }}</span>
+          <span id="giorniLavorati-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
         }
       }
     </div>
 
-    <div class="form-group checkbox">
-      <input id="aziendaConCigs" type="checkbox" [formField]="form.aziendaConCigs" />
-      <label for="aziendaConCigs">Azienda con più di 15 dipendenti (CIGS)</label>
+    <div class="flex items-center gap-2 mb-3">
+      <input
+        id="aziendaConCigs"
+        type="checkbox"
+        [formField]="form.aziendaConCigs"
+        class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
+      />
+      <label for="aziendaConCigs" class="text-sm text-stone-600">Azienda con più di 15 dipendenti (CIGS)</label>
     </div>
 
-    <div class="form-group checkbox">
-      <input id="iscrittoPost1996" type="checkbox" [formField]="form.iscrittoPost1996" />
-      <label for="iscrittoPost1996">Iscritto alla previdenza dal 1996 in poi</label>
+    <div class="flex items-center gap-2 mb-3">
+      <input
+        id="iscrittoPost1996"
+        type="checkbox"
+        [formField]="form.iscrittoPost1996"
+        class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
+      />
+      <label for="iscrittoPost1996" class="text-sm text-stone-600">Iscritto alla previdenza dal 1996 in poi</label>
     </div>
 
-    <div class="form-group checkbox">
+    <div class="flex items-center gap-2">
       <input
         id="neoassuntoFuoriSede2025"
         type="checkbox"
         [formField]="form.neoassuntoFuoriSede2025"
+        class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
       />
-      <label for="neoassuntoFuoriSede2025">Neoassunto 2025 fuori sede (>100km)</label>
+      <label for="neoassuntoFuoriSede2025" class="text-sm text-stone-600">Neoassunto 2025 fuori sede (>100km)</label>
     </div>
   </fieldset>
 
   <!-- Sezione Altri Redditi e Detrazioni -->
-  <fieldset>
-    <legend>Altri Redditi e Detrazioni</legend>
+  <fieldset class="bg-white border border-stone-200 rounded-lg p-5">
+    <legend class="px-2 text-sm font-semibold text-stone-800">Altri Redditi e Detrazioni</legend>
 
-    <div class="form-group">
-      <label for="altriRedditi">Altri Redditi (€/anno)</label>
+    <div class="flex flex-col gap-1 mb-4">
+      <label for="altriRedditi" class="text-sm text-stone-600">Altri Redditi (€/anno)</label>
       <input
         id="altriRedditi"
         type="number"
@@ -159,18 +195,19 @@
         placeholder="Es. redditi fondiari"
         [attr.aria-invalid]="form.altriRedditi().invalid()"
         [attr.aria-describedby]="form.altriRedditi().invalid() ? 'altriRedditi-error' : null"
+        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+               focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+               aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
       />
       @if (form.altriRedditi().invalid()) {
         @for (error of form.altriRedditi().errors(); track error.kind) {
-          <span id="altriRedditi-error" class="error-message" role="alert">{{
-            error.message
-          }}</span>
+          <span id="altriRedditi-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
         }
       }
     </div>
 
-    <div class="form-group">
-      <label for="altreDetrazioni">Altre Detrazioni (€/anno)</label>
+    <div class="flex flex-col gap-1">
+      <label for="altreDetrazioni" class="text-sm text-stone-600">Altre Detrazioni (€/anno)</label>
       <input
         id="altreDetrazioni"
         type="number"
@@ -178,64 +215,69 @@
         placeholder="Es. interessi mutuo"
         [attr.aria-invalid]="form.altreDetrazioni().invalid()"
         [attr.aria-describedby]="form.altreDetrazioni().invalid() ? 'altreDetrazioni-error' : null"
+        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+               focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+               aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
       />
       @if (form.altreDetrazioni().invalid()) {
         @for (error of form.altreDetrazioni().errors(); track error.kind) {
-          <span id="altreDetrazioni-error" class="error-message" role="alert">{{
-            error.message
-          }}</span>
+          <span id="altreDetrazioni-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
         }
       }
     </div>
   </fieldset>
 
   <!-- Sezione Coniuge a Carico -->
-  <fieldset>
-    <legend>Coniuge a Carico</legend>
+  <fieldset class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200"
+            [class.opacity-60]="!model.coniuge.enabled">
+    <legend class="px-2 text-sm font-semibold text-stone-800">Coniuge a Carico</legend>
 
-    <div class="form-group checkbox">
-      <input id="coniugeEnabled" type="checkbox" [formField]="form.coniuge.enabled" />
-      <label for="coniugeEnabled">Ho un coniuge a carico</label>
+    <div class="flex items-center gap-2 mb-4">
+      <input
+        id="coniugeEnabled"
+        type="checkbox"
+        [formField]="form.coniuge.enabled"
+        class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
+      />
+      <label for="coniugeEnabled" class="text-sm text-stone-700 font-medium">Ho un coniuge a carico</label>
     </div>
 
     @if (model.coniuge.enabled) {
-      <div class="form-group">
-        <label for="coniugeReddito">Reddito annuo coniuge (€)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="coniugeReddito" class="text-sm text-stone-600">Reddito annuo coniuge (€)</label>
         <input
           id="coniugeReddito"
           type="number"
           [formField]="form.coniuge.redditoAnnuo"
           placeholder="Max €2.840,51 per detrazione"
           [attr.aria-invalid]="form.coniuge.redditoAnnuo().invalid()"
-          [attr.aria-describedby]="
-            form.coniuge.redditoAnnuo().invalid() ? 'coniugeReddito-error' : null
-          "
+          [attr.aria-describedby]="form.coniuge.redditoAnnuo().invalid() ? 'coniugeReddito-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.coniuge.redditoAnnuo().invalid()) {
           @for (error of form.coniuge.redditoAnnuo().errors(); track error.kind) {
-            <span id="coniugeReddito-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="coniugeReddito-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="coniugePercentuale">Percentuale a carico (%)</label>
+      <div class="flex flex-col gap-1">
+        <label for="coniugePercentuale" class="text-sm text-stone-600">Percentuale a carico (%)</label>
         <input
           id="coniugePercentuale"
           type="number"
           [formField]="form.coniuge.percentualeCarico"
           [attr.aria-invalid]="form.coniuge.percentualeCarico().invalid()"
-          [attr.aria-describedby]="
-            form.coniuge.percentualeCarico().invalid() ? 'coniugePercentuale-error' : null
-          "
+          [attr.aria-describedby]="form.coniuge.percentualeCarico().invalid() ? 'coniugePercentuale-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.coniuge.percentualeCarico().invalid()) {
           @for (error of form.coniuge.percentualeCarico().errors(); track error.kind) {
-            <span id="coniugePercentuale-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="coniugePercentuale-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
@@ -243,302 +285,325 @@
   </fieldset>
 
   <!-- Sezione Figli a Carico -->
-  <fieldset>
-    <legend>Figli a Carico</legend>
+  <fieldset class="bg-white border border-stone-200 rounded-lg p-5">
+    <legend class="px-2 text-sm font-semibold text-stone-800">Figli a Carico</legend>
 
-    <div class="form-group checkbox">
-      <input id="haFigliACarico" type="checkbox" [formField]="form.haFigliACarico" />
-      <label for="haFigliACarico">Ho figli a carico (per soglia fringe benefit)</label>
+    <div class="flex items-center gap-2 mb-4">
+      <input
+        id="haFigliACarico"
+        type="checkbox"
+        [formField]="form.haFigliACarico"
+        class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
+      />
+      <label for="haFigliACarico" class="text-sm text-stone-600">Ho figli a carico (per soglia fringe benefit)</label>
     </div>
 
     @for (figlio of model.figli; track $index) {
-      <div class="nested-item">
-        <h4>Figlio {{ $index + 1 }}</h4>
+      <div class="border border-dashed border-stone-300 rounded-md p-4 mb-3 bg-stone-50/50">
+        <h4 class="text-sm font-semibold text-stone-700 mb-3">Figlio {{ $index + 1 }}</h4>
 
-        <div class="form-group">
-          <label [for]="'figlioEta' + $index">Età</label>
+        <div class="flex flex-col gap-1 mb-3">
+          <label [for]="'figlioEta' + $index" class="text-sm text-stone-600">Età</label>
           <input
             [id]="'figlioEta' + $index"
             type="number"
             [formField]="form.figli[$index].eta"
             [attr.aria-invalid]="form.figli[$index].eta().invalid()"
-            [attr.aria-describedby]="
-              form.figli[$index].eta().invalid() ? 'figlioEta' + $index + '-error' : null
-            "
+            [attr.aria-describedby]="form.figli[$index].eta().invalid() ? 'figlioEta' + $index + '-error' : null"
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+                   focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                   aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
           />
           @if (form.figli[$index].eta().invalid()) {
             @for (error of form.figli[$index].eta().errors(); track error.kind) {
-              <span [id]="'figlioEta' + $index + '-error'" class="error-message" role="alert">{{
-                error.message
-              }}</span>
+              <span [id]="'figlioEta' + $index + '-error'" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
             }
           }
         </div>
 
-        <div class="form-group checkbox">
+        <div class="flex items-center gap-2 mb-3">
           <input
             [id]="'figlioDisabile' + $index"
             type="checkbox"
             [formField]="form.figli[$index].disabile"
+            class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
           />
-          <label [for]="'figlioDisabile' + $index">Disabile</label>
+          <label [for]="'figlioDisabile' + $index" class="text-sm text-stone-600">Disabile</label>
         </div>
 
-        <div class="form-group">
-          <label [for]="'figlioPercentuale' + $index">Percentuale a carico (%)</label>
+        <div class="flex flex-col gap-1 mb-3">
+          <label [for]="'figlioPercentuale' + $index" class="text-sm text-stone-600">Percentuale a carico (%)</label>
           <input
             [id]="'figlioPercentuale' + $index"
             type="number"
             [formField]="form.figli[$index].percentualeCarico"
             [attr.aria-invalid]="form.figli[$index].percentualeCarico().invalid()"
-            [attr.aria-describedby]="
-              form.figli[$index].percentualeCarico().invalid()
-                ? 'figlioPercentuale' + $index + '-error'
-                : null
-            "
+            [attr.aria-describedby]="form.figli[$index].percentualeCarico().invalid() ? 'figlioPercentuale' + $index + '-error' : null"
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+                   focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                   aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
           />
           @if (form.figli[$index].percentualeCarico().invalid()) {
             @for (error of form.figli[$index].percentualeCarico().errors(); track error.kind) {
-              <span
-                [id]="'figlioPercentuale' + $index + '-error'"
-                class="error-message"
-                role="alert"
-                >{{ error.message }}</span
-              >
+              <span [id]="'figlioPercentuale' + $index + '-error'" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
             }
           }
         </div>
 
-        <button type="button" (click)="removeFiglio($index)">Rimuovi figlio</button>
+        <button
+          type="button"
+          (click)="removeFiglio($index)"
+          class="px-3 py-1.5 text-sm border border-stone-300 rounded-md bg-white text-stone-700
+                 hover:bg-stone-100 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:ring-offset-1
+                 transition-colors"
+        >
+          Rimuovi figlio
+        </button>
       </div>
     }
 
-    <button type="button" (click)="addFiglio()">Aggiungi figlio</button>
+    <button
+      type="button"
+      (click)="addFiglio()"
+      class="px-4 py-2 text-sm font-medium border border-stone-900 rounded-md bg-stone-900 text-white
+             hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:ring-offset-2
+             transition-colors"
+    >
+      Aggiungi figlio
+    </button>
   </fieldset>
 
   <!-- Sezione Ascendenti a Carico -->
-  <fieldset>
-    <legend>Ascendenti a Carico (genitori/nonni)</legend>
+  <fieldset class="bg-white border border-stone-200 rounded-lg p-5">
+    <legend class="px-2 text-sm font-semibold text-stone-800">Ascendenti a Carico (genitori/nonni)</legend>
 
     @for (ascendente of model.ascendenti; track $index) {
-      <div class="nested-item">
-        <h4>Ascendente {{ $index + 1 }}</h4>
+      <div class="border border-dashed border-stone-300 rounded-md p-4 mb-3 bg-stone-50/50">
+        <h4 class="text-sm font-semibold text-stone-700 mb-3">Ascendente {{ $index + 1 }}</h4>
 
-        <div class="form-group">
-          <label [for]="'ascendenteReddito' + $index">Reddito annuo (€)</label>
+        <div class="flex flex-col gap-1 mb-3">
+          <label [for]="'ascendenteReddito' + $index" class="text-sm text-stone-600">Reddito annuo (€)</label>
           <input
             [id]="'ascendenteReddito' + $index"
             type="number"
             [formField]="form.ascendenti[$index].redditoAnnuo"
             [attr.aria-invalid]="form.ascendenti[$index].redditoAnnuo().invalid()"
-            [attr.aria-describedby]="
-              form.ascendenti[$index].redditoAnnuo().invalid()
-                ? 'ascendenteReddito' + $index + '-error'
-                : null
-            "
+            [attr.aria-describedby]="form.ascendenti[$index].redditoAnnuo().invalid() ? 'ascendenteReddito' + $index + '-error' : null"
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+                   focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                   aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
           />
           @if (form.ascendenti[$index].redditoAnnuo().invalid()) {
             @for (error of form.ascendenti[$index].redditoAnnuo().errors(); track error.kind) {
-              <span
-                [id]="'ascendenteReddito' + $index + '-error'"
-                class="error-message"
-                role="alert"
-                >{{ error.message }}</span
-              >
+              <span [id]="'ascendenteReddito' + $index + '-error'" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
             }
           }
         </div>
 
-        <div class="form-group checkbox">
+        <div class="flex items-center gap-2 mb-3">
           <input
             [id]="'ascendenteConvivente' + $index"
             type="checkbox"
             [formField]="form.ascendenti[$index].convivente"
+            class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
           />
-          <label [for]="'ascendenteConvivente' + $index">Convivente</label>
+          <label [for]="'ascendenteConvivente' + $index" class="text-sm text-stone-600">Convivente</label>
         </div>
 
-        <button type="button" (click)="removeAscendente($index)">Rimuovi ascendente</button>
+        <button
+          type="button"
+          (click)="removeAscendente($index)"
+          class="px-3 py-1.5 text-sm border border-stone-300 rounded-md bg-white text-stone-700
+                 hover:bg-stone-100 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:ring-offset-1
+                 transition-colors"
+        >
+          Rimuovi ascendente
+        </button>
       </div>
     }
 
-    <button type="button" (click)="addAscendente()">Aggiungi ascendente</button>
+    <button
+      type="button"
+      (click)="addAscendente()"
+      class="px-4 py-2 text-sm font-medium border border-stone-900 rounded-md bg-stone-900 text-white
+             hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:ring-offset-2
+             transition-colors"
+    >
+      Aggiungi ascendente
+    </button>
   </fieldset>
 
   <!-- Sezione Fringe Benefit -->
-  <fieldset>
-    <legend>Fringe Benefit</legend>
+  <fieldset class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200"
+            [class.opacity-60]="!model.fringeBenefit.enabled">
+    <legend class="px-2 text-sm font-semibold text-stone-800">Fringe Benefit</legend>
 
-    <div class="form-group checkbox">
-      <input id="fringeBenefitEnabled" type="checkbox" [formField]="form.fringeBenefit.enabled" />
-      <label for="fringeBenefitEnabled">Ho fringe benefit</label>
+    <div class="flex items-center gap-2 mb-4">
+      <input
+        id="fringeBenefitEnabled"
+        type="checkbox"
+        [formField]="form.fringeBenefit.enabled"
+        class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
+      />
+      <label for="fringeBenefitEnabled" class="text-sm text-stone-700 font-medium">Ho fringe benefit</label>
     </div>
 
     @if (model.fringeBenefit.enabled) {
-      <div class="form-group">
-        <label for="buoniAcquisto">Buoni acquisto/spesa (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="buoniAcquisto" class="text-sm text-stone-600">Buoni acquisto/spesa (€/anno)</label>
         <input
           id="buoniAcquisto"
           type="number"
           [formField]="form.fringeBenefit.buoniAcquisto"
           [attr.aria-invalid]="form.fringeBenefit.buoniAcquisto().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.buoniAcquisto().invalid() ? 'buoniAcquisto-error' : null
-          "
+          [attr.aria-describedby]="form.fringeBenefit.buoniAcquisto().invalid() ? 'buoniAcquisto-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.fringeBenefit.buoniAcquisto().invalid()) {
           @for (error of form.fringeBenefit.buoniAcquisto().errors(); track error.kind) {
-            <span id="buoniAcquisto-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="buoniAcquisto-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="buoniCarburante">Buoni carburante (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="buoniCarburante" class="text-sm text-stone-600">Buoni carburante (€/anno)</label>
         <input
           id="buoniCarburante"
           type="number"
           [formField]="form.fringeBenefit.buoniCarburante"
           [attr.aria-invalid]="form.fringeBenefit.buoniCarburante().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.buoniCarburante().invalid() ? 'buoniCarburante-error' : null
-          "
+          [attr.aria-describedby]="form.fringeBenefit.buoniCarburante().invalid() ? 'buoniCarburante-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.fringeBenefit.buoniCarburante().invalid()) {
           @for (error of form.fringeBenefit.buoniCarburante().errors(); track error.kind) {
-            <span id="buoniCarburante-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="buoniCarburante-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="rimborsoUtenze">Rimborso utenze domestiche (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="rimborsoUtenze" class="text-sm text-stone-600">Rimborso utenze domestiche (€/anno)</label>
         <input
           id="rimborsoUtenze"
           type="number"
           [formField]="form.fringeBenefit.rimborsoUtenze"
           [attr.aria-invalid]="form.fringeBenefit.rimborsoUtenze().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.rimborsoUtenze().invalid() ? 'rimborsoUtenze-error' : null
-          "
+          [attr.aria-describedby]="form.fringeBenefit.rimborsoUtenze().invalid() ? 'rimborsoUtenze-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.fringeBenefit.rimborsoUtenze().invalid()) {
           @for (error of form.fringeBenefit.rimborsoUtenze().errors(); track error.kind) {
-            <span id="rimborsoUtenze-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="rimborsoUtenze-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="rimborsoAffitto">Rimborso affitto prima casa (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="rimborsoAffitto" class="text-sm text-stone-600">Rimborso affitto prima casa (€/anno)</label>
         <input
           id="rimborsoAffitto"
           type="number"
           [formField]="form.fringeBenefit.rimborsoAffitto"
           [attr.aria-invalid]="form.fringeBenefit.rimborsoAffitto().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.rimborsoAffitto().invalid() ? 'rimborsoAffitto-error' : null
-          "
+          [attr.aria-describedby]="form.fringeBenefit.rimborsoAffitto().invalid() ? 'rimborsoAffitto-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.fringeBenefit.rimborsoAffitto().invalid()) {
           @for (error of form.fringeBenefit.rimborsoAffitto().errors(); track error.kind) {
-            <span id="rimborsoAffitto-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="rimborsoAffitto-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="rimborsoInteressiMutuo">Rimborso interessi mutuo (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="rimborsoInteressiMutuo" class="text-sm text-stone-600">Rimborso interessi mutuo (€/anno)</label>
         <input
           id="rimborsoInteressiMutuo"
           type="number"
           [formField]="form.fringeBenefit.rimborsoInteressiMutuo"
           [attr.aria-invalid]="form.fringeBenefit.rimborsoInteressiMutuo().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.rimborsoInteressiMutuo().invalid()
-              ? 'rimborsoInteressiMutuo-error'
-              : null
-          "
+          [attr.aria-describedby]="form.fringeBenefit.rimborsoInteressiMutuo().invalid() ? 'rimborsoInteressiMutuo-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.fringeBenefit.rimborsoInteressiMutuo().invalid()) {
           @for (error of form.fringeBenefit.rimborsoInteressiMutuo().errors(); track error.kind) {
-            <span id="rimborsoInteressiMutuo-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="rimborsoInteressiMutuo-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="fringeBenefitAltri">Altri fringe benefit (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="fringeBenefitAltri" class="text-sm text-stone-600">Altri fringe benefit (€/anno)</label>
         <input
           id="fringeBenefitAltri"
           type="number"
           [formField]="form.fringeBenefit.altri"
           [attr.aria-invalid]="form.fringeBenefit.altri().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.altri().invalid() ? 'fringeBenefitAltri-error' : null
-          "
+          [attr.aria-describedby]="form.fringeBenefit.altri().invalid() ? 'fringeBenefitAltri-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.fringeBenefit.altri().invalid()) {
           @for (error of form.fringeBenefit.altri().errors(); track error.kind) {
-            <span id="fringeBenefitAltri-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="fringeBenefitAltri-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
       <!-- Auto Aziendale -->
-      <div class="form-group checkbox">
+      <div class="flex items-center gap-2 mb-4">
         <input
           id="autoAziendaleEnabled"
           type="checkbox"
           [formField]="form.fringeBenefit.autoAziendaleEnabled"
+          class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
         />
-        <label for="autoAziendaleEnabled">Ho auto aziendale</label>
+        <label for="autoAziendaleEnabled" class="text-sm text-stone-700 font-medium">Ho auto aziendale</label>
       </div>
 
       @if (model.fringeBenefit.autoAziendaleEnabled) {
-        <div class="nested-item">
-          <h4>Auto Aziendale</h4>
+        <div class="border border-dashed border-stone-300 rounded-md p-4 bg-stone-50/50">
+          <h4 class="text-sm font-semibold text-stone-700 mb-3">Auto Aziendale</h4>
 
-          <div class="form-group">
-            <label for="costoKmAci">Costo km ACI (€/km)</label>
+          <div class="flex flex-col gap-1 mb-3">
+            <label for="costoKmAci" class="text-sm text-stone-600">Costo km ACI (€/km)</label>
             <input
               id="costoKmAci"
               type="number"
               [formField]="form.fringeBenefit.autoAziendale.costoKmAci"
               [attr.aria-invalid]="form.fringeBenefit.autoAziendale.costoKmAci().invalid()"
-              [attr.aria-describedby]="
-                form.fringeBenefit.autoAziendale.costoKmAci().invalid() ? 'costoKmAci-error' : null
-              "
+              [attr.aria-describedby]="form.fringeBenefit.autoAziendale.costoKmAci().invalid() ? 'costoKmAci-error' : null"
+              class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+                     focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                     aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
             />
             @if (form.fringeBenefit.autoAziendale.costoKmAci().invalid()) {
-              @for (
-                error of form.fringeBenefit.autoAziendale.costoKmAci().errors();
-                track error.kind
-              ) {
-                <span id="costoKmAci-error" class="error-message" role="alert">{{
-                  error.message
-                }}</span>
+              @for (error of form.fringeBenefit.autoAziendale.costoKmAci().errors(); track error.kind) {
+                <span id="costoKmAci-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
               }
             }
           </div>
 
-          <div class="form-group">
-            <label for="tipoAlimentazione">Tipo alimentazione</label>
+          <div class="flex flex-col gap-1 mb-3">
+            <label for="tipoAlimentazione" class="text-sm text-stone-600">Tipo alimentazione</label>
             <select
               id="tipoAlimentazione"
               [formField]="form.fringeBenefit.autoAziendale.tipoAlimentazione"
+              class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+                     focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent"
             >
               @for (tipo of tipiAlimentazione; track tipo.value) {
                 <option [value]="tipo.value">{{ tipo.label }}</option>
@@ -546,89 +611,70 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label for="mesiUtilizzo">Mesi di utilizzo</label>
+          <div class="flex flex-col gap-1 mb-3">
+            <label for="mesiUtilizzo" class="text-sm text-stone-600">Mesi di utilizzo</label>
             <input
               id="mesiUtilizzo"
               type="number"
               [formField]="form.fringeBenefit.autoAziendale.mesiUtilizzo"
               [attr.aria-invalid]="form.fringeBenefit.autoAziendale.mesiUtilizzo().invalid()"
-              [attr.aria-describedby]="
-                form.fringeBenefit.autoAziendale.mesiUtilizzo().invalid()
-                  ? 'mesiUtilizzo-error'
-                  : null
-              "
+              [attr.aria-describedby]="form.fringeBenefit.autoAziendale.mesiUtilizzo().invalid() ? 'mesiUtilizzo-error' : null"
+              class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+                     focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                     aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
             />
             @if (form.fringeBenefit.autoAziendale.mesiUtilizzo().invalid()) {
-              @for (
-                error of form.fringeBenefit.autoAziendale.mesiUtilizzo().errors();
-                track error.kind
-              ) {
-                <span id="mesiUtilizzo-error" class="error-message" role="alert">{{
-                  error.message
-                }}</span>
+              @for (error of form.fringeBenefit.autoAziendale.mesiUtilizzo().errors(); track error.kind) {
+                <span id="mesiUtilizzo-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
               }
             }
           </div>
 
-          <div class="form-group">
-            <label for="trattenutaDipendente">Trattenuta dipendente (€/anno)</label>
+          <div class="flex flex-col gap-1 mb-3">
+            <label for="trattenutaDipendente" class="text-sm text-stone-600">Trattenuta dipendente (€/anno)</label>
             <input
               id="trattenutaDipendente"
               type="number"
               [formField]="form.fringeBenefit.autoAziendale.trattenutaDipendente"
-              [attr.aria-invalid]="
-                form.fringeBenefit.autoAziendale.trattenutaDipendente().invalid()
-              "
-              [attr.aria-describedby]="
-                form.fringeBenefit.autoAziendale.trattenutaDipendente().invalid()
-                  ? 'trattenutaDipendente-error'
-                  : null
-              "
+              [attr.aria-invalid]="form.fringeBenefit.autoAziendale.trattenutaDipendente().invalid()"
+              [attr.aria-describedby]="form.fringeBenefit.autoAziendale.trattenutaDipendente().invalid() ? 'trattenutaDipendente-error' : null"
+              class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+                     focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                     aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
             />
             @if (form.fringeBenefit.autoAziendale.trattenutaDipendente().invalid()) {
-              @for (
-                error of form.fringeBenefit.autoAziendale.trattenutaDipendente().errors();
-                track error.kind
-              ) {
-                <span id="trattenutaDipendente-error" class="error-message" role="alert">{{
-                  error.message
-                }}</span>
+              @for (error of form.fringeBenefit.autoAziendale.trattenutaDipendente().errors(); track error.kind) {
+                <span id="trattenutaDipendente-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
               }
             }
           </div>
 
-          <div class="form-group checkbox">
+          <div class="flex items-center gap-2 mb-3">
             <input
               id="assegnatoPre2025"
               type="checkbox"
               [formField]="form.fringeBenefit.autoAziendale.assegnatoPre2025"
+              class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
             />
-            <label for="assegnatoPre2025">Assegnato prima del 2025 (regime CO2)</label>
+            <label for="assegnatoPre2025" class="text-sm text-stone-600">Assegnato prima del 2025 (regime CO2)</label>
           </div>
 
           @if (model.fringeBenefit.autoAziendale.assegnatoPre2025) {
-            <div class="form-group">
-              <label for="emissioniCO2">Emissioni CO2 (g/km)</label>
+            <div class="flex flex-col gap-1">
+              <label for="emissioniCO2" class="text-sm text-stone-600">Emissioni CO2 (g/km)</label>
               <input
                 id="emissioniCO2"
                 type="number"
                 [formField]="form.fringeBenefit.autoAziendale.emissioniCO2"
                 [attr.aria-invalid]="form.fringeBenefit.autoAziendale.emissioniCO2().invalid()"
-                [attr.aria-describedby]="
-                  form.fringeBenefit.autoAziendale.emissioniCO2().invalid()
-                    ? 'emissioniCO2-error'
-                    : null
-                "
+                [attr.aria-describedby]="form.fringeBenefit.autoAziendale.emissioniCO2().invalid() ? 'emissioniCO2-error' : null"
+                class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+                       focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                       aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
               />
               @if (form.fringeBenefit.autoAziendale.emissioniCO2().invalid()) {
-                @for (
-                  error of form.fringeBenefit.autoAziendale.emissioniCO2().errors();
-                  track error.kind
-                ) {
-                  <span id="emissioniCO2-error" class="error-message" role="alert">{{
-                    error.message
-                  }}</span>
+                @for (error of form.fringeBenefit.autoAziendale.emissioniCO2().errors(); track error.kind) {
+                  <span id="emissioniCO2-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
                 }
               }
             </div>
@@ -639,320 +685,300 @@
   </fieldset>
 
   <!-- Sezione Rimborsi Trasferta -->
-  <fieldset>
-    <legend>Rimborsi Trasferta</legend>
+  <fieldset class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200"
+            [class.opacity-60]="!model.rimborsiTrasferta.enabled">
+    <legend class="px-2 text-sm font-semibold text-stone-800">Rimborsi Trasferta</legend>
 
-    <div class="form-group checkbox">
+    <div class="flex items-center gap-2 mb-4">
       <input
         id="rimborsiTrasfertaEnabled"
         type="checkbox"
         [formField]="form.rimborsiTrasferta.enabled"
+        class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
       />
-      <label for="rimborsiTrasfertaEnabled">Ho rimborsi trasferta</label>
+      <label for="rimborsiTrasfertaEnabled" class="text-sm text-stone-700 font-medium">Ho rimborsi trasferta</label>
     </div>
 
     @if (model.rimborsiTrasferta.enabled) {
-      <div class="form-group">
-        <label for="modalitaRimborso">Modalità rimborso</label>
-        <select id="modalitaRimborso" [formField]="form.rimborsiTrasferta.modalitaRimborso">
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="modalitaRimborso" class="text-sm text-stone-600">Modalità rimborso</label>
+        <select
+          id="modalitaRimborso"
+          [formField]="form.rimborsiTrasferta.modalitaRimborso"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent"
+        >
           @for (modalita of modalitaRimborso; track modalita.value) {
             <option [value]="modalita.value">{{ modalita.label }}</option>
           }
         </select>
       </div>
 
-      <div class="form-group">
-        <label for="giorniTrasfertaItalia">Giorni trasferta Italia</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="giorniTrasfertaItalia" class="text-sm text-stone-600">Giorni trasferta Italia</label>
         <input
           id="giorniTrasfertaItalia"
           type="number"
           [formField]="form.rimborsiTrasferta.giorniTrasfertaItalia"
           [attr.aria-invalid]="form.rimborsiTrasferta.giorniTrasfertaItalia().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.giorniTrasfertaItalia().invalid()
-              ? 'giorniTrasfertaItalia-error'
-              : null
-          "
+          [attr.aria-describedby]="form.rimborsiTrasferta.giorniTrasfertaItalia().invalid() ? 'giorniTrasfertaItalia-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.rimborsiTrasferta.giorniTrasfertaItalia().invalid()) {
-          @for (
-            error of form.rimborsiTrasferta.giorniTrasfertaItalia().errors();
-            track error.kind
-          ) {
-            <span id="giorniTrasfertaItalia-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+          @for (error of form.rimborsiTrasferta.giorniTrasfertaItalia().errors(); track error.kind) {
+            <span id="giorniTrasfertaItalia-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="giorniTrasfertaEstero">Giorni trasferta Estero</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="giorniTrasfertaEstero" class="text-sm text-stone-600">Giorni trasferta Estero</label>
         <input
           id="giorniTrasfertaEstero"
           type="number"
           [formField]="form.rimborsiTrasferta.giorniTrasfertaEstero"
           [attr.aria-invalid]="form.rimborsiTrasferta.giorniTrasfertaEstero().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.giorniTrasfertaEstero().invalid()
-              ? 'giorniTrasfertaEstero-error'
-              : null
-          "
+          [attr.aria-describedby]="form.rimborsiTrasferta.giorniTrasfertaEstero().invalid() ? 'giorniTrasfertaEstero-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.rimborsiTrasferta.giorniTrasfertaEstero().invalid()) {
-          @for (
-            error of form.rimborsiTrasferta.giorniTrasfertaEstero().errors();
-            track error.kind
-          ) {
-            <span id="giorniTrasfertaEstero-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+          @for (error of form.rimborsiTrasferta.giorniTrasfertaEstero().errors(); track error.kind) {
+            <span id="giorniTrasfertaEstero-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="rimborsoVitto">Rimborso vitto documentato (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="rimborsoVitto" class="text-sm text-stone-600">Rimborso vitto documentato (€/anno)</label>
         <input
           id="rimborsoVitto"
           type="number"
           [formField]="form.rimborsiTrasferta.rimborsoVitto"
           [attr.aria-invalid]="form.rimborsiTrasferta.rimborsoVitto().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.rimborsoVitto().invalid() ? 'rimborsoVitto-error' : null
-          "
+          [attr.aria-describedby]="form.rimborsiTrasferta.rimborsoVitto().invalid() ? 'rimborsoVitto-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.rimborsiTrasferta.rimborsoVitto().invalid()) {
           @for (error of form.rimborsiTrasferta.rimborsoVitto().errors(); track error.kind) {
-            <span id="rimborsoVitto-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="rimborsoVitto-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="rimborsoAlloggio">Rimborso alloggio documentato (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="rimborsoAlloggio" class="text-sm text-stone-600">Rimborso alloggio documentato (€/anno)</label>
         <input
           id="rimborsoAlloggio"
           type="number"
           [formField]="form.rimborsiTrasferta.rimborsoAlloggio"
           [attr.aria-invalid]="form.rimborsiTrasferta.rimborsoAlloggio().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.rimborsoAlloggio().invalid() ? 'rimborsoAlloggio-error' : null
-          "
+          [attr.aria-describedby]="form.rimborsiTrasferta.rimborsoAlloggio().invalid() ? 'rimborsoAlloggio-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.rimborsiTrasferta.rimborsoAlloggio().invalid()) {
           @for (error of form.rimborsiTrasferta.rimborsoAlloggio().errors(); track error.kind) {
-            <span id="rimborsoAlloggio-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="rimborsoAlloggio-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="rimborsoViaggio">Rimborso viaggio (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="rimborsoViaggio" class="text-sm text-stone-600">Rimborso viaggio (€/anno)</label>
         <input
           id="rimborsoViaggio"
           type="number"
           [formField]="form.rimborsiTrasferta.rimborsoViaggio"
           [attr.aria-invalid]="form.rimborsiTrasferta.rimborsoViaggio().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.rimborsoViaggio().invalid() ? 'rimborsoViaggio-error' : null
-          "
+          [attr.aria-describedby]="form.rimborsiTrasferta.rimborsoViaggio().invalid() ? 'rimborsoViaggio-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.rimborsiTrasferta.rimborsoViaggio().invalid()) {
           @for (error of form.rimborsiTrasferta.rimborsoViaggio().errors(); track error.kind) {
-            <span id="rimborsoViaggio-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="rimborsoViaggio-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="rimborsoKm">Rimborso chilometrico (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="rimborsoKm" class="text-sm text-stone-600">Rimborso chilometrico (€/anno)</label>
         <input
           id="rimborsoKm"
           type="number"
           [formField]="form.rimborsiTrasferta.rimborsoKm"
           [attr.aria-invalid]="form.rimborsiTrasferta.rimborsoKm().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.rimborsoKm().invalid() ? 'rimborsoKm-error' : null
-          "
+          [attr.aria-describedby]="form.rimborsiTrasferta.rimborsoKm().invalid() ? 'rimborsoKm-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.rimborsiTrasferta.rimborsoKm().invalid()) {
           @for (error of form.rimborsiTrasferta.rimborsoKm().errors(); track error.kind) {
-            <span id="rimborsoKm-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="rimborsoKm-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group checkbox">
+      <div class="flex items-center gap-2">
         <input
           id="pagamentiTracciabili"
           type="checkbox"
           [formField]="form.rimborsiTrasferta.pagamentiTracciabili"
+          class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
         />
-        <label for="pagamentiTracciabili">Pagamenti tracciabili</label>
+        <label for="pagamentiTracciabili" class="text-sm text-stone-600">Pagamenti tracciabili</label>
       </div>
     }
   </fieldset>
 
   <!-- Sezione Benefit Non Tassati (Welfare) -->
-  <fieldset>
-    <legend>Benefit Non Tassati (Welfare)</legend>
+  <fieldset class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200"
+            [class.opacity-60]="!model.benefitNonTassati.enabled">
+    <legend class="px-2 text-sm font-semibold text-stone-800">Benefit Non Tassati (Welfare)</legend>
 
-    <div class="form-group checkbox">
+    <div class="flex items-center gap-2 mb-4">
       <input
         id="benefitNonTassatiEnabled"
         type="checkbox"
         [formField]="form.benefitNonTassati.enabled"
+        class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
       />
-      <label for="benefitNonTassatiEnabled">Ho benefit non tassati</label>
+      <label for="benefitNonTassatiEnabled" class="text-sm text-stone-700 font-medium">Ho benefit non tassati</label>
     </div>
 
     @if (model.benefitNonTassati.enabled) {
-      <div class="form-group">
-        <label for="previdenzaComplementare">Previdenza complementare (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="previdenzaComplementare" class="text-sm text-stone-600">Previdenza complementare (€/anno)</label>
         <input
           id="previdenzaComplementare"
           type="number"
           [formField]="form.benefitNonTassati.previdenzaComplementare"
           placeholder="Max €5.164,57 esente"
           [attr.aria-invalid]="form.benefitNonTassati.previdenzaComplementare().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.previdenzaComplementare().invalid()
-              ? 'previdenzaComplementare-error'
-              : null
-          "
+          [attr.aria-describedby]="form.benefitNonTassati.previdenzaComplementare().invalid() ? 'previdenzaComplementare-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.benefitNonTassati.previdenzaComplementare().invalid()) {
-          @for (
-            error of form.benefitNonTassati.previdenzaComplementare().errors();
-            track error.kind
-          ) {
-            <span id="previdenzaComplementare-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+          @for (error of form.benefitNonTassati.previdenzaComplementare().errors(); track error.kind) {
+            <span id="previdenzaComplementare-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="assistenzaSanitaria">Assistenza sanitaria (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="assistenzaSanitaria" class="text-sm text-stone-600">Assistenza sanitaria (€/anno)</label>
         <input
           id="assistenzaSanitaria"
           type="number"
           [formField]="form.benefitNonTassati.assistenzaSanitaria"
           placeholder="Max €3.615,20 esente"
           [attr.aria-invalid]="form.benefitNonTassati.assistenzaSanitaria().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.assistenzaSanitaria().invalid()
-              ? 'assistenzaSanitaria-error'
-              : null
-          "
+          [attr.aria-describedby]="form.benefitNonTassati.assistenzaSanitaria().invalid() ? 'assistenzaSanitaria-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.benefitNonTassati.assistenzaSanitaria().invalid()) {
           @for (error of form.benefitNonTassati.assistenzaSanitaria().errors(); track error.kind) {
-            <span id="assistenzaSanitaria-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="assistenzaSanitaria-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="buoniPasto">Buoni pasto (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="buoniPasto" class="text-sm text-stone-600">Buoni pasto (€/anno)</label>
         <input
           id="buoniPasto"
           type="number"
           [formField]="form.benefitNonTassati.buoniPasto"
           [attr.aria-invalid]="form.benefitNonTassati.buoniPasto().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.buoniPasto().invalid() ? 'buoniPasto-error' : null
-          "
+          [attr.aria-describedby]="form.benefitNonTassati.buoniPasto().invalid() ? 'buoniPasto-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.benefitNonTassati.buoniPasto().invalid()) {
           @for (error of form.benefitNonTassati.buoniPasto().errors(); track error.kind) {
-            <span id="buoniPasto-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="buoniPasto-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group checkbox">
+      <div class="flex items-center gap-2 mb-4">
         <input
           id="buoniPastoElettronici"
           type="checkbox"
           [formField]="form.benefitNonTassati.buoniPastoElettronici"
+          class="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 focus:ring-offset-0"
         />
-        <label for="buoniPastoElettronici">Buoni pasto elettronici (soglia €8 invece di €4)</label>
+        <label for="buoniPastoElettronici" class="text-sm text-stone-600">Buoni pasto elettronici (soglia €8 invece di €4)</label>
       </div>
 
-      <div class="form-group">
-        <label for="abbonamentoTrasporto">Abbonamento trasporto pubblico (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="abbonamentoTrasporto" class="text-sm text-stone-600">Abbonamento trasporto pubblico (€/anno)</label>
         <input
           id="abbonamentoTrasporto"
           type="number"
           [formField]="form.benefitNonTassati.abbonamentoTrasporto"
           [attr.aria-invalid]="form.benefitNonTassati.abbonamentoTrasporto().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.abbonamentoTrasporto().invalid()
-              ? 'abbonamentoTrasporto-error'
-              : null
-          "
+          [attr.aria-describedby]="form.benefitNonTassati.abbonamentoTrasporto().invalid() ? 'abbonamentoTrasporto-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.benefitNonTassati.abbonamentoTrasporto().invalid()) {
           @for (error of form.benefitNonTassati.abbonamentoTrasporto().errors(); track error.kind) {
-            <span id="abbonamentoTrasporto-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="abbonamentoTrasporto-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="serviziWelfare">Servizi welfare (€/anno)</label>
+      <div class="flex flex-col gap-1 mb-4">
+        <label for="serviziWelfare" class="text-sm text-stone-600">Servizi welfare (€/anno)</label>
         <input
           id="serviziWelfare"
           type="number"
           [formField]="form.benefitNonTassati.serviziWelfare"
           placeholder="Asili, borse studio, ecc."
           [attr.aria-invalid]="form.benefitNonTassati.serviziWelfare().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.serviziWelfare().invalid() ? 'serviziWelfare-error' : null
-          "
+          [attr.aria-describedby]="form.benefitNonTassati.serviziWelfare().invalid() ? 'serviziWelfare-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.benefitNonTassati.serviziWelfare().invalid()) {
           @for (error of form.benefitNonTassati.serviziWelfare().errors(); track error.kind) {
-            <span id="serviziWelfare-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="serviziWelfare-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>
 
-      <div class="form-group">
-        <label for="benefitNonTassatiAltri">Altri benefit non tassati (€/anno)</label>
+      <div class="flex flex-col gap-1">
+        <label for="benefitNonTassatiAltri" class="text-sm text-stone-600">Altri benefit non tassati (€/anno)</label>
         <input
           id="benefitNonTassatiAltri"
           type="number"
           [formField]="form.benefitNonTassati.altri"
           [attr.aria-invalid]="form.benefitNonTassati.altri().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.altri().invalid() ? 'benefitNonTassatiAltri-error' : null
-          "
+          [attr.aria-describedby]="form.benefitNonTassati.altri().invalid() ? 'benefitNonTassatiAltri-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400
+                 focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent
+                 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500"
         />
         @if (form.benefitNonTassati.altri().invalid()) {
           @for (error of form.benefitNonTassati.altri().errors(); track error.kind) {
-            <span id="benefitNonTassatiAltri-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
+            <span id="benefitNonTassatiAltri-error" class="text-xs text-red-600 mt-1" role="alert">{{ error.message }}</span>
           }
         }
       </div>

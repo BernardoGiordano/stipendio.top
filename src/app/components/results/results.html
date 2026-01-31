@@ -1,106 +1,106 @@
-<aside class="results-container">
+<aside class="bg-white border border-stone-200 rounded-lg overflow-hidden lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
   @if (hasResult()) {
     @let r = result()!;
 
     <!-- Header con risultati principali -->
-    <header class="cedolino-header">
-      <div class="header-columns">
-        <div class="risultato-principale">
-          <span class="label">Netto Mensile</span>
-          <span class="valore-grande">{{ formatCurrency(r.nettoMensile) }}</span>
-          <span class="sub-label">su {{ r.mensilita }} mensilità</span>
+    <header class="bg-stone-900 text-white p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-stone-400">Netto Mensile</span>
+          <span class="text-3xl font-bold tracking-tight">{{ formatCurrency(r.nettoMensile) }}</span>
+          <span class="text-xs text-stone-400">su {{ r.mensilita }} mensilità</span>
         </div>
-        <div class="risultato-principale">
-          <span class="label">Totale Percepito Annuo</span>
-          <span class="valore-grande">{{ formatCurrency(r.totalePercepito) }}</span>
-          <span class="sub-label">(netto + rimborsi + benefit esenti)</span>
+        <div class="flex flex-col gap-1 sm:items-end">
+          <span class="text-sm text-stone-400">Totale Percepito Annuo</span>
+          <span class="text-3xl font-bold tracking-tight">{{ formatCurrency(r.totalePercepito) }}</span>
+          <span class="text-xs text-stone-400">(netto + rimborsi + benefit esenti)</span>
         </div>
       </div>
     </header>
 
     <!-- Riepilogo Generale -->
-    <section class="cedolino-section">
-      <h3>Riepilogo</h3>
-      <dl class="cedolino-list">
-        <div class="cedolino-row">
-          <dt>RAL (Lordo Annuo)</dt>
-          <dd>{{ formatCurrency(r.ral) }}</dd>
+    <section class="p-4 border-b border-stone-100">
+      <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">Riepilogo</h3>
+      <dl>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">RAL (Lordo Annuo)</dt>
+          <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.ral) }}</dd>
         </div>
-        <div class="cedolino-row">
-          <dt>Totale Trattenute</dt>
-          <dd class="negativo">- {{ formatCurrency(r.totaleTrattenute) }}</dd>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">Totale Trattenute</dt>
+          <dd class="text-sm font-medium text-red-600">- {{ formatCurrency(r.totaleTrattenute) }}</dd>
         </div>
-        <div class="cedolino-row">
-          <dt>Totale Bonus</dt>
-          <dd class="positivo">+ {{ formatCurrency(r.totaleBonus) }}</dd>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">Totale Bonus</dt>
+          <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.totaleBonus) }}</dd>
         </div>
-        <div class="cedolino-row totale">
-          <dt>Netto Annuo</dt>
-          <dd>{{ formatCurrency(r.nettoAnnuo) }}</dd>
+        <div class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold">
+          <dt class="text-sm text-stone-800">Netto Annuo</dt>
+          <dd class="text-sm text-stone-900">{{ formatCurrency(r.nettoAnnuo) }}</dd>
         </div>
-        <div class="cedolino-row">
-          <dt>Aliquota Effettiva</dt>
-          <dd>{{ formatPercent(r.aliquotaEffettiva) }}</dd>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">Aliquota Effettiva</dt>
+          <dd class="text-sm font-medium text-stone-900">{{ formatPercent(r.aliquotaEffettiva) }}</dd>
         </div>
-        <div class="cedolino-row">
-          <dt>Totale Percepito</dt>
-          <dd>{{ formatCurrency(r.totalePercepito) }}</dd>
+        <div class="flex justify-between py-1.5">
+          <dt class="text-sm text-stone-600">Totale Percepito</dt>
+          <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.totalePercepito) }}</dd>
         </div>
       </dl>
     </section>
 
     <!-- Contributi INPS -->
-    <section class="cedolino-section">
-      <h3>Contributi INPS</h3>
-      <dl class="cedolino-list">
-        <div class="cedolino-row">
-          <dt>Imponibile Previdenziale</dt>
-          <dd>{{ formatCurrency(r.contributiInps.imponibilePrevidenziale) }}</dd>
+    <section class="p-4 border-b border-stone-100">
+      <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">Contributi INPS</h3>
+      <dl>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">Imponibile Previdenziale</dt>
+          <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.contributiInps.imponibilePrevidenziale) }}</dd>
         </div>
-        <div class="cedolino-row">
-          <dt>Aliquota Applicata</dt>
-          <dd>{{ formatPercent(r.contributiInps.aliquotaApplicata) }}</dd>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">Aliquota Applicata</dt>
+          <dd class="text-sm font-medium text-stone-900">{{ formatPercent(r.contributiInps.aliquotaApplicata) }}</dd>
         </div>
-        <div class="cedolino-row">
-          <dt>Contributi Base</dt>
-          <dd class="negativo">- {{ formatCurrency(r.contributiInps.contributiBase) }}</dd>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">Contributi Base</dt>
+          <dd class="text-sm font-medium text-red-600">- {{ formatCurrency(r.contributiInps.contributiBase) }}</dd>
         </div>
         @if (r.contributiInps.contributoAggiuntivo > 0) {
-          <div class="cedolino-row">
-            <dt>Contributo Aggiuntivo 1%</dt>
-            <dd class="negativo">- {{ formatCurrency(r.contributiInps.contributoAggiuntivo) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Contributo Aggiuntivo 1%</dt>
+            <dd class="text-sm font-medium text-red-600">- {{ formatCurrency(r.contributiInps.contributoAggiuntivo) }}</dd>
           </div>
         }
-        <div class="cedolino-row totale">
-          <dt>Totale Contributi</dt>
-          <dd class="negativo">- {{ formatCurrency(r.contributiInps.totaleContributi) }}</dd>
+        <div class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold">
+          <dt class="text-sm text-stone-800">Totale Contributi</dt>
+          <dd class="text-sm text-red-600">- {{ formatCurrency(r.contributiInps.totaleContributi) }}</dd>
         </div>
       </dl>
     </section>
 
     <!-- IRPEF -->
-    <section class="cedolino-section">
-      <h3>IRPEF</h3>
-      <dl class="cedolino-list">
-        <div class="cedolino-row">
-          <dt>Imponibile IRPEF</dt>
-          <dd>{{ formatCurrency(r.irpef.imponibileIrpef) }}</dd>
+    <section class="p-4 border-b border-stone-100">
+      <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">IRPEF</h3>
+      <dl>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">Imponibile IRPEF</dt>
+          <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.irpef.imponibileIrpef) }}</dd>
         </div>
-        <div class="cedolino-row">
-          <dt>IRPEF Lorda</dt>
-          <dd>{{ formatCurrency(r.irpef.irpefLorda) }}</dd>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">IRPEF Lorda</dt>
+          <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.irpef.irpefLorda) }}</dd>
         </div>
 
         <!-- Dettaglio Scaglioni -->
-        <div class="cedolino-subsection">
-          <h4>Dettaglio Scaglioni</h4>
+        <div class="my-2 pl-3 border-l-2 border-stone-200">
+          <h4 class="text-xs font-semibold text-stone-500 mb-2">Dettaglio Scaglioni</h4>
           @for (scaglione of r.irpef.dettaglioScaglioni; track scaglione.scaglione) {
             @if (scaglione.imponibileScaglione > 0) {
-              <div class="cedolino-row sub-row">
-                <dt>
+              <div class="flex justify-between py-1">
+                <dt class="text-xs text-stone-500">
                   Scaglione {{ scaglione.scaglione }} ({{ formatPercent(scaglione.aliquota) }})
                 </dt>
-                <dd>{{ formatCurrency(scaglione.impostaScaglione) }}</dd>
+                <dd class="text-xs text-stone-500">{{ formatCurrency(scaglione.impostaScaglione) }}</dd>
               </div>
             }
           }
@@ -109,181 +109,179 @@
     </section>
 
     <!-- Detrazioni -->
-    <section class="cedolino-section">
-      <h3>Detrazioni</h3>
-      <dl class="cedolino-list">
+    <section class="p-4 border-b border-stone-100">
+      <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">Detrazioni</h3>
+      <dl>
         <!-- Detrazioni Lavoro -->
         @if (r.detrazioniLavoro.detrazioneEffettiva > 0) {
-          <div class="cedolino-row">
-            <dt>Detrazioni Lavoro Dipendente</dt>
-            <dd class="positivo">+ {{ formatCurrency(r.detrazioniLavoro.detrazioneEffettiva) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Detrazioni Lavoro Dipendente</dt>
+            <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.detrazioniLavoro.detrazioneEffettiva) }}</dd>
           </div>
           @if (r.detrazioniLavoro.maggiorazione > 0) {
-            <div class="cedolino-row sub-row">
-              <dt>di cui maggiorazione €65</dt>
-              <dd>{{ formatCurrency(r.detrazioniLavoro.maggiorazione) }}</dd>
+            <div class="flex justify-between py-1 pl-3">
+              <dt class="text-xs text-stone-500">di cui maggiorazione €65</dt>
+              <dd class="text-xs text-stone-500">{{ formatCurrency(r.detrazioniLavoro.maggiorazione) }}</dd>
             </div>
           }
         }
 
         <!-- Detrazioni Familiari -->
         @if (r.detrazioniFamiliari.totaleDetrazioniFamiliari > 0) {
-          <div class="cedolino-row">
-            <dt>Detrazioni Familiari</dt>
-            <dd class="positivo">
-              + {{ formatCurrency(r.detrazioniFamiliari.totaleDetrazioniFamiliari) }}
-            </dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Detrazioni Familiari</dt>
+            <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.detrazioniFamiliari.totaleDetrazioniFamiliari) }}</dd>
           </div>
           @if (r.detrazioniFamiliari.detrazioneConiuge > 0) {
-            <div class="cedolino-row sub-row">
-              <dt>Coniuge</dt>
-              <dd>{{ formatCurrency(r.detrazioniFamiliari.detrazioneConiuge) }}</dd>
+            <div class="flex justify-between py-1 pl-3">
+              <dt class="text-xs text-stone-500">Coniuge</dt>
+              <dd class="text-xs text-stone-500">{{ formatCurrency(r.detrazioniFamiliari.detrazioneConiuge) }}</dd>
             </div>
           }
           @if (r.detrazioniFamiliari.detrazioneFigli > 0) {
-            <div class="cedolino-row sub-row">
-              <dt>Figli ({{ r.detrazioniFamiliari.numeroFigliConDetrazione }})</dt>
-              <dd>{{ formatCurrency(r.detrazioniFamiliari.detrazioneFigli) }}</dd>
+            <div class="flex justify-between py-1 pl-3">
+              <dt class="text-xs text-stone-500">Figli ({{ r.detrazioniFamiliari.numeroFigliConDetrazione }})</dt>
+              <dd class="text-xs text-stone-500">{{ formatCurrency(r.detrazioniFamiliari.detrazioneFigli) }}</dd>
             </div>
           }
           @if (r.detrazioniFamiliari.detrazioneAscendenti > 0) {
-            <div class="cedolino-row sub-row">
-              <dt>Ascendenti ({{ r.detrazioniFamiliari.numeroAscendentiConDetrazione }})</dt>
-              <dd>{{ formatCurrency(r.detrazioniFamiliari.detrazioneAscendenti) }}</dd>
+            <div class="flex justify-between py-1 pl-3">
+              <dt class="text-xs text-stone-500">Ascendenti ({{ r.detrazioniFamiliari.numeroAscendentiConDetrazione }})</dt>
+              <dd class="text-xs text-stone-500">{{ formatCurrency(r.detrazioniFamiliari.detrazioneAscendenti) }}</dd>
             </div>
           }
         }
 
         <!-- Cuneo Fiscale -->
         @if (r.cuneoFiscale.indennitaEsente > 0) {
-          <div class="cedolino-row">
-            <dt>Indennità Cuneo Fiscale (esente)</dt>
-            <dd class="positivo">+ {{ formatCurrency(r.cuneoFiscale.indennitaEsente) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Indennità Cuneo Fiscale (esente)</dt>
+            <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.cuneoFiscale.indennitaEsente) }}</dd>
           </div>
         }
         @if (r.cuneoFiscale.detrazioneAggiuntiva > 0) {
-          <div class="cedolino-row">
-            <dt>Detrazione Cuneo Fiscale</dt>
-            <dd class="positivo">+ {{ formatCurrency(r.cuneoFiscale.detrazioneAggiuntiva) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Detrazione Cuneo Fiscale</dt>
+            <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.cuneoFiscale.detrazioneAggiuntiva) }}</dd>
           </div>
         }
 
         <!-- Altre Detrazioni -->
         @if (r.riepilogoDetrazioni.altre > 0) {
-          <div class="cedolino-row">
-            <dt>Altre Detrazioni</dt>
-            <dd class="positivo">+ {{ formatCurrency(r.riepilogoDetrazioni.altre) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Altre Detrazioni</dt>
+            <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.riepilogoDetrazioni.altre) }}</dd>
           </div>
         }
 
-        <div class="cedolino-row totale">
-          <dt>Totale Detrazioni</dt>
-          <dd class="positivo">+ {{ formatCurrency(r.riepilogoDetrazioni.totale) }}</dd>
+        <div class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold">
+          <dt class="text-sm text-stone-800">Totale Detrazioni</dt>
+          <dd class="text-sm text-green-600">+ {{ formatCurrency(r.riepilogoDetrazioni.totale) }}</dd>
         </div>
       </dl>
     </section>
 
     <!-- Trattamento Integrativo -->
-    <section class="cedolino-section">
-      <h3>Trattamento Integrativo</h3>
-      <dl class="cedolino-list">
+    <section class="p-4 border-b border-stone-100">
+      <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">Trattamento Integrativo</h3>
+      <dl>
         @if (r.trattamentoIntegrativo.spetta) {
-          <div class="cedolino-row">
-            <dt>Importo Spettante</dt>
-            <dd class="positivo">+ {{ formatCurrency(r.trattamentoIntegrativo.importo) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Importo Spettante</dt>
+            <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.trattamentoIntegrativo.importo) }}</dd>
           </div>
-          <div class="cedolino-row sub-row">
-            <dt>Importo</dt>
-            <dd>{{ r.trattamentoIntegrativo.importoPieno ? 'Pieno' : 'Ridotto' }}</dd>
+          <div class="flex justify-between py-1 pl-3">
+            <dt class="text-xs text-stone-500">Importo</dt>
+            <dd class="text-xs text-stone-500">{{ r.trattamentoIntegrativo.importoPieno ? 'Pieno' : 'Ridotto' }}</dd>
           </div>
         } @else {
-          <div class="cedolino-row">
-            <dt>Non spetta</dt>
-            <dd>{{ r.trattamentoIntegrativo.motivoNonSpettanza || '-' }}</dd>
+          <div class="flex justify-between py-1.5">
+            <dt class="text-sm text-stone-600">Non spetta</dt>
+            <dd class="text-sm text-stone-500">{{ r.trattamentoIntegrativo.motivoNonSpettanza || '-' }}</dd>
           </div>
         }
       </dl>
     </section>
 
     <!-- IRPEF Netta e Finale -->
-    <section class="cedolino-section">
-      <h3>IRPEF Finale</h3>
-      <dl class="cedolino-list">
-        <div class="cedolino-row">
-          <dt>IRPEF Netta (dopo detrazioni)</dt>
-          <dd>{{ formatCurrency(r.irpefNetta) }}</dd>
+    <section class="p-4 border-b border-stone-100">
+      <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">IRPEF Finale</h3>
+      <dl>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">IRPEF Netta (dopo detrazioni)</dt>
+          <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.irpefNetta) }}</dd>
         </div>
-        <div class="cedolino-row totale">
-          <dt>IRPEF Finale</dt>
-          <dd class="negativo">- {{ formatCurrency(r.irpefFinale) }}</dd>
+        <div class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold">
+          <dt class="text-sm text-stone-800">IRPEF Finale</dt>
+          <dd class="text-sm text-red-600">- {{ formatCurrency(r.irpefFinale) }}</dd>
         </div>
       </dl>
     </section>
 
     <!-- Addizionali -->
-    <section class="cedolino-section">
-      <h3>Addizionali</h3>
-      <dl class="cedolino-list">
-        <div class="cedolino-row">
-          <dt>Addizionale Regionale ({{ formatPercent(r.addizionali.aliquotaRegionale) }})</dt>
-          <dd class="negativo">- {{ formatCurrency(r.addizionali.addizionaleRegionale) }}</dd>
+    <section class="p-4 border-b border-stone-100">
+      <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">Addizionali</h3>
+      <dl>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">Addizionale Regionale ({{ formatPercent(r.addizionali.aliquotaRegionale) }})</dt>
+          <dd class="text-sm font-medium text-red-600">- {{ formatCurrency(r.addizionali.addizionaleRegionale) }}</dd>
         </div>
-        <div class="cedolino-row">
-          <dt>Addizionale Comunale ({{ formatPercent(r.addizionali.aliquotaComunale) }})</dt>
-          <dd class="negativo">- {{ formatCurrency(r.addizionali.addizionaleComunale) }}</dd>
+        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <dt class="text-sm text-stone-600">Addizionale Comunale ({{ formatPercent(r.addizionali.aliquotaComunale) }})</dt>
+          <dd class="text-sm font-medium text-red-600">- {{ formatCurrency(r.addizionali.addizionaleComunale) }}</dd>
         </div>
         @if (r.addizionali.esenzioneComunaleApplicata) {
-          <div class="cedolino-row sub-row">
-            <dt>Esenzione comunale applicata</dt>
-            <dd>Sì</dd>
+          <div class="flex justify-between py-1 pl-3">
+            <dt class="text-xs text-stone-500">Esenzione comunale applicata</dt>
+            <dd class="text-xs text-stone-500">Sì</dd>
           </div>
         }
-        <div class="cedolino-row totale">
-          <dt>Totale Addizionali</dt>
-          <dd class="negativo">- {{ formatCurrency(r.addizionali.totaleAddizionali) }}</dd>
+        <div class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold">
+          <dt class="text-sm text-stone-800">Totale Addizionali</dt>
+          <dd class="text-sm text-red-600">- {{ formatCurrency(r.addizionali.totaleAddizionali) }}</dd>
         </div>
       </dl>
     </section>
 
     <!-- Fringe Benefit -->
     @if (r.fringeBenefit.valoreTotaleLordo > 0) {
-      <section class="cedolino-section">
-        <h3>Fringe Benefit</h3>
-        <dl class="cedolino-list">
-          <div class="cedolino-row">
-            <dt>Valore Totale Lordo</dt>
-            <dd>{{ formatCurrency(r.fringeBenefit.valoreTotaleLordo) }}</dd>
+      <section class="p-4 border-b border-stone-100">
+        <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">Fringe Benefit</h3>
+        <dl>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Valore Totale Lordo</dt>
+            <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.fringeBenefit.valoreTotaleLordo) }}</dd>
           </div>
-          <div class="cedolino-row">
-            <dt>Soglia Esenzione</dt>
-            <dd>{{ formatCurrency(r.fringeBenefit.sogliaEsenzione) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Soglia Esenzione</dt>
+            <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.fringeBenefit.sogliaEsenzione) }}</dd>
           </div>
-          <div class="cedolino-row">
-            <dt>Soglia Superata</dt>
-            <dd>{{ r.fringeBenefit.sogliaSuperata ? 'Sì' : 'No' }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Soglia Superata</dt>
+            <dd class="text-sm font-medium text-stone-900">{{ r.fringeBenefit.sogliaSuperata ? 'Sì' : 'No' }}</dd>
           </div>
-          <div class="cedolino-row">
-            <dt>Valore Imponibile</dt>
-            <dd>{{ formatCurrency(r.fringeBenefit.valoreImponibile) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Valore Imponibile</dt>
+            <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.fringeBenefit.valoreImponibile) }}</dd>
           </div>
-          <div class="cedolino-row">
-            <dt>Valore Esente</dt>
-            <dd>{{ formatCurrency(r.fringeBenefit.valoreEsente) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Valore Esente</dt>
+            <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.fringeBenefit.valoreEsente) }}</dd>
           </div>
           @if (r.fringeBenefit.autoAziendale) {
-            <div class="cedolino-subsection">
-              <h4>Auto Aziendale</h4>
-              <div class="cedolino-row sub-row">
-                <dt>Valore</dt>
-                <dd>{{ formatCurrency(r.fringeBenefit.autoAziendale.valore) }}</dd>
+            <div class="my-2 pl-3 border-l-2 border-stone-200">
+              <h4 class="text-xs font-semibold text-stone-500 mb-2">Auto Aziendale</h4>
+              <div class="flex justify-between py-1">
+                <dt class="text-xs text-stone-500">Valore</dt>
+                <dd class="text-xs text-stone-500">{{ formatCurrency(r.fringeBenefit.autoAziendale.valore) }}</dd>
               </div>
-              <div class="cedolino-row sub-row">
-                <dt>Percentuale Applicata</dt>
-                <dd>{{ formatPercent(r.fringeBenefit.autoAziendale.percentualeApplicata) }}</dd>
+              <div class="flex justify-between py-1">
+                <dt class="text-xs text-stone-500">Percentuale Applicata</dt>
+                <dd class="text-xs text-stone-500">{{ formatPercent(r.fringeBenefit.autoAziendale.percentualeApplicata) }}</dd>
               </div>
-              <div class="cedolino-row sub-row">
-                <dt>Mesi Utilizzo</dt>
-                <dd>{{ r.fringeBenefit.autoAziendale.mesiUtilizzo }}</dd>
+              <div class="flex justify-between py-1">
+                <dt class="text-xs text-stone-500">Mesi Utilizzo</dt>
+                <dd class="text-xs text-stone-500">{{ r.fringeBenefit.autoAziendale.mesiUtilizzo }}</dd>
               </div>
             </div>
           }
@@ -293,34 +291,34 @@
 
     <!-- Rimborsi Trasferta -->
     @if (r.rimborsiTrasferta.totaleRimborsi > 0) {
-      <section class="cedolino-section">
-        <h3>Rimborsi Trasferta</h3>
-        <dl class="cedolino-list">
+      <section class="p-4 border-b border-stone-100">
+        <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">Rimborsi Trasferta</h3>
+        <dl>
           @if (r.rimborsiTrasferta.rimborsoForfettarioEsente > 0) {
-            <div class="cedolino-row">
-              <dt>Rimborso Forfettario (esente)</dt>
-              <dd>{{ formatCurrency(r.rimborsiTrasferta.rimborsoForfettarioEsente) }}</dd>
+            <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+              <dt class="text-sm text-stone-600">Rimborso Forfettario (esente)</dt>
+              <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.rimborsiTrasferta.rimborsoForfettarioEsente) }}</dd>
             </div>
           }
           @if (r.rimborsiTrasferta.rimborsoDocumentatoEsente > 0) {
-            <div class="cedolino-row">
-              <dt>Rimborso Documentato (esente)</dt>
-              <dd>{{ formatCurrency(r.rimborsiTrasferta.rimborsoDocumentatoEsente) }}</dd>
+            <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+              <dt class="text-sm text-stone-600">Rimborso Documentato (esente)</dt>
+              <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.rimborsiTrasferta.rimborsoDocumentatoEsente) }}</dd>
             </div>
           }
           @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
-            <div class="cedolino-row">
-              <dt>Rimborsi Tassati</dt>
-              <dd>{{ formatCurrency(r.rimborsiTrasferta.rimborsiTassati) }}</dd>
+            <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+              <dt class="text-sm text-stone-600">Rimborsi Tassati</dt>
+              <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.rimborsiTrasferta.rimborsiTassati) }}</dd>
             </div>
           }
-          <div class="cedolino-row">
-            <dt>Totale Esente</dt>
-            <dd class="positivo">+ {{ formatCurrency(r.rimborsiTrasferta.totaleEsente) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Totale Esente</dt>
+            <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.rimborsiTrasferta.totaleEsente) }}</dd>
           </div>
-          <div class="cedolino-row totale">
-            <dt>Totale Rimborsi</dt>
-            <dd>{{ formatCurrency(r.rimborsiTrasferta.totaleRimborsi) }}</dd>
+          <div class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold">
+            <dt class="text-sm text-stone-800">Totale Rimborsi</dt>
+            <dd class="text-sm text-stone-900">{{ formatCurrency(r.rimborsiTrasferta.totaleRimborsi) }}</dd>
           </div>
         </dl>
       </section>
@@ -328,47 +326,47 @@
 
     <!-- Benefit Non Tassati -->
     @if (r.benefitNonTassati.totaleEsente > 0 || r.benefitNonTassati.totaleTassato > 0) {
-      <section class="cedolino-section">
-        <h3>Benefit Non Tassati (Welfare)</h3>
-        <dl class="cedolino-list">
+      <section class="p-4">
+        <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">Benefit Non Tassati (Welfare)</h3>
+        <dl>
           @if (r.benefitNonTassati.previdenzaComplementare > 0) {
-            <div class="cedolino-row">
-              <dt>Previdenza Complementare</dt>
-              <dd>{{ formatCurrency(r.benefitNonTassati.previdenzaComplementare) }}</dd>
+            <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+              <dt class="text-sm text-stone-600">Previdenza Complementare</dt>
+              <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.benefitNonTassati.previdenzaComplementare) }}</dd>
             </div>
           }
           @if (r.benefitNonTassati.assistenzaSanitaria > 0) {
-            <div class="cedolino-row">
-              <dt>Assistenza Sanitaria</dt>
-              <dd>{{ formatCurrency(r.benefitNonTassati.assistenzaSanitaria) }}</dd>
+            <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+              <dt class="text-sm text-stone-600">Assistenza Sanitaria</dt>
+              <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.benefitNonTassati.assistenzaSanitaria) }}</dd>
             </div>
           }
           @if (r.benefitNonTassati.buoniPastoEsenti > 0) {
-            <div class="cedolino-row">
-              <dt>Buoni Pasto (esenti)</dt>
-              <dd>{{ formatCurrency(r.benefitNonTassati.buoniPastoEsenti) }}</dd>
+            <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+              <dt class="text-sm text-stone-600">Buoni Pasto (esenti)</dt>
+              <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.benefitNonTassati.buoniPastoEsenti) }}</dd>
             </div>
           }
           @if (r.benefitNonTassati.buoniPastoTassati > 0) {
-            <div class="cedolino-row">
-              <dt>Buoni Pasto (tassati)</dt>
-              <dd>{{ formatCurrency(r.benefitNonTassati.buoniPastoTassati) }}</dd>
+            <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+              <dt class="text-sm text-stone-600">Buoni Pasto (tassati)</dt>
+              <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.benefitNonTassati.buoniPastoTassati) }}</dd>
             </div>
           }
           @if (r.benefitNonTassati.altriWelfare > 0) {
-            <div class="cedolino-row">
-              <dt>Altri Welfare</dt>
-              <dd>{{ formatCurrency(r.benefitNonTassati.altriWelfare) }}</dd>
+            <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+              <dt class="text-sm text-stone-600">Altri Welfare</dt>
+              <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.benefitNonTassati.altriWelfare) }}</dd>
             </div>
           }
-          <div class="cedolino-row">
-            <dt>Totale Esente</dt>
-            <dd class="positivo">+ {{ formatCurrency(r.benefitNonTassati.totaleEsente) }}</dd>
+          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+            <dt class="text-sm text-stone-600">Totale Esente</dt>
+            <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.benefitNonTassati.totaleEsente) }}</dd>
           </div>
           @if (r.benefitNonTassati.totaleTassato > 0) {
-            <div class="cedolino-row">
-              <dt>Totale Tassato (eccedenze)</dt>
-              <dd>{{ formatCurrency(r.benefitNonTassati.totaleTassato) }}</dd>
+            <div class="flex justify-between py-1.5">
+              <dt class="text-sm text-stone-600">Totale Tassato (eccedenze)</dt>
+              <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.benefitNonTassati.totaleTassato) }}</dd>
             </div>
           }
         </dl>
@@ -376,9 +374,9 @@
     }
 
   } @else {
-    <div class="no-result">
-      <p>Compila il form per calcolare il tuo stipendio netto.</p>
-      <p>I campi obbligatori sono: RAL, Regione e Comune.</p>
+    <div class="p-8 text-center">
+      <p class="text-stone-500 mb-2">Compila il form per calcolare il tuo stipendio netto.</p>
+      <p class="text-sm text-stone-400">I campi obbligatori sono: RAL, Regione e Comune.</p>
     </div>
   }
 </aside>

@@ -5,7 +5,6 @@ import { OutputCalcoloStipendio } from '../../../calculator/types';
   selector: 'app-results',
   imports: [],
   templateUrl: './results.html',
-  styleUrl: './results.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Results {

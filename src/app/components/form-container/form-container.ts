@@ -13,7 +13,6 @@ import { TipoAlimentazioneAuto, TipoContratto } from '../../../calculator/types'
   selector: 'app-form-container',
   imports: [FormField],
   templateUrl: './form-container.html',
-  styleUrl: './form-container.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormContainer {
