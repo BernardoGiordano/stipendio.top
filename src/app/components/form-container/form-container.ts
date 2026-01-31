@@ -1,16 +1,23 @@
 import { ChangeDetectionStrategy, Component, input, WritableSignal } from '@angular/core';
-import { createDefaultAscendente, createDefaultFiglio, StipendioFormModel } from './form-group';
+import { FormField } from '@angular/forms/signals';
+import {
+  createDefaultAscendente,
+  createDefaultFiglio,
+  StipendioFieldTree,
+  StipendioFormModel,
+} from './form-group';
 import { ADDIZIONALI_REGIONALI, ADDIZIONALI_COMUNALI } from '../../../calculator/addizionali';
 import { AnnoFiscale, TipoContratto, TipoAlimentazioneAuto } from '../../../calculator/types';
 
 @Component({
   selector: 'app-form-container',
-  imports: [],
+  imports: [FormField],
   templateUrl: './form-container.html',
   styleUrl: './form-container.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormContainer {
+  readonly stipendioForm = input.required<StipendioFieldTree>();
   readonly formModel = input.required<WritableSignal<StipendioFormModel>>();
 
   readonly regioniDisponibili: { value: string; label: string }[] = [
@@ -56,74 +63,6 @@ export class FormContainer {
     { value: 'altro', label: 'Altro (benzina, diesel, GPL, metano)' },
   ];
 
-  updateField<K extends keyof StipendioFormModel>(field: K, value: StipendioFormModel[K]): void {
-    this.formModel().update((model) => ({ ...model, [field]: value }));
-  }
-
-  updateConiuge<K extends keyof StipendioFormModel['coniuge']>(
-    field: K,
-    value: StipendioFormModel['coniuge'][K],
-  ): void {
-    this.formModel().update((model) => ({
-      ...model,
-      coniuge: { ...model.coniuge, [field]: value },
-    }));
-  }
-
-  updateFringeBenefit<K extends keyof StipendioFormModel['fringeBenefit']>(
-    field: K,
-    value: StipendioFormModel['fringeBenefit'][K],
-  ): void {
-    this.formModel().update((model) => ({
-      ...model,
-      fringeBenefit: { ...model.fringeBenefit, [field]: value },
-    }));
-  }
-
-  updateAutoAziendale<K extends keyof StipendioFormModel['fringeBenefit']['autoAziendale']>(
-    field: K,
-    value: StipendioFormModel['fringeBenefit']['autoAziendale'][K],
-  ): void {
-    this.formModel().update((model) => ({
-      ...model,
-      fringeBenefit: {
-        ...model.fringeBenefit,
-        autoAziendale: { ...model.fringeBenefit.autoAziendale, [field]: value },
-      },
-    }));
-  }
-
-  updateRimborsiTrasferta<K extends keyof StipendioFormModel['rimborsiTrasferta']>(
-    field: K,
-    value: StipendioFormModel['rimborsiTrasferta'][K],
-  ): void {
-    this.formModel().update((model) => ({
-      ...model,
-      rimborsiTrasferta: { ...model.rimborsiTrasferta, [field]: value },
-    }));
-  }
-
-  updateBenefitNonTassati<K extends keyof StipendioFormModel['benefitNonTassati']>(
-    field: K,
-    value: StipendioFormModel['benefitNonTassati'][K],
-  ): void {
-    this.formModel().update((model) => ({
-      ...model,
-      benefitNonTassati: { ...model.benefitNonTassati, [field]: value },
-    }));
-  }
-
-  updateFiglio(
-    index: number,
-    field: keyof StipendioFormModel['figli'][number],
-    value: unknown,
-  ): void {
-    this.formModel().update((model) => ({
-      ...model,
-      figli: model.figli.map((f, i) => (i === index ? { ...f, [field]: value } : f)),
-    }));
-  }
-
   addFiglio(): void {
     this.formModel().update((model) => ({
       ...model,
@@ -135,17 +74,6 @@ export class FormContainer {
     this.formModel().update((model) => ({
       ...model,
       figli: model.figli.filter((_, i) => i !== index),
-    }));
-  }
-
-  updateAscendente(
-    index: number,
-    field: keyof StipendioFormModel['ascendenti'][number],
-    value: unknown,
-  ): void {
-    this.formModel().update((model) => ({
-      ...model,
-      ascendenti: model.ascendenti.map((a, i) => (i === index ? { ...a, [field]: value } : a)),
     }));
   }
 

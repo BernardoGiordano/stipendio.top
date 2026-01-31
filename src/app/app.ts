@@ -3,6 +3,7 @@ import { FormContainer } from './components/form-container/form-container';
 import { Results } from './components/results/results';
 import {
   createDefaultFormModel,
+  createStipendioForm,
   StipendioFormModel,
   toInputCalcoloStipendio,
 } from './components/form-container/form-group';
@@ -17,6 +18,7 @@ import { OutputCalcoloStipendio } from '../calculator/types';
 })
 export class App {
   readonly formModel = signal<StipendioFormModel>(createDefaultFormModel());
+  readonly stipendioForm = createStipendioForm(this.formModel);
 
   readonly calculationResult = computed<OutputCalcoloStipendio | null>(() => {
     const model = this.formModel();
