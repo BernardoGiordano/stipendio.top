@@ -26,69 +26,69 @@ import {
 } from '../../../calculator/types';
 
 export interface AutoAziendaleFormModel {
-  costoKmAci: number | null;
+  costoKmAci: number;
   tipoAlimentazione: TipoAlimentazioneAuto;
   mesiUtilizzo: number;
-  trattenutaDipendente: number | null;
+  trattenutaDipendente: number;
   assegnatoPre2025: boolean;
-  emissioniCO2: number | null;
+  emissioniCO2: number;
 }
 
 export interface FringeBenefitFormModel {
   enabled: boolean;
-  buoniAcquisto: number | null;
-  buoniCarburante: number | null;
+  buoniAcquisto: number;
+  buoniCarburante: number;
   autoAziendaleEnabled: boolean;
   autoAziendale: AutoAziendaleFormModel;
-  rimborsoUtenze: number | null;
-  rimborsoAffitto: number | null;
-  rimborsoInteressiMutuo: number | null;
-  altri: number | null;
+  rimborsoUtenze: number;
+  rimborsoAffitto: number;
+  rimborsoInteressiMutuo: number;
+  altri: number;
 }
 
 export interface RimborsiTrasfertaFormModel {
   enabled: boolean;
-  modalitaRimborso: 'forfettario' | 'misto' | 'analitico' | null;
-  giorniTrasfertaItalia: number | null;
-  giorniTrasfertaEstero: number | null;
-  rimborsoVitto: number | null;
-  rimborsoAlloggio: number | null;
-  rimborsoViaggio: number | null;
-  rimborsoKm: number | null;
+  modalitaRimborso: 'nessuna' | 'forfettario' | 'misto' | 'analitico';
+  giorniTrasfertaItalia: number;
+  giorniTrasfertaEstero: number;
+  rimborsoVitto: number;
+  rimborsoAlloggio: number;
+  rimborsoViaggio: number;
+  rimborsoKm: number;
   pagamentiTracciabili: boolean;
 }
 
 export interface BenefitNonTassatiFormModel {
   enabled: boolean;
-  previdenzaComplementare: number | null;
-  assistenzaSanitaria: number | null;
-  buoniPasto: number | null;
+  previdenzaComplementare: number;
+  assistenzaSanitaria: number;
+  buoniPasto: number;
   buoniPastoElettronici: boolean;
-  abbonamentoTrasporto: number | null;
-  serviziWelfare: number | null;
-  altri: number | null;
+  abbonamentoTrasporto: number;
+  serviziWelfare: number;
+  altri: number;
 }
 
 export interface ConiugeACaricoFormModel {
   enabled: boolean;
-  redditoAnnuo: number | null;
+  redditoAnnuo: number;
   percentualeCarico: number;
 }
 
 export interface FiglioACaricoFormModel {
-  eta: number | null;
+  eta: number;
   disabile: boolean;
   percentualeCarico: number;
 }
 
 export interface AscendenteACaricoFormModel {
-  redditoAnnuo: number | null;
+  redditoAnnuo: number;
   convivente: boolean;
 }
 
 export interface StipendioFormModel {
   // Mandatory fields
-  ral: number | null;
+  ral: number;
   mensilita: number;
   tipoContratto: TipoContratto;
   annoFiscale: AnnoFiscale;
@@ -96,11 +96,11 @@ export interface StipendioFormModel {
   comune: string;
 
   // Optional simple fields
-  giorniLavorati: number | null;
+  giorniLavorati: number;
   aziendaConCigs: boolean;
   iscrittoPost1996: boolean;
-  altriRedditi: number | null;
-  altreDetrazioni: number | null;
+  altriRedditi: number;
+  altreDetrazioni: number;
   haFigliACarico: boolean;
   neoassuntoFuoriSede2025: boolean;
 
@@ -117,39 +117,39 @@ export interface StipendioFormModel {
 
 function createDefaultAutoAziendale(): AutoAziendaleFormModel {
   return {
-    costoKmAci: null,
+    costoKmAci: 0,
     tipoAlimentazione: 'altro',
     mesiUtilizzo: 12,
-    trattenutaDipendente: null,
+    trattenutaDipendente: 0,
     assegnatoPre2025: false,
-    emissioniCO2: null,
+    emissioniCO2: 0,
   };
 }
 
 function createDefaultFringeBenefit(): FringeBenefitFormModel {
   return {
     enabled: false,
-    buoniAcquisto: null,
-    buoniCarburante: null,
+    buoniAcquisto: 0,
+    buoniCarburante: 0,
     autoAziendaleEnabled: false,
     autoAziendale: createDefaultAutoAziendale(),
-    rimborsoUtenze: null,
-    rimborsoAffitto: null,
-    rimborsoInteressiMutuo: null,
-    altri: null,
+    rimborsoUtenze: 0,
+    rimborsoAffitto: 0,
+    rimborsoInteressiMutuo: 0,
+    altri: 0,
   };
 }
 
 function createDefaultRimborsiTrasferta(): RimborsiTrasfertaFormModel {
   return {
     enabled: false,
-    modalitaRimborso: null,
-    giorniTrasfertaItalia: null,
-    giorniTrasfertaEstero: null,
-    rimborsoVitto: null,
-    rimborsoAlloggio: null,
-    rimborsoViaggio: null,
-    rimborsoKm: null,
+    modalitaRimborso: 'nessuna',
+    giorniTrasfertaItalia: 0,
+    giorniTrasfertaEstero: 0,
+    rimborsoVitto: 0,
+    rimborsoAlloggio: 0,
+    rimborsoViaggio: 0,
+    rimborsoKm: 0,
     pagamentiTracciabili: true,
   };
 }
@@ -157,27 +157,27 @@ function createDefaultRimborsiTrasferta(): RimborsiTrasfertaFormModel {
 function createDefaultBenefitNonTassati(): BenefitNonTassatiFormModel {
   return {
     enabled: false,
-    previdenzaComplementare: null,
-    assistenzaSanitaria: null,
-    buoniPasto: null,
+    previdenzaComplementare: 0,
+    assistenzaSanitaria: 0,
+    buoniPasto: 0,
     buoniPastoElettronici: true,
-    abbonamentoTrasporto: null,
-    serviziWelfare: null,
-    altri: null,
+    abbonamentoTrasporto: 0,
+    serviziWelfare: 0,
+    altri: 0,
   };
 }
 
 function createDefaultConiuge(): ConiugeACaricoFormModel {
   return {
     enabled: false,
-    redditoAnnuo: null,
+    redditoAnnuo: 0,
     percentualeCarico: 100,
   };
 }
 
 export function createDefaultFiglio(): FiglioACaricoFormModel {
   return {
-    eta: null,
+    eta: 0,
     disabile: false,
     percentualeCarico: 100,
   };
@@ -185,7 +185,7 @@ export function createDefaultFiglio(): FiglioACaricoFormModel {
 
 export function createDefaultAscendente(): AscendenteACaricoFormModel {
   return {
-    redditoAnnuo: null,
+    redditoAnnuo: 0,
     convivente: true,
   };
 }
@@ -194,17 +194,17 @@ const currentYear = new Date().getFullYear() as AnnoFiscale;
 
 export function createDefaultFormModel(): StipendioFormModel {
   return {
-    ral: null,
+    ral: 0,
     mensilita: 13,
     tipoContratto: 'indeterminato',
     annoFiscale: currentYear,
     regione: 'DEFAULT',
     comune: 'DEFAULT',
-    giorniLavorati: null,
+    giorniLavorati: 0,
     aziendaConCigs: false,
     iscrittoPost1996: true,
-    altriRedditi: null,
-    altreDetrazioni: null,
+    altriRedditi: 0,
+    altreDetrazioni: 0,
     haFigliACarico: false,
     neoassuntoFuoriSede2025: false,
     coniuge: createDefaultConiuge(),
@@ -222,8 +222,8 @@ export function createDefaultFormModel(): StipendioFormModel {
 
 const autoAziendaleSchema = schema<AutoAziendaleFormModel>((path) => {
   validate(path.costoKmAci, ({ value, valueOf }) => {
-    const parentEnabled = valueOf(path).costoKmAci !== null;
-    if (parentEnabled && (value() === null || value()! <= 0)) {
+    const parentEnabled = valueOf(path).costoKmAci > 0;
+    if (parentEnabled && value() <= 0) {
       return { kind: 'required', message: 'Costo km ACI obbligatorio' };
     }
     return null;
@@ -233,14 +233,14 @@ const autoAziendaleSchema = schema<AutoAziendaleFormModel>((path) => {
   max(path.mesiUtilizzo, 12, { message: 'Massimo 12 mesi' });
 
   validate(path.trattenutaDipendente, ({ value }) => {
-    if (value() !== null && value()! < 0) {
+    if (value() < 0) {
       return { kind: 'min', message: 'Valore non valido' };
     }
     return null;
   });
 
   validate(path.emissioniCO2, ({ value, valueOf }) => {
-    if (valueOf(path).assegnatoPre2025 && (value() === null || value()! <= 0)) {
+    if (valueOf(path).assegnatoPre2025 && value() <= 0) {
       return { kind: 'required', message: 'Emissioni CO2 obbligatorie per veicoli pre-2025' };
     }
     return null;
@@ -248,177 +248,70 @@ const autoAziendaleSchema = schema<AutoAziendaleFormModel>((path) => {
 });
 
 const fringeBenefitSchema = schema<FringeBenefitFormModel>((path) => {
-  validate(path.buoniAcquisto, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.buoniCarburante, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.rimborsoUtenze, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.rimborsoAffitto, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.rimborsoInteressiMutuo, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.altri, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
+  min(path.buoniAcquisto, 0, { message: 'Valore non valido' });
+  min(path.buoniCarburante, 0, { message: 'Valore non valido' });
+  min(path.rimborsoUtenze, 0, { message: 'Valore non valido' });
+  min(path.rimborsoAffitto, 0, { message: 'Valore non valido' });
+  min(path.rimborsoInteressiMutuo, 0, { message: 'Valore non valido' });
+  min(path.altri, 0, { message: 'Valore non valido' });
 
   apply(path.autoAziendale, autoAziendaleSchema);
 });
 
 const rimborsiTrasfertaSchema = schema<RimborsiTrasfertaFormModel>((path) => {
-  validate(path.giorniTrasfertaItalia, ({ value }) => {
-    if (value() !== null && (value()! < 0 || value()! > 365)) {
-      return { kind: 'range', message: 'Valore tra 0 e 365' };
-    }
-    return null;
-  });
+  min(path.giorniTrasfertaItalia, 0, { message: 'Valore tra 0 e 365' });
+  max(path.giorniTrasfertaItalia, 365, { message: 'Valore tra 0 e 365' });
 
-  validate(path.giorniTrasfertaEstero, ({ value }) => {
-    if (value() !== null && (value()! < 0 || value()! > 365)) {
-      return { kind: 'range', message: 'Valore tra 0 e 365' };
-    }
-    return null;
-  });
+  min(path.giorniTrasfertaEstero, 0, { message: 'Valore tra 0 e 365' });
+  max(path.giorniTrasfertaEstero, 365, { message: 'Valore tra 0 e 365' });
 
-  validate(path.rimborsoVitto, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.rimborsoAlloggio, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.rimborsoViaggio, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.rimborsoKm, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
+  min(path.rimborsoVitto, 0, { message: 'Valore non valido' });
+  min(path.rimborsoAlloggio, 0, { message: 'Valore non valido' });
+  min(path.rimborsoViaggio, 0, { message: 'Valore non valido' });
+  min(path.rimborsoKm, 0, { message: 'Valore non valido' });
 });
 
 const benefitNonTassatiSchema = schema<BenefitNonTassatiFormModel>((path) => {
-  validate(path.previdenzaComplementare, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.assistenzaSanitaria, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.buoniPasto, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.abbonamentoTrasporto, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.serviziWelfare, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.altri, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
+  min(path.previdenzaComplementare, 0, { message: 'Valore non valido' });
+  min(path.assistenzaSanitaria, 0, { message: 'Valore non valido' });
+  min(path.buoniPasto, 0, { message: 'Valore non valido' });
+  min(path.abbonamentoTrasporto, 0, { message: 'Valore non valido' });
+  min(path.serviziWelfare, 0, { message: 'Valore non valido' });
+  min(path.altri, 0, { message: 'Valore non valido' });
 });
 
 const coniugeSchema = schema<ConiugeACaricoFormModel>((path) => {
   validate(path.redditoAnnuo, ({ value, valueOf }) => {
-    if (valueOf(path).enabled && (value() === null || value()! < 0)) {
-      return { kind: 'required', message: 'Reddito annuo obbligatorio' };
+    if (valueOf(path).enabled && value() < 0) {
+      return { kind: 'min', message: 'Reddito annuo non valido' };
     }
     return null;
   });
 
-  validate(path.percentualeCarico, ({ value }) => {
-    if (value() < 0 || value() > 100) {
-      return { kind: 'percentage', message: 'La percentuale deve essere tra 0 e 100' };
-    }
-    return null;
-  });
+  min(path.percentualeCarico, 0, { message: 'La percentuale deve essere tra 0 e 100' });
+  max(path.percentualeCarico, 100, { message: 'La percentuale deve essere tra 0 e 100' });
 });
 
 const figlioSchema = schema<FiglioACaricoFormModel>((path) => {
-  required(path.eta, { message: 'Età obbligatoria' });
   min(path.eta, 0, { message: 'Età non valida' });
   max(path.eta, 30, { message: 'Età massima 30 anni' });
 
-  validate(path.percentualeCarico, ({ value }) => {
-    if (value() < 0 || value() > 100) {
-      return { kind: 'percentage', message: 'La percentuale deve essere tra 0 e 100' };
-    }
-    return null;
-  });
+  min(path.percentualeCarico, 0, { message: 'La percentuale deve essere tra 0 e 100' });
+  max(path.percentualeCarico, 100, { message: 'La percentuale deve essere tra 0 e 100' });
 });
 
 const ascendenteSchema = schema<AscendenteACaricoFormModel>((path) => {
-  required(path.redditoAnnuo, { message: 'Reddito annuo obbligatorio' });
   min(path.redditoAnnuo, 0, { message: 'Valore non valido' });
 });
 
 export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   // Mandatory fields
-  required(path.ral, { message: 'RAL obbligatoria' });
-  min(path.ral, 0, { message: 'RAL non valida' });
+  validate(path.ral, ({ value }) => {
+    if (value() <= 0) {
+      return { kind: 'required', message: 'RAL obbligatoria' };
+    }
+    return null;
+  });
 
   min(path.mensilita, 12, { message: 'Minimo 12 mensilità' });
   max(path.mensilita, 15, { message: 'Massimo 15 mensilità' });
@@ -431,25 +324,15 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
 
   // Optional fields with range validation
   validate(path.giorniLavorati, ({ value }) => {
-    if (value() !== null && (value()! < 1 || value()! > 365)) {
+    const v = value();
+    if (v !== 0 && (v < 1 || v > 365)) {
       return { kind: 'range', message: 'Giorni lavorati tra 1 e 365' };
     }
     return null;
   });
 
-  validate(path.altriRedditi, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
-
-  validate(path.altreDetrazioni, ({ value }) => {
-    if (value() !== null && value()! < 0) {
-      return { kind: 'min', message: 'Valore non valido' };
-    }
-    return null;
-  });
+  min(path.altriRedditi, 0, { message: 'Valore non valido' });
+  min(path.altreDetrazioni, 0, { message: 'Valore non valido' });
 
   // Nested objects
   apply(path.coniuge, coniugeSchema);
@@ -479,17 +362,17 @@ export function createStipendioForm(
 // ============================================================================
 
 function toAutoAziendale(model: AutoAziendaleFormModel): AutoAziendale | undefined {
-  if (model.costoKmAci === null) return undefined;
+  if (model.costoKmAci === 0) return undefined;
 
   return {
     costoKmAci: model.costoKmAci,
     tipoAlimentazione: model.tipoAlimentazione,
     ...(model.mesiUtilizzo !== 12 && { mesiUtilizzo: model.mesiUtilizzo }),
-    ...(model.trattenutaDipendente !== null && {
+    ...(model.trattenutaDipendente > 0 && {
       trattenutaDipendente: model.trattenutaDipendente,
     }),
     ...(model.assegnatoPre2025 && { assegnatoPre2025: true }),
-    ...(model.emissioniCO2 !== null && { emissioniCO2: model.emissioniCO2 }),
+    ...(model.emissioniCO2 > 0 && { emissioniCO2: model.emissioniCO2 }),
   };
 }
 
@@ -498,17 +381,17 @@ function toFringeBenefit(model: FringeBenefitFormModel): FringeBenefit | undefin
 
   const result: FringeBenefit = {};
 
-  if (model.buoniAcquisto !== null) result.buoniAcquisto = model.buoniAcquisto;
-  if (model.buoniCarburante !== null) result.buoniCarburante = model.buoniCarburante;
+  if (model.buoniAcquisto > 0) result.buoniAcquisto = model.buoniAcquisto;
+  if (model.buoniCarburante > 0) result.buoniCarburante = model.buoniCarburante;
   if (model.autoAziendaleEnabled) {
     const auto = toAutoAziendale(model.autoAziendale);
     if (auto) result.autoAziendale = auto;
   }
-  if (model.rimborsoUtenze !== null) result.rimborsoUtenze = model.rimborsoUtenze;
-  if (model.rimborsoAffitto !== null) result.rimborsoAffitto = model.rimborsoAffitto;
-  if (model.rimborsoInteressiMutuo !== null)
+  if (model.rimborsoUtenze > 0) result.rimborsoUtenze = model.rimborsoUtenze;
+  if (model.rimborsoAffitto > 0) result.rimborsoAffitto = model.rimborsoAffitto;
+  if (model.rimborsoInteressiMutuo > 0)
     result.rimborsoInteressiMutuo = model.rimborsoInteressiMutuo;
-  if (model.altri !== null) result.altri = model.altri;
+  if (model.altri > 0) result.altri = model.altri;
 
   return Object.keys(result).length > 0 ? result : undefined;
 }
@@ -518,15 +401,15 @@ function toRimborsiTrasferta(model: RimborsiTrasfertaFormModel): RimborsiTrasfer
 
   const result: RimborsiTrasferta = {};
 
-  if (model.modalitaRimborso !== null) result.modalitaRimborso = model.modalitaRimborso;
-  if (model.giorniTrasfertaItalia !== null)
+  if (model.modalitaRimborso !== 'nessuna') result.modalitaRimborso = model.modalitaRimborso;
+  if (model.giorniTrasfertaItalia > 0)
     result.giorniTrasfertaItalia = model.giorniTrasfertaItalia;
-  if (model.giorniTrasfertaEstero !== null)
+  if (model.giorniTrasfertaEstero > 0)
     result.giorniTrasfertaEstero = model.giorniTrasfertaEstero;
-  if (model.rimborsoVitto !== null) result.rimborsoVitto = model.rimborsoVitto;
-  if (model.rimborsoAlloggio !== null) result.rimborsoAlloggio = model.rimborsoAlloggio;
-  if (model.rimborsoViaggio !== null) result.rimborsoViaggio = model.rimborsoViaggio;
-  if (model.rimborsoKm !== null) result.rimborsoKm = model.rimborsoKm;
+  if (model.rimborsoVitto > 0) result.rimborsoVitto = model.rimborsoVitto;
+  if (model.rimborsoAlloggio > 0) result.rimborsoAlloggio = model.rimborsoAlloggio;
+  if (model.rimborsoViaggio > 0) result.rimborsoViaggio = model.rimborsoViaggio;
+  if (model.rimborsoKm > 0) result.rimborsoKm = model.rimborsoKm;
   if (!model.pagamentiTracciabili) result.pagamentiTracciabili = false;
 
   return Object.keys(result).length > 0 ? result : undefined;
@@ -537,22 +420,22 @@ function toBenefitNonTassati(model: BenefitNonTassatiFormModel): BenefitNonTassa
 
   const result: BenefitNonTassati = {};
 
-  if (model.previdenzaComplementare !== null)
+  if (model.previdenzaComplementare > 0)
     result.previdenzaComplementare = model.previdenzaComplementare;
-  if (model.assistenzaSanitaria !== null) result.assistenzaSanitaria = model.assistenzaSanitaria;
-  if (model.buoniPasto !== null) {
+  if (model.assistenzaSanitaria > 0) result.assistenzaSanitaria = model.assistenzaSanitaria;
+  if (model.buoniPasto > 0) {
     result.buoniPasto = model.buoniPasto;
     result.buoniPastoElettronici = model.buoniPastoElettronici;
   }
-  if (model.abbonamentoTrasporto !== null) result.abbonamentoTrasporto = model.abbonamentoTrasporto;
-  if (model.serviziWelfare !== null) result.serviziWelfare = model.serviziWelfare;
-  if (model.altri !== null) result.altri = model.altri;
+  if (model.abbonamentoTrasporto > 0) result.abbonamentoTrasporto = model.abbonamentoTrasporto;
+  if (model.serviziWelfare > 0) result.serviziWelfare = model.serviziWelfare;
+  if (model.altri > 0) result.altri = model.altri;
 
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
 function toConiuge(model: ConiugeACaricoFormModel): ConiugeACarico | undefined {
-  if (!model.enabled || model.redditoAnnuo === null) return undefined;
+  if (!model.enabled) return undefined;
 
   return {
     redditoAnnuo: model.redditoAnnuo,
@@ -561,26 +444,22 @@ function toConiuge(model: ConiugeACaricoFormModel): ConiugeACarico | undefined {
 }
 
 function toFigli(models: FiglioACaricoFormModel[]): FiglioACarico[] | undefined {
-  const result = models
-    .filter((m) => m.eta !== null)
-    .map((m) => ({
-      eta: m.eta!,
-      disabile: m.disabile,
-      ...(m.percentualeCarico !== 100 && { percentualeCarico: m.percentualeCarico }),
-    }));
+  if (models.length === 0) return undefined;
 
-  return result.length > 0 ? result : undefined;
+  return models.map((m) => ({
+    eta: m.eta,
+    disabile: m.disabile,
+    ...(m.percentualeCarico !== 100 && { percentualeCarico: m.percentualeCarico }),
+  }));
 }
 
 function toAscendenti(models: AscendenteACaricoFormModel[]): AscendenteACarico[] | undefined {
-  const result = models
-    .filter((m) => m.redditoAnnuo !== null)
-    .map((m) => ({
-      redditoAnnuo: m.redditoAnnuo!,
-      convivente: m.convivente,
-    }));
+  if (models.length === 0) return undefined;
 
-  return result.length > 0 ? result : undefined;
+  return models.map((m) => ({
+    redditoAnnuo: m.redditoAnnuo,
+    convivente: m.convivente,
+  }));
 }
 
 /**
@@ -588,7 +467,7 @@ function toAscendenti(models: AscendenteACaricoFormModel[]): AscendenteACarico[]
  * Returns null if required fields are missing.
  */
 export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcoloStipendio | null {
-  if (model.ral === null || !model.regione || !model.comune) {
+  if (model.ral === 0 || !model.regione || !model.comune) {
     return null;
   }
 
@@ -601,11 +480,11 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
     comune: model.comune.toUpperCase(),
 
     // Optional fields
-    ...(model.giorniLavorati !== null && { giorniLavorati: model.giorniLavorati }),
+    ...(model.giorniLavorati > 0 && { giorniLavorati: model.giorniLavorati }),
     ...(model.aziendaConCigs && { aziendaConCigs: true }),
     ...(!model.iscrittoPost1996 && { iscrittoPost1996: false }),
-    ...(model.altriRedditi !== null && { altriRedditi: model.altriRedditi }),
-    ...(model.altreDetrazioni !== null && { altreDetrazioni: model.altreDetrazioni }),
+    ...(model.altriRedditi > 0 && { altriRedditi: model.altriRedditi }),
+    ...(model.altreDetrazioni > 0 && { altreDetrazioni: model.altreDetrazioni }),
     ...(model.haFigliACarico && { haFigliACarico: true }),
     ...(model.neoassuntoFuoriSede2025 && { neoassuntoFuoriSede2025: true }),
 
