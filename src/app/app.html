@@ -1,3 +1,21 @@
+<header class="border-b border-stone-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 lg:px-8 py-3 flex items-center justify-between">
+    <h1 class="text-xl font-semibold tracking-tight text-stone-900">Stipendio.top</h1>
+    @if (calculationResult(); as r) {
+      <div class="flex items-center gap-4 text-right lg:hidden">
+        <div class="flex flex-col">
+          <span class="text-[10px] text-stone-400 uppercase tracking-wide">Netto</span>
+          <span class="text-sm font-semibold text-stone-900">{{ formatCurrency(r.nettoMensile) }}</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[10px] text-stone-400 uppercase tracking-wide">Totale</span>
+          <span class="text-sm font-semibold text-stone-900">{{ formatCurrency(r.totalePercepito) }}</span>
+        </div>
+      </div>
+    }
+  </div>
+</header>
+
 <main class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 p-4 lg:p-8 max-w-7xl mx-auto">
   <app-form-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
   <app-results [result]="calculationResult()" />

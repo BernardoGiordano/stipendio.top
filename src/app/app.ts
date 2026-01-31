@@ -37,4 +37,14 @@ export class App {
       return null;
     }
   });
+
+  formatCurrency(value: number | null | undefined): string {
+    if (value === null || value === undefined) return '-';
+    return new Intl.NumberFormat('it-IT', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  }
 }

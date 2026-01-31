@@ -3,16 +3,16 @@
     @let r = result()!;
 
     <!-- Header con risultati principali -->
-    <header class="bg-stone-900 text-white p-6">
+    <header class="bg-stone-100 border-b border-stone-200 p-6">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div class="flex flex-col gap-1">
-          <span class="text-sm text-stone-400">Netto Mensile</span>
-          <span class="text-3xl font-bold tracking-tight">{{ formatCurrency(r.nettoMensile) }}</span>
+          <span class="text-sm text-stone-500">Netto Mensile</span>
+          <span class="text-3xl font-bold tracking-tight text-stone-900">{{ formatCurrency(r.nettoMensile) }}</span>
           <span class="text-xs text-stone-400">su {{ r.mensilita }} mensilità</span>
         </div>
         <div class="flex flex-col gap-1 sm:items-end">
-          <span class="text-sm text-stone-400">Totale Percepito Annuo</span>
-          <span class="text-3xl font-bold tracking-tight">{{ formatCurrency(r.totalePercepito) }}</span>
+          <span class="text-sm text-stone-500">Totale Percepito Annuo</span>
+          <span class="text-3xl font-bold tracking-tight text-stone-900">{{ formatCurrency(r.totalePercepito) }}</span>
           <span class="text-xs text-stone-400">(netto + rimborsi + benefit esenti)</span>
         </div>
       </div>
@@ -30,7 +30,7 @@
           <dt class="text-sm text-stone-600">Totale Trattenute</dt>
           <dd class="text-sm font-medium text-red-600">- {{ formatCurrency(r.totaleTrattenute) }}</dd>
         </div>
-        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+        <div class="flex justify-between py-1.5">
           <dt class="text-sm text-stone-600">Totale Bonus</dt>
           <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.totaleBonus) }}</dd>
         </div>
@@ -61,12 +61,12 @@
           <dt class="text-sm text-stone-600">Aliquota Applicata</dt>
           <dd class="text-sm font-medium text-stone-900">{{ formatPercent(r.contributiInps.aliquotaApplicata) }}</dd>
         </div>
-        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+        <div class="flex justify-between py-1.5" [class.border-b]="r.contributiInps.contributoAggiuntivo > 0" [class.border-dotted]="r.contributiInps.contributoAggiuntivo > 0" [class.border-stone-100]="r.contributiInps.contributoAggiuntivo > 0">
           <dt class="text-sm text-stone-600">Contributi Base</dt>
           <dd class="text-sm font-medium text-red-600">- {{ formatCurrency(r.contributiInps.contributiBase) }}</dd>
         </div>
         @if (r.contributiInps.contributoAggiuntivo > 0) {
-          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <div class="flex justify-between py-1.5">
             <dt class="text-sm text-stone-600">Contributo Aggiuntivo 1%</dt>
             <dd class="text-sm font-medium text-red-600">- {{ formatCurrency(r.contributiInps.contributoAggiuntivo) }}</dd>
           </div>
@@ -114,7 +114,7 @@
       <dl>
         <!-- Detrazioni Lavoro -->
         @if (r.detrazioniLavoro.detrazioneEffettiva > 0) {
-          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <div class="flex justify-between py-1.5">
             <dt class="text-sm text-stone-600">Detrazioni Lavoro Dipendente</dt>
             <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.detrazioniLavoro.detrazioneEffettiva) }}</dd>
           </div>
@@ -128,7 +128,7 @@
 
         <!-- Detrazioni Familiari -->
         @if (r.detrazioniFamiliari.totaleDetrazioniFamiliari > 0) {
-          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <div class="flex justify-between py-1.5">
             <dt class="text-sm text-stone-600">Detrazioni Familiari</dt>
             <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.detrazioniFamiliari.totaleDetrazioniFamiliari) }}</dd>
           </div>
@@ -154,13 +154,13 @@
 
         <!-- Cuneo Fiscale -->
         @if (r.cuneoFiscale.indennitaEsente > 0) {
-          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <div class="flex justify-between py-1.5">
             <dt class="text-sm text-stone-600">Indennità Cuneo Fiscale (esente)</dt>
             <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.cuneoFiscale.indennitaEsente) }}</dd>
           </div>
         }
         @if (r.cuneoFiscale.detrazioneAggiuntiva > 0) {
-          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <div class="flex justify-between py-1.5">
             <dt class="text-sm text-stone-600">Detrazione Cuneo Fiscale</dt>
             <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.cuneoFiscale.detrazioneAggiuntiva) }}</dd>
           </div>
@@ -168,7 +168,7 @@
 
         <!-- Altre Detrazioni -->
         @if (r.riepilogoDetrazioni.altre > 0) {
-          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <div class="flex justify-between py-1.5">
             <dt class="text-sm text-stone-600">Altre Detrazioni</dt>
             <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.riepilogoDetrazioni.altre) }}</dd>
           </div>
@@ -207,7 +207,7 @@
     <section class="p-4 border-b border-stone-100">
       <h3 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3">IRPEF Finale</h3>
       <dl>
-        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+        <div class="flex justify-between py-1.5">
           <dt class="text-sm text-stone-600">IRPEF Netta (dopo detrazioni)</dt>
           <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.irpefNetta) }}</dd>
         </div>
@@ -226,7 +226,7 @@
           <dt class="text-sm text-stone-600">Addizionale Regionale ({{ formatPercent(r.addizionali.aliquotaRegionale) }})</dt>
           <dd class="text-sm font-medium text-red-600">- {{ formatCurrency(r.addizionali.addizionaleRegionale) }}</dd>
         </div>
-        <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+        <div class="flex justify-between py-1.5" [class.border-b]="r.addizionali.esenzioneComunaleApplicata" [class.border-dotted]="r.addizionali.esenzioneComunaleApplicata" [class.border-stone-100]="r.addizionali.esenzioneComunaleApplicata">
           <dt class="text-sm text-stone-600">Addizionale Comunale ({{ formatPercent(r.addizionali.aliquotaComunale) }})</dt>
           <dd class="text-sm font-medium text-red-600">- {{ formatCurrency(r.addizionali.addizionaleComunale) }}</dd>
         </div>
@@ -312,7 +312,7 @@
               <dd class="text-sm font-medium text-stone-900">{{ formatCurrency(r.rimborsiTrasferta.rimborsiTassati) }}</dd>
             </div>
           }
-          <div class="flex justify-between py-1.5 border-b border-dotted border-stone-100">
+          <div class="flex justify-between py-1.5">
             <dt class="text-sm text-stone-600">Totale Esente</dt>
             <dd class="text-sm font-medium text-green-600">+ {{ formatCurrency(r.rimborsiTrasferta.totaleEsente) }}</dd>
           </div>
