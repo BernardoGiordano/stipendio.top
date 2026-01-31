@@ -10,4 +10,5 @@ html {
 
 body {
   @apply bg-stone-50 text-stone-900 min-h-screen;
+  @apply dark:bg-stone-900 dark:text-stone-100;
 }
