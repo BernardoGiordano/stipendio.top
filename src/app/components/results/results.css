@@ -18,11 +18,23 @@
   font-size: 1.25rem;
 }
 
+.header-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .header-columns {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 .risultato-principale {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  margin-bottom: 0.75rem;
 }
 
 .risultato-principale .label,

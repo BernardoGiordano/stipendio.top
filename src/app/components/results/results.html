@@ -2,17 +2,19 @@
   @if (hasResult()) {
     @let r = result()!;
 
-    <!-- Header con risultato principale -->
+    <!-- Header con risultati principali -->
     <header class="cedolino-header">
-      <h2>Cedolino {{ r.annoFiscale }}</h2>
-      <div class="risultato-principale">
-        <span class="label">Netto Mensile</span>
-        <span class="valore-grande">{{ formatCurrency(r.nettoMensile) }}</span>
-        <span class="sub-label">su {{ r.mensilita }} mensilità</span>
-      </div>
-      <div class="risultato-secondario">
-        <span class="label">Netto Annuo</span>
-        <span class="valore">{{ formatCurrency(r.nettoAnnuo) }}</span>
+      <div class="header-columns">
+        <div class="risultato-principale">
+          <span class="label">Netto Mensile</span>
+          <span class="valore-grande">{{ formatCurrency(r.nettoMensile) }}</span>
+          <span class="sub-label">su {{ r.mensilita }} mensilità</span>
+        </div>
+        <div class="risultato-principale">
+          <span class="label">Totale Percepito Annuo</span>
+          <span class="valore-grande">{{ formatCurrency(r.totalePercepito) }}</span>
+          <span class="sub-label">(netto + rimborsi + benefit esenti)</span>
+        </div>
       </div>
     </header>
 
@@ -373,14 +375,6 @@
       </section>
     }
 
-    <!-- Footer con Totale Percepito -->
-    <footer class="cedolino-footer">
-      <div class="totale-percepito">
-        <span class="label">Totale Percepito Annuo</span>
-        <span class="valore-grande">{{ formatCurrency(r.totalePercepito) }}</span>
-        <span class="sub-label">(netto + rimborsi esenti + benefit esenti)</span>
-      </div>
-    </footer>
   } @else {
     <div class="no-result">
       <p>Compila il form per calcolare il tuo stipendio netto.</p>
