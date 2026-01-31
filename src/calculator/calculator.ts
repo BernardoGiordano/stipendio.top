@@ -6,6 +6,8 @@ export interface StipendioCalculator {
   calcolaStipendioNetto(input: InputCalcoloStipendio): OutputCalcoloStipendio;
 }
 
+const DEFAULT_CALCULATOR = 2026;
+
 const calculators: Record<number, StipendioCalculator> = {
   2025: new Calculator2025(),
   2026: new Calculator2026(),
@@ -20,7 +22,8 @@ const calculators: Record<number, StipendioCalculator> = {
 export function calcolaStipendioNetto(input: InputCalcoloStipendio): OutputCalcoloStipendio {
   const calculator = calculators[input.annoFiscale];
   if (!calculator) {
-    throw new Error(`Anno fiscale ${input.annoFiscale} non supportato`);
+    console.error('Calculator not found. Defaulting to', DEFAULT_CALCULATOR);
+    return calculators[DEFAULT_CALCULATOR].calcolaStipendioNetto(input);
   }
   return calculator.calcolaStipendioNetto(input);
 }
