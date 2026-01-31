@@ -98,3 +98,52 @@
   <app-form-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
   <app-results [result]="calculationResult()" />
 </main>
+
+<div class="bg-stone-100 border-b border-stone-200 dark:bg-stone-800 dark:border-stone-700">
+  <div class="max-w-7xl mx-auto px-4 lg:px-8 py-2.5 flex items-center justify-between gap-4">
+    <p class="text-sm text-stone-600 dark:text-stone-300">
+      @if (loadedFromUrl()) {
+        <span class="font-medium text-emerald-600 dark:text-emerald-400"
+          >Configurazione caricata da link condiviso.</span
+        >
+      } @else {
+        Condividi questa configurazione con un link.
+      }
+    </p>
+    <button
+      type="button"
+      class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-colors bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2"
+      (click)="copyShareableLink()"
+    >
+      @if (formStateShare.linkCopied()) {
+        <svg
+          class="size-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+        </svg>
+        Copiato!
+      } @else {
+        <svg
+          class="size-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
+          />
+        </svg>
+        Copia link
+      }
+    </button>
+  </div>
+</div>

@@ -10,6 +10,7 @@ import {
 import { calcolaStipendioNetto } from '../calculator/calculator';
 import { OutputCalcoloStipendio } from '../calculator/types';
 import { ThemeMode } from './services/theme-mode';
+import { FormStateShare } from './services/form-state-share';
 
 @Component({
   selector: 'app-root',
@@ -19,8 +20,13 @@ import { ThemeMode } from './services/theme-mode';
 })
 export class App {
   readonly themeMode = inject(ThemeMode);
-  readonly formModel = signal<StipendioFormModel>(createDefaultFormModel());
+  readonly formStateShare = inject(FormStateShare);
+
+  readonly formModel = signal<StipendioFormModel>(this.loadInitialFormState());
   readonly stipendioForm = createStipendioForm(this.formModel);
+
+  /** Whether the form was loaded from a shared URL */
+  readonly loadedFromUrl = signal(false);
 
   readonly calculationResult = computed<OutputCalcoloStipendio | null>(() => {
     // Check form validity before calculating
@@ -48,5 +54,22 @@ export class App {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(value);
+  }
+
+  copyShareableLink(): void {
+    this.formStateShare.copyToClipboard(this.formModel());
+  }
+
+  private loadInitialFormState(): StipendioFormModel {
+    const urlState = this.formStateShare.getStateFromUrl();
+    if (urlState) {
+      // Mark as loaded from URL and clear the URL param
+      setTimeout(() => {
+        this.loadedFromUrl.set(true);
+        this.formStateShare.clearUrlState();
+      });
+      return this.formStateShare.mergeWithDefaults(urlState);
+    }
+    return createDefaultFormModel();
   }
 }
