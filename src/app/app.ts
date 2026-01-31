@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormContainer } from './components/form-container/form-container';
 import { Results } from './components/results/results';
 import {
@@ -9,6 +9,7 @@ import {
 } from './components/form-container/form-group';
 import { calcolaStipendioNetto } from '../calculator/calculator';
 import { OutputCalcoloStipendio } from '../calculator/types';
+import { ThemeMode } from './services/theme-mode';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ import { OutputCalcoloStipendio } from '../calculator/types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
+  readonly themeMode = inject(ThemeMode);
   readonly formModel = signal<StipendioFormModel>(createDefaultFormModel());
   readonly stipendioForm = createStipendioForm(this.formModel);
 
