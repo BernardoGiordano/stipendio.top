@@ -21,6 +21,11 @@ export class App {
   readonly stipendioForm = createStipendioForm(this.formModel);
 
   readonly calculationResult = computed<OutputCalcoloStipendio | null>(() => {
+    // Check form validity before calculating
+    if (!this.stipendioForm().valid()) {
+      return null;
+    }
+
     const model = this.formModel();
     const input = toInputCalcoloStipendio(model);
     if (!input) {

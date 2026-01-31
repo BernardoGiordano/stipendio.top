@@ -14,7 +14,14 @@
         [formField]="form.ral"
         placeholder="Es. 35000"
         aria-required="true"
+        [attr.aria-invalid]="form.ral().invalid()"
+        [attr.aria-describedby]="form.ral().invalid() ? 'ral-error' : null"
       />
+      @if (form.ral().invalid()) {
+        @for (error of form.ral().errors(); track error.kind) {
+          <span id="ral-error" class="error-message" role="alert">{{ error.message }}</span>
+        }
+      }
     </div>
 
     <div class="form-group">

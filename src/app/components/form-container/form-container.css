@@ -71,3 +71,14 @@ button {
 button:hover {
   background: #e5e5e5;
 }
+
+.error-message {
+  color: #d32f2f;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.form-group input[aria-invalid="true"],
+.form-group select[aria-invalid="true"] {
+  border-color: #d32f2f;
+}
