@@ -66,8 +66,7 @@ export interface BenefitNonTassatiFormModel {
   buoniPastoElettronici: boolean;
   abbonamentoTrasporto: number;
   serviziWelfare: number;
-  altriMensili: number;
-  altriAnnuali: number;
+  altri: number;
 }
 
 export interface ConiugeACaricoFormModel {
@@ -164,8 +163,7 @@ function createDefaultBenefitNonTassati(): BenefitNonTassatiFormModel {
     buoniPastoElettronici: true,
     abbonamentoTrasporto: 0,
     serviziWelfare: 0,
-    altriMensili: 0,
-    altriAnnuali: 0,
+    altri: 0,
   };
 }
 
@@ -279,8 +277,7 @@ const benefitNonTassatiSchema = schema<BenefitNonTassatiFormModel>((path) => {
   min(path.buoniPasto, 0, { message: 'Valore non valido' });
   min(path.abbonamentoTrasporto, 0, { message: 'Valore non valido' });
   min(path.serviziWelfare, 0, { message: 'Valore non valido' });
-  min(path.altriMensili, 0, { message: 'Valore non valido' });
-  min(path.altriAnnuali, 0, { message: 'Valore non valido' });
+  min(path.altri, 0, { message: 'Valore non valido' });
 });
 
 const coniugeSchema = schema<ConiugeACaricoFormModel>((path) => {
@@ -434,10 +431,7 @@ function toBenefitNonTassati(model: BenefitNonTassatiFormModel): BenefitNonTassa
   }
   if (model.abbonamentoTrasporto > 0) result.abbonamentoTrasporto = model.abbonamentoTrasporto;
   if (model.serviziWelfare > 0) result.serviziWelfare = model.serviziWelfare;
-
-  // Pass monthly and annual split
-  if (model.altriMensili > 0) result.altriMensili = model.altriMensili;
-  if (model.altriAnnuali > 0) result.altriAnnuali = model.altriAnnuali;
+  if (model.altri > 0) result.altri = model.altri;
 
   return Object.keys(result).length > 0 ? result : undefined;
 }

@@ -938,47 +938,19 @@
       </div>
 
       <div class="form-group">
-        <label for="benefitNonTassatiAltriMensili"
-          >Altri benefit non tassati - Mensile (€/mese)</label
-        >
+        <label for="benefitNonTassatiAltri">Altri benefit non tassati (€/anno)</label>
         <input
-          id="benefitNonTassatiAltriMensili"
+          id="benefitNonTassatiAltri"
           type="number"
-          [formField]="form.benefitNonTassati.altriMensili"
-          [attr.aria-invalid]="form.benefitNonTassati.altriMensili().invalid()"
+          [formField]="form.benefitNonTassati.altri"
+          [attr.aria-invalid]="form.benefitNonTassati.altri().invalid()"
           [attr.aria-describedby]="
-            form.benefitNonTassati.altriMensili().invalid()
-              ? 'benefitNonTassatiAltriMensili-error'
-              : null
+            form.benefitNonTassati.altri().invalid() ? 'benefitNonTassatiAltri-error' : null
           "
         />
-        @if (form.benefitNonTassati.altriMensili().invalid()) {
-          @for (error of form.benefitNonTassati.altriMensili().errors(); track error.kind) {
-            <span id="benefitNonTassatiAltriMensili-error" class="error-message" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="benefitNonTassatiAltriAnnuali"
-          >Altri benefit non tassati - Annuale (€/anno)</label
-        >
-        <input
-          id="benefitNonTassatiAltriAnnuali"
-          type="number"
-          [formField]="form.benefitNonTassati.altriAnnuali"
-          [attr.aria-invalid]="form.benefitNonTassati.altriAnnuali().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.altriAnnuali().invalid()
-              ? 'benefitNonTassatiAltriAnnuali-error'
-              : null
-          "
-        />
-        @if (form.benefitNonTassati.altriAnnuali().invalid()) {
-          @for (error of form.benefitNonTassati.altriAnnuali().errors(); track error.kind) {
-            <span id="benefitNonTassatiAltriAnnuali-error" class="error-message" role="alert">{{
+        @if (form.benefitNonTassati.altri().invalid()) {
+          @for (error of form.benefitNonTassati.altri().errors(); track error.kind) {
+            <span id="benefitNonTassatiAltri-error" class="error-message" role="alert">{{
               error.message
             }}</span>
           }
