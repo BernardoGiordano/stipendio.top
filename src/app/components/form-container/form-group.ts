@@ -198,8 +198,8 @@ export function createDefaultFormModel(): StipendioFormModel {
     mensilita: 13,
     tipoContratto: 'indeterminato',
     annoFiscale: currentYear,
-    regione: '',
-    comune: '',
+    regione: 'DEFAULT',
+    comune: 'DEFAULT',
     giorniLavorati: null,
     aziendaConCigs: false,
     iscrittoPost1996: true,
@@ -421,7 +421,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   min(path.ral, 0, { message: 'RAL non valida' });
 
   min(path.mensilita, 12, { message: 'Minimo 12 mensilità' });
-  max(path.mensilita, 14, { message: 'Massimo 14 mensilità' });
+  max(path.mensilita, 15, { message: 'Massimo 15 mensilità' });
 
   required(path.regione, { message: 'Regione obbligatoria' });
   minLength(path.regione, 2, { message: 'Codice regione non valido' });

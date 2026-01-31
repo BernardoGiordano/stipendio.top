@@ -1,1 +1,731 @@
-<p>form-container works!</p>
+<form class="form-container">
+  @let model = formModel()();
+
+  <!-- Sezione Dati Principali -->
+  <fieldset>
+    <legend>Dati Principali</legend>
+
+    <div class="form-group">
+      <label for="ral">RAL (Reddito Annuo Lordo) *</label>
+      <input
+        id="ral"
+        type="number"
+        [value]="model.ral"
+        (input)="updateField('ral', $any($event.target).valueAsNumber || null)"
+        placeholder="Es. 35000"
+        min="0"
+        step="100"
+        aria-required="true"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="mensilita">Mensilità *</label>
+      <select
+        id="mensilita"
+        [value]="model.mensilita"
+        (change)="updateField('mensilita', +$any($event.target).value)"
+        aria-required="true"
+      >
+        @for (m of mensilita; track m) {
+          <option [value]="m">{{ m }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="tipoContratto">Tipo Contratto *</label>
+      <select
+        id="tipoContratto"
+        [value]="model.tipoContratto"
+        (change)="updateField('tipoContratto', $any($event.target).value)"
+        aria-required="true"
+      >
+        @for (tipo of tipiContratto; track tipo.value) {
+          <option [value]="tipo.value">{{ tipo.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="annoFiscale">Anno Fiscale *</label>
+      <select
+        id="annoFiscale"
+        [value]="model.annoFiscale"
+        (change)="updateField('annoFiscale', $any(+$any($event.target).value))"
+        aria-required="true"
+      >
+        @for (anno of anniFiscali; track anno) {
+          <option [value]="anno">{{ anno }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="regione">Regione *</label>
+      <select
+        id="regione"
+        [value]="model.regione"
+        (change)="updateField('regione', $any($event.target).value)"
+        aria-required="true"
+      >
+        @for (regione of regioniDisponibili; track regione.value) {
+          <option [value]="regione.value">{{ regione.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="comune">Comune *</label>
+      <select
+        id="comune"
+        [value]="model.comune"
+        (change)="updateField('comune', $any($event.target).value)"
+        aria-required="true"
+      >
+        @for (comune of comuniDisponibili; track comune.value) {
+          <option [value]="comune.value">{{ comune.label }}</option>
+        }
+      </select>
+    </div>
+  </fieldset>
+
+  <!-- Sezione Opzioni Contrattuali -->
+  <fieldset>
+    <legend>Opzioni Contrattuali</legend>
+
+    <div class="form-group">
+      <label for="giorniLavorati">Giorni Lavorati (opzionale)</label>
+      <input
+        id="giorniLavorati"
+        type="number"
+        [value]="model.giorniLavorati"
+        (input)="updateField('giorniLavorati', $any($event.target).valueAsNumber || null)"
+        placeholder="Default: 365"
+        min="1"
+        max="365"
+      />
+    </div>
+
+    <div class="form-group checkbox">
+      <input
+        id="aziendaConCigs"
+        type="checkbox"
+        [checked]="model.aziendaConCigs"
+        (change)="updateField('aziendaConCigs', $any($event.target).checked)"
+      />
+      <label for="aziendaConCigs">Azienda con più di 15 dipendenti (CIGS)</label>
+    </div>
+
+    <div class="form-group checkbox">
+      <input
+        id="iscrittoPost1996"
+        type="checkbox"
+        [checked]="model.iscrittoPost1996"
+        (change)="updateField('iscrittoPost1996', $any($event.target).checked)"
+      />
+      <label for="iscrittoPost1996">Iscritto alla previdenza dal 1996 in poi</label>
+    </div>
+
+    <div class="form-group checkbox">
+      <input
+        id="neoassuntoFuoriSede2025"
+        type="checkbox"
+        [checked]="model.neoassuntoFuoriSede2025"
+        (change)="updateField('neoassuntoFuoriSede2025', $any($event.target).checked)"
+      />
+      <label for="neoassuntoFuoriSede2025">Neoassunto 2025 fuori sede (>100km)</label>
+    </div>
+  </fieldset>
+
+  <!-- Sezione Altri Redditi e Detrazioni -->
+  <fieldset>
+    <legend>Altri Redditi e Detrazioni</legend>
+
+    <div class="form-group">
+      <label for="altriRedditi">Altri Redditi (€/anno)</label>
+      <input
+        id="altriRedditi"
+        type="number"
+        [value]="model.altriRedditi"
+        (input)="updateField('altriRedditi', $any($event.target).valueAsNumber || null)"
+        placeholder="Es. redditi fondiari"
+        min="0"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="altreDetrazioni">Altre Detrazioni (€/anno)</label>
+      <input
+        id="altreDetrazioni"
+        type="number"
+        [value]="model.altreDetrazioni"
+        (input)="updateField('altreDetrazioni', $any($event.target).valueAsNumber || null)"
+        placeholder="Es. interessi mutuo"
+        min="0"
+      />
+    </div>
+  </fieldset>
+
+  <!-- Sezione Coniuge a Carico -->
+  <fieldset>
+    <legend>Coniuge a Carico</legend>
+
+    <div class="form-group checkbox">
+      <input
+        id="coniugeEnabled"
+        type="checkbox"
+        [checked]="model.coniuge.enabled"
+        (change)="updateConiuge('enabled', $any($event.target).checked)"
+      />
+      <label for="coniugeEnabled">Ho un coniuge a carico</label>
+    </div>
+
+    @if (model.coniuge.enabled) {
+      <div class="form-group">
+        <label for="coniugeReddito">Reddito annuo coniuge (€)</label>
+        <input
+          id="coniugeReddito"
+          type="number"
+          [value]="model.coniuge.redditoAnnuo"
+          (input)="updateConiuge('redditoAnnuo', $any($event.target).valueAsNumber || null)"
+          placeholder="Max €2.840,51 per detrazione"
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="coniugePercentuale">Percentuale a carico (%)</label>
+        <input
+          id="coniugePercentuale"
+          type="number"
+          [value]="model.coniuge.percentualeCarico"
+          (input)="updateConiuge('percentualeCarico', $any($event.target).valueAsNumber || 100)"
+          min="0"
+          max="100"
+        />
+      </div>
+    }
+  </fieldset>
+
+  <!-- Sezione Figli a Carico -->
+  <fieldset>
+    <legend>Figli a Carico</legend>
+
+    <div class="form-group checkbox">
+      <input
+        id="haFigliACarico"
+        type="checkbox"
+        [checked]="model.haFigliACarico"
+        (change)="updateField('haFigliACarico', $any($event.target).checked)"
+      />
+      <label for="haFigliACarico">Ho figli a carico (per soglia fringe benefit)</label>
+    </div>
+
+    @for (figlio of model.figli; track $index) {
+      <div class="nested-item">
+        <h4>Figlio {{ $index + 1 }}</h4>
+
+        <div class="form-group">
+          <label [for]="'figlioEta' + $index">Età</label>
+          <input
+            [id]="'figlioEta' + $index"
+            type="number"
+            [value]="figlio.eta"
+            (input)="updateFiglio($index, 'eta', $any($event.target).valueAsNumber || null)"
+            min="0"
+            max="30"
+          />
+        </div>
+
+        <div class="form-group checkbox">
+          <input
+            [id]="'figlioDisabile' + $index"
+            type="checkbox"
+            [checked]="figlio.disabile"
+            (change)="updateFiglio($index, 'disabile', $any($event.target).checked)"
+          />
+          <label [for]="'figlioDisabile' + $index">Disabile</label>
+        </div>
+
+        <div class="form-group">
+          <label [for]="'figlioPercentuale' + $index">Percentuale a carico (%)</label>
+          <input
+            [id]="'figlioPercentuale' + $index"
+            type="number"
+            [value]="figlio.percentualeCarico"
+            (input)="
+              updateFiglio($index, 'percentualeCarico', $any($event.target).valueAsNumber || 100)
+            "
+            min="0"
+            max="100"
+          />
+        </div>
+
+        <button type="button" (click)="removeFiglio($index)">Rimuovi figlio</button>
+      </div>
+    }
+
+    <button type="button" (click)="addFiglio()">Aggiungi figlio</button>
+  </fieldset>
+
+  <!-- Sezione Ascendenti a Carico -->
+  <fieldset>
+    <legend>Ascendenti a Carico (genitori/nonni)</legend>
+
+    @for (ascendente of model.ascendenti; track $index) {
+      <div class="nested-item">
+        <h4>Ascendente {{ $index + 1 }}</h4>
+
+        <div class="form-group">
+          <label [for]="'ascendenteReddito' + $index">Reddito annuo (€)</label>
+          <input
+            [id]="'ascendenteReddito' + $index"
+            type="number"
+            [value]="ascendente.redditoAnnuo"
+            (input)="
+              updateAscendente($index, 'redditoAnnuo', $any($event.target).valueAsNumber || null)
+            "
+            min="0"
+          />
+        </div>
+
+        <div class="form-group checkbox">
+          <input
+            [id]="'ascendenteConvivente' + $index"
+            type="checkbox"
+            [checked]="ascendente.convivente"
+            (change)="updateAscendente($index, 'convivente', $any($event.target).checked)"
+          />
+          <label [for]="'ascendenteConvivente' + $index">Convivente</label>
+        </div>
+
+        <button type="button" (click)="removeAscendente($index)">Rimuovi ascendente</button>
+      </div>
+    }
+
+    <button type="button" (click)="addAscendente()">Aggiungi ascendente</button>
+  </fieldset>
+
+  <!-- Sezione Fringe Benefit -->
+  <fieldset>
+    <legend>Fringe Benefit</legend>
+
+    <div class="form-group checkbox">
+      <input
+        id="fringeBenefitEnabled"
+        type="checkbox"
+        [checked]="model.fringeBenefit.enabled"
+        (change)="updateFringeBenefit('enabled', $any($event.target).checked)"
+      />
+      <label for="fringeBenefitEnabled">Ho fringe benefit</label>
+    </div>
+
+    @if (model.fringeBenefit.enabled) {
+      <div class="form-group">
+        <label for="buoniAcquisto">Buoni acquisto/spesa (€/anno)</label>
+        <input
+          id="buoniAcquisto"
+          type="number"
+          [value]="model.fringeBenefit.buoniAcquisto"
+          (input)="updateFringeBenefit('buoniAcquisto', $any($event.target).valueAsNumber || null)"
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="buoniCarburante">Buoni carburante (€/anno)</label>
+        <input
+          id="buoniCarburante"
+          type="number"
+          [value]="model.fringeBenefit.buoniCarburante"
+          (input)="
+            updateFringeBenefit('buoniCarburante', $any($event.target).valueAsNumber || null)
+          "
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="rimborsoUtenze">Rimborso utenze domestiche (€/anno)</label>
+        <input
+          id="rimborsoUtenze"
+          type="number"
+          [value]="model.fringeBenefit.rimborsoUtenze"
+          (input)="updateFringeBenefit('rimborsoUtenze', $any($event.target).valueAsNumber || null)"
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="rimborsoAffitto">Rimborso affitto prima casa (€/anno)</label>
+        <input
+          id="rimborsoAffitto"
+          type="number"
+          [value]="model.fringeBenefit.rimborsoAffitto"
+          (input)="
+            updateFringeBenefit('rimborsoAffitto', $any($event.target).valueAsNumber || null)
+          "
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="rimborsoInteressiMutuo">Rimborso interessi mutuo (€/anno)</label>
+        <input
+          id="rimborsoInteressiMutuo"
+          type="number"
+          [value]="model.fringeBenefit.rimborsoInteressiMutuo"
+          (input)="
+            updateFringeBenefit('rimborsoInteressiMutuo', $any($event.target).valueAsNumber || null)
+          "
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="fringeBenefitAltri">Altri fringe benefit (€/anno)</label>
+        <input
+          id="fringeBenefitAltri"
+          type="number"
+          [value]="model.fringeBenefit.altri"
+          (input)="updateFringeBenefit('altri', $any($event.target).valueAsNumber || null)"
+          min="0"
+        />
+      </div>
+
+      <!-- Auto Aziendale -->
+      <div class="form-group checkbox">
+        <input
+          id="autoAziendaleEnabled"
+          type="checkbox"
+          [checked]="model.fringeBenefit.autoAziendaleEnabled"
+          (change)="updateFringeBenefit('autoAziendaleEnabled', $any($event.target).checked)"
+        />
+        <label for="autoAziendaleEnabled">Ho auto aziendale</label>
+      </div>
+
+      @if (model.fringeBenefit.autoAziendaleEnabled) {
+        <div class="nested-item">
+          <h4>Auto Aziendale</h4>
+
+          <div class="form-group">
+            <label for="costoKmAci">Costo km ACI (€/km)</label>
+            <input
+              id="costoKmAci"
+              type="number"
+              [value]="model.fringeBenefit.autoAziendale.costoKmAci"
+              (input)="updateAutoAziendale('costoKmAci', $any($event.target).valueAsNumber || null)"
+              step="0.01"
+              min="0"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="tipoAlimentazione">Tipo alimentazione</label>
+            <select
+              id="tipoAlimentazione"
+              [value]="model.fringeBenefit.autoAziendale.tipoAlimentazione"
+              (change)="updateAutoAziendale('tipoAlimentazione', $any($event.target).value)"
+            >
+              @for (tipo of tipiAlimentazione; track tipo.value) {
+                <option [value]="tipo.value">{{ tipo.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="mesiUtilizzo">Mesi di utilizzo</label>
+            <input
+              id="mesiUtilizzo"
+              type="number"
+              [value]="model.fringeBenefit.autoAziendale.mesiUtilizzo"
+              (input)="updateAutoAziendale('mesiUtilizzo', $any($event.target).valueAsNumber || 12)"
+              min="1"
+              max="12"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="trattenutaDipendente">Trattenuta dipendente (€/anno)</label>
+            <input
+              id="trattenutaDipendente"
+              type="number"
+              [value]="model.fringeBenefit.autoAziendale.trattenutaDipendente"
+              (input)="
+                updateAutoAziendale(
+                  'trattenutaDipendente',
+                  $any($event.target).valueAsNumber || null
+                )
+              "
+              min="0"
+            />
+          </div>
+
+          <div class="form-group checkbox">
+            <input
+              id="assegnatoPre2025"
+              type="checkbox"
+              [checked]="model.fringeBenefit.autoAziendale.assegnatoPre2025"
+              (change)="updateAutoAziendale('assegnatoPre2025', $any($event.target).checked)"
+            />
+            <label for="assegnatoPre2025">Assegnato prima del 2025 (regime CO2)</label>
+          </div>
+
+          @if (model.fringeBenefit.autoAziendale.assegnatoPre2025) {
+            <div class="form-group">
+              <label for="emissioniCO2">Emissioni CO2 (g/km)</label>
+              <input
+                id="emissioniCO2"
+                type="number"
+                [value]="model.fringeBenefit.autoAziendale.emissioniCO2"
+                (input)="
+                  updateAutoAziendale('emissioniCO2', $any($event.target).valueAsNumber || null)
+                "
+                min="0"
+              />
+            </div>
+          }
+        </div>
+      }
+    }
+  </fieldset>
+
+  <!-- Sezione Rimborsi Trasferta -->
+  <fieldset>
+    <legend>Rimborsi Trasferta</legend>
+
+    <div class="form-group checkbox">
+      <input
+        id="rimborsiTrasfertaEnabled"
+        type="checkbox"
+        [checked]="model.rimborsiTrasferta.enabled"
+        (change)="updateRimborsiTrasferta('enabled', $any($event.target).checked)"
+      />
+      <label for="rimborsiTrasfertaEnabled">Ho rimborsi trasferta</label>
+    </div>
+
+    @if (model.rimborsiTrasferta.enabled) {
+      <div class="form-group">
+        <label for="modalitaRimborso">Modalità rimborso</label>
+        <select
+          id="modalitaRimborso"
+          [value]="model.rimborsiTrasferta.modalitaRimborso"
+          (change)="updateRimborsiTrasferta('modalitaRimborso', $any($event.target).value || null)"
+        >
+          <option value="">-- Seleziona --</option>
+          @for (modalita of modalitaRimborso; track modalita.value) {
+            <option [value]="modalita.value">{{ modalita.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="giorniTrasfertaItalia">Giorni trasferta Italia</label>
+        <input
+          id="giorniTrasfertaItalia"
+          type="number"
+          [value]="model.rimborsiTrasferta.giorniTrasfertaItalia"
+          (input)="
+            updateRimborsiTrasferta(
+              'giorniTrasfertaItalia',
+              $any($event.target).valueAsNumber || null
+            )
+          "
+          min="0"
+          max="365"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="giorniTrasfertaEstero">Giorni trasferta Estero</label>
+        <input
+          id="giorniTrasfertaEstero"
+          type="number"
+          [value]="model.rimborsiTrasferta.giorniTrasfertaEstero"
+          (input)="
+            updateRimborsiTrasferta(
+              'giorniTrasfertaEstero',
+              $any($event.target).valueAsNumber || null
+            )
+          "
+          min="0"
+          max="365"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="rimborsoVitto">Rimborso vitto documentato (€/anno)</label>
+        <input
+          id="rimborsoVitto"
+          type="number"
+          [value]="model.rimborsiTrasferta.rimborsoVitto"
+          (input)="
+            updateRimborsiTrasferta('rimborsoVitto', $any($event.target).valueAsNumber || null)
+          "
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="rimborsoAlloggio">Rimborso alloggio documentato (€/anno)</label>
+        <input
+          id="rimborsoAlloggio"
+          type="number"
+          [value]="model.rimborsiTrasferta.rimborsoAlloggio"
+          (input)="
+            updateRimborsiTrasferta('rimborsoAlloggio', $any($event.target).valueAsNumber || null)
+          "
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="rimborsoViaggio">Rimborso viaggio (€/anno)</label>
+        <input
+          id="rimborsoViaggio"
+          type="number"
+          [value]="model.rimborsiTrasferta.rimborsoViaggio"
+          (input)="
+            updateRimborsiTrasferta('rimborsoViaggio', $any($event.target).valueAsNumber || null)
+          "
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="rimborsoKm">Rimborso chilometrico (€/anno)</label>
+        <input
+          id="rimborsoKm"
+          type="number"
+          [value]="model.rimborsiTrasferta.rimborsoKm"
+          (input)="updateRimborsiTrasferta('rimborsoKm', $any($event.target).valueAsNumber || null)"
+          min="0"
+        />
+      </div>
+
+      <div class="form-group checkbox">
+        <input
+          id="pagamentiTracciabili"
+          type="checkbox"
+          [checked]="model.rimborsiTrasferta.pagamentiTracciabili"
+          (change)="updateRimborsiTrasferta('pagamentiTracciabili', $any($event.target).checked)"
+        />
+        <label for="pagamentiTracciabili">Pagamenti tracciabili</label>
+      </div>
+    }
+  </fieldset>
+
+  <!-- Sezione Benefit Non Tassati (Welfare) -->
+  <fieldset>
+    <legend>Benefit Non Tassati (Welfare)</legend>
+
+    <div class="form-group checkbox">
+      <input
+        id="benefitNonTassatiEnabled"
+        type="checkbox"
+        [checked]="model.benefitNonTassati.enabled"
+        (change)="updateBenefitNonTassati('enabled', $any($event.target).checked)"
+      />
+      <label for="benefitNonTassatiEnabled">Ho benefit non tassati</label>
+    </div>
+
+    @if (model.benefitNonTassati.enabled) {
+      <div class="form-group">
+        <label for="previdenzaComplementare">Previdenza complementare (€/anno)</label>
+        <input
+          id="previdenzaComplementare"
+          type="number"
+          [value]="model.benefitNonTassati.previdenzaComplementare"
+          (input)="
+            updateBenefitNonTassati(
+              'previdenzaComplementare',
+              $any($event.target).valueAsNumber || null
+            )
+          "
+          min="0"
+          placeholder="Max €5.164,57 esente"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="assistenzaSanitaria">Assistenza sanitaria (€/anno)</label>
+        <input
+          id="assistenzaSanitaria"
+          type="number"
+          [value]="model.benefitNonTassati.assistenzaSanitaria"
+          (input)="
+            updateBenefitNonTassati(
+              'assistenzaSanitaria',
+              $any($event.target).valueAsNumber || null
+            )
+          "
+          min="0"
+          placeholder="Max €3.615,20 esente"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="buoniPasto">Buoni pasto (€/anno)</label>
+        <input
+          id="buoniPasto"
+          type="number"
+          [value]="model.benefitNonTassati.buoniPasto"
+          (input)="updateBenefitNonTassati('buoniPasto', $any($event.target).valueAsNumber || null)"
+          min="0"
+        />
+      </div>
+
+      <div class="form-group checkbox">
+        <input
+          id="buoniPastoElettronici"
+          type="checkbox"
+          [checked]="model.benefitNonTassati.buoniPastoElettronici"
+          (change)="updateBenefitNonTassati('buoniPastoElettronici', $any($event.target).checked)"
+        />
+        <label for="buoniPastoElettronici">Buoni pasto elettronici (soglia €8 invece di €4)</label>
+      </div>
+
+      <div class="form-group">
+        <label for="abbonamentoTrasporto">Abbonamento trasporto pubblico (€/anno)</label>
+        <input
+          id="abbonamentoTrasporto"
+          type="number"
+          [value]="model.benefitNonTassati.abbonamentoTrasporto"
+          (input)="
+            updateBenefitNonTassati(
+              'abbonamentoTrasporto',
+              $any($event.target).valueAsNumber || null
+            )
+          "
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="serviziWelfare">Servizi welfare (€/anno)</label>
+        <input
+          id="serviziWelfare"
+          type="number"
+          [value]="model.benefitNonTassati.serviziWelfare"
+          (input)="
+            updateBenefitNonTassati('serviziWelfare', $any($event.target).valueAsNumber || null)
+          "
+          min="0"
+          placeholder="Asili, borse studio, ecc."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="benefitNonTassatiAltri">Altri benefit non tassati (€/anno)</label>
+        <input
+          id="benefitNonTassatiAltri"
+          type="number"
+          [value]="model.benefitNonTassati.altri"
+          (input)="updateBenefitNonTassati('altri', $any($event.target).valueAsNumber || null)"
+          min="0"
+        />
+      </div>
+    }
+  </fieldset>
+</form>

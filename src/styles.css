@@ -1,3 +1,21 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+/* App layout - responsive grid */
+.app-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .app-layout {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+  }
+}
