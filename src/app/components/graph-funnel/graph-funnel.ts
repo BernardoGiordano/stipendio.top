@@ -11,6 +11,8 @@ import {
 } from '@angular/core';
 import { OutputCalcoloStipendio } from '../../../calculator/types';
 
+type ViewMode = 'monthly' | 'annual';
+
 interface SankeyNode {
   id: string;
   label: string;
@@ -44,6 +46,9 @@ interface SankeyLink {
 export class GraphFunnel implements AfterViewInit, OnDestroy {
   readonly result = input<OutputCalcoloStipendio | null>(null);
 
+  /** View mode: monthly or annual */
+  readonly viewMode = signal<ViewMode>('annual');
+
   private readonly svgContainer = viewChild<ElementRef<HTMLDivElement>>('svgContainer');
   private resizeObserver: ResizeObserver | null = null;
   private readonly containerSize = signal({ width: 0, height: 0 });
@@ -55,8 +60,13 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     const size = this.containerSize();
     if (size.width === 0 || size.height === 0) return null;
 
-    return this.buildSankeyLayout(result, size.width, size.height);
+    const isMonthly = this.viewMode() === 'monthly';
+    return this.buildSankeyLayout(result, size.width, size.height, isMonthly);
   });
+
+  setViewMode(mode: ViewMode): void {
+    this.viewMode.set(mode);
+  }
 
   ngAfterViewInit(): void {
     const container = this.svgContainer();
@@ -81,6 +91,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     result: OutputCalcoloStipendio,
     width: number,
     height: number,
+    isMonthly: boolean,
   ): { nodes: SankeyNode[]; links: SankeyLink[]; width: number; height: number } {
     const padding = { top: 30, right: 110, bottom: 30, left: 110 };
     const nodeWidth = 18;
@@ -89,18 +100,21 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     const innerWidth = width - padding.left - padding.right;
     const innerHeight = height - padding.top - padding.bottom;
 
-    // Extract values
-    const ral = result.ral;
-    const inps = result.contributiInps.totaleContributi;
-    const irpefFinale = result.irpefFinale;
-    const addizionali = result.addizionali.totaleAddizionali;
-    const totalePercepito = result.totalePercepito;
-    const cuneoIndennita = result.cuneoFiscale.indennitaEsente;
-    const trattamentoIntegrativo = result.trattamentoIntegrativo.importo;
-    const rimborsiEsenti = result.rimborsiTrasferta.totaleEsente;
-    const benefitEsenti = result.benefitNonTassati.totaleEsente;
+    // Divisor for monthly values
+    const divisor = isMonthly ? result.mensilita : 1;
+
+    // Extract values (divided by divisor for monthly view)
+    const ral = result.ral / divisor;
+    const inps = result.contributiInps.totaleContributi / divisor;
+    const irpefFinale = result.irpefFinale / divisor;
+    const addizionali = result.addizionali.totaleAddizionali / divisor;
+    const totalePercepito = result.totalePercepito / divisor;
+    const cuneoIndennita = result.cuneoFiscale.indennitaEsente / divisor;
+    const trattamentoIntegrativo = result.trattamentoIntegrativo.importo / divisor;
+    const rimborsiEsenti = result.rimborsiTrasferta.totaleEsente / divisor;
+    const benefitEsenti = result.benefitNonTassati.totaleEsente / divisor;
     const totalBonus = cuneoIndennita + trattamentoIntegrativo;
-    const nettoBase = result.nettoAnnuo - totalBonus;
+    const nettoBase = result.nettoAnnuo / divisor - totalBonus;
 
     // Colors
     const colors: Record<string, string> = {
@@ -195,7 +209,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     // === Position RAL (same height, aligned with col1) ===
     const ralNode: SankeyNode = {
       id: 'ral',
-      label: 'RAL (Lordo)',
+      label: isMonthly ? 'Lordo Mensile' : 'RAL (Lordo)',
       value: ral,
       color: colors['ral'],
       column: 0,
@@ -232,7 +246,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
 
     const totaleNode: SankeyNode = {
       id: 'totale',
-      label: 'Totale Percepito',
+      label: isMonthly ? 'Percepito Mensile' : 'Totale Percepito',
       value: totalePercepito,
       color: colors['totale'],
       column: 2,

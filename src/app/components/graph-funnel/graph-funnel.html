@@ -1,119 +1,154 @@
-<div
-  #svgContainer
-  class="w-full h-full min-h-[450px]"
-  role="img"
-  aria-label="Grafico Sankey che mostra la distribuzione dello stipendio lordo tra tasse, contributi e totale percepito"
->
-  @if (chartData(); as data) {
-    <svg
-      [attr.width]="data.width"
-      [attr.height]="data.height"
-      [attr.viewBox]="'0 0 ' + data.width + ' ' + data.height"
-      class="w-full h-full"
-      preserveAspectRatio="xMidYMid meet"
-    >
-      <!-- Links (rendered first, behind nodes) -->
-      <g class="links">
-        @for (link of data.links; track link.from + link.to) {
-          <path
-            [attr.d]="getLinkPath(link)"
-            [attr.fill]="getLinkColor(link)"
-            class="transition-opacity duration-200 hover:opacity-60"
-          >
-            <title>{{ formatCurrency(link.value) }}</title>
-          </path>
-        }
-      </g>
-
-      <!-- Nodes with labels -->
-      <g class="nodes">
-        @for (node of data.nodes; track node.id) {
-          <g>
-            <!-- Node rectangle -->
-            <rect
-              [attr.x]="node.x"
-              [attr.y]="node.y"
-              width="18"
-              [attr.height]="node.height"
-              [attr.fill]="node.color"
-              rx="3"
-              class="drop-shadow-sm"
+<div class="flex flex-col h-full">
+  <!-- Chart Container -->
+  <div
+    #svgContainer
+    class="flex-1 min-h-0 w-full min-h-[450px]"
+    role="img"
+    [attr.aria-label]="
+      viewMode() === 'monthly'
+        ? 'Grafico Sankey che mostra la distribuzione mensile dello stipendio lordo tra tasse, contributi e totale percepito'
+        : 'Grafico Sankey che mostra la distribuzione annuale dello stipendio lordo tra tasse, contributi e totale percepito'
+    "
+  >
+    @if (chartData(); as data) {
+      <svg
+        [attr.width]="data.width"
+        [attr.height]="data.height"
+        [attr.viewBox]="'0 0 ' + data.width + ' ' + data.height"
+        class="w-full h-full"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <!-- Links (rendered first, behind nodes) -->
+        <g class="links">
+          @for (link of data.links; track link.from + link.to) {
+            <path
+              [attr.d]="getLinkPath(link)"
+              [attr.fill]="getLinkColor(link)"
+              class="transition-opacity duration-200 hover:opacity-60"
             >
-              <title>{{ node.label }}: {{ formatCurrency(node.value) }}</title>
-            </rect>
+              <title>{{ formatCurrency(link.value) }}</title>
+            </path>
+          }
+        </g>
 
-            <!-- Column 0: Labels on LEFT side (outside) -->
-            @if (node.column === 0) {
-              <text
-                [attr.x]="node.x - 8"
-                [attr.y]="node.y + node.height / 2 - 6"
-                text-anchor="end"
-                dominant-baseline="middle"
-                class="text-[11px] font-medium fill-stone-700 dark:fill-stone-300"
+        <!-- Nodes with labels -->
+        <g class="nodes">
+          @for (node of data.nodes; track node.id) {
+            <g>
+              <!-- Node rectangle -->
+              <rect
+                [attr.x]="node.x"
+                [attr.y]="node.y"
+                width="18"
+                [attr.height]="node.height"
+                [attr.fill]="node.color"
+                rx="3"
+                class="drop-shadow-sm"
               >
-                {{ node.label }}
-              </text>
-              <text
-                [attr.x]="node.x - 8"
-                [attr.y]="node.y + node.height / 2 + 8"
-                text-anchor="end"
-                dominant-baseline="middle"
-                class="text-[11px] font-semibold fill-stone-900 dark:fill-stone-100"
-              >
-                {{ formatCurrency(node.value) }}
-              </text>
-            }
+                <title>{{ node.label }}: {{ formatCurrency(node.value) }}</title>
+              </rect>
 
-            <!-- Column 1: Labels on LEFT side -->
-            @if (node.column === 1) {
-              <text
-                [attr.x]="node.x - 8"
-                [attr.y]="node.y + node.height / 2 - 6"
-                text-anchor="end"
-                dominant-baseline="middle"
-                class="text-[10px] font-medium fill-stone-600 dark:fill-stone-400"
-              >
-                {{ node.label }}
-              </text>
-              <text
-                [attr.x]="node.x - 8"
-                [attr.y]="node.y + node.height / 2 + 7"
-                text-anchor="end"
-                dominant-baseline="middle"
-                class="text-[10px] font-semibold fill-stone-800 dark:fill-stone-200"
-              >
-                {{ formatCurrency(node.value) }}
-              </text>
-            }
+              <!-- Column 0: Labels on LEFT side (outside) -->
+              @if (node.column === 0) {
+                <text
+                  [attr.x]="node.x - 8"
+                  [attr.y]="node.y + node.height / 2 - 6"
+                  text-anchor="end"
+                  dominant-baseline="middle"
+                  class="text-[11px] font-medium fill-stone-700 dark:fill-stone-300"
+                >
+                  {{ node.label }}
+                </text>
+                <text
+                  [attr.x]="node.x - 8"
+                  [attr.y]="node.y + node.height / 2 + 8"
+                  text-anchor="end"
+                  dominant-baseline="middle"
+                  class="text-[11px] font-semibold fill-stone-900 dark:fill-stone-100"
+                >
+                  {{ formatCurrency(node.value) }}
+                </text>
+              }
 
-            <!-- Column 2: Labels on RIGHT side (outside) -->
-            @if (node.column === 2) {
-              <text
-                [attr.x]="node.x + 26"
-                [attr.y]="node.y + node.height / 2 - 6"
-                text-anchor="start"
-                dominant-baseline="middle"
-                class="text-[11px] font-medium fill-stone-700 dark:fill-stone-300"
-              >
-                {{ node.label }}
-              </text>
-              <text
-                [attr.x]="node.x + 26"
-                [attr.y]="node.y + node.height / 2 + 8"
-                text-anchor="start"
-                dominant-baseline="middle"
-                class="text-[11px] font-semibold fill-stone-900 dark:fill-stone-100"
-              >
-                {{ formatCurrency(node.value) }}
-              </text>
-            }
-          </g>
-        }
-      </g>
-    </svg>
-  } @else {
-    <div class="flex items-center justify-center h-full text-stone-500 dark:text-stone-400">
-      <p>Compila il form per visualizzare il grafico.</p>
-    </div>
-  }
+              <!-- Column 1: Labels on LEFT side -->
+              @if (node.column === 1) {
+                <text
+                  [attr.x]="node.x - 8"
+                  [attr.y]="node.y + node.height / 2 - 6"
+                  text-anchor="end"
+                  dominant-baseline="middle"
+                  class="text-[10px] font-medium fill-stone-600 dark:fill-stone-400"
+                >
+                  {{ node.label }}
+                </text>
+                <text
+                  [attr.x]="node.x - 8"
+                  [attr.y]="node.y + node.height / 2 + 7"
+                  text-anchor="end"
+                  dominant-baseline="middle"
+                  class="text-[10px] font-semibold fill-stone-800 dark:fill-stone-200"
+                >
+                  {{ formatCurrency(node.value) }}
+                </text>
+              }
+
+              <!-- Column 2: Labels on RIGHT side (outside) -->
+              @if (node.column === 2) {
+                <text
+                  [attr.x]="node.x + 26"
+                  [attr.y]="node.y + node.height / 2 - 6"
+                  text-anchor="start"
+                  dominant-baseline="middle"
+                  class="text-[11px] font-medium fill-stone-700 dark:fill-stone-300"
+                >
+                  {{ node.label }}
+                </text>
+                <text
+                  [attr.x]="node.x + 26"
+                  [attr.y]="node.y + node.height / 2 + 8"
+                  text-anchor="start"
+                  dominant-baseline="middle"
+                  class="text-[11px] font-semibold fill-stone-900 dark:fill-stone-100"
+                >
+                  {{ formatCurrency(node.value) }}
+                </text>
+              }
+            </g>
+          }
+        </g>
+      </svg>
+    } @else {
+      <div class="flex items-center justify-center h-full text-stone-500 dark:text-stone-400">
+        <p>Compila il form per visualizzare il grafico.</p>
+      </div>
+    }
+  </div>
+
+  <!-- View Mode Toggle -->
+  <div class="flex justify-end gap-2 pt-3" role="group" aria-label="Visualizzazione">
+    <button
+      type="button"
+      [class]="
+        viewMode() === 'monthly'
+          ? 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
+          : 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
+      "
+      [attr.aria-pressed]="viewMode() === 'monthly'"
+      (click)="setViewMode('monthly')"
+    >
+      Mensile
+    </button>
+    <button
+      type="button"
+      [class]="
+        viewMode() === 'annual'
+          ? 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
+          : 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
+      "
+      [attr.aria-pressed]="viewMode() === 'annual'"
+      (click)="setViewMode('annual')"
+    >
+      Annuale
+    </button>
+  </div>
 </div>
