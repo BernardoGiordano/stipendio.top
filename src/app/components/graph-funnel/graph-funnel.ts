@@ -17,6 +17,7 @@ interface SankeyNode {
   value: number;
   color: string;
   column: number;
+  x: number;
   y: number;
   height: number;
 }
@@ -81,128 +82,168 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     width: number,
     height: number,
   ): { nodes: SankeyNode[]; links: SankeyLink[]; width: number; height: number } {
-    const padding = { top: 20, right: 120, bottom: 20, left: 120 };
-    const nodePadding = 16;
-    const nodeWidth = 16;
+    const padding = { top: 30, right: 110, bottom: 30, left: 110 };
+    const nodeWidth = 18;
+    const nodePadding = 10;
 
+    const innerWidth = width - padding.left - padding.right;
     const innerHeight = height - padding.top - padding.bottom;
 
-    // Build raw data
+    // Extract values
     const ral = result.ral;
     const inps = result.contributiInps.totaleContributi;
     const irpefFinale = result.irpefFinale;
     const addizionali = result.addizionali.totaleAddizionali;
-    const nettoAnnuo = result.nettoAnnuo;
-    const bonus = result.totaleBonus;
-
-    // Calculate flows
+    const totalePercepito = result.totalePercepito;
     const cuneoIndennita = result.cuneoFiscale.indennitaEsente;
     const trattamentoIntegrativo = result.trattamentoIntegrativo.importo;
-    const nettoFromRal = nettoAnnuo - bonus;
+    const rimborsiEsenti = result.rimborsiTrasferta.totaleEsente;
+    const benefitEsenti = result.benefitNonTassati.totaleEsente;
+    const totalBonus = cuneoIndennita + trattamentoIntegrativo;
+    const nettoBase = result.nettoAnnuo - totalBonus;
 
-    // Colors (semantic)
-    const colors = {
-      ral: '#78716c', // stone-500
-      inps: '#ef4444', // red-500
-      irpef: '#f97316', // orange-500
-      addizionali: '#f59e0b', // amber-500
-      netto: '#22c55e', // green-500
-      cuneo: '#3b82f6', // blue-500
-      trattamento: '#8b5cf6', // violet-500
+    // Colors
+    const colors: Record<string, string> = {
+      ral: '#78716c',
+      inps: '#ef4444',
+      irpef: '#f97316',
+      addizionali: '#eab308',
+      nettoBase: '#84cc16',
+      cuneo: '#3b82f6',
+      trattamento: '#8b5cf6',
+      rimborsi: '#14b8a6',
+      benefit: '#06b6d4',
+      totale: '#22c55e',
     };
 
-    // Define columns
-    // Column 0: RAL, Cuneo, Trattamento (sources)
-    // Column 1: INPS, IRPEF, Addizionali, Netto (targets)
+    // Column X positions
+    const columnGap = (innerWidth - nodeWidth * 3) / 2;
+    const col0X = padding.left;
+    const col1X = padding.left + nodeWidth + columnGap;
+    const col2X = padding.left + (nodeWidth + columnGap) * 2;
 
-    // Build nodes
+    // Collect all values
+    const col1Values = [
+      { id: 'inps', value: inps, label: 'INPS' },
+      { id: 'irpef', value: irpefFinale, label: 'IRPEF' },
+      { id: 'addizionali', value: addizionali, label: 'Addizionali' },
+      { id: 'nettoBase', value: nettoBase, label: 'Netto Base' },
+    ].filter((v) => v.value > 0);
+
+    const bonusSources = [
+      { id: 'cuneo', value: cuneoIndennita, label: 'Cuneo Fiscale' },
+      { id: 'trattamento', value: trattamentoIntegrativo, label: 'Tratt. Integrativo' },
+      { id: 'rimborsi', value: rimborsiEsenti, label: 'Rimborsi Esenti' },
+      { id: 'benefit', value: benefitEsenti, label: 'Benefit Esenti' },
+    ].filter((v) => v.value > 0);
+
+    // Calculate scale: use RAL + bonuses as the reference (everything flows through this)
+    const totalSourceValue = ral + bonusSources.reduce((s, b) => s + b.value, 0);
+
+    // Account for padding between nodes
+    const col1NodeCount = col1Values.length;
+    const col0NodeCount = 1 + bonusSources.length; // RAL + bonuses
+    const maxNodeCount = Math.max(col0NodeCount, col1NodeCount);
+    const totalPadding = nodePadding * (maxNodeCount - 1);
+
+    const scale = (innerHeight - totalPadding) / totalSourceValue;
+
+    // Helper to get height
+    const getHeight = (value: number) => value * scale;
+
     const nodes: SankeyNode[] = [];
     const links: SankeyLink[] = [];
 
-    // Column 0 nodes (left side - sources)
-    const col0Nodes: { id: string; value: number; color: string; label: string }[] = [];
-    col0Nodes.push({ id: 'ral', value: ral, color: colors.ral, label: 'RAL (Lordo)' });
-    if (cuneoIndennita > 0) {
-      col0Nodes.push({
-        id: 'cuneo',
-        value: cuneoIndennita,
-        color: colors.cuneo,
-        label: 'Cuneo Fiscale',
-      });
-    }
-    if (trattamentoIntegrativo > 0) {
-      col0Nodes.push({
-        id: 'trattamento',
-        value: trattamentoIntegrativo,
-        color: colors.trattamento,
-        label: 'Tratt. Integrativo',
-      });
-    }
+    // === Calculate all heights first ===
+    const ralHeight = getHeight(ral);
+    const col1Heights = col1Values.map((v) => getHeight(v.value));
+    const bonusHeights = bonusSources.map((v) => getHeight(v.value));
+    const totaleHeight = getHeight(totalePercepito);
 
-    // Column 1 nodes (right side - targets)
-    const col1Nodes: { id: string; value: number; color: string; label: string }[] = [];
-    if (inps > 0) {
-      col1Nodes.push({ id: 'inps', value: inps, color: colors.inps, label: 'INPS' });
-    }
-    if (irpefFinale > 0) {
-      col1Nodes.push({ id: 'irpef', value: irpefFinale, color: colors.irpef, label: 'IRPEF' });
-    }
-    if (addizionali > 0) {
+    // === Position col1 nodes (align top with RAL) ===
+    // Col1 total height with padding
+    const col1TotalHeight =
+      col1Heights.reduce((s, h) => s + h, 0) + nodePadding * (col1Values.length - 1);
+
+    // Calculate starting Y to center the entire chart
+    const bonusTotalHeight =
+      bonusHeights.reduce((s, h) => s + h, 0) +
+      (bonusSources.length > 0 ? nodePadding * bonusSources.length : 0);
+    const totalChartHeight = Math.max(col1TotalHeight, ralHeight) + bonusTotalHeight;
+    const startY = padding.top + (innerHeight - totalChartHeight) / 2;
+
+    // Position col1 nodes
+    let col1Y = startY;
+    const col1Nodes: SankeyNode[] = [];
+    for (let i = 0; i < col1Values.length; i++) {
+      const v = col1Values[i];
+      const h = col1Heights[i];
       col1Nodes.push({
-        id: 'addizionali',
-        value: addizionali,
-        color: colors.addizionali,
-        label: 'Addizionali',
-      });
-    }
-    col1Nodes.push({ id: 'netto', value: nettoAnnuo, color: colors.netto, label: 'Netto Annuo' });
-
-    // Calculate total values for scaling
-    const col0Total = col0Nodes.reduce((sum, n) => sum + n.value, 0);
-    const col1Total = col1Nodes.reduce((sum, n) => sum + n.value, 0);
-    const maxTotal = Math.max(col0Total, col1Total);
-
-    // Scale factor to fit nodes in available height
-    const availableHeight =
-      innerHeight - nodePadding * (Math.max(col0Nodes.length, col1Nodes.length) - 1);
-    const scale = availableHeight / maxTotal;
-
-    // Position column 0 nodes
-    let y0 = padding.top;
-    for (const n of col0Nodes) {
-      const nodeHeight = Math.max(n.value * scale, 2);
-      nodes.push({
-        id: n.id,
-        label: n.label,
-        value: n.value,
-        color: n.color,
-        column: 0,
-        y: y0,
-        height: nodeHeight,
-      });
-      y0 += nodeHeight + nodePadding;
-    }
-
-    // Position column 1 nodes
-    let y1 = padding.top;
-    for (const n of col1Nodes) {
-      const nodeHeight = Math.max(n.value * scale, 2);
-      nodes.push({
-        id: n.id,
-        label: n.label,
-        value: n.value,
-        color: n.color,
+        id: v.id,
+        label: v.label,
+        value: v.value,
+        color: colors[v.id],
         column: 1,
-        y: y1,
-        height: nodeHeight,
+        x: col1X,
+        y: col1Y,
+        height: h,
       });
-      y1 += nodeHeight + nodePadding;
+      col1Y += h + nodePadding;
     }
+    nodes.push(...col1Nodes);
 
-    // Build links with proper positioning
-    const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+    // === Position RAL (same height, aligned with col1) ===
+    const ralNode: SankeyNode = {
+      id: 'ral',
+      label: 'RAL (Lordo)',
+      value: ral,
+      color: colors['ral'],
+      column: 0,
+      x: col0X,
+      y: startY,
+      height: ralHeight,
+    };
+    nodes.push(ralNode);
 
-    // Track current Y position for each node's outgoing/incoming links
+    // === Position bonus sources below RAL ===
+    const bonusNodes: SankeyNode[] = [];
+    let bonusY = startY + ralHeight + nodePadding;
+    for (let i = 0; i < bonusSources.length; i++) {
+      const bonus = bonusSources[i];
+      const h = bonusHeights[i];
+      bonusNodes.push({
+        id: bonus.id,
+        label: bonus.label,
+        value: bonus.value,
+        color: colors[bonus.id],
+        column: 0,
+        x: col0X,
+        y: bonusY,
+        height: h,
+      });
+      bonusY += h + nodePadding;
+    }
+    nodes.push(...bonusNodes);
+
+    // === Position Totale Percepito ===
+    // Its height equals the sum of incoming flows: nettoBase + all bonuses
+    const nettoBaseNode = col1Nodes.find((n) => n.id === 'nettoBase');
+    const totaleY = nettoBaseNode ? nettoBaseNode.y : startY;
+
+    const totaleNode: SankeyNode = {
+      id: 'totale',
+      label: 'Totale Percepito',
+      value: totalePercepito,
+      color: colors['totale'],
+      column: 2,
+      x: col2X,
+      y: totaleY,
+      height: totaleHeight,
+    };
+    nodes.push(totaleNode);
+
+    // === Build links ===
+    // Track offsets for stacking flows
     const sourceOffsets = new Map<string, number>();
     const targetOffsets = new Map<string, number>();
     nodes.forEach((n) => {
@@ -210,85 +251,90 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
       targetOffsets.set(n.id, n.y);
     });
 
-    // Define links (from -> to)
-    const linkDefs = [
-      { from: 'ral', to: 'inps', value: inps },
-      { from: 'ral', to: 'irpef', value: irpefFinale },
-      { from: 'ral', to: 'addizionali', value: addizionali },
-      { from: 'ral', to: 'netto', value: nettoFromRal },
-      { from: 'cuneo', to: 'netto', value: cuneoIndennita },
-      { from: 'trattamento', to: 'netto', value: trattamentoIntegrativo },
-    ].filter((l) => l.value > 0 && nodeMap.has(l.from) && nodeMap.has(l.to));
-
-    for (const def of linkDefs) {
-      const sourceNode = nodeMap.get(def.from)!;
-      const targetNode = nodeMap.get(def.to)!;
-
-      const linkHeight = Math.max(def.value * scale, 1);
-      const sourceY = sourceOffsets.get(def.from)!;
-      const targetY = targetOffsets.get(def.to)!;
+    // RAL → Col1 links (flows split from RAL to each col1 node)
+    for (const col1Node of col1Nodes) {
+      const flowHeight = col1Node.height; // Same height as target
+      const sourceY = sourceOffsets.get('ral')!;
 
       links.push({
-        from: def.from,
-        to: def.to,
-        value: def.value,
+        from: 'ral',
+        to: col1Node.id,
+        value: col1Node.value,
         sourceY,
-        sourceHeight: linkHeight,
-        targetY,
-        targetHeight: linkHeight,
+        sourceHeight: flowHeight,
+        targetY: col1Node.y,
+        targetHeight: col1Node.height,
       });
 
-      sourceOffsets.set(def.from, sourceY + linkHeight);
-      targetOffsets.set(def.to, targetY + linkHeight);
+      sourceOffsets.set('ral', sourceY + flowHeight);
     }
 
-    // Adjust node x positions
-    const col0X = padding.left;
-    const col1X = width - padding.right - nodeWidth;
+    // NettoBase → Totale link
+    if (nettoBaseNode) {
+      const flowHeight = nettoBaseNode.height;
+      const targetY = targetOffsets.get('totale')!;
 
-    nodes.forEach((n) => {
-      (n as SankeyNode & { x: number }).x = n.column === 0 ? col0X : col1X;
-    });
+      links.push({
+        from: 'nettoBase',
+        to: 'totale',
+        value: nettoBase,
+        sourceY: nettoBaseNode.y,
+        sourceHeight: flowHeight,
+        targetY,
+        targetHeight: flowHeight,
+      });
 
-    return {
-      nodes: nodes as (SankeyNode & { x: number })[],
-      links,
-      width,
-      height,
-    };
-  }
+      targetOffsets.set('totale', targetY + flowHeight);
+    }
 
-  getNodeX(node: SankeyNode): number {
-    const data = this.chartData();
-    if (!data) return 0;
-    const padding = { left: 120, right: 120 };
-    const nodeWidth = 16;
-    return node.column === 0 ? padding.left : data.width - padding.right - nodeWidth;
+    // Bonus → Totale links
+    for (const bonusNode of bonusNodes) {
+      const flowHeight = bonusNode.height;
+      const targetY = targetOffsets.get('totale')!;
+
+      links.push({
+        from: bonusNode.id,
+        to: 'totale',
+        value: bonusNode.value,
+        sourceY: bonusNode.y,
+        sourceHeight: flowHeight,
+        targetY,
+        targetHeight: flowHeight,
+      });
+
+      targetOffsets.set('totale', targetY + flowHeight);
+    }
+
+    return { nodes, links, width, height };
   }
 
   getLinkPath(link: SankeyLink): string {
     const data = this.chartData();
     if (!data) return '';
 
-    const padding = { left: 120, right: 120 };
-    const nodeWidth = 16;
+    const nodeWidth = 18;
+    const nodeMap = new Map(data.nodes.map((n) => [n.id, n]));
 
-    const x0 = padding.left + nodeWidth;
-    const x1 = data.width - padding.right - nodeWidth;
+    const sourceNode = nodeMap.get(link.from);
+    const targetNode = nodeMap.get(link.to);
+    if (!sourceNode || !targetNode) return '';
+
+    const x0 = sourceNode.x + nodeWidth;
+    const x1 = targetNode.x;
 
     const y0Top = link.sourceY;
     const y0Bottom = link.sourceY + link.sourceHeight;
     const y1Top = link.targetY;
     const y1Bottom = link.targetY + link.targetHeight;
 
-    const midX = (x0 + x1) / 2;
+    const dx = x1 - x0;
+    const cpOffset = dx * 0.5;
 
-    // Bezier curve path
     return `
       M ${x0} ${y0Top}
-      C ${midX} ${y0Top}, ${midX} ${y1Top}, ${x1} ${y1Top}
+      C ${x0 + cpOffset} ${y0Top}, ${x1 - cpOffset} ${y1Top}, ${x1} ${y1Top}
       L ${x1} ${y1Bottom}
-      C ${midX} ${y1Bottom}, ${midX} ${y0Bottom}, ${x0} ${y0Bottom}
+      C ${x1 - cpOffset} ${y1Bottom}, ${x0 + cpOffset} ${y0Bottom}, ${x0} ${y0Bottom}
       Z
     `;
   }
@@ -298,7 +344,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     if (!data) return 'rgba(120, 113, 108, 0.3)';
 
     const sourceNode = data.nodes.find((n) => n.id === link.from);
-    return sourceNode ? this.hexToRgba(sourceNode.color, 0.4) : 'rgba(120, 113, 108, 0.3)';
+    return sourceNode ? this.hexToRgba(sourceNode.color, 0.45) : 'rgba(120, 113, 108, 0.3)';
   }
 
   private hexToRgba(hex: string, alpha: number): string {
@@ -315,15 +361,5 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
-  }
-
-  getTextAnchor(node: SankeyNode): string {
-    return node.column === 0 ? 'end' : 'start';
-  }
-
-  getLabelX(node: SankeyNode): number {
-    const nodeWidth = 16;
-    const x = this.getNodeX(node);
-    return node.column === 0 ? x - 8 : x + nodeWidth + 8;
   }
 }

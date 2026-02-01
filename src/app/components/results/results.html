@@ -678,7 +678,12 @@
 
       <!-- Grafico Panel -->
       @if (activeTab() === 'grafico') {
-        <div id="panel-grafico" role="tabpanel" aria-labelledby="tab-grafico" class="h-[500px] p-4">
+        <div
+          id="panel-grafico"
+          role="tabpanel"
+          aria-labelledby="tab-grafico"
+          class="h-[520px] px-2 py-4"
+        >
           <app-graph-funnel [result]="result()" />
         </div>
       }

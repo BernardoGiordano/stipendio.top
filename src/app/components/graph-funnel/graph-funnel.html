@@ -1,8 +1,8 @@
 <div
   #svgContainer
-  class="w-full h-full min-h-[400px]"
+  class="w-full h-full min-h-[450px]"
   role="img"
-  aria-label="Grafico Sankey che mostra la distribuzione dello stipendio lordo tra tasse, contributi e netto"
+  aria-label="Grafico Sankey che mostra la distribuzione dello stipendio lordo tra tasse, contributi e totale percepito"
 >
   @if (chartData(); as data) {
     <svg
@@ -12,53 +12,101 @@
       class="w-full h-full"
       preserveAspectRatio="xMidYMid meet"
     >
-      <!-- Links -->
+      <!-- Links (rendered first, behind nodes) -->
       <g class="links">
         @for (link of data.links; track link.from + link.to) {
           <path
             [attr.d]="getLinkPath(link)"
             [attr.fill]="getLinkColor(link)"
-            class="transition-opacity duration-200 hover:opacity-80"
+            class="transition-opacity duration-200 hover:opacity-60"
           >
-            <title>{{ link.from }} → {{ link.to }}: {{ formatCurrency(link.value) }}</title>
+            <title>{{ formatCurrency(link.value) }}</title>
           </path>
         }
       </g>
 
-      <!-- Nodes -->
+      <!-- Nodes with labels -->
       <g class="nodes">
         @for (node of data.nodes; track node.id) {
           <g>
             <!-- Node rectangle -->
             <rect
-              [attr.x]="getNodeX(node)"
+              [attr.x]="node.x"
               [attr.y]="node.y"
-              width="16"
+              width="18"
               [attr.height]="node.height"
               [attr.fill]="node.color"
-              rx="2"
-              class="transition-opacity duration-200"
+              rx="3"
+              class="drop-shadow-sm"
             >
               <title>{{ node.label }}: {{ formatCurrency(node.value) }}</title>
             </rect>
 
-            <!-- Label -->
-            <text
-              [attr.x]="getLabelX(node)"
-              [attr.y]="node.y + node.height / 2"
-              [attr.text-anchor]="getTextAnchor(node)"
-              dominant-baseline="middle"
-              class="text-xs font-medium fill-stone-700 dark:fill-stone-300"
-            >
-              <tspan [attr.x]="getLabelX(node)" dy="-0.5em">{{ node.label }}</tspan>
-              <tspan
-                [attr.x]="getLabelX(node)"
-                dy="1.2em"
-                class="font-semibold fill-stone-900 dark:fill-stone-100"
+            <!-- Column 0: Labels on LEFT side (outside) -->
+            @if (node.column === 0) {
+              <text
+                [attr.x]="node.x - 8"
+                [attr.y]="node.y + node.height / 2 - 6"
+                text-anchor="end"
+                dominant-baseline="middle"
+                class="text-[11px] font-medium fill-stone-700 dark:fill-stone-300"
+              >
+                {{ node.label }}
+              </text>
+              <text
+                [attr.x]="node.x - 8"
+                [attr.y]="node.y + node.height / 2 + 8"
+                text-anchor="end"
+                dominant-baseline="middle"
+                class="text-[11px] font-semibold fill-stone-900 dark:fill-stone-100"
               >
                 {{ formatCurrency(node.value) }}
-              </tspan>
-            </text>
+              </text>
+            }
+
+            <!-- Column 1: Labels on LEFT side -->
+            @if (node.column === 1) {
+              <text
+                [attr.x]="node.x - 8"
+                [attr.y]="node.y + node.height / 2 - 6"
+                text-anchor="end"
+                dominant-baseline="middle"
+                class="text-[10px] font-medium fill-stone-600 dark:fill-stone-400"
+              >
+                {{ node.label }}
+              </text>
+              <text
+                [attr.x]="node.x - 8"
+                [attr.y]="node.y + node.height / 2 + 7"
+                text-anchor="end"
+                dominant-baseline="middle"
+                class="text-[10px] font-semibold fill-stone-800 dark:fill-stone-200"
+              >
+                {{ formatCurrency(node.value) }}
+              </text>
+            }
+
+            <!-- Column 2: Labels on RIGHT side (outside) -->
+            @if (node.column === 2) {
+              <text
+                [attr.x]="node.x + 26"
+                [attr.y]="node.y + node.height / 2 - 6"
+                text-anchor="start"
+                dominant-baseline="middle"
+                class="text-[11px] font-medium fill-stone-700 dark:fill-stone-300"
+              >
+                {{ node.label }}
+              </text>
+              <text
+                [attr.x]="node.x + 26"
+                [attr.y]="node.y + node.height / 2 + 8"
+                text-anchor="start"
+                dominant-baseline="middle"
+                class="text-[11px] font-semibold fill-stone-900 dark:fill-stone-100"
+              >
+                {{ formatCurrency(node.value) }}
+              </text>
+            }
           </g>
         }
       </g>
