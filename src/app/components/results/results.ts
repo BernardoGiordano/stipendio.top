@@ -1,21 +1,24 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
-import { OutputCalcoloStipendio } from '../../../calculator/types';
+import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculator/types';
 import { GraphFunnel } from '../graph-funnel/graph-funnel';
+import { GraphProjection } from '../graph-projection/graph-projection';
 
-type TabId = 'cedolino' | 'grafico';
+type TabId = 'cedolino' | 'flusso' | 'proiezione';
 
 @Component({
   selector: 'app-results',
-  imports: [GraphFunnel],
+  imports: [GraphFunnel, GraphProjection],
   templateUrl: './results.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Results {
   readonly result = input<OutputCalcoloStipendio | null>(null);
+  readonly baseInput = input<InputCalcoloStipendio | null>(null);
 
   readonly hasResult = computed(() => this.result() !== null);
 
   readonly activeTab = signal<TabId>('cedolino');
+  readonly hasBaseInput = computed(() => this.baseInput() !== null);
 
   setActiveTab(tab: TabId): void {
     this.activeTab.set(tab);

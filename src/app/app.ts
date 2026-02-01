@@ -8,7 +8,7 @@ import {
   toInputCalcoloStipendio,
 } from './components/form-container/form-group';
 import { calcolaStipendioNetto } from '../calculator/calculator';
-import { OutputCalcoloStipendio } from '../calculator/types';
+import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../calculator/types';
 import { ThemeMode } from './services/theme-mode';
 import { FormStateShare } from './services/form-state-share';
 
@@ -28,14 +28,17 @@ export class App {
   /** Whether the form was loaded from a shared URL */
   readonly loadedFromUrl = signal(false);
 
-  readonly calculationResult = computed<OutputCalcoloStipendio | null>(() => {
-    // Check form validity before calculating
+  /** The input model for projections (derived from form) */
+  readonly calculationInput = computed<InputCalcoloStipendio | null>(() => {
     if (!this.stipendioForm().valid()) {
       return null;
     }
-
     const model = this.formModel();
-    const input = toInputCalcoloStipendio(model);
+    return toInputCalcoloStipendio(model);
+  });
+
+  readonly calculationResult = computed<OutputCalcoloStipendio | null>(() => {
+    const input = this.calculationInput();
     if (!input) {
       return null;
     }

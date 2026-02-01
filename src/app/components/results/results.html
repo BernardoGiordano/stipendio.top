@@ -49,16 +49,30 @@
       <button
         type="button"
         role="tab"
-        [attr.aria-selected]="activeTab() === 'grafico'"
-        [attr.aria-controls]="'panel-grafico'"
+        [attr.aria-selected]="activeTab() === 'flusso'"
+        [attr.aria-controls]="'panel-flusso'"
         [class]="
-          activeTab() === 'grafico'
+          activeTab() === 'flusso'
             ? 'flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
             : 'flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
         "
-        (click)="setActiveTab('grafico')"
+        (click)="setActiveTab('flusso')"
       >
         Flusso
+      </button>
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'proiezione'"
+        [attr.aria-controls]="'panel-proiezione'"
+        [class]="
+          activeTab() === 'proiezione'
+            ? 'flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
+            : 'flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
+        "
+        (click)="setActiveTab('proiezione')"
+      >
+        Proiezione
       </button>
     </nav>
 
@@ -676,15 +690,27 @@
         </div>
       }
 
-      <!-- Grafico Panel -->
-      @if (activeTab() === 'grafico') {
+      <!-- Flusso Panel -->
+      @if (activeTab() === 'flusso') {
         <div
-          id="panel-grafico"
+          id="panel-flusso"
           role="tabpanel"
-          aria-labelledby="tab-grafico"
+          aria-labelledby="tab-flusso"
           class="h-[520px] px-2 py-4"
         >
           <app-graph-funnel [result]="result()" />
+        </div>
+      }
+
+      <!-- Proiezione Panel -->
+      @if (activeTab() === 'proiezione') {
+        <div
+          id="panel-proiezione"
+          role="tabpanel"
+          aria-labelledby="tab-proiezione"
+          class="h-[520px] px-2 py-4"
+        >
+          <app-graph-projection [result]="result()" [baseInput]="baseInput()" />
         </div>
       }
     </div>
