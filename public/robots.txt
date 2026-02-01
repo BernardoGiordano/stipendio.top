@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://stipendio.top/sitemap.xml

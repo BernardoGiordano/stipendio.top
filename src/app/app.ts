@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormContainer } from './components/form-container/form-container';
 import { Results } from './components/results/results';
 import { Resizer } from './components/resizer/resizer';
@@ -13,6 +20,7 @@ import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../calculator/typ
 import { ThemeMode } from './services/theme-mode';
 import { FormStateShare } from './services/form-state-share';
 import { DisplayMode } from './services/display-mode';
+import { SeoService } from './services/seo.service';
 import {
   CdkMenu,
   CdkMenuItem,
@@ -44,6 +52,7 @@ export class App {
   readonly themeMode = inject(ThemeMode);
   readonly formStateShare = inject(FormStateShare);
   readonly displayMode = inject(DisplayMode);
+  private readonly seoService = inject(SeoService);
 
   readonly formModel = signal<StipendioFormModel>(this.loadInitialFormState());
   readonly stipendioForm = createStipendioForm(this.formModel);
@@ -74,6 +83,17 @@ export class App {
       return null;
     }
   });
+
+  constructor() {
+    effect(() => {
+      if (this.loadedFromUrl()) {
+        const result = this.calculationResult();
+        if (result) {
+          this.seoService.updateForSharedState(result.nettoMensile);
+        }
+      }
+    });
+  }
 
   copyShareableLink(): void {
     this.formStateShare.copyToClipboard(this.formModel());
