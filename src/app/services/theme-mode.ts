@@ -22,6 +22,12 @@ export class ThemeMode {
     this.theme.update((current) => (current === 'dark' ? 'light' : 'dark'));
   }
 
+  setTheme(theme: Theme): void {
+    this.theme.set(theme);
+  }
+
+  readonly isLight = computed(() => this.theme() === 'light');
+
   private getInitialTheme(): Theme {
     const stored = localStorage.getItem('theme');
     if (stored === 'dark' || stored === 'light') {

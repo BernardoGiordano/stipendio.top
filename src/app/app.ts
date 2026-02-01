@@ -13,10 +13,26 @@ import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../calculator/typ
 import { ThemeMode } from './services/theme-mode';
 import { FormStateShare } from './services/form-state-share';
 import { DisplayMode } from './services/display-mode';
+import {
+  CdkMenu,
+  CdkMenuItem,
+  CdkMenuItemRadio,
+  CdkMenuGroup,
+  CdkMenuTrigger,
+} from '@angular/cdk/menu';
 
 @Component({
   selector: 'app-root',
-  imports: [FormContainer, Results, Resizer],
+  imports: [
+    FormContainer,
+    Results,
+    Resizer,
+    CdkMenu,
+    CdkMenuItem,
+    CdkMenuItemRadio,
+    CdkMenuGroup,
+    CdkMenuTrigger,
+  ],
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

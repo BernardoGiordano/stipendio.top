@@ -2,14 +2,14 @@
   class="border-b border-stone-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50 dark:border-stone-700 dark:bg-stone-900/80"
 >
   <div class="max-w-7xl mx-auto px-4 lg:px-8 py-3 flex items-center justify-between">
-    <!-- Left side: Logo + Icons -->
+    <!-- Left side: Logo -->
     <div class="flex items-center gap-2">
       <h1 class="text-xl font-semibold tracking-tight text-stone-900 dark:text-stone-100">
         Stipendio.🔝
       </h1>
       <a
         href="#"
-        class="p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-colors"
+        class="hidden lg:block p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-colors"
         aria-label="GitHub"
       >
         <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -22,7 +22,7 @@
       </a>
       <a
         href="#"
-        class="p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-colors"
+        class="hidden lg:block p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-colors"
         aria-label="PayPal"
       >
         <svg class="size-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -37,7 +37,7 @@
       </a>
       <button
         type="button"
-        class="p-2 cursor-pointer rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-colors"
+        class="hidden lg:block p-2 cursor-pointer rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-colors"
         aria-label="Cambia tema"
         (click)="themeMode.toggle()"
       >
@@ -75,11 +75,11 @@
       </button>
     </div>
 
-    <!-- Right side: Toggle + Amounts (mobile only) -->
+    <!-- Right side: Amounts (mobile only) + Menu -->
     <div class="flex items-center gap-2">
-      <!-- Netto/Percepito Toggle -->
+      <!-- Netto/Percepito Toggle (hidden on small screens) -->
       <div
-        class="flex rounded-lg overflow-hidden text-xs"
+        class="hidden lg:flex rounded-lg overflow-hidden text-xs"
         role="group"
         aria-label="Modalità visualizzazione importi"
       >
@@ -111,7 +111,7 @@
 
       @if (calculationResult(); as r) {
         <div
-          class="flex items-center gap-4 text-right lg:hidden ml-2 pl-2 border-l border-stone-200 dark:border-stone-700"
+          class="flex items-center gap-4 text-right lg:hidden mr-2 pr-2 border-r border-stone-200 dark:border-stone-700"
         >
           <div class="flex flex-col">
             <span class="text-[10px] text-stone-400 uppercase tracking-wide">Mensile</span>
@@ -127,6 +127,163 @@
           </div>
         </div>
       }
+
+      <!-- Menu trigger button (visible only on small screens) -->
+      <button
+        type="button"
+        class="lg:hidden p-2 cursor-pointer rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-colors"
+        aria-label="Menu"
+        [cdkMenuTriggerFor]="menu"
+      >
+        <svg
+          class="size-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+          />
+        </svg>
+      </button>
+
+      <!-- CDK Menu -->
+      <ng-template #menu>
+        <div
+          cdkMenu
+          class="min-w-[200px] rounded-lg bg-white dark:bg-stone-800 shadow-lg ring-1 ring-stone-200 dark:ring-stone-700 py-1 focus:outline-none"
+        >
+          <!-- Display mode group -->
+          <div cdkMenuGroup>
+            <button
+              cdkMenuItemRadio
+              [cdkMenuItemChecked]="displayMode.isNetto()"
+              (cdkMenuItemTriggered)="displayMode.setMode('netto')"
+              class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
+            >
+              <span class="size-4 flex items-center justify-center">
+                @if (displayMode.isNetto()) {
+                  <svg class="size-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                }
+              </span>
+              Mostra netto
+            </button>
+            <button
+              cdkMenuItemRadio
+              [cdkMenuItemChecked]="displayMode.isPercepito()"
+              (cdkMenuItemTriggered)="displayMode.setMode('percepito')"
+              class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
+            >
+              <span class="size-4 flex items-center justify-center">
+                @if (displayMode.isPercepito()) {
+                  <svg class="size-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                }
+              </span>
+              Mostra percepito
+            </button>
+          </div>
+
+          <!-- Divider -->
+          <div class="my-1 border-t border-stone-200 dark:border-stone-700"></div>
+
+          <!-- Theme mode group -->
+          <div cdkMenuGroup>
+            <button
+              cdkMenuItemRadio
+              [cdkMenuItemChecked]="themeMode.isLight()"
+              (cdkMenuItemTriggered)="themeMode.setTheme('light')"
+              class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
+            >
+              <span class="size-4 flex items-center justify-center">
+                @if (themeMode.isLight()) {
+                  <svg class="size-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                }
+              </span>
+              Tema chiaro
+            </button>
+            <button
+              cdkMenuItemRadio
+              [cdkMenuItemChecked]="themeMode.isDark()"
+              (cdkMenuItemTriggered)="themeMode.setTheme('dark')"
+              class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
+            >
+              <span class="size-4 flex items-center justify-center">
+                @if (themeMode.isDark()) {
+                  <svg class="size-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                }
+              </span>
+              Tema scuro
+            </button>
+          </div>
+
+          <!-- Divider -->
+          <div class="my-1 border-t border-stone-200 dark:border-stone-700"></div>
+
+          <!-- Links -->
+          <a
+            cdkMenuItem
+            href="https://github.com/nicobargit/stipendio.top"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
+          >
+            <svg class="size-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill-rule="evenodd"
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Codice sorgente
+          </a>
+          <a
+            cdkMenuItem
+            href="https://www.paypal.com/donate"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
+          >
+            <svg class="size-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.77.77 0 0 1 .757-.649h6.403c2.12 0 3.804.482 4.873 1.392.996.849 1.39 2.063 1.174 3.617l-.005.023c-.42 2.72-2.043 4.461-4.732 5.085-.608.14-1.275.212-1.988.212H9.042l-.934 6.072a.77.77 0 0 1-.757.649H7.35l.001-.001h-.275z"
+              />
+              <path
+                d="M19.873 8.38c-.064.418-.163.86-.3 1.327-.89 3.043-3.266 4.607-7.064 4.607h-.477l-1.017 6.598a.642.642 0 0 1-.632.551H7.42l.234-1.519.094-.609.934-6.072h2.384c.713 0 1.38-.072 1.988-.212 2.689-.624 4.312-2.365 4.732-5.085l.005-.023c.09-.594.085-1.109-.026-1.563h.025c.627.292 1.06.733 1.324 1.35.235.55.336 1.22.286 2.011l-.001.013a8.073 8.073 0 0 1-.527 1.626z"
+                opacity="0.7"
+              />
+            </svg>
+            Supporta
+          </a>
+        </div>
+      </ng-template>
     </div>
   </div>
 </header>
