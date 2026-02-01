@@ -33,10 +33,8 @@ const IRPEF_SCAGLIONI = [
 
 /** Soglie esenzione fringe benefit 2026 */
 const FRINGE_BENEFIT = {
-  sogliaOrdinaria: 258.23,
   sogliaSenzaFigli: 1_000,
   sogliaConFigli: 2_000,
-  // Nel 2026 non esiste più la soglia speciale neoassunti
 } as const;
 
 /** Soglia buoni pasto elettronici 2026 (aumentata) */
@@ -519,6 +517,11 @@ function calcolaDetrazioneFigli(
   let numeroFigliConDetrazione = 0;
 
   for (const figlio of figli) {
+    // Verifica limite reddito per essere a carico
+    const limiteReddito =
+      figlio.eta <= 24 ? params.limiteRedditoFigliGiovani : params.limiteRedditoCarico;
+    if ((figlio.redditoAnnuo ?? 0) > limiteReddito) continue;
+
     const haDetrazione =
       figlio.disabile ||
       (figlio.eta >= params.etaMinimaFigli && figlio.eta < params.etaMassimaFigli);

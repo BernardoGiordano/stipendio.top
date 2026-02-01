@@ -85,6 +85,8 @@ export interface FiglioACarico {
   eta: number;
   /** Indica se il figlio è disabile */
   disabile: boolean;
+  /** Reddito annuo del figlio (per verifica limite a carico) */
+  redditoAnnuo?: number;
   /** Percentuale di carico (default 100%, 50% se ripartito) */
   percentualeCarico?: number;
 }

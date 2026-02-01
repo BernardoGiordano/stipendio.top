@@ -30,13 +30,14 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
 ### Formula Generale
 
 ```
-STIPENDIO NETTO = Imponibile − Contributi INPS − IRPEF Netta − Addizionali + Bonus
+STIPENDIO NETTO = Imponibile − Contributi INPS − IRPEF Finale − Addizionali + Bonus
 ```
 
 Dove:
 
 - `IMPONIBILE = RAL + Fringe Benefit Tassabili + Rimborsi Tassati + Benefit Eccedenti`
-- `IRPEF NETTA = IRPEF Lorda − Detrazioni − Detrazione Cuneo Fiscale`
+- `IRPEF NETTA = IRPEF Lorda − Detrazioni Lavoro − Detrazioni Familiari − Altre Detrazioni`
+- `IRPEF FINALE = MAX(0, IRPEF Netta − Detrazione Cuneo Fiscale)`
 - `BONUS = Indennità Cuneo Fiscale + Trattamento Integrativo`
 
 Il **Totale percepito** include anche le componenti esenti:
@@ -163,7 +164,7 @@ Se RC > €50.000:
 
 ###### Figli a Carico (dal 2025)
 
-Spetta solo per figli tra 21 e 30 anni non disabili, oppure figli disabili di qualsiasi età.
+Spetta solo per figli dai 21 ai 29 anni (compiuti) non disabili, oppure figli disabili di qualsiasi età.
 
 ```
 Detrazione = €950 × [(Coefficiente − RC) / Coefficiente]
@@ -427,7 +428,11 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  10. IRPEF NETTA                                                │
-│      = MAX(0, IRPEF Lorda − Detrazioni)                         │
+│      = MAX(0, IRPEF Lorda − Detrazioni Lavoro − Detrazioni      │
+│        Familiari − Altre Detrazioni)                            │
+│                                                                 │
+│  10b. IRPEF FINALE                                              │
+│       = MAX(0, IRPEF Netta − Detrazione Cuneo Fiscale)          │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -447,8 +452,8 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  13. RISULTATO FINALE                                           │
-│      Netto = Imponibile − Contributi − IRPEF − Addizionali      │
-│              + Bonus                                            │
+│      Netto = Imponibile − Contributi − IRPEF Finale             │
+│              − Addizionali + Bonus                              │
 │                                                                 │
 │      Totale Percepito = Netto + Esenti                          │
 └─────────────────────────────────────────────────────────────────┘
