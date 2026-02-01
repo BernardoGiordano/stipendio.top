@@ -42,7 +42,7 @@
           aria-required="true"
           [attr.aria-invalid]="form.mensilita().invalid()"
           [attr.aria-describedby]="form.mensilita().invalid() ? 'mensilita-error' : null"
-          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+          class="h-[42px] px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
         >
           @for (m of mensilita; track m) {
             <option [value]="m">{{ m }}</option>
@@ -68,7 +68,7 @@
           id="tipoContratto"
           [formField]="form.tipoContratto"
           aria-required="true"
-          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+          class="h-[42px] px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
         >
           @for (tipo of tipiContratto; track tipo.value) {
             <option [value]="tipo.value">{{ tipo.label }}</option>
@@ -84,7 +84,7 @@
           id="annoFiscale"
           [formField]="form.annoFiscale"
           aria-required="true"
-          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+          class="h-[42px] px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
         >
           @for (anno of anniFiscali; track anno) {
             <option [value]="anno">{{ anno }}</option>
@@ -100,7 +100,7 @@
           aria-required="true"
           [attr.aria-invalid]="form.regione().invalid()"
           [attr.aria-describedby]="form.regione().invalid() ? 'regione-error' : null"
-          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+          class="h-[42px] px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
         >
           @for (regione of regioniDisponibili; track regione.value) {
             <option [value]="regione.value">{{ regione.label }}</option>
@@ -126,7 +126,7 @@
           aria-required="true"
           [attr.aria-invalid]="form.comune().invalid()"
           [attr.aria-describedby]="form.comune().invalid() ? 'comune-error' : null"
-          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+          class="h-[42px] px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
         >
           @for (comune of comuniDisponibili; track comune.value) {
             <option [value]="comune.value">{{ comune.label }}</option>
@@ -795,7 +795,7 @@
             <select
               id="tipoAlimentazione"
               [formField]="form.fringeBenefit.autoAziendale.tipoAlimentazione"
-              class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+              class="h-[42px] px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
             >
               @for (tipo of tipiAlimentazione; track tipo.value) {
                 <option [value]="tipo.value">{{ tipo.label }}</option>
@@ -947,7 +947,7 @@
         <select
           id="modalitaRimborso"
           [formField]="form.rimborsiTrasferta.modalitaRimborso"
-          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+          class="h-[42px] px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
         >
           @for (modalita of modalitaRimborso; track modalita.value) {
             <option [value]="modalita.value">{{ modalita.label }}</option>
