@@ -39,7 +39,6 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Rimborsi Spese](#8-rimborsi-spese)
   - [Benefit Non Tassati](#9-benefit-non-tassati-welfare)
 - [Sequenza di Calcolo](#sequenza-di-calcolo)
-- [Esempi Pratici](#esempi-pratici)
 - [Riferimenti Normativi](#riferimenti-normativi)
 
 ---
