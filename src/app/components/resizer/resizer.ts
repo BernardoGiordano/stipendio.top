@@ -4,8 +4,8 @@ import {
   ElementRef,
   inject,
   output,
-  signal,
   PLATFORM_ID,
+  signal,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -48,7 +48,6 @@ export class Resizer {
 
   private startX = 0;
   private containerWidth = 0;
-  private startRatio = 0.5;
 
   onMouseDown(event: MouseEvent): void {
     event.preventDefault();

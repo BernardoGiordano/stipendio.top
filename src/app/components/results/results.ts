@@ -25,7 +25,6 @@ export class Results {
   readonly hasResult = computed(() => this.result() !== null);
 
   readonly activeTab = signal<TabId>('cedolino');
-  readonly hasBaseInput = computed(() => this.baseInput() !== null);
 
   setActiveTab(tab: TabId): void {
     this.activeTab.set(tab);
