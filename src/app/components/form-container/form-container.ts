@@ -8,10 +8,11 @@ import {
 } from './form-group';
 import { ADDIZIONALI_COMUNALI, ADDIZIONALI_REGIONALI } from '../../../calculator/addizionali';
 import { TipoAlimentazioneAuto, TipoContratto } from '../../../calculator/types';
+import { InfoTooltip } from '../info-tooltip/info-tooltip';
 
 @Component({
   selector: 'app-form-container',
-  imports: [FormField],
+  imports: [FormField, InfoTooltip],
   templateUrl: './form-container.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

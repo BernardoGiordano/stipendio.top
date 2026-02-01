@@ -12,7 +12,12 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="flex flex-col gap-1">
-        <label for="ral" class="text-sm text-stone-600 dark:text-stone-400">RAL *</label>
+        <label for="ral" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >RAL *<app-info-tooltip
+            tooltipId="ral-info"
+            text="Retribuzione Annua Lorda: il compenso totale annuo lordo previsto dal contratto, prima di contributi e imposte."
+          />
+        </label>
         <input
           id="ral"
           type="number"
@@ -33,9 +38,12 @@
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="mensilita" class="text-sm text-stone-600 dark:text-stone-400"
-          >Mensilità *</label
-        >
+        <label for="mensilita" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Mensilità *<app-info-tooltip
+            tooltipId="mensilita-info"
+            text="Numero di mensilità annue. La 13a e 14a sono erogate come tredicesima e quattordicesima. La RAL viene divisa per questo numero."
+          />
+        </label>
         <select
           id="mensilita"
           [formField]="form.mensilita"
@@ -61,9 +69,14 @@
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="tipoContratto" class="text-sm text-stone-600 dark:text-stone-400"
-          >Tipo Contratto *</label
-        >
+        <label
+          for="tipoContratto"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Tipo Contratto *<app-info-tooltip
+            tooltipId="tipoContratto-info"
+            text="Gli apprendisti hanno un'aliquota INPS ridotta (5,84%). I contratti a tempo determinato hanno una detrazione minima garantita inferiore."
+          />
+        </label>
         <select
           id="tipoContratto"
           [formField]="form.tipoContratto"
@@ -77,9 +90,14 @@
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="annoFiscale" class="text-sm text-stone-600 dark:text-stone-400"
-          >Anno Fiscale *</label
-        >
+        <label
+          for="annoFiscale"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Anno Fiscale *<app-info-tooltip
+            tooltipId="annoFiscale-info"
+            text="Dal 2026 l'aliquota IRPEF del 2° scaglione scende dal 35% al 33%. Possono variare anche soglie e limiti."
+          />
+        </label>
         <select
           id="annoFiscale"
           [formField]="form.annoFiscale"
@@ -93,7 +111,12 @@
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="regione" class="text-sm text-stone-600 dark:text-stone-400">Regione *</label>
+        <label for="regione" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Regione *<app-info-tooltip
+            tooltipId="regione-info"
+            text="Determina l'addizionale regionale IRPEF, che varia da 1,23% a 3,33% a seconda della regione e del reddito."
+          />
+        </label>
         <select
           id="regione"
           [formField]="form.regione"
@@ -119,7 +142,12 @@
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="comune" class="text-sm text-stone-600 dark:text-stone-400">Comune *</label>
+        <label for="comune" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Comune *<app-info-tooltip
+            tooltipId="comune-info"
+            text="Determina l'addizionale comunale IRPEF (0-0,8%). Alcuni comuni prevedono esenzioni per redditi bassi."
+          />
+        </label>
         <select
           id="comune"
           [formField]="form.comune"
@@ -155,9 +183,14 @@
     </legend>
 
     <div class="flex flex-col gap-1 mb-4">
-      <label for="giorniLavorati" class="text-sm text-stone-600 dark:text-stone-400"
-        >Giorni Lavorati (opzionale)</label
-      >
+      <label
+        for="giorniLavorati"
+        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >Giorni Lavorati (opzionale)<app-info-tooltip
+          tooltipId="giorniLavorati-info"
+          text="Le detrazioni lavoro dipendente sono rapportate ai giorni effettivi. Utile per chi non lavora l'intero anno."
+        />
+      </label>
       <input
         id="giorniLavorati"
         type="number"
@@ -186,9 +219,14 @@
         [formField]="form.aziendaConCigs"
         class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
       />
-      <label for="aziendaConCigs" class="text-sm text-stone-600 dark:text-stone-400"
-        >Azienda con più di 15 dipendenti (CIGS)</label
-      >
+      <label
+        for="aziendaConCigs"
+        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >Azienda con più di 15 dipendenti (CIGS)<app-info-tooltip
+          tooltipId="aziendaConCigs-info"
+          text="CIGS = Cassa Integrazione Guadagni Straordinaria. Le aziende con oltre 15 dipendenti versano un contributo aggiuntivo, portando l'aliquota INPS dal 9,19% al 9,49%."
+        />
+      </label>
     </div>
 
     <div class="flex items-center gap-2 mb-3">
@@ -198,9 +236,14 @@
         [formField]="form.iscrittoPost1996"
         class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
       />
-      <label for="iscrittoPost1996" class="text-sm text-stone-600 dark:text-stone-400"
-        >Iscritto alla previdenza dal 1996 in poi</label
-      >
+      <label
+        for="iscrittoPost1996"
+        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >Iscritto alla previdenza dal 1996 in poi<app-info-tooltip
+          tooltipId="iscrittoPost1996-info"
+          text="Chi si è iscritto alla previdenza dopo il 1995 ha un massimale contributivo di 120.607 euro (2025)."
+        />
+      </label>
     </div>
 
     <div class="flex items-center gap-2">
@@ -210,9 +253,14 @@
         [formField]="form.neoassuntoFuoriSede2025"
         class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
       />
-      <label for="neoassuntoFuoriSede2025" class="text-sm text-stone-600 dark:text-stone-400"
-        >Neoassunto 2025 fuori sede (>100km)</label
-      >
+      <label
+        for="neoassuntoFuoriSede2025"
+        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >Neoassunto 2025 fuori sede (>100km)<app-info-tooltip
+          tooltipId="neoassuntoFuoriSede2025-info"
+          text="Solo per il 2025: soglia fringe benefit aumentata a 5.000 euro per i neoassunti che si trasferiscono a oltre 100km."
+        />
+      </label>
     </div>
   </fieldset>
 
@@ -226,9 +274,14 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="flex flex-col gap-1">
-        <label for="altriRedditi" class="text-sm text-stone-600 dark:text-stone-400"
-          >Altri Redditi (€/anno)</label
-        >
+        <label
+          for="altriRedditi"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Altri Redditi (€/anno)<app-info-tooltip
+            tooltipId="altriRedditi-info"
+            text="Redditi non da lavoro dipendente (es. affitti, rendite). Concorrono al reddito complessivo per IRPEF e detrazioni."
+          />
+        </label>
         <input
           id="altriRedditi"
           type="number"
@@ -251,9 +304,14 @@
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="altreDetrazioni" class="text-sm text-stone-600 dark:text-stone-400"
-          >Altre Detrazioni (€/anno)</label
-        >
+        <label
+          for="altreDetrazioni"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Altre Detrazioni (€/anno)<app-info-tooltip
+            tooltipId="altreDetrazioni-info"
+            text="Detrazioni extra non calcolate automaticamente (es. 19% interessi mutuo prima casa, spese mediche, ristrutturazioni)."
+          />
+        </label>
         <input
           id="altreDetrazioni"
           type="number"
@@ -295,17 +353,27 @@
         [formField]="form.coniuge.enabled"
         class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
       />
-      <label for="coniugeEnabled" class="text-sm text-stone-700 font-medium dark:text-stone-300"
-        >Ho un coniuge a carico</label
-      >
+      <label
+        for="coniugeEnabled"
+        class="text-sm text-stone-700 font-medium dark:text-stone-300 flex items-center"
+        >Ho un coniuge a carico<app-info-tooltip
+          tooltipId="coniugeEnabled-info"
+          text="Il coniuge con reddito fino a 2.840,51 euro annui da diritto a una detrazione fiscale da 0 a 800 euro, in base al tuo reddito."
+        />
+      </label>
     </div>
 
     @if (model.coniuge.enabled) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col gap-1">
-          <label for="coniugeReddito" class="text-sm text-stone-600 dark:text-stone-400"
-            >Reddito annuo coniuge (€)</label
-          >
+          <label
+            for="coniugeReddito"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Reddito annuo coniuge (€)<app-info-tooltip
+              tooltipId="coniugeReddito-info"
+              text="Limite massimo 2.840,51 euro per essere considerato a carico. Include tutti i redditi, anche quelli esenti."
+            />
+          </label>
           <input
             id="coniugeReddito"
             type="number"
@@ -330,9 +398,14 @@
         </div>
 
         <div class="flex flex-col gap-1">
-          <label for="coniugePercentuale" class="text-sm text-stone-600 dark:text-stone-400"
-            >Percentuale a carico (%)</label
-          >
+          <label
+            for="coniugePercentuale"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Percentuale a carico (%)<app-info-tooltip
+              tooltipId="coniugePercentuale-info"
+              text="Di norma 100%, ma in casi particolari la detrazione può essere ripartita."
+            />
+          </label>
           <input
             id="coniugePercentuale"
             type="number"
@@ -374,9 +447,14 @@
         [formField]="form.haFigliACarico"
         class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
       />
-      <label for="haFigliACarico" class="text-sm text-stone-600 dark:text-stone-400"
-        >Ho figli a carico (per soglia fringe benefit)</label
-      >
+      <label
+        for="haFigliACarico"
+        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >Ho figli a carico (per soglia fringe benefit)<app-info-tooltip
+          tooltipId="haFigliACarico-info"
+          text="Chi ha figli a carico beneficia di una soglia fringe benefit raddoppiata: 2.000 euro invece di 1.000 euro."
+        />
+      </label>
     </div>
 
     @for (figlio of model.figli; track $index) {
@@ -410,9 +488,14 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           <div class="flex flex-col gap-1">
-            <label [for]="'figlioEta' + $index" class="text-sm text-stone-600 dark:text-stone-400"
-              >Età</label
-            >
+            <label
+              [for]="'figlioEta' + $index"
+              class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+              >Età<app-info-tooltip
+                [tooltipId]="'figlioEta' + $index + '-info'"
+                text="Detrazione IRPEF solo per figli 21-30 anni. Sotto i 21 anni spetta l'Assegno Unico INPS (non calcolato qui)."
+              />
+            </label>
             <input
               [id]="'figlioEta' + $index"
               type="number"
@@ -475,9 +558,12 @@
           />
           <label
             [for]="'figlioDisabile' + $index"
-            class="text-sm text-stone-600 dark:text-stone-400"
-            >Disabile</label
-          >
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Disabile<app-info-tooltip
+              [tooltipId]="'figlioDisabile' + $index + '-info'"
+              text="I figli disabili danno diritto alla detrazione fiscale a qualsiasi età, non solo tra 21 e 30 anni."
+            />
+          </label>
         </div>
       </div>
     }
@@ -532,9 +618,12 @@
         <div class="flex flex-col gap-1 mb-3">
           <label
             [for]="'ascendenteReddito' + $index"
-            class="text-sm text-stone-600 dark:text-stone-400"
-            >Reddito annuo (€)</label
-          >
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Reddito annuo (€)<app-info-tooltip
+              [tooltipId]="'ascendenteReddito' + $index + '-info'"
+              text="Limite massimo 2.840,51 euro per essere a carico. La detrazione massima è 750 euro e decresce col reddito."
+            />
+          </label>
           <input
             [id]="'ascendenteReddito' + $index"
             type="number"
@@ -568,9 +657,12 @@
           />
           <label
             [for]="'ascendenteConvivente' + $index"
-            class="text-sm text-stone-600 dark:text-stone-400"
-            >Convivente</label
-          >
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Convivente<app-info-tooltip
+              [tooltipId]="'ascendenteConvivente' + $index + '-info'"
+              text="La detrazione per ascendenti spetta solo se conviventi. Richiesta residenza nello stesso nucleo familiare."
+            />
+          </label>
         </div>
       </div>
     }
@@ -602,16 +694,24 @@
       />
       <label
         for="fringeBenefitEnabled"
-        class="text-sm text-stone-700 font-medium dark:text-stone-300"
-        >Ho fringe benefit</label
-      >
+        class="text-sm text-stone-700 font-medium dark:text-stone-300 flex items-center"
+        >Ho fringe benefit<app-info-tooltip
+          tooltipId="fringeBenefitEnabled-info"
+          text="Compensi in natura. Esenti fino a 1.000 euro (2.000 con figli, 5.000 neoassunti). ATTENZIONE: sistema a soglia secca - se superi anche di 1 centesimo, tutto diventa imponibile!"
+        />
+      </label>
     </div>
 
     @if (model.fringeBenefit.enabled) {
       <div class="flex flex-col gap-1 mb-4">
-        <label for="buoniAcquisto" class="text-sm text-stone-600 dark:text-stone-400"
-          >Buoni acquisto/spesa (€/anno)</label
-        >
+        <label
+          for="buoniAcquisto"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Buoni acquisto/spesa (€/anno)<app-info-tooltip
+            tooltipId="buoniAcquisto-info"
+            text="Buoni spendibili per acquisti. Concorrono alla soglia fringe benefit complessiva."
+          />
+        </label>
         <input
           id="buoniAcquisto"
           type="number"
@@ -776,9 +876,12 @@
         />
         <label
           for="autoAziendaleEnabled"
-          class="text-sm text-stone-700 font-medium dark:text-stone-300"
-          >Ho auto aziendale</label
-        >
+          class="text-sm text-stone-700 font-medium dark:text-stone-300 flex items-center"
+          >Ho auto aziendale<app-info-tooltip
+            tooltipId="autoAziendaleEnabled-info"
+            text="Il valore si calcola: (costo ACI x 15.000 km x percentuale) x mesi/12. Non rientra nella soglia fringe benefit."
+          />
+        </label>
       </div>
 
       @if (model.fringeBenefit.autoAziendaleEnabled) {
@@ -790,9 +893,14 @@
           </h4>
 
           <div class="flex flex-col gap-1 mb-3">
-            <label for="costoKmAci" class="text-sm text-stone-600 dark:text-stone-400"
-              >Costo km ACI (€/km)</label
-            >
+            <label
+              for="costoKmAci"
+              class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+              >Costo km ACI (€/km)<app-info-tooltip
+                tooltipId="costoKmAci-info"
+                text="Tariffa ufficiale ACI per il modello di auto. Consultare le tabelle ACI pubblicate annualmente."
+              />
+            </label>
             <input
               id="costoKmAci"
               type="number"
@@ -819,9 +927,14 @@
           </div>
 
           <div class="flex flex-col gap-1 mb-3">
-            <label for="tipoAlimentazione" class="text-sm text-stone-600 dark:text-stone-400"
-              >Tipo alimentazione</label
-            >
+            <label
+              for="tipoAlimentazione"
+              class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+              >Tipo alimentazione<app-info-tooltip
+                tooltipId="tipoAlimentazione-info"
+                text="Dal 2025: elettrico 10%, ibrido plug-in 20%, altri 50%. Per auto assegnate prima del 2025 si usa il regime CO2."
+              />
+            </label>
             <select
               id="tipoAlimentazione"
               [formField]="form.fringeBenefit.autoAziendale.tipoAlimentazione"
@@ -865,9 +978,14 @@
           </div>
 
           <div class="flex flex-col gap-1 mb-3">
-            <label for="trattenutaDipendente" class="text-sm text-stone-600 dark:text-stone-400"
-              >Trattenuta dipendente (€/anno)</label
-            >
+            <label
+              for="trattenutaDipendente"
+              class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+              >Trattenuta dipendente (€/anno)<app-info-tooltip
+                tooltipId="trattenutaDipendente-info"
+                text="Importo eventualmente trattenuto in busta paga per l'uso personale dell'auto. Riduce il fringe benefit imponibile."
+              />
+            </label>
             <input
               id="trattenutaDipendente"
               type="number"
@@ -904,9 +1022,14 @@
               [formField]="form.fringeBenefit.autoAziendale.assegnatoPre2025"
               class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
             />
-            <label for="assegnatoPre2025" class="text-sm text-stone-600 dark:text-stone-400"
-              >Assegnato prima del 2025 (regime CO2)</label
-            >
+            <label
+              for="assegnatoPre2025"
+              class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+              >Assegnato prima del 2025 (regime CO2)<app-info-tooltip
+                tooltipId="assegnatoPre2025-info"
+                text="Le auto assegnate prima del 2025 usano il vecchio regime basato su emissioni CO2: fino a 60 g/km 25%, 61-160 g/km 30%, 161-190 g/km 50%, oltre 60%."
+              />
+            </label>
           </div>
 
           @if (model.fringeBenefit.autoAziendale.assegnatoPre2025) {
@@ -964,16 +1087,24 @@
       />
       <label
         for="rimborsiTrasfertaEnabled"
-        class="text-sm text-stone-700 font-medium dark:text-stone-300"
-        >Ho rimborsi trasferta</label
-      >
+        class="text-sm text-stone-700 font-medium dark:text-stone-300 flex items-center"
+        >Ho rimborsi trasferta<app-info-tooltip
+          tooltipId="rimborsiTrasfertaEnabled-info"
+          text="Rimborsi per trasferte fuori dal comune di lavoro. Possono essere forfettari (46,48 euro/giorno Italia, 77,47 euro estero) o a pie' di lista."
+        />
+      </label>
     </div>
 
     @if (model.rimborsiTrasferta.enabled) {
       <div class="flex flex-col gap-1 mb-4">
-        <label for="modalitaRimborso" class="text-sm text-stone-600 dark:text-stone-400"
-          >Modalità rimborso</label
-        >
+        <label
+          for="modalitaRimborso"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Modalità rimborso<app-info-tooltip
+            tooltipId="modalitaRimborso-info"
+            text="Forfettario: indennità fissa giornaliera. Analitico: rimborso a pie' di lista documentato. Misto: forfettario ridotto + rimborso vitto/alloggio."
+          />
+        </label>
         <select
           id="modalitaRimborso"
           [formField]="form.rimborsiTrasferta.modalitaRimborso"
@@ -1158,9 +1289,14 @@
           [formField]="form.rimborsiTrasferta.pagamentiTracciabili"
           class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
         />
-        <label for="pagamentiTracciabili" class="text-sm text-stone-600 dark:text-stone-400"
-          >Pagamenti tracciabili</label
-        >
+        <label
+          for="pagamentiTracciabili"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Pagamenti tracciabili<app-info-tooltip
+            tooltipId="pagamentiTracciabili-info"
+            text="Dal 2025 obbligo di tracciabilità per vitto, alloggio e taxi. Senza tracciabilità i rimborsi diventano imponibili."
+          />
+        </label>
       </div>
     }
   </fieldset>
@@ -1183,16 +1319,24 @@
       />
       <label
         for="benefitNonTassatiEnabled"
-        class="text-sm text-stone-700 font-medium dark:text-stone-300"
-        >Ho benefit non tassati</label
-      >
+        class="text-sm text-stone-700 font-medium dark:text-stone-300 flex items-center"
+        >Ho benefit non tassati<app-info-tooltip
+          tooltipId="benefitNonTassatiEnabled-info"
+          text="Voci welfare completamente esenti o con limiti specifici: previdenza, sanità, buoni pasto, trasporto pubblico, servizi familiari."
+        />
+      </label>
     </div>
 
     @if (model.benefitNonTassati.enabled) {
       <div class="flex flex-col gap-1 mb-4">
-        <label for="previdenzaComplementare" class="text-sm text-stone-600 dark:text-stone-400"
-          >Previdenza complementare (€/anno)</label
-        >
+        <label
+          for="previdenzaComplementare"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Previdenza complementare (€/anno)<app-info-tooltip
+            tooltipId="previdenzaComplementare-info"
+            text="Contributi a fondi pensione. Esenti fino a 5.164,57 euro/anno. Riducono l'imponibile fiscale."
+          />
+        </label>
         <input
           id="previdenzaComplementare"
           type="number"
@@ -1222,9 +1366,14 @@
       </div>
 
       <div class="flex flex-col gap-1 mb-4">
-        <label for="assistenzaSanitaria" class="text-sm text-stone-600 dark:text-stone-400"
-          >Assistenza sanitaria (€/anno)</label
-        >
+        <label
+          for="assistenzaSanitaria"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Assistenza sanitaria (€/anno)<app-info-tooltip
+            tooltipId="assistenzaSanitaria-info"
+            text="Contributi a casse/fondi sanitari integrativi. Esenti fino a 3.615,20 euro/anno."
+          />
+        </label>
         <input
           id="assistenzaSanitaria"
           type="number"
@@ -1251,9 +1400,12 @@
       </div>
 
       <div class="flex flex-col gap-1 mb-4">
-        <label for="buoniPasto" class="text-sm text-stone-600 dark:text-stone-400"
-          >Buoni pasto (€/anno)</label
-        >
+        <label for="buoniPasto" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Buoni pasto (€/anno)<app-info-tooltip
+            tooltipId="buoniPasto-info"
+            text="Esenti fino a 4 euro/giorno (cartacei) o 8 euro/giorno (elettronici, 10 euro dal 2026). L'eccedenza è imponibile."
+          />
+        </label>
         <input
           id="buoniPasto"
           type="number"
@@ -1283,15 +1435,25 @@
           [formField]="form.benefitNonTassati.buoniPastoElettronici"
           class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
         />
-        <label for="buoniPastoElettronici" class="text-sm text-stone-600 dark:text-stone-400"
-          >Buoni pasto elettronici (soglia €8 invece di €4)</label
-        >
+        <label
+          for="buoniPastoElettronici"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Buoni pasto elettronici (soglia 8 euro invece di 4 euro)<app-info-tooltip
+            tooltipId="buoniPastoElettronici-info"
+            text="I buoni elettronici hanno soglia di esenzione doppia. Sono tracciabili e preferiti dal fisco."
+          />
+        </label>
       </div>
 
       <div class="flex flex-col gap-1 mb-4">
-        <label for="abbonamentoTrasporto" class="text-sm text-stone-600 dark:text-stone-400"
-          >Abbonamento trasporto pubblico (€/anno)</label
-        >
+        <label
+          for="abbonamentoTrasporto"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Abbonamento trasporto pubblico (€/anno)<app-info-tooltip
+            tooltipId="abbonamentoTrasporto-info"
+            text="Rimborso o erogazione diretta di abbonamenti TPL. Completamente esente, senza limiti di importo."
+          />
+        </label>
         <input
           id="abbonamentoTrasporto"
           type="number"
@@ -1317,9 +1479,14 @@
       </div>
 
       <div class="flex flex-col gap-1 mb-4">
-        <label for="serviziWelfare" class="text-sm text-stone-600 dark:text-stone-400"
-          >Servizi welfare (€/anno)</label
-        >
+        <label
+          for="serviziWelfare"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Servizi welfare (€/anno)<app-info-tooltip
+            tooltipId="serviziWelfare-info"
+            text="Asili nido, borse di studio, colonie estive, assistenza anziani, ecc. Completamente esenti se erogati alla generalità dei dipendenti."
+          />
+        </label>
         <input
           id="serviziWelfare"
           type="number"
