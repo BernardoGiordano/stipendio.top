@@ -400,8 +400,8 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
       margin: {
         l: 70,
         r: 80,
-        t: 50,
-        b: 60,
+        t: 20,
+        b: 50,
       },
       hoverlabel: {
         bgcolor: isDark ? '#292524' : '#fafaf9',

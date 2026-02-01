@@ -1,36 +1,4 @@
 <div class="flex flex-col h-full">
-  <!-- View Mode Toggle -->
-  <div
-    class="flex justify-center gap-2 pb-3 border-b border-stone-200 dark:border-stone-700"
-    role="group"
-    aria-label="Visualizzazione"
-  >
-    <button
-      type="button"
-      [class]="
-        viewMode() === 'monthly'
-          ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
-          : 'px-3 py-1.5 text-xs font-medium rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
-      "
-      [attr.aria-pressed]="viewMode() === 'monthly'"
-      (click)="setViewMode('monthly')"
-    >
-      Mensile
-    </button>
-    <button
-      type="button"
-      [class]="
-        viewMode() === 'annual'
-          ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
-          : 'px-3 py-1.5 text-xs font-medium rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
-      "
-      [attr.aria-pressed]="viewMode() === 'annual'"
-      (click)="setViewMode('annual')"
-    >
-      Annuale
-    </button>
-  </div>
-
   <!-- Chart Container -->
   <div class="flex-1 min-h-0 w-full relative">
     @if (isLoading()) {
@@ -78,5 +46,33 @@
             : 'Grafico heatmap della proiezione del netto annuale'
       "
     ></div>
+  </div>
+
+  <!-- View Mode Toggle -->
+  <div class="flex justify-end gap-2 pt-3" role="group" aria-label="Visualizzazione">
+    <button
+      type="button"
+      [class]="
+        viewMode() === 'monthly'
+          ? 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
+          : 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
+      "
+      [attr.aria-pressed]="viewMode() === 'monthly'"
+      (click)="setViewMode('monthly')"
+    >
+      Mensile
+    </button>
+    <button
+      type="button"
+      [class]="
+        viewMode() === 'annual'
+          ? 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
+          : 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
+      "
+      [attr.aria-pressed]="viewMode() === 'annual'"
+      (click)="setViewMode('annual')"
+    >
+      Annuale
+    </button>
   </div>
 </div>
