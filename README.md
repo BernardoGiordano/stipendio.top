@@ -56,7 +56,7 @@ I contributi previdenziali a carico del lavoratore dipendente.
 ##### Aliquote
 
 | Tipologia                               | Aliquota |
-|-----------------------------------------|----------|
+| --------------------------------------- | -------- |
 | Base (aziende ≤15 dipendenti)           | 9,19%    |
 | Con CIGS (aziende >15 dipendenti)       | 9,49%    |
 | Apprendisti                             | 5,84%    |
@@ -65,7 +65,7 @@ I contributi previdenziali a carico del lavoratore dipendente.
 ##### Soglie e Massimali
 
 | Parametro                                   | Valore 2025 |
-|---------------------------------------------|-------------|
+| ------------------------------------------- | ----------- |
 | Soglia contributo aggiuntivo 1%             | €55.448     |
 | Massimale contributivo (iscritti post-1996) | €120.607    |
 | Minimale giornaliero                        | €57,32      |
@@ -90,7 +90,7 @@ L'Imposta sul Reddito delle Persone Fisiche è calcolata per scaglioni progressi
 ##### Scaglioni 2025
 
 | Scaglione | Reddito           | Aliquota |
-|-----------|-------------------|----------|
+| --------- | ----------------- | -------- |
 | 1°        | Fino a €28.000    | 23%      |
 | 2°        | €28.001 − €50.000 | 35%      |
 | 3°        | Oltre €50.000     | 43%      |
@@ -98,7 +98,7 @@ L'Imposta sul Reddito delle Persone Fisiche è calcolata per scaglioni progressi
 ##### Scaglioni 2026
 
 | Scaglione | Reddito           | Aliquota |
-|-----------|-------------------|----------|
+| --------- | ----------------- | -------- |
 | 1°        | Fino a €28.000    | 23%      |
 | 2°        | €28.001 − €50.000 | **33%**  |
 | 3°        | Oltre €50.000     | 43%      |
@@ -140,7 +140,7 @@ Se RC > €50.000:
 ##### 3.1 Detrazioni Lavoro Dipendente (art. 13 TUIR)
 
 | Fascia di Reddito | Formula                                      |
-|-------------------|----------------------------------------------|
+| ----------------- | -------------------------------------------- |
 | ≤ €15.000         | €1.955 (min €690 T.I. / €1.380 T.D.)         |
 | €15.001 − €28.000 | €1.910 + €1.190 × [(€28.000 − RC) / €13.000] |
 | €28.001 − €50.000 | €1.910 × [(€50.000 − RC) / €22.000]          |
@@ -155,7 +155,7 @@ Se RC > €50.000:
 ###### Coniuge a Carico
 
 | Fascia di Reddito | Formula                           |
-|-------------------|-----------------------------------|
+| ----------------- | --------------------------------- |
 | ≤ €15.000         | €800 − €110 × (RC / €15.000)      |
 | €15.001 − €40.000 | €690 + maggiorazioni              |
 | €40.001 − €80.000 | €690 × [(€80.000 − RC) / €40.000] |
@@ -181,7 +181,7 @@ Detrazione = €750 × [(€80.000 − RC) / €80.000]
 ###### Limiti di Reddito per Essere a Carico
 
 | Familiare       | Limite Reddito |
-|-----------------|----------------|
+| --------------- | -------------- |
 | Coniuge / Altri | €2.840,51      |
 | Figli ≤ 24 anni | €4.000,00      |
 | Figli > 24 anni | €2.840,51      |
@@ -195,7 +195,7 @@ Il cuneo fiscale 2025 sostituisce l'esonero contributivo 6-7% con un sistema dua
 ##### Per Redditi ≤ €20.000: Indennità Esente
 
 | Fascia di Reddito | Percentuale |
-|-------------------|-------------|
+| ----------------- | ----------- |
 | ≤ €8.500          | 7,1%        |
 | €8.501 − €15.000  | 5,3%        |
 | €15.001 − €20.000 | 4,8%        |
@@ -209,7 +209,7 @@ Indennità = Reddito Lavoro Dipendente × Percentuale
 ##### Per Redditi €20.001 − €40.000: Detrazione Fiscale
 
 | Fascia di Reddito | Detrazione                         |
-|-------------------|------------------------------------|
+| ----------------- | ---------------------------------- |
 | €20.001 − €32.000 | €1.000                             |
 | €32.001 − €40.000 | €1.000 × [(€40.000 − RC) / €8.000] |
 
@@ -224,7 +224,7 @@ Ex "Bonus Renzi" - Importo massimo: **€1.200/anno** (€100/mese)
 ##### Condizioni di Spettanza
 
 | Fascia di Reddito | Condizione                              | Importo                |
-|-------------------|-----------------------------------------|------------------------|
+| ----------------- | --------------------------------------- | ---------------------- |
 | ≤ €15.000         | IRPEF Lorda > (Detrazione art.13 − €75) | €1.200                 |
 | €15.001 − €28.000 | Detrazioni > IRPEF Lorda                | MIN(€1.200, Eccedenza) |
 | > €28.000         | —                                       | Non spetta             |
@@ -238,7 +238,7 @@ Ex "Bonus Renzi" - Importo massimo: **€1.200/anno** (€100/mese)
 Calcolata sull'imponibile IRPEF con aliquote variabili per regione.
 
 | Regione        | Aliquota Min | Aliquota Max |
-|----------------|--------------|--------------|
+| -------------- | ------------ | ------------ |
 | Lombardia      | 1,23%        | 1,73%        |
 | Lazio          | 1,73%        | 3,33%        |
 | Campania       | 1,73%        | 3,33%        |
@@ -264,7 +264,7 @@ Compensi in natura erogati dal datore di lavoro.
 ##### Soglie di Esenzione (2025-2027)
 
 | Condizione                               | Soglia |
-|------------------------------------------|--------|
+| ---------------------------------------- | ------ |
 | Senza figli a carico                     | €1.000 |
 | Con figli a carico                       | €2.000 |
 | Neoassunti fuori sede >100km (solo 2025) | €5.000 |
@@ -292,7 +292,7 @@ Fringe Benefit = (Costo €/km ACI × 15.000 km × Percentuale) × (Mesi / 12) �
 **Percentuali dal 2025 (per tipo alimentazione):**
 
 | Alimentazione                        | Percentuale |
-|--------------------------------------|-------------|
+| ------------------------------------ | ----------- |
 | Elettrico (BEV)                      | 10%         |
 | Ibrido Plug-in (PHEV)                | 20%         |
 | Altri (benzina, diesel, GPL, metano) | 50%         |
@@ -300,7 +300,7 @@ Fringe Benefit = (Costo €/km ACI × 15.000 km × Percentuale) × (Mesi / 12) �
 **Percentuali pre-2025 (per emissioni CO₂):**
 
 | Emissioni CO₂  | Percentuale |
-|----------------|-------------|
+| -------------- | ----------- |
 | ≤ 60 g/km      | 25%         |
 | 61 − 160 g/km  | 30%         |
 | 161 − 190 g/km | 50%         |
@@ -315,7 +315,7 @@ Fringe Benefit = (Costo €/km ACI × 15.000 km × Percentuale) × (Mesi / 12) �
 **Rimborso Forfettario (esente):**
 
 | Destinazione | Importo Giornaliero |
-|--------------|---------------------|
+| ------------ | ------------------- |
 | Italia       | €46,48              |
 | Estero       | €77,47              |
 
@@ -334,12 +334,12 @@ Dal 2025: rimborso km e trasporto esenti se documentati.
 ##### Obbligo Tracciabilità (dal 2025)
 
 | Voce               | Tracciabilità Richiesta |
-|--------------------|-------------------------|
-| Vitto              | ✅ Sì                    |
-| Alloggio           | ✅ Sì                    |
-| Taxi / NCC         | ✅ Sì                    |
-| Trasporto pubblico | ❌ No                    |
-| Rimborso km        | ❌ No                    |
+| ------------------ | ----------------------- |
+| Vitto              | ✅ Sì                   |
+| Alloggio           | ✅ Sì                   |
+| Taxi / NCC         | ✅ Sì                   |
+| Trasporto pubblico | ❌ No                   |
+| Rimborso km        | ❌ No                   |
 
 > ⚠️ Rimborsi non tracciabili diventano **imponibili** per il dipendente.
 
@@ -350,7 +350,7 @@ Dal 2025: rimborso km e trasporto esenti se documentati.
 Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 
 | Voce                                        | Limite Annuo  |
-|---------------------------------------------|---------------|
+| ------------------------------------------- | ------------- |
 | Previdenza complementare                    | €5.164,57     |
 | Assistenza sanitaria integrativa            | €3.615,20     |
 | Buoni pasto cartacei                        | €4,00/giorno  |
@@ -457,7 +457,7 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 ### Riferimenti Normativi
 
 | Normativa               | Contenuto                                |
-|-------------------------|------------------------------------------|
+| ----------------------- | ---------------------------------------- |
 | **TUIR (DPR 917/1986)** | Testo Unico Imposte sui Redditi          |
 | **Art. 51 TUIR**        | Determinazione reddito lavoro dipendente |
 | **Art. 13 TUIR**        | Detrazioni lavoro dipendente             |
