@@ -10,137 +10,139 @@
       Dati Principali
     </legend>
 
-    <div class="flex flex-col gap-1 mb-4">
-      <label for="ral" class="text-sm text-stone-600 dark:text-stone-400"
-        >RAL (Reddito Annuo Lordo) *</label
-      >
-      <input
-        id="ral"
-        type="number"
-        [formField]="form.ral"
-        placeholder="Es. 35000"
-        aria-required="true"
-        [attr.aria-invalid]="form.ral().invalid()"
-        [attr.aria-describedby]="form.ral().invalid() ? 'ral-error' : null"
-        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
-      />
-      @if (form.ral().invalid()) {
-        @for (error of form.ral().errors(); track error.kind) {
-          <span id="ral-error" class="text-xs text-red-600 mt-1 dark:text-red-400" role="alert">{{
-            error.message
-          }}</span>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="flex flex-col gap-1">
+        <label for="ral" class="text-sm text-stone-600 dark:text-stone-400">RAL *</label>
+        <input
+          id="ral"
+          type="number"
+          [formField]="form.ral"
+          placeholder="Es. 35000"
+          aria-required="true"
+          [attr.aria-invalid]="form.ral().invalid()"
+          [attr.aria-describedby]="form.ral().invalid() ? 'ral-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+        />
+        @if (form.ral().invalid()) {
+          @for (error of form.ral().errors(); track error.kind) {
+            <span id="ral-error" class="text-xs text-red-600 mt-1 dark:text-red-400" role="alert">{{
+              error.message
+            }}</span>
+          }
         }
-      }
-    </div>
+      </div>
 
-    <div class="flex flex-col gap-1 mb-4">
-      <label for="mensilita" class="text-sm text-stone-600 dark:text-stone-400">Mensilità *</label>
-      <select
-        id="mensilita"
-        [formField]="form.mensilita"
-        aria-required="true"
-        [attr.aria-invalid]="form.mensilita().invalid()"
-        [attr.aria-describedby]="form.mensilita().invalid() ? 'mensilita-error' : null"
-        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
-      >
-        @for (m of mensilita; track m) {
-          <option [value]="m">{{ m }}</option>
+      <div class="flex flex-col gap-1">
+        <label for="mensilita" class="text-sm text-stone-600 dark:text-stone-400"
+          >Mensilità *</label
+        >
+        <select
+          id="mensilita"
+          [formField]="form.mensilita"
+          aria-required="true"
+          [attr.aria-invalid]="form.mensilita().invalid()"
+          [attr.aria-describedby]="form.mensilita().invalid() ? 'mensilita-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+        >
+          @for (m of mensilita; track m) {
+            <option [value]="m">{{ m }}</option>
+          }
+        </select>
+        @if (form.mensilita().invalid()) {
+          @for (error of form.mensilita().errors(); track error.kind) {
+            <span
+              id="mensilita-error"
+              class="text-xs text-red-600 mt-1 dark:text-red-400"
+              role="alert"
+              >{{ error.message }}</span
+            >
+          }
         }
-      </select>
-      @if (form.mensilita().invalid()) {
-        @for (error of form.mensilita().errors(); track error.kind) {
-          <span
-            id="mensilita-error"
-            class="text-xs text-red-600 mt-1 dark:text-red-400"
-            role="alert"
-            >{{ error.message }}</span
-          >
-        }
-      }
-    </div>
+      </div>
 
-    <div class="flex flex-col gap-1 mb-4">
-      <label for="tipoContratto" class="text-sm text-stone-600 dark:text-stone-400"
-        >Tipo Contratto *</label
-      >
-      <select
-        id="tipoContratto"
-        [formField]="form.tipoContratto"
-        aria-required="true"
-        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
-      >
-        @for (tipo of tipiContratto; track tipo.value) {
-          <option [value]="tipo.value">{{ tipo.label }}</option>
-        }
-      </select>
-    </div>
+      <div class="flex flex-col gap-1">
+        <label for="tipoContratto" class="text-sm text-stone-600 dark:text-stone-400"
+          >Tipo Contratto *</label
+        >
+        <select
+          id="tipoContratto"
+          [formField]="form.tipoContratto"
+          aria-required="true"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+        >
+          @for (tipo of tipiContratto; track tipo.value) {
+            <option [value]="tipo.value">{{ tipo.label }}</option>
+          }
+        </select>
+      </div>
 
-    <div class="flex flex-col gap-1 mb-4">
-      <label for="annoFiscale" class="text-sm text-stone-600 dark:text-stone-400"
-        >Anno Fiscale *</label
-      >
-      <select
-        id="annoFiscale"
-        [formField]="form.annoFiscale"
-        aria-required="true"
-        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
-      >
-        @for (anno of anniFiscali; track anno) {
-          <option [value]="anno">{{ anno }}</option>
-        }
-      </select>
-    </div>
+      <div class="flex flex-col gap-1">
+        <label for="annoFiscale" class="text-sm text-stone-600 dark:text-stone-400"
+          >Anno Fiscale *</label
+        >
+        <select
+          id="annoFiscale"
+          [formField]="form.annoFiscale"
+          aria-required="true"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+        >
+          @for (anno of anniFiscali; track anno) {
+            <option [value]="anno">{{ anno }}</option>
+          }
+        </select>
+      </div>
 
-    <div class="flex flex-col gap-1 mb-4">
-      <label for="regione" class="text-sm text-stone-600 dark:text-stone-400">Regione *</label>
-      <select
-        id="regione"
-        [formField]="form.regione"
-        aria-required="true"
-        [attr.aria-invalid]="form.regione().invalid()"
-        [attr.aria-describedby]="form.regione().invalid() ? 'regione-error' : null"
-        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
-      >
-        @for (regione of regioniDisponibili; track regione.value) {
-          <option [value]="regione.value">{{ regione.label }}</option>
+      <div class="flex flex-col gap-1">
+        <label for="regione" class="text-sm text-stone-600 dark:text-stone-400">Regione *</label>
+        <select
+          id="regione"
+          [formField]="form.regione"
+          aria-required="true"
+          [attr.aria-invalid]="form.regione().invalid()"
+          [attr.aria-describedby]="form.regione().invalid() ? 'regione-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+        >
+          @for (regione of regioniDisponibili; track regione.value) {
+            <option [value]="regione.value">{{ regione.label }}</option>
+          }
+        </select>
+        @if (form.regione().invalid()) {
+          @for (error of form.regione().errors(); track error.kind) {
+            <span
+              id="regione-error"
+              class="text-xs text-red-600 mt-1 dark:text-red-400"
+              role="alert"
+              >{{ error.message }}</span
+            >
+          }
         }
-      </select>
-      @if (form.regione().invalid()) {
-        @for (error of form.regione().errors(); track error.kind) {
-          <span
-            id="regione-error"
-            class="text-xs text-red-600 mt-1 dark:text-red-400"
-            role="alert"
-            >{{ error.message }}</span
-          >
-        }
-      }
-    </div>
+      </div>
 
-    <div class="flex flex-col gap-1">
-      <label for="comune" class="text-sm text-stone-600 dark:text-stone-400">Comune *</label>
-      <select
-        id="comune"
-        [formField]="form.comune"
-        aria-required="true"
-        [attr.aria-invalid]="form.comune().invalid()"
-        [attr.aria-describedby]="form.comune().invalid() ? 'comune-error' : null"
-        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
-      >
-        @for (comune of comuniDisponibili; track comune.value) {
-          <option [value]="comune.value">{{ comune.label }}</option>
+      <div class="flex flex-col gap-1">
+        <label for="comune" class="text-sm text-stone-600 dark:text-stone-400">Comune *</label>
+        <select
+          id="comune"
+          [formField]="form.comune"
+          aria-required="true"
+          [attr.aria-invalid]="form.comune().invalid()"
+          [attr.aria-describedby]="form.comune().invalid() ? 'comune-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+        >
+          @for (comune of comuniDisponibili; track comune.value) {
+            <option [value]="comune.value">{{ comune.label }}</option>
+          }
+        </select>
+        @if (form.comune().invalid()) {
+          @for (error of form.comune().errors(); track error.kind) {
+            <span
+              id="comune-error"
+              class="text-xs text-red-600 mt-1 dark:text-red-400"
+              role="alert"
+              >{{ error.message }}</span
+            >
+          }
         }
-      </select>
-      @if (form.comune().invalid()) {
-        @for (error of form.comune().errors(); track error.kind) {
-          <span
-            id="comune-error"
-            class="text-xs text-red-600 mt-1 dark:text-red-400"
-            role="alert"
-            >{{ error.message }}</span
-          >
-        }
-      }
+      </div>
     </div>
   </fieldset>
 
@@ -222,54 +224,58 @@
       Altri Redditi e Detrazioni
     </legend>
 
-    <div class="flex flex-col gap-1 mb-4">
-      <label for="altriRedditi" class="text-sm text-stone-600 dark:text-stone-400"
-        >Altri Redditi (€/anno)</label
-      >
-      <input
-        id="altriRedditi"
-        type="number"
-        [formField]="form.altriRedditi"
-        placeholder="Es. redditi fondiari"
-        [attr.aria-invalid]="form.altriRedditi().invalid()"
-        [attr.aria-describedby]="form.altriRedditi().invalid() ? 'altriRedditi-error' : null"
-        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
-      />
-      @if (form.altriRedditi().invalid()) {
-        @for (error of form.altriRedditi().errors(); track error.kind) {
-          <span
-            id="altriRedditi-error"
-            class="text-xs text-red-600 mt-1 dark:text-red-400"
-            role="alert"
-            >{{ error.message }}</span
-          >
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="flex flex-col gap-1">
+        <label for="altriRedditi" class="text-sm text-stone-600 dark:text-stone-400"
+          >Altri Redditi (€/anno)</label
+        >
+        <input
+          id="altriRedditi"
+          type="number"
+          [formField]="form.altriRedditi"
+          placeholder="Es. redditi fondiari"
+          [attr.aria-invalid]="form.altriRedditi().invalid()"
+          [attr.aria-describedby]="form.altriRedditi().invalid() ? 'altriRedditi-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+        />
+        @if (form.altriRedditi().invalid()) {
+          @for (error of form.altriRedditi().errors(); track error.kind) {
+            <span
+              id="altriRedditi-error"
+              class="text-xs text-red-600 mt-1 dark:text-red-400"
+              role="alert"
+              >{{ error.message }}</span
+            >
+          }
         }
-      }
-    </div>
+      </div>
 
-    <div class="flex flex-col gap-1">
-      <label for="altreDetrazioni" class="text-sm text-stone-600 dark:text-stone-400"
-        >Altre Detrazioni (€/anno)</label
-      >
-      <input
-        id="altreDetrazioni"
-        type="number"
-        [formField]="form.altreDetrazioni"
-        placeholder="Es. interessi mutuo"
-        [attr.aria-invalid]="form.altreDetrazioni().invalid()"
-        [attr.aria-describedby]="form.altreDetrazioni().invalid() ? 'altreDetrazioni-error' : null"
-        class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
-      />
-      @if (form.altreDetrazioni().invalid()) {
-        @for (error of form.altreDetrazioni().errors(); track error.kind) {
-          <span
-            id="altreDetrazioni-error"
-            class="text-xs text-red-600 mt-1 dark:text-red-400"
-            role="alert"
-            >{{ error.message }}</span
-          >
+      <div class="flex flex-col gap-1">
+        <label for="altreDetrazioni" class="text-sm text-stone-600 dark:text-stone-400"
+          >Altre Detrazioni (€/anno)</label
+        >
+        <input
+          id="altreDetrazioni"
+          type="number"
+          [formField]="form.altreDetrazioni"
+          placeholder="Es. interessi mutuo"
+          [attr.aria-invalid]="form.altreDetrazioni().invalid()"
+          [attr.aria-describedby]="
+            form.altreDetrazioni().invalid() ? 'altreDetrazioni-error' : null
+          "
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+        />
+        @if (form.altreDetrazioni().invalid()) {
+          @for (error of form.altreDetrazioni().errors(); track error.kind) {
+            <span
+              id="altreDetrazioni-error"
+              class="text-xs text-red-600 mt-1 dark:text-red-400"
+              role="alert"
+              >{{ error.message }}</span
+            >
+          }
         }
-      }
+      </div>
     </div>
   </fieldset>
 
@@ -295,57 +301,59 @@
     </div>
 
     @if (model.coniuge.enabled) {
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="coniugeReddito" class="text-sm text-stone-600 dark:text-stone-400"
-          >Reddito annuo coniuge (€)</label
-        >
-        <input
-          id="coniugeReddito"
-          type="number"
-          [formField]="form.coniuge.redditoAnnuo"
-          placeholder="Max €2.840,51 per detrazione"
-          [attr.aria-invalid]="form.coniuge.redditoAnnuo().invalid()"
-          [attr.aria-describedby]="
-            form.coniuge.redditoAnnuo().invalid() ? 'coniugeReddito-error' : null
-          "
-          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
-        />
-        @if (form.coniuge.redditoAnnuo().invalid()) {
-          @for (error of form.coniuge.redditoAnnuo().errors(); track error.kind) {
-            <span
-              id="coniugeReddito-error"
-              class="text-xs text-red-600 mt-1 dark:text-red-400"
-              role="alert"
-              >{{ error.message }}</span
-            >
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1">
+          <label for="coniugeReddito" class="text-sm text-stone-600 dark:text-stone-400"
+            >Reddito annuo coniuge (€)</label
+          >
+          <input
+            id="coniugeReddito"
+            type="number"
+            [formField]="form.coniuge.redditoAnnuo"
+            placeholder="Max €2.840,51 per detrazione"
+            [attr.aria-invalid]="form.coniuge.redditoAnnuo().invalid()"
+            [attr.aria-describedby]="
+              form.coniuge.redditoAnnuo().invalid() ? 'coniugeReddito-error' : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+          />
+          @if (form.coniuge.redditoAnnuo().invalid()) {
+            @for (error of form.coniuge.redditoAnnuo().errors(); track error.kind) {
+              <span
+                id="coniugeReddito-error"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
           }
-        }
-      </div>
+        </div>
 
-      <div class="flex flex-col gap-1">
-        <label for="coniugePercentuale" class="text-sm text-stone-600 dark:text-stone-400"
-          >Percentuale a carico (%)</label
-        >
-        <input
-          id="coniugePercentuale"
-          type="number"
-          [formField]="form.coniuge.percentualeCarico"
-          [attr.aria-invalid]="form.coniuge.percentualeCarico().invalid()"
-          [attr.aria-describedby]="
-            form.coniuge.percentualeCarico().invalid() ? 'coniugePercentuale-error' : null
-          "
-          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
-        />
-        @if (form.coniuge.percentualeCarico().invalid()) {
-          @for (error of form.coniuge.percentualeCarico().errors(); track error.kind) {
-            <span
-              id="coniugePercentuale-error"
-              class="text-xs text-red-600 mt-1 dark:text-red-400"
-              role="alert"
-              >{{ error.message }}</span
-            >
+        <div class="flex flex-col gap-1">
+          <label for="coniugePercentuale" class="text-sm text-stone-600 dark:text-stone-400"
+            >Percentuale a carico (%)</label
+          >
+          <input
+            id="coniugePercentuale"
+            type="number"
+            [formField]="form.coniuge.percentualeCarico"
+            [attr.aria-invalid]="form.coniuge.percentualeCarico().invalid()"
+            [attr.aria-describedby]="
+              form.coniuge.percentualeCarico().invalid() ? 'coniugePercentuale-error' : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+          />
+          @if (form.coniuge.percentualeCarico().invalid()) {
+            @for (error of form.coniuge.percentualeCarico().errors(); track error.kind) {
+              <span
+                id="coniugePercentuale-error"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
           }
-        }
+        </div>
       </div>
     }
   </fieldset>
