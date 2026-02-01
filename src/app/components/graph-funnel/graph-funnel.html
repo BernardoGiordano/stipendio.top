@@ -1,1 +1,71 @@
-<p>graph-funnel works!</p>
+<div
+  #svgContainer
+  class="w-full h-full min-h-[400px]"
+  role="img"
+  aria-label="Grafico Sankey che mostra la distribuzione dello stipendio lordo tra tasse, contributi e netto"
+>
+  @if (chartData(); as data) {
+    <svg
+      [attr.width]="data.width"
+      [attr.height]="data.height"
+      [attr.viewBox]="'0 0 ' + data.width + ' ' + data.height"
+      class="w-full h-full"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <!-- Links -->
+      <g class="links">
+        @for (link of data.links; track link.from + link.to) {
+          <path
+            [attr.d]="getLinkPath(link)"
+            [attr.fill]="getLinkColor(link)"
+            class="transition-opacity duration-200 hover:opacity-80"
+          >
+            <title>{{ link.from }} → {{ link.to }}: {{ formatCurrency(link.value) }}</title>
+          </path>
+        }
+      </g>
+
+      <!-- Nodes -->
+      <g class="nodes">
+        @for (node of data.nodes; track node.id) {
+          <g>
+            <!-- Node rectangle -->
+            <rect
+              [attr.x]="getNodeX(node)"
+              [attr.y]="node.y"
+              width="16"
+              [attr.height]="node.height"
+              [attr.fill]="node.color"
+              rx="2"
+              class="transition-opacity duration-200"
+            >
+              <title>{{ node.label }}: {{ formatCurrency(node.value) }}</title>
+            </rect>
+
+            <!-- Label -->
+            <text
+              [attr.x]="getLabelX(node)"
+              [attr.y]="node.y + node.height / 2"
+              [attr.text-anchor]="getTextAnchor(node)"
+              dominant-baseline="middle"
+              class="text-xs font-medium fill-stone-700 dark:fill-stone-300"
+            >
+              <tspan [attr.x]="getLabelX(node)" dy="-0.5em">{{ node.label }}</tspan>
+              <tspan
+                [attr.x]="getLabelX(node)"
+                dy="1.2em"
+                class="font-semibold fill-stone-900 dark:fill-stone-100"
+              >
+                {{ formatCurrency(node.value) }}
+              </tspan>
+            </text>
+          </g>
+        }
+      </g>
+    </svg>
+  } @else {
+    <div class="flex items-center justify-center h-full text-stone-500 dark:text-stone-400">
+      <p>Compila il form per visualizzare il grafico.</p>
+    </div>
+  }
+</div>
