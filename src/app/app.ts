@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormContainer } from './components/form-container/form-container';
 import { Results } from './components/results/results';
+import { Resizer } from './components/resizer/resizer';
 import {
   createDefaultFormModel,
   createStipendioForm,
@@ -15,7 +16,7 @@ import { DisplayMode } from './services/display-mode';
 
 @Component({
   selector: 'app-root',
-  imports: [FormContainer, Results],
+  imports: [FormContainer, Results, Resizer],
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -29,6 +30,9 @@ export class App {
 
   /** Whether the form was loaded from a shared URL */
   readonly loadedFromUrl = signal(false);
+
+  /** Split ratio for desktop layout (0.3 to 0.7, default 0.5) */
+  readonly splitRatio = signal(0.5);
 
   /** The input model for projections (derived from form) */
   readonly calculationInput = computed<InputCalcoloStipendio | null>(() => {
@@ -63,6 +67,11 @@ export class App {
 
   copyShareableLink(): void {
     this.formStateShare.copyToClipboard(this.formModel());
+  }
+
+  onResize(delta: number): void {
+    const newRatio = Math.min(0.7, Math.max(0.3, this.splitRatio() + delta));
+    this.splitRatio.set(newRatio);
   }
 
   private loadInitialFormState(): StipendioFormModel {

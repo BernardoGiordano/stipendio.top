@@ -131,9 +131,17 @@
   </div>
 </header>
 
-<main class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 p-4 lg:p-8 max-w-7xl mx-auto">
-  <app-form-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
-  <app-results [result]="calculationResult()" [baseInput]="calculationInput()" />
+<main
+  class="flex flex-col lg:flex-row gap-6 lg:gap-0 p-4 lg:p-8 max-w-7xl mx-auto"
+  [style.--split-ratio]="splitRatio()"
+>
+  <div class="w-full lg:w-auto lg:flex-[var(--split-ratio)]">
+    <app-form-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
+  </div>
+  <app-resizer (resize)="onResize($event)" />
+  <div class="w-full lg:w-auto lg:flex-[calc(1-var(--split-ratio))]">
+    <app-results [result]="calculationResult()" [baseInput]="calculationInput()" />
+  </div>
 </main>
 
 <div class="bg-stone-100 border-b border-stone-200 dark:bg-stone-800 dark:border-stone-700">
