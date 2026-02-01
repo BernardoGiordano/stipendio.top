@@ -58,12 +58,98 @@ const METRIC_CONFIGS: Record<MetricType, MetricConfig> = {
   },
 };
 
-// RAL range configuration
-const RAL_CONFIG = {
+// RAL range configuration defaults
+const RAL_DEFAULT = {
   min: 20000,
   max: 80000,
   step: 2000,
 };
+
+// Metric (benefit) range configuration defaults
+const METRIC_DEFAULT = {
+  min: 0,
+  max: 5000,
+  step: 200,
+};
+
+/** Calculate dynamic metric range based on current value */
+function calculateMetricRange(currentValue: number | undefined): {
+  min: number;
+  max: number;
+  step: number;
+} {
+  if (!currentValue || currentValue <= 0) {
+    return METRIC_DEFAULT;
+  }
+
+  // If within default range, use default
+  if (currentValue <= METRIC_DEFAULT.max) {
+    return METRIC_DEFAULT;
+  }
+
+  // Determine appropriate step based on value magnitude
+  let step: number;
+  if (currentValue <= 5000) {
+    step = 200;
+  } else if (currentValue <= 10000) {
+    step = 500;
+  } else if (currentValue <= 20000) {
+    step = 1000;
+  } else {
+    step = 2000;
+  }
+
+  // Start from 0, extend to cover the current value with margin
+  const min = 0;
+  const max = Math.ceil((currentValue * 1.3) / step) * step;
+
+  // Ensure we have at least 10 data points
+  const numPoints = (max - min) / step;
+  if (numPoints < 10) {
+    return { min, max: min + step * 10, step };
+  }
+
+  return { min, max, step };
+}
+
+/** Calculate dynamic RAL range based on current RAL value */
+function calculateRalRange(currentRal: number | undefined): {
+  min: number;
+  max: number;
+  step: number;
+} {
+  if (!currentRal || currentRal <= 0) {
+    return RAL_DEFAULT;
+  }
+
+  // Determine appropriate step based on RAL magnitude
+  let step: number;
+  if (currentRal <= 50000) {
+    step = 2000;
+  } else if (currentRal <= 100000) {
+    step = 5000;
+  } else if (currentRal <= 200000) {
+    step = 10000;
+  } else {
+    step = 20000;
+  }
+
+  // Calculate range: ~30% below to ~30% above current RAL
+  const rangeExtent = Math.max(currentRal * 0.3, 20000);
+  let min = Math.floor((currentRal - rangeExtent) / step) * step;
+  let max = Math.ceil((currentRal + rangeExtent) / step) * step;
+
+  // Ensure minimum is at least 10000 and positive
+  min = Math.max(min, 10000);
+
+  // Ensure we have at least 10 data points
+  const numPoints = (max - min) / step;
+  if (numPoints < 10) {
+    max = min + step * 10;
+  }
+
+  return { min, max, step };
+}
 
 // Lazy-loaded Plotly module
 let PlotlyModule: typeof import('plotly.js-dist-min').default | null = null;
@@ -128,6 +214,20 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
   /** Current metric configuration */
   readonly metricConfig = computed(() => METRIC_CONFIGS[this.activeMetric()]);
 
+  /** Dynamic RAL range based on current input */
+  readonly ralRange = computed(() => {
+    const base = this.baseInput();
+    return calculateRalRange(base?.ral);
+  });
+
+  /** Dynamic metric range based on current input */
+  readonly metricRange = computed(() => {
+    const base = this.baseInput();
+    const metric = this.metricConfig();
+    const currentValue = base ? metric.getValueFromInput(base) : 0;
+    return calculateMetricRange(currentValue);
+  });
+
   /** Computed heatmap data */
   readonly heatmapData = computed(() => {
     const base = this.baseInput();
@@ -136,16 +236,18 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
     const metric = this.metricConfig();
     const isMonthly = this.viewMode() === 'monthly';
     const isPercepito = this.displayMode.isPercepito();
+    const ralConfig = this.ralRange();
+    const metricConfig = this.metricRange();
 
     // Generate RAL values for Y-axis
     const ralValues: number[] = [];
-    for (let ral = RAL_CONFIG.min; ral <= RAL_CONFIG.max; ral += RAL_CONFIG.step) {
+    for (let ral = ralConfig.min; ral <= ralConfig.max; ral += ralConfig.step) {
       ralValues.push(ral);
     }
 
     // Generate metric values for X-axis
     const metricValues: number[] = [];
-    for (let v = metric.min; v <= metric.max; v += metric.step) {
+    for (let v = metricConfig.min; v <= metricConfig.max; v += metricConfig.step) {
       metricValues.push(v);
     }
 
@@ -328,8 +430,8 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
 
     const traces: Partial<PlotData>[] = [contourTrace];
 
-    // Add current position marker if available
-    if (position && position.y >= RAL_CONFIG.min && position.y <= RAL_CONFIG.max) {
+    // Add current position marker if available (always visible since range is dynamic)
+    if (position) {
       const markerTrace: Partial<PlotData> = {
         type: 'scatter',
         x: [position.x],
