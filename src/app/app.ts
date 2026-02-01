@@ -70,7 +70,8 @@ export class App {
   }
 
   onResize(delta: number): void {
-    const newRatio = Math.min(0.7, Math.max(0.3, this.splitRatio() + delta));
+    // Limit splitRatio: min 0.3 for left side, max 0.5 so right side is always at least 50%
+    const newRatio = Math.min(0.5, Math.max(0.3, this.splitRatio() + delta));
     this.splitRatio.set(newRatio);
   }
 
