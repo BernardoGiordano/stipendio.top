@@ -3,6 +3,7 @@ import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculat
 import { GraphFunnel } from '../graph-funnel/graph-funnel';
 import { GraphProjection } from '../graph-projection/graph-projection';
 import { DisplayMode } from '../../services/display-mode';
+import { formatCurrency, formatPercent } from '../../utils/intl';
 
 type TabId = 'cedolino' | 'flusso' | 'proiezione';
 
@@ -13,6 +14,9 @@ type TabId = 'cedolino' | 'flusso' | 'proiezione';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Results {
+  readonly formatCurrency = formatCurrency;
+  readonly formatPercent = formatPercent;
+
   readonly displayMode = inject(DisplayMode);
 
   readonly result = input<OutputCalcoloStipendio | null>(null);
@@ -25,24 +29,5 @@ export class Results {
 
   setActiveTab(tab: TabId): void {
     this.activeTab.set(tab);
-  }
-
-  formatCurrency(value: number | null | undefined): string {
-    if (value === null || value === undefined) return '-';
-    return new Intl.NumberFormat('it-IT', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  }
-
-  formatPercent(value: number | null | undefined): string {
-    if (value === null || value === undefined) return '-';
-    return new Intl.NumberFormat('it-IT', {
-      style: 'percent',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
   }
 }

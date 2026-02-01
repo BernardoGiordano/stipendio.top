@@ -20,6 +20,7 @@ import {
   CdkMenuGroup,
   CdkMenuTrigger,
 } from '@angular/cdk/menu';
+import { formatCurrency } from './utils/intl';
 
 @Component({
   selector: 'app-root',
@@ -38,6 +39,8 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
+  readonly formatCurrency = formatCurrency;
+
   readonly themeMode = inject(ThemeMode);
   readonly formStateShare = inject(FormStateShare);
   readonly displayMode = inject(DisplayMode);
@@ -71,16 +74,6 @@ export class App {
       return null;
     }
   });
-
-  formatCurrency(value: number | null | undefined): string {
-    if (value === null || value === undefined) return '-';
-    return new Intl.NumberFormat('it-IT', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  }
 
   copyShareableLink(): void {
     this.formStateShare.copyToClipboard(this.formModel());

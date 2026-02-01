@@ -1,15 +1,16 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   computed,
   ElementRef,
   input,
+  OnDestroy,
   signal,
   viewChild,
-  AfterViewInit,
-  OnDestroy,
 } from '@angular/core';
 import { OutputCalcoloStipendio } from '../../../calculator/types';
+import { formatCurrency } from '../../utils/intl';
 
 type ViewMode = 'monthly' | 'annual';
 
@@ -44,6 +45,7 @@ interface SankeyLink {
   },
 })
 export class GraphFunnel implements AfterViewInit, OnDestroy {
+  readonly formatCurrency = formatCurrency;
   readonly result = input<OutputCalcoloStipendio | null>(null);
 
   /** View mode: monthly or annual */
@@ -366,14 +368,5 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('it-IT', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
   }
 }
