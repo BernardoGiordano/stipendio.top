@@ -1,5 +1,22 @@
 # Stipendio.🔝
 
+Il [calcolatore dello stipendio netto](https://stipendio.top) per lavoratori dipendenti privati in Italia.
+
+Di calcolatori, o di strumenti che assolvono a questo scopo, ne esistono a decine. Tuttavia, la maggior parte di essi non espone in modo chiaro e trasparente le formule e i metodi di calcolo adottati, rendendo difficile per l'utente comprendere come viene determinato il proprio stipendio netto. Inoltre, la maggior parte di essi non sembra stare al passo con la costante evoluzione della normativa fiscale e previdenziale italiana.
+
+Questo progetto, che rilascio con piacere sotto licenza open source, vuole mettere a disposizione di tutti un calcolatore trasparente, aggiornato e aggiornabile nel tempo.
+
+Nota: questo progetto è stato scritto nel corso di un weekend tramite il parziale aiuto di Claude Code con modello Opus 4.5, per la raccolta e la rielaborazione delle fonti teoriche dalla rete e per una parte dell'implementazione.
+
+## Funzionalità:
+
+- Calcolo dello stipendio netto a partire dalla RAL (Retribuzione Annua Lorda), situazione familiare e da eventuali benefit, fringe benefit e rimborsi spese.
+- Dettaglio di tutte le componenti del calcolo, con formule e spiegazioni.
+- Calcolo differenziato per gli anni 2025 e 2026 (e aggiornabile nel tempo, preservando la retrocompatibilità).
+- Grafico Sankey per mostrare l'incidenza di ogni componente sul totale percepito.
+- Grafico a gradiente per visualizzare la proiezione dello stipendio netto/percepito in funzione della RAL e dei parametri desiderati.
+- Possibilità di salvare e condividere le impostazioni inserite nella form di calcolo in maniera completamente anonima (il sito non memorizza nessuna informazione sulla vostra sessione e sui dati inseriti).
+
 ## Riferimenti e documentazione
 
 I seguenti appunti raccolgono le principali formule per il calcolo dello stipendio netto di un lavoratore dipendente privato in Italia, includendo contributi, imposte, detrazioni e benefit.
@@ -490,3 +507,11 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 5. **Addizionali:** Variano significativamente per residenza. Verificare sempre le aliquote della propria regione e comune.
 
 6. **Trattamento Integrativo:** Richiede verifica della "capienza fiscale". Non spetta automaticamente.
+
+## Licenza
+
+Questo progetto è rilasciato sotto la licenza GPLv3. Vedi il file [LICENSE](LICENSE) per i dettagli.
+
+## Supporta
+
+Se questo progetto ti è stato utile, o vuoi aiutare a mantenere il servizio online per tutti, considera di supportarlo con una donazione su [PayPal](https://www.paypal.com/paypalme/BernardoGiordano). Grazie!
