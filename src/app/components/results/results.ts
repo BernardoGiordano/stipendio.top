@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculator/types';
 import { GraphFunnel } from '../graph-funnel/graph-funnel';
 import { GraphProjection } from '../graph-projection/graph-projection';
+import { DisplayMode } from '../../services/display-mode';
 
 type TabId = 'cedolino' | 'flusso' | 'proiezione';
 
@@ -12,6 +13,8 @@ type TabId = 'cedolino' | 'flusso' | 'proiezione';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Results {
+  readonly displayMode = inject(DisplayMode);
+
   readonly result = input<OutputCalcoloStipendio | null>(null);
   readonly baseInput = input<InputCalcoloStipendio | null>(null);
 

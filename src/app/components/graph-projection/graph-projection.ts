@@ -14,6 +14,7 @@ import {
 } from '@angular/core';
 import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculator/types';
 import { calcolaStipendioNetto } from '../../../calculator/calculator';
+import { DisplayMode } from '../../services/display-mode';
 import type { Config, Layout, PlotData } from 'plotly.js-dist-min';
 
 type ViewMode = 'monthly' | 'annual';
@@ -83,6 +84,7 @@ async function loadPlotly() {
 })
 export class GraphProjection implements AfterViewInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  readonly displayMode = inject(DisplayMode);
 
   /** Current calculation result */
   readonly result = input<OutputCalcoloStipendio | null>(null);
@@ -112,6 +114,7 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
       // Also track these to trigger re-render
       this.currentPosition();
       this.viewMode();
+      this.displayMode.mode();
 
       if (this.plotInitialized && data) {
         const container = this.chartContainer()?.nativeElement;
@@ -132,6 +135,7 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
 
     const metric = this.metricConfig();
     const isMonthly = this.viewMode() === 'monthly';
+    const isPercepito = this.displayMode.isPercepito();
 
     // Generate RAL values for Y-axis
     const ralValues: number[] = [];
@@ -153,7 +157,12 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
         try {
           const input = metric.setValueOnInput({ ...base, ral }, metricValue);
           const result = calcolaStipendioNetto(input);
-          const netIncome = isMonthly ? result.nettoMensilePercepito : result.totalePercepito;
+          let netIncome: number;
+          if (isMonthly) {
+            netIncome = isPercepito ? result.nettoMensilePercepito : result.nettoMensile;
+          } else {
+            netIncome = isPercepito ? result.totalePercepito : result.nettoAnnuo;
+          }
           row.push(Math.round(netIncome));
         } catch {
           row.push(0);
@@ -178,11 +187,19 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
     const metric = this.metricConfig();
     const metricValue = metric.getValueFromInput(base);
     const isMonthly = this.viewMode() === 'monthly';
+    const isPercepito = this.displayMode.isPercepito();
+
+    let zValue: number;
+    if (isMonthly) {
+      zValue = isPercepito ? res.nettoMensilePercepito : res.nettoMensile;
+    } else {
+      zValue = isPercepito ? res.totalePercepito : res.nettoAnnuo;
+    }
 
     return {
       x: metricValue,
       y: res.ral,
-      z: isMonthly ? res.nettoMensilePercepito : res.totalePercepito,
+      z: zValue,
     };
   });
 
@@ -218,6 +235,13 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
     // Effect will handle the plot update
   }
 
+  private getValueLabel(isMonthly: boolean, isPercepito: boolean): string {
+    if (isMonthly) {
+      return isPercepito ? 'Percepito mensile' : 'Netto mensile';
+    }
+    return isPercepito ? 'Totale percepito' : 'Netto annuo';
+  }
+
   private async initPlot(): Promise<void> {
     const container = this.chartContainer()?.nativeElement;
     const data = this.heatmapData();
@@ -239,6 +263,7 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
     if (!PlotlyModule) return;
 
     const isMonthly = this.viewMode() === 'monthly';
+    const isPercepito = this.displayMode.isPercepito();
     const metric = this.metricConfig();
     const position = this.currentPosition();
 
@@ -278,7 +303,7 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
       },
       colorbar: {
         title: {
-          text: isMonthly ? 'Percepito mensile (€)' : 'Totale percepito (€)',
+          text: this.getValueLabel(isMonthly, isPercepito) + ' (€)',
           side: 'right',
           font: {
             size: 12,
@@ -297,7 +322,7 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
       hovertemplate:
         `<b>${metric.labelShort}</b>: %{x:,.0f} €<br>` +
         `<b>RAL</b>: %{y:,.0f} €<br>` +
-        `<b>${isMonthly ? 'Percepito mensile' : 'Totale percepito'}</b>: %{z:,.0f} €` +
+        `<b>${this.getValueLabel(isMonthly, isPercepito)}</b>: %{z:,.0f} €` +
         '<extra></extra>',
     } as Partial<PlotData>;
 
@@ -330,7 +355,7 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
           `<b>Posizione attuale</b><br>` +
           `${metric.labelShort}: %{x:,.0f} €<br>` +
           `RAL: %{y:,.0f} €<br>` +
-          `${isMonthly ? 'Percepito mensile' : 'Totale percepito'}: ${Math.round(position.z).toLocaleString('it-IT')} €` +
+          `${this.getValueLabel(isMonthly, isPercepito)}: ${Math.round(position.z).toLocaleString('it-IT')} €` +
           '<extra></extra>',
         showlegend: false,
       } as Partial<PlotData>;
@@ -338,13 +363,6 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
     }
 
     const layout: Partial<Layout> = {
-      title: {
-        text: isMonthly ? 'Proiezione Percepito Mensile' : 'Proiezione Totale Percepito',
-        font: {
-          size: 16,
-          color: isDark ? '#e7e5e4' : '#292524',
-        },
-      },
       xaxis: {
         title: {
           text: metric.label,

@@ -10,18 +10,24 @@
     >
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div class="flex flex-col gap-1">
-          <span class="text-sm text-stone-500 dark:text-stone-400">Netto Mensile</span>
+          <span class="text-sm text-stone-500 dark:text-stone-400">{{
+            displayMode.isPercepito() ? 'Percepito Mensile' : 'Netto Mensile'
+          }}</span>
           <span class="text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">{{
-            formatCurrency(r.nettoMensile)
+            formatCurrency(displayMode.isPercepito() ? r.nettoMensilePercepito : r.nettoMensile)
           }}</span>
           <span class="text-xs text-stone-400">su {{ r.mensilita }} mensilità</span>
         </div>
         <div class="flex flex-col gap-1 sm:items-end">
-          <span class="text-sm text-stone-500 dark:text-stone-400">Totale Percepito Annuo</span>
-          <span class="text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">{{
-            formatCurrency(r.totalePercepito)
+          <span class="text-sm text-stone-500 dark:text-stone-400">{{
+            displayMode.isPercepito() ? 'Totale Percepito Annuo' : 'Netto Annuo'
           }}</span>
-          <span class="text-xs text-stone-400">(netto + rimborsi + benefit esenti)</span>
+          <span class="text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">{{
+            formatCurrency(displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo)
+          }}</span>
+          <span class="text-xs text-stone-400">{{
+            displayMode.isPercepito() ? '(netto + rimborsi + benefit esenti)' : '(stipendio netto)'
+          }}</span>
         </div>
       </div>
     </header>
@@ -39,12 +45,12 @@
         [attr.aria-controls]="'panel-cedolino'"
         [class]="
           activeTab() === 'cedolino'
-            ? 'flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
-            : 'flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
+            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
+            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
         "
         (click)="setActiveTab('cedolino')"
       >
-        Cedolino
+        Riepilogo
       </button>
       <button
         type="button"
@@ -53,8 +59,8 @@
         [attr.aria-controls]="'panel-flusso'"
         [class]="
           activeTab() === 'flusso'
-            ? 'flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
-            : 'flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
+            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
+            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
         "
         (click)="setActiveTab('flusso')"
       >
@@ -67,8 +73,8 @@
         [attr.aria-controls]="'panel-proiezione'"
         [class]="
           activeTab() === 'proiezione'
-            ? 'flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
-            : 'flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
+            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
+            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
         "
         (click)="setActiveTab('proiezione')"
       >

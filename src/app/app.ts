@@ -11,6 +11,7 @@ import { calcolaStipendioNetto } from '../calculator/calculator';
 import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../calculator/types';
 import { ThemeMode } from './services/theme-mode';
 import { FormStateShare } from './services/form-state-share';
+import { DisplayMode } from './services/display-mode';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ import { FormStateShare } from './services/form-state-share';
 export class App {
   readonly themeMode = inject(ThemeMode);
   readonly formStateShare = inject(FormStateShare);
+  readonly displayMode = inject(DisplayMode);
 
   readonly formModel = signal<StipendioFormModel>(this.loadInitialFormState());
   readonly stipendioForm = createStipendioForm(this.formModel);

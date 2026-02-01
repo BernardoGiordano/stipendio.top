@@ -70,24 +70,13 @@
       role="img"
       [attr.aria-label]="
         viewMode() === 'monthly'
-          ? 'Grafico heatmap della proiezione del percepito mensile'
-          : 'Grafico heatmap della proiezione del totale percepito annuale'
+          ? displayMode.isPercepito()
+            ? 'Grafico heatmap della proiezione del percepito mensile'
+            : 'Grafico heatmap della proiezione del netto mensile'
+          : displayMode.isPercepito()
+            ? 'Grafico heatmap della proiezione del totale percepito annuale'
+            : 'Grafico heatmap della proiezione del netto annuale'
       "
     ></div>
-  </div>
-
-  <!-- Legend/Help Text -->
-  <div class="pt-2 text-center">
-    <p class="text-xs text-stone-500 dark:text-stone-400">
-      Passa il mouse sul grafico per vedere i valori esatti.
-      @if (currentPosition(); as pos) {
-        <span class="inline-flex items-center gap-1 ml-2">
-          <span
-            class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 border border-white dark:border-stone-800"
-          ></span>
-          Posizione attuale
-        </span>
-      }
-    </p>
   </div>
 </div>
