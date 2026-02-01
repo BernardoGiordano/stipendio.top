@@ -384,6 +384,8 @@ export interface OutputCalcoloStipendio {
   nettoAnnuo: number;
   /** Stipendio netto mensile */
   nettoMensile: number;
+  /** Stipendio netto mensile percepito (include benefit non tassati mensili) */
+  nettoMensilePercepito: number;
   /** Aliquota effettiva totale (trattenute/RAL) */
   aliquotaEffettiva: number;
   /** Totale percepito (netto + rimborsi esenti + benefit esenti) */

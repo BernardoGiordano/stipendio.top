@@ -871,6 +871,9 @@ export class Calculator2026 implements StipendioCalculator {
     // Stipendio netto mensile
     const nettoMensile = nettoAnnuo / mensilita;
 
+    // Stipendio netto mensile percepito (include benefit non tassati mensili)
+    const nettoMensilePercepito = nettoMensile + benefitNonTassati.totaleEsente / 12;
+
     // Aliquota effettiva
     const aliquotaEffettiva = (totaleTrattenute - totaleBonus) / ral;
 
@@ -902,6 +905,7 @@ export class Calculator2026 implements StipendioCalculator {
       totaleBonus,
       nettoAnnuo,
       nettoMensile,
+      nettoMensilePercepito,
       aliquotaEffettiva,
       totalePercepito,
     };
