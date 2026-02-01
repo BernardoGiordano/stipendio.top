@@ -4,7 +4,7 @@
   <div class="max-w-7xl mx-auto px-4 lg:px-8 py-3 flex items-center justify-between">
     <!-- Left side: Logo -->
     <div class="flex items-center gap-2">
-      <h1 class="text-xl font-semibold tracking-tight text-stone-900 dark:text-stone-100">
+      <h1 class="text-xl font-semibold tracking-tight text-stone-900 dark:text-stone-100 mr-4">
         Stipendio.🔝
       </h1>
       <a
@@ -54,7 +54,7 @@
         </svg>
         <span
           class="text-sm font-medium whitespace-nowrap max-w-0 group-hover:max-w-xs overflow-hidden opacity-0 group-hover:opacity-100 hover-text-delay"
-          >PayPal</span
+          >Supporta</span
         >
       </a>
       <button
@@ -292,7 +292,7 @@
                 clip-rule="evenodd"
               />
             </svg>
-            Codice sorgente
+            Sorgente su GitHub
           </a>
           <a
             cdkMenuItem
@@ -310,7 +310,7 @@
                 opacity="0.7"
               />
             </svg>
-            Supporta
+            Supporta con PayPal
           </a>
         </div>
       </ng-template>
@@ -331,7 +331,7 @@
   </div>
 </main>
 
-<div class="bg-stone-100 border-b border-stone-200 dark:bg-stone-800 dark:border-stone-700">
+<div class="bg-stone-100 dark:bg-stone-800">
   <div class="max-w-7xl mx-auto px-4 lg:px-8 py-2.5 flex items-center justify-between gap-4">
     <p class="text-sm text-stone-600 dark:text-stone-300">
       @if (loadedFromUrl()) {
@@ -379,3 +379,23 @@
     </button>
   </div>
 </div>
+
+<footer class="bg-white dark:bg-gray-900/30">
+  <div
+    class="max-w-7xl mx-auto px-4 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-green-800 dark:text-green-200"
+  >
+    <p class="text-gray-400 text-center md:text-left">
+      Il calcolatore dello stipendio netto per lavoratori dipendenti privati in Italia.
+    </p>
+    <p>
+      Realizzato con <span class="text-red-500" aria-label="amore">&#10084;</span> da
+      <a
+        href="https://github.com/BernardoGiordano"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-bold hover:text-blue-600 dark:hover:text-white"
+        >Bernardo Giordano</a
+      >
+    </p>
+  </div>
+</footer>
