@@ -1,9 +1,22 @@
+/**
+ * Addizionali Regionali IRPEF 2025
+ * Dati aggiornati a febbraio 2026
+ * Fonte: Dipartimento delle Finanze (finanze.gov.it)
+ */
+
 export const ADDIZIONALI_REGIONALI: Record<
   string,
-  { scaglioni: Array<{ limite: number; aliquota: number }> }
+  { scaglioni: Array<{ limite: number; aliquota: number }>; esenzione?: number; note?: string }
 > = {
   ABRUZZO: {
-    scaglioni: [{ limite: Infinity, aliquota: 0.0173 }],
+    scaglioni: [
+      { limite: 28_000, aliquota: 0.0167 },
+      { limite: 50_000, aliquota: 0.0287 },
+      { limite: Infinity, aliquota: 0.0333 },
+    ],
+  },
+  BASILICATA: {
+    scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
   },
   CALABRIA: {
     scaglioni: [{ limite: Infinity, aliquota: 0.0173 }],
@@ -11,16 +24,17 @@ export const ADDIZIONALI_REGIONALI: Record<
   CAMPANIA: {
     scaglioni: [
       { limite: 15_000, aliquota: 0.0173 },
-      { limite: 28_000, aliquota: 0.0203 },
-      { limite: 50_000, aliquota: 0.0233 },
+      { limite: 28_000, aliquota: 0.0296 },
+      { limite: 50_000, aliquota: 0.032 },
       { limite: Infinity, aliquota: 0.0333 },
     ],
+    // note: 'Detrazioni: €30/figlio (min 2 figli), €40/figlio disabile per redditi ≤€28.000',
   },
   EMILIA_ROMAGNA: {
     scaglioni: [
       { limite: 15_000, aliquota: 0.0133 },
       { limite: 28_000, aliquota: 0.0193 },
-      { limite: 50_000, aliquota: 0.0278 },
+      { limite: 50_000, aliquota: 0.0293 },
       { limite: Infinity, aliquota: 0.0333 },
     ],
   },
@@ -31,14 +45,18 @@ export const ADDIZIONALI_REGIONALI: Record<
     ],
   },
   LAZIO: {
-    scaglioni: [{ limite: Infinity, aliquota: 0.0173 }],
+    scaglioni: [
+      { limite: 28_000, aliquota: 0.0173 },
+      { limite: 50_000, aliquota: 0.0333 },
+      { limite: Infinity, aliquota: 0.0333 },
+    ],
+    // note: 'Detrazione €60 per redditi €28.001-€35.000',
   },
   LIGURIA: {
     scaglioni: [
-      { limite: 15_000, aliquota: 0.0123 },
-      { limite: 28_000, aliquota: 0.0179 },
-      { limite: 50_000, aliquota: 0.0231 },
-      { limite: Infinity, aliquota: 0.0233 },
+      { limite: 28_000, aliquota: 0.0123 },
+      { limite: 50_000, aliquota: 0.0318 },
+      { limite: Infinity, aliquota: 0.0323 },
     ],
   },
   LOMBARDIA: {
@@ -56,13 +74,14 @@ export const ADDIZIONALI_REGIONALI: Record<
       { limite: 50_000, aliquota: 0.017 },
       { limite: Infinity, aliquota: 0.0173 },
     ],
+    // note: 'Aliquota ridotta 1,23% per contribuenti con figli disabili a carico (reddito ≤€50.000)',
   },
   MOLISE: {
     scaglioni: [
-      { limite: 15_000, aliquota: 0.0203 },
-      { limite: 28_000, aliquota: 0.0223 },
-      { limite: 50_000, aliquota: 0.0243 },
-      { limite: Infinity, aliquota: 0.0263 },
+      { limite: 15_000, aliquota: 0.0173 },
+      { limite: 28_000, aliquota: 0.0193 },
+      { limite: 50_000, aliquota: 0.0333 },
+      { limite: Infinity, aliquota: 0.0333 },
     ],
   },
   PIEMONTE: {
@@ -72,6 +91,7 @@ export const ADDIZIONALI_REGIONALI: Record<
       { limite: 50_000, aliquota: 0.0331 },
       { limite: Infinity, aliquota: 0.0333 },
     ],
+    // note: 'Detrazioni: €100/figlio (dal 3°), €500/figlio disabile',
   },
   PUGLIA: {
     scaglioni: [
@@ -80,22 +100,60 @@ export const ADDIZIONALI_REGIONALI: Record<
       { limite: 50_000, aliquota: 0.0163 },
       { limite: Infinity, aliquota: 0.0185 },
     ],
+    // note: 'Detrazioni: €20/figlio (>3 figli), €375 aggiuntivi per figli disabili',
+  },
+  SARDEGNA: {
+    scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
+    // note: 'Detrazione €200/figlio minorenne (reddito ≤€50.000), +€100 per figli disabili',
+  },
+  SICILIA: {
+    scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
   },
   TOSCANA: {
     scaglioni: [
       { limite: 15_000, aliquota: 0.0142 },
       { limite: 28_000, aliquota: 0.0143 },
-      { limite: 50_000, aliquota: 0.0168 },
+      { limite: 50_000, aliquota: 0.0332 },
+      { limite: Infinity, aliquota: 0.0333 },
+    ],
+  },
+  // Province autonome di Trento e Bolzano (gestite separatamente)
+  TRENTINO_ALTO_ADIGE: {
+    scaglioni: [
+      { limite: 50_000, aliquota: 0.0123 },
       { limite: Infinity, aliquota: 0.0173 },
     ],
+    // note: 'Vedi province autonome per deduzioni/detrazioni specifiche',
+  },
+  PROVINCIA_TRENTO: {
+    scaglioni: [
+      { limite: 50_000, aliquota: 0.0123 },
+      { limite: Infinity, aliquota: 0.0173 },
+    ],
+    // note: 'Deduzione €30.000 per redditi ≤€30.000; detrazione €246/figlio per redditi ≤€50.000',
+  },
+  PROVINCIA_BOLZANO: {
+    scaglioni: [
+      { limite: 50_000, aliquota: 0.0123 },
+      { limite: Infinity, aliquota: 0.0173 },
+    ],
+    // note: 'Detrazione base €430,50 per redditi ≤€90.000; €340/figlio a carico',
   },
   UMBRIA: {
     scaglioni: [
-      { limite: 15_000, aliquota: 0.0123 },
-      { limite: 28_000, aliquota: 0.0162 },
+      { limite: 28_000, aliquota: 0.0123 },
       { limite: 50_000, aliquota: 0.0167 },
       { limite: Infinity, aliquota: 0.0183 },
     ],
+    // note: 'Detrazione €150 per redditi €28.001-€50.000',
+  },
+  VALLE_AOSTA: {
+    scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
+    esenzione: 15_000,
+  },
+  VENETO: {
+    scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
+    // note: 'Aliquota ridotta 0,90% per soggetti disabili o con familiari disabili a carico (reddito ≤€50.000)',
   },
   // Aliquota di default per regioni non specificate (aliquota base nazionale)
   DEFAULT: {
