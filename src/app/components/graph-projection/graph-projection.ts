@@ -124,7 +124,9 @@ function calculateRalRange(currentRal: number | undefined): {
 
   // Determine appropriate step based on RAL magnitude
   let step: number;
-  if (currentRal <= 50000) {
+  if (currentRal <= 20000) {
+    step = 1000;
+  } else if (currentRal <= 50000) {
     step = 2000;
   } else if (currentRal <= 100000) {
     step = 5000;
@@ -134,13 +136,13 @@ function calculateRalRange(currentRal: number | undefined): {
     step = 20000;
   }
 
-  // Calculate range: ~30% below to ~30% above current RAL
-  const rangeExtent = Math.max(currentRal * 0.3, 20000);
+  // Calculate range: ~30% below to ~30% above current RAL, with minimum extent
+  const rangeExtent = Math.max(currentRal * 0.3, step * 5);
   let min = Math.floor((currentRal - rangeExtent) / step) * step;
   let max = Math.ceil((currentRal + rangeExtent) / step) * step;
 
-  // Ensure minimum is at least 10000 and positive
-  min = Math.max(min, 10000);
+  // Ensure minimum is positive (RAL can't be negative)
+  min = Math.max(min, 0);
 
   // Ensure we have at least 10 data points
   const numPoints = (max - min) / step;
