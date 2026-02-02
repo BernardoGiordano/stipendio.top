@@ -4,11 +4,9 @@
     max-width 300ms ease-in-out,
     opacity 300ms ease-in-out;
 }
-
 .group:hover .hover-text-delay {
   transition-delay: 0s;
 }
-
 .group:not(:hover) .hover-text-delay {
   transition-delay: 1s;
 }

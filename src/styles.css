@@ -14,3 +14,14 @@ body {
   @apply bg-stone-50 text-stone-900 min-h-screen;
   @apply dark:bg-stone-900 dark:text-stone-100;
 }
+
+/* Hide number input spinboxes */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
