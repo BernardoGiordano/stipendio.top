@@ -307,7 +307,8 @@ const ascendenteSchema = schema<AscendenteACaricoFormModel>((path) => {
 export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   // Mandatory fields
   validate(path.ral, ({ value }) => {
-    if (value() <= 0) {
+    const v = value();
+    if (v == null || Number.isNaN(v) || v <= 0) {
       return { kind: 'required', message: 'RAL obbligatoria' };
     }
     return null;
@@ -469,7 +470,7 @@ function toAscendenti(models: AscendenteACaricoFormModel[]): AscendenteACarico[]
  * Returns null if required fields are missing.
  */
 export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcoloStipendio | null {
-  if (model.ral === 0 || !model.regione || !model.comune) {
+  if (!model.ral || Number.isNaN(model.ral) || !model.regione || !model.comune) {
     return null;
   }
 
