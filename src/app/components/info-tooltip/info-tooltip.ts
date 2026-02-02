@@ -57,37 +57,56 @@ export class InfoTooltip implements OnDestroy {
   show(): void {
     if (this.tooltipEl) return;
 
-    const rect = this.trigger().nativeElement.getBoundingClientRect();
+    const triggerRect = this.trigger().nativeElement.getBoundingClientRect();
+    const triggerCenterX = triggerRect.left + triggerRect.width / 2;
+    const viewportWidth = this.document.documentElement.clientWidth;
+    const padding = 8;
 
     // Create tooltip container
-    this.tooltipEl = this.renderer.createElement('div');
-    this.renderer.setAttribute(this.tooltipEl, 'id', this.tooltipId());
-    this.renderer.setAttribute(this.tooltipEl, 'role', 'tooltip');
+    const tooltipEl: HTMLElement = this.renderer.createElement('div');
+    this.tooltipEl = tooltipEl;
+    this.renderer.setAttribute(tooltipEl, 'id', this.tooltipId());
+    this.renderer.setAttribute(tooltipEl, 'role', 'tooltip');
     this.renderer.setAttribute(
-      this.tooltipEl,
+      tooltipEl,
       'class',
       'fixed z-[9999] px-3 py-2 text-xs leading-relaxed text-white bg-stone-800 rounded-lg shadow-lg max-w-xs w-max pointer-events-none dark:bg-stone-700',
     );
-    this.renderer.setStyle(this.tooltipEl, 'left', `${rect.left + rect.width / 2}px`);
-    this.renderer.setStyle(this.tooltipEl, 'top', `${rect.top - 8}px`);
-    this.renderer.setStyle(this.tooltipEl, 'transform', 'translate(-50%, -100%)');
+    this.renderer.setStyle(tooltipEl, 'top', `${triggerRect.top - 8}px`);
+    this.renderer.setStyle(tooltipEl, 'transform', 'translateY(-100%)');
 
     // Add text
     const textNode = this.renderer.createText(this.text());
-    this.renderer.appendChild(this.tooltipEl, textNode);
+    this.renderer.appendChild(tooltipEl, textNode);
 
-    // Add arrow
+    // Add arrow (will adjust position after measuring)
     const arrow = this.renderer.createElement('div');
     this.renderer.setAttribute(
       arrow,
       'class',
-      'absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-stone-800 dark:border-t-stone-700',
+      'absolute top-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-stone-800 dark:border-t-stone-700',
     );
     this.renderer.setAttribute(arrow, 'aria-hidden', 'true');
-    this.renderer.appendChild(this.tooltipEl, arrow);
+    this.renderer.appendChild(tooltipEl, arrow);
 
-    // Append to body (outside any stacking context)
-    this.renderer.appendChild(this.document.body, this.tooltipEl);
+    // Append to body to measure actual width
+    this.renderer.appendChild(this.document.body, tooltipEl);
+
+    // Calculate clamped position to keep tooltip within viewport
+    const tooltipRect = tooltipEl.getBoundingClientRect();
+    const tooltipHalfWidth = tooltipRect.width / 2;
+
+    let tooltipLeft = triggerCenterX - tooltipHalfWidth;
+    const minLeft = padding;
+    const maxLeft = viewportWidth - tooltipRect.width - padding;
+
+    tooltipLeft = Math.max(minLeft, Math.min(maxLeft, tooltipLeft));
+    this.renderer.setStyle(tooltipEl, 'left', `${tooltipLeft}px`);
+
+    // Position arrow to point at trigger center
+    const arrowLeft = triggerCenterX - tooltipLeft;
+    this.renderer.setStyle(arrow, 'left', `${arrowLeft}px`);
+    this.renderer.setStyle(arrow, 'transform', 'translateX(-50%)');
   }
 
   hide(): void {
