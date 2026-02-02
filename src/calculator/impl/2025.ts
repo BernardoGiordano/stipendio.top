@@ -714,7 +714,29 @@ function calcolaAddizionaleComunale(
   const config = ADDIZIONALI_COMUNALI[comune.toUpperCase()] ?? ADDIZIONALI_COMUNALI['DEFAULT'];
 
   if (config.esenzione && imponibile <= config.esenzione) {
-    return { addizionale: 0, aliquota: config.aliquota, esenzioneApplicata: true };
+    const aliquotaDefault = 'aliquota' in config ? config.aliquota : config.scaglioni[0].aliquota;
+    return { addizionale: 0, aliquota: aliquotaDefault, esenzioneApplicata: true };
+  }
+
+  // Gestione scaglioni progressivi (es. Torino)
+  if ('scaglioni' in config) {
+    let addizionale = 0;
+    let residuo = imponibile;
+    let precedente = 0;
+    let aliquotaEffettiva = 0;
+
+    for (const scaglione of config.scaglioni) {
+      const importoScaglione = Math.min(residuo, scaglione.limite - precedente);
+      if (importoScaglione > 0) {
+        addizionale += importoScaglione * scaglione.aliquota;
+        aliquotaEffettiva = scaglione.aliquota;
+      }
+      residuo -= importoScaglione;
+      precedente = scaglione.limite;
+      if (residuo <= 0) break;
+    }
+
+    return { addizionale, aliquota: aliquotaEffettiva, esenzioneApplicata: false };
   }
 
   const addizionale = imponibile * config.aliquota;

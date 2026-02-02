@@ -107,6 +107,11 @@ export interface AscendenteACarico {
   convivente: boolean;
 }
 
+/** Definizione addizionale comunale */
+export type AddizionaleComunale =
+  | { aliquota: number; esenzione?: number }
+  | { scaglioni: Array<{ limite: number; aliquota: number }>; esenzione?: number };
+
 /** Input per il calcolo dello stipendio netto */
 export interface InputCalcoloStipendio {
   /** Reddito Annuo Lordo (RAL) */
