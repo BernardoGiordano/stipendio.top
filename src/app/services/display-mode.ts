@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 
 type DisplayModeType = 'netto' | 'percepito';
 
@@ -10,10 +10,6 @@ export class DisplayMode {
 
   readonly isPercepito = computed(() => this.mode() === 'percepito');
   readonly isNetto = computed(() => this.mode() === 'netto');
-
-  toggle(): void {
-    this.mode.update((current) => (current === 'netto' ? 'percepito' : 'netto'));
-  }
 
   setMode(mode: DisplayModeType): void {
     this.mode.set(mode);
