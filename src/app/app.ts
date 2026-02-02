@@ -20,12 +20,11 @@ import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../calculator/typ
 import { ThemeMode } from './services/theme-mode';
 import { FormStateShare } from './services/form-state-share';
 import { DisplayMode } from './services/display-mode';
-import { SeoService } from './services/seo.service';
 import {
   CdkMenu,
+  CdkMenuGroup,
   CdkMenuItem,
   CdkMenuItemRadio,
-  CdkMenuGroup,
   CdkMenuTrigger,
 } from '@angular/cdk/menu';
 import { formatCurrency } from './utils/intl';
@@ -52,7 +51,6 @@ export class App {
   readonly themeMode = inject(ThemeMode);
   readonly formStateShare = inject(FormStateShare);
   readonly displayMode = inject(DisplayMode);
-  private readonly seoService = inject(SeoService);
 
   readonly formModel = signal<StipendioFormModel>(this.loadInitialFormState());
   readonly stipendioForm = createStipendioForm(this.formModel);
@@ -87,10 +85,7 @@ export class App {
   constructor() {
     effect(() => {
       if (this.loadedFromUrl()) {
-        const result = this.calculationResult();
-        if (result) {
-          this.seoService.updateForSharedState(result.nettoMensile);
-        }
+        this.calculationResult();
       }
     });
   }
