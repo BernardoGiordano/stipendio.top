@@ -200,7 +200,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     annoFiscale: String(currentYear),
     regione: 'DEFAULT',
     comune: 'DEFAULT',
-    giorniLavorati: 0,
+    giorniLavorati: 365,
     aziendaConCigs: false,
     iscrittoPost1996: true,
     altriRedditi: 0,
