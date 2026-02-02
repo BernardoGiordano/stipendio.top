@@ -28,6 +28,7 @@ import {
   CdkMenuTrigger,
 } from '@angular/cdk/menu';
 import { formatCurrency } from './utils/intl';
+import buildInfo from '../build.json';
 
 @Component({
   selector: 'app-root',
@@ -47,6 +48,7 @@ import { formatCurrency } from './utils/intl';
 })
 export class App {
   readonly formatCurrency = formatCurrency;
+  readonly buildInfo = buildInfo;
 
   readonly themeMode = inject(ThemeMode);
   readonly formStateShare = inject(FormStateShare);
@@ -83,6 +85,7 @@ export class App {
   });
 
   constructor() {
+    console.info(`stipendio.top - build ${this.buildInfo.buildDate} (${this.buildInfo.gitCommit})`);
     effect(() => {
       if (this.loadedFromUrl()) {
         this.calculationResult();
