@@ -46,3 +46,4 @@ __screenshots__/
 Thumbs.db
 
 deploy.sh
+src/build.json
