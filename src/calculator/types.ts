@@ -162,9 +162,6 @@ export interface InputCalcoloStipendio {
   /** Indica se il lavoratore ha figli a carico (per soglia fringe benefit) */
   haFigliACarico?: boolean;
 
-  /** Neoassunto 2025 fuori sede >100km (soglia speciale €5.000) */
-  neoassuntoFuoriSede2025?: boolean;
-
   /** Rimborsi spese trasferta */
   rimborsiTrasferta?: RimborsiTrasferta;
 

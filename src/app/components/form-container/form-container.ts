@@ -47,7 +47,7 @@ export class FormContainer {
     { value: 'apprendistato', label: 'Apprendistato' },
   ];
 
-  readonly anniFiscali = ['2025', '2026', '2027', '2028', '2029', '2030'];
+  readonly anniFiscali = ['2026', '2027', '2028', '2029', '2030'];
 
   readonly mensilita = ['15', '14', '13', '12'];
 

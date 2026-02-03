@@ -1,5 +1,4 @@
 import { InputCalcoloStipendio, OutputCalcoloStipendio } from './types';
-import { Calculator2025 } from './impl/2025';
 import { Calculator2026 } from './impl/2026';
 
 export interface StipendioCalculator {
@@ -9,7 +8,6 @@ export interface StipendioCalculator {
 const DEFAULT_CALCULATOR = 2026;
 
 const calculators: Record<number, StipendioCalculator> = {
-  2025: new Calculator2025(),
   2026: new Calculator2026(),
 };
 

@@ -12,7 +12,7 @@ Nota: questo progetto è stato scritto nel corso di un weekend tramite il parzia
 
 - Calcolo dello stipendio netto a partire dalla RAL (Retribuzione Annua Lorda), situazione familiare e da eventuali benefit, fringe benefit e rimborsi spese.
 - Dettaglio di tutte le componenti del calcolo, con formule e spiegazioni.
-- Calcolo differenziato per gli anni 2025 e 2026 (e aggiornabile nel tempo, preservando la retrocompatibilità).
+- Calcolo differenziato per gli anni fiscali (Attualmente solo 2026, ma aggiornabile nel tempo, preservando la retrocompatibilità).
 - Grafico Sankey per mostrare l'incidenza di ogni componente sul totale percepito.
 - Grafico a gradiente per visualizzare la proiezione dello stipendio netto/percepito in funzione della RAL e dei parametri desiderati.
 - Possibilità di salvare e condividere le impostazioni inserite nella form di calcolo in maniera completamente anonima (il sito non memorizza nessuna informazione sulla vostra sessione e sui dati inseriti).
@@ -104,14 +104,6 @@ Totale Contributi = Contributi Base + Contributo Aggiuntivo
 
 L'Imposta sul Reddito delle Persone Fisiche è calcolata per scaglioni progressivi.
 
-##### Scaglioni 2025
-
-| Scaglione | Reddito           | Aliquota |
-| --------- | ----------------- | -------- |
-| 1°        | Fino a €28.000    | 23%      |
-| 2°        | €28.001 − €50.000 | 35%      |
-| 3°        | Oltre €50.000     | 43%      |
-
 ##### Scaglioni 2026
 
 | Scaglione | Reddito           | Aliquota |
@@ -121,19 +113,6 @@ L'Imposta sul Reddito delle Persone Fisiche è calcolata per scaglioni progressi
 | 3°        | Oltre €50.000     | 43%      |
 
 ##### Formule di Calcolo Rapido
-
-**2025:**
-
-```
-Se RC ≤ €28.000:
-    IRPEF = RC × 23%
-
-Se €28.000 < RC ≤ €50.000:
-    IRPEF = €6.440 + (RC − €28.000) × 35%
-
-Se RC > €50.000:
-    IRPEF = €14.140 + (RC − €50.000) × 43%
-```
 
 **2026:**
 
@@ -280,11 +259,10 @@ Compensi in natura erogati dal datore di lavoro.
 
 ##### Soglie di Esenzione (2025-2027)
 
-| Condizione                               | Soglia |
-| ---------------------------------------- | ------ |
-| Senza figli a carico                     | €1.000 |
-| Con figli a carico                       | €2.000 |
-| Neoassunti fuori sede >100km (solo 2025) | €5.000 |
+| Condizione           | Soglia |
+| -------------------- | ------ |
+| Senza figli a carico | €1.000 |
+| Con figli a carico   | €2.000 |
 
 > ⚠️ **Sistema a soglia secca:** se superata anche di €0,01, **tutto** l'importo diventa imponibile.
 

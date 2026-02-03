@@ -759,7 +759,6 @@ export class Calculator2026 implements StipendioCalculator {
       altreDetrazioni = 0,
       fringeBenefit: fringeBenefitInput,
       haFigliACarico = false,
-      // neoassuntoFuoriSede2025 is ignored in 2026 - no special threshold
       rimborsiTrasferta: rimborsiTrasfertaInput,
       benefitNonTassati: benefitNonTassatiInput,
     } = input;
