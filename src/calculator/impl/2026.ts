@@ -190,30 +190,37 @@ function calcolaFringeBenefit(
   fringeBenefit: FringeBenefit | undefined,
   haFigliACarico: boolean,
 ): DettaglioFringeBenefit {
+  const sogliaEsenzione = haFigliACarico
+    ? FRINGE_BENEFIT.sogliaConFigli
+    : FRINGE_BENEFIT.sogliaSenzaFigli;
+
   if (!fringeBenefit) {
     return {
       valoreTotaleLordo: 0,
       autoAziendale: null,
-      sogliaEsenzione: haFigliACarico
-        ? FRINGE_BENEFIT.sogliaConFigli
-        : FRINGE_BENEFIT.sogliaSenzaFigli,
+      trattenutaAutoDipendente: 0,
+      sogliaEsenzione,
       sogliaSuperata: false,
       valoreImponibile: 0,
       valoreEsente: 0,
+      valoreMonetarioImponibile: 0,
+      valoreAutoImponibile: 0,
     };
   }
 
   let autoAziendaleDettaglio: DettaglioFringeBenefit['autoAziendale'] = null;
   let valoreAuto = 0;
+  let trattenutaAutoDipendente = 0;
 
   if (fringeBenefit.autoAziendale) {
     const calcolo = calcolaFringeBenefitAuto(fringeBenefit.autoAziendale);
     autoAziendaleDettaglio = calcolo;
     valoreAuto = calcolo.valore;
+    trattenutaAutoDipendente = fringeBenefit.autoAziendale.trattenutaDipendente ?? 0;
   }
 
-  const valoreTotaleLordo =
-    valoreAuto +
+  // Fringe benefit monetari (esclusa auto) - sono soldi/valore che il dipendente riceve
+  const valoreMonetario =
     (fringeBenefit.buoniAcquisto ?? 0) +
     (fringeBenefit.buoniCarburante ?? 0) +
     (fringeBenefit.rimborsoUtenze ?? 0) +
@@ -221,25 +228,26 @@ function calcolaFringeBenefit(
     (fringeBenefit.rimborsoInteressiMutuo ?? 0) +
     (fringeBenefit.altri ?? 0);
 
-  // Nel 2026 non c'è più la soglia speciale neoassunti
-  let sogliaEsenzione: number;
-  if (haFigliACarico) {
-    sogliaEsenzione = FRINGE_BENEFIT.sogliaConFigli;
-  } else {
-    sogliaEsenzione = FRINGE_BENEFIT.sogliaSenzaFigli;
-  }
+  const valoreTotaleLordo = valoreAuto + valoreMonetario;
 
   const sogliaSuperata = valoreTotaleLordo > sogliaEsenzione;
   const valoreImponibile = sogliaSuperata ? valoreTotaleLordo : 0;
   const valoreEsente = sogliaSuperata ? 0 : valoreTotaleLordo;
 
+  // Separa il valore imponibile tra auto (beneficio in natura) e monetario (soldi ricevuti)
+  const valoreAutoImponibile = sogliaSuperata ? valoreAuto : 0;
+  const valoreMonetarioImponibile = sogliaSuperata ? valoreMonetario : 0;
+
   return {
     valoreTotaleLordo,
     autoAziendale: autoAziendaleDettaglio,
+    trattenutaAutoDipendente,
     sogliaEsenzione,
     sogliaSuperata,
     valoreImponibile,
     valoreEsente,
+    valoreMonetarioImponibile,
+    valoreAutoImponibile,
   };
 }
 
@@ -885,12 +893,16 @@ export class Calculator2026 implements StipendioCalculator {
     const totaleBonus = cuneoFiscale.indennitaEsente + trattamentoIntegrativo.importo;
 
     // Stipendio netto annuo
+    // Nota: l'auto aziendale è un beneficio in natura (non denaro), quindi non aumenta il netto.
+    // Solo i fringe benefit monetari (buoni, rimborsi) aumentano il netto perché sono valore ricevuto.
+    // La trattenuta auto è un costo reale che il dipendente paga, quindi si sottrae dal netto.
     const baseImponibile =
       ral +
-      fringeBenefit.valoreImponibile +
+      fringeBenefit.valoreMonetarioImponibile +
       rimborsiTrasferta.rimborsiTassati +
       benefitNonTassati.totaleTassato;
-    const nettoAnnuo = baseImponibile - totaleTrattenute + totaleBonus;
+    const nettoAnnuo =
+      baseImponibile - totaleTrattenute + totaleBonus - fringeBenefit.trattenutaAutoDipendente;
 
     // Stipendio netto mensile
     const nettoMensile = nettoAnnuo / mensilita;

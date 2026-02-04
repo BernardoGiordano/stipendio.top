@@ -281,6 +281,8 @@ export interface DettaglioFringeBenefit {
     /** Mesi di utilizzo */
     mesiUtilizzo: number;
   } | null;
+  /** Trattenuta auto aziendale pagata dal dipendente */
+  trattenutaAutoDipendente: number;
   /** Soglia esenzione applicabile */
   sogliaEsenzione: number;
   /** Indica se soglia superata (tutto tassabile) */
@@ -289,6 +291,10 @@ export interface DettaglioFringeBenefit {
   valoreImponibile: number;
   /** Valore esente */
   valoreEsente: number;
+  /** Valore fringe benefit monetari imponibili (esclusa auto, sono soldi ricevuti) */
+  valoreMonetarioImponibile: number;
+  /** Valore auto aziendale imponibile (non è denaro ricevuto, solo per calcolo tasse) */
+  valoreAutoImponibile: number;
 }
 
 /** Dettaglio rimborsi trasferta */

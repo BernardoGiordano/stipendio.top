@@ -542,6 +542,16 @@
                         {{ r.fringeBenefit.autoAziendale.mesiUtilizzo }}
                       </dd>
                     </div>
+                    @if (r.fringeBenefit.trattenutaAutoDipendente > 0) {
+                      <div class="flex justify-between py-1">
+                        <dt class="text-xs text-stone-500 dark:text-stone-400">
+                          Trattenuta Dipendente
+                        </dt>
+                        <dd class="text-xs text-stone-500 dark:text-stone-400">
+                          -{{ formatCurrency(r.fringeBenefit.trattenutaAutoDipendente) }}
+                        </dd>
+                      </div>
+                    }
                   </div>
                 }
               </dl>
