@@ -38,6 +38,7 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Fringe Benefit](#7-fringe-benefit)
   - [Rimborsi Spese](#8-rimborsi-spese)
   - [Benefit Non Tassati](#9-benefit-non-tassati-welfare)
+  - [Dirigenti CCNL Terziario](#10-dirigenti-ccnl-terziario)
 - [Sequenza di Calcolo](#sequenza-di-calcolo)
 - [Riferimenti Normativi](#riferimenti-normativi)
 
@@ -46,12 +47,13 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
 ### Formula Generale
 
 ```
-STIPENDIO NETTO = Imponibile − Contributi INPS − IRPEF Finale − Addizionali + Bonus
+STIPENDIO NETTO = Imponibile − Contributi INPS − IRPEF Finale − Addizionali − Contributi obbligatori per qualifica + Bonus
 ```
 
 Dove:
 
 - `IMPONIBILE = RAL + Fringe Benefit Tassabili + Rimborsi Tassati + Benefit Eccedenti`
+- `IMPONIBILE IRPEF = IMPONIBILE − Contributi INPS − Contributi obbligatori per qualifica`
 - `IRPEF NETTA = IRPEF Lorda − Detrazioni Lavoro − Detrazioni Familiari − Altre Detrazioni`
 - `IRPEF FINALE = MAX(0, IRPEF Netta − Detrazione Cuneo Fiscale)`
 - `BONUS = Indennità Cuneo Fiscale + Trattamento Integrativo`
@@ -356,6 +358,38 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 
 ---
 
+#### 10. Dirigenti CCNL Terziario
+
+I dirigenti del settore terziario (commercio, distribuzione, servizi) sono soggetti a trattenute obbligatorie per fondi di previdenza e assistenza sanitaria integrativa.
+
+##### Fondo Mario Negri
+
+Fondo di previdenza complementare obbligatorio per i dirigenti del terziario.
+
+**Parametri 2026:**
+
+| Parametro                     | Valore     |
+| ----------------------------- | ---------- |
+| Retribuzione convenzionale    | €59.224,54 |
+| Aliquota contributo dirigente | 2%         |
+| Contributo annuo dirigente    | €1.184,49  |
+| Contributo mensile            | €98,71     |
+
+**Caratteristiche:**
+
+- Il contributo **riduce l'imponibile IRPEF** (deduzione integrale, senza massimale di deducibilità come per la previdenza complementare generica)
+- Il contributo **non riduce l'imponibile previdenziale** (INPS)
+- È una **trattenuta reale** che si sottrae dal netto in busta paga
+- Il risparmio fiscale dipende dall'aliquota marginale IRPEF del dirigente
+
+> Il contributo aziendale (aliquota integrativa) non impatta il netto del dirigente e non è calcolato.
+
+##### Fondo Pastore
+
+TODO
+
+---
+
 ### Sequenza di Calcolo
 
 ```
@@ -400,8 +434,17 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
+│  6b. FONDO MARIO NEGRI (se dirigente CCNL Terziario)            │
+│      = €1.184,49/anno (contributo fisso 2026)                   │
+│      → Riduce l'imponibile IRPEF                                │
+│      → È una trattenuta reale dal netto                         │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
 │  7. IMPONIBILE IRPEF                                            │
 │     = Imponibile Previdenziale − Contributi INPS                │
+│       − Contributi obbligatori per qualifica.                   │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -446,8 +489,8 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  13. RISULTATO FINALE                                           │
-│      Netto = Imponibile − Contributi − IRPEF Finale             │
-│              − Addizionali + Bonus                              │
+│      Netto = Imponibile − Contributi INPS − IRPEF Finale        │
+│     − Addizionali − Contributi obb. per qualifica + Bonus       │
 │                                                                 │
 │      Totale Percepito = Netto + Esenti                          │
 └─────────────────────────────────────────────────────────────────┘

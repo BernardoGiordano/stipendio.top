@@ -1520,4 +1520,52 @@
       </div>
     }
   </fieldset>
+
+  <!-- Sezione Dirigenti CCNL Terziario -->
+  <fieldset
+    class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200 dark:bg-stone-800 dark:border-stone-700"
+    [class.opacity-60]="!model.fondoMarioNegri && !model.fondoPastore"
+  >
+    <legend class="px-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
+      Dirigenti CCNL Terziario
+    </legend>
+
+    <p class="text-xs text-stone-500 mb-4 dark:text-stone-400">
+      Trattenute obbligatorie per i dirigenti del settore terziario (commercio, distribuzione,
+      servizi).
+    </p>
+
+    <div class="flex items-center gap-2 mb-3">
+      <input
+        id="fondoMarioNegri"
+        type="checkbox"
+        [formField]="form.fondoMarioNegri"
+        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
+      />
+      <label
+        for="fondoMarioNegri"
+        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+      >Fondo Mario Negri<app-info-tooltip
+        tooltipId="fondoMarioNegri-info"
+        text="Previdenza complementare obbligatoria. Contributo 2026: 1.184,49 euro/anno (2% di 59.224,54 euro). Riduce l'imponibile IRPEF senza limiti di deducibilità."
+      />
+      </label>
+    </div>
+
+    <!-- <div class="flex items-center gap-2 mb-3 opacity-50 cursor-not-allowed">
+      <input
+        id="fondoPastore"
+        type="checkbox"
+        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 pointer-events-none"
+      />
+      <label
+        for="fondoPastore"
+        class="text-sm text-stone-400 dark:text-stone-500 flex items-center pointer-events-none"
+        >Fondo Pastore (prossimamente)<app-info-tooltip
+          tooltipId="fondoPastore-info"
+          text="Assistenza sanitaria integrativa obbligatoria per dirigenti CCNL Terziario. Calcolo in fase di implementazione."
+        />
+      </label>
+    </div> -->
+  </fieldset>
 </form>

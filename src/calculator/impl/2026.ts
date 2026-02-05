@@ -9,6 +9,7 @@ import {
   DettaglioCuneoFiscale,
   DettaglioDetrazioniFamiliari,
   DettaglioDetrazioniLavoro,
+  DettaglioFondoNegri,
   DettaglioFringeBenefit,
   DettaglioIrpef,
   DettaglioRimborsiTrasferta,
@@ -140,6 +141,14 @@ const BENEFIT_ESENTI = {
   previdenzaComplementare: 5_164.57,
   assistenzaSanitaria: 3_615.2,
   buoniPastoCartacei: 4.0,
+} as const;
+
+/** Parametri Fondo Mario Negri (previdenza dirigenti CCNL Terziario) */
+const FONDO_MARIO_NEGRI = {
+  /** Retribuzione convenzionale 2026 */
+  retribuzioneConvenzionale: 59_224.54,
+  /** Contributo ordinario a carico del dirigente (2% della retribuzione convenzionale) */
+  contributoOrdinarioDirigente: 1_184.49,
 } as const;
 
 function calcolaFringeBenefitAuto(auto: AutoAziendale): {
@@ -712,6 +721,25 @@ function calcolaAddizionaleRegionale(
   return { addizionale: addizionaleTotale, aliquotaMedia };
 }
 
+function calcolaFondoNegri(
+  fondoMarioNegri: boolean,
+  aliquotaMarginaleIrpef: number,
+): DettaglioFondoNegri | null {
+  if (!fondoMarioNegri) {
+    return null;
+  }
+
+  const contributoAnnuo = FONDO_MARIO_NEGRI.contributoOrdinarioDirigente;
+  const contributoMensile = contributoAnnuo / 12;
+  const risparmoFiscaleStimato = contributoAnnuo * aliquotaMarginaleIrpef;
+
+  return {
+    contributoAnnuo,
+    contributoMensile,
+    risparmoFiscaleStimato,
+  };
+}
+
 function calcolaAddizionaleComunale(
   imponibile: number,
   comune: string,
@@ -769,6 +797,7 @@ export class Calculator2026 implements StipendioCalculator {
       haFigliACarico = false,
       rimborsiTrasferta: rimborsiTrasfertaInput,
       benefitNonTassati: benefitNonTassatiInput,
+      fondoMarioNegri = false,
     } = input;
 
     // 1. CALCOLO FRINGE BENEFIT
@@ -796,21 +825,29 @@ export class Calculator2026 implements StipendioCalculator {
       iscrittoPost1996,
     );
 
-    // 6. CALCOLO IMPONIBILE IRPEF
-    const redditoLavoroDipendente = imponibilePrevidenziale - contributiInps.totaleContributi;
+    // 6. CALCOLO FONDO MARIO NEGRI (previdenza complementare dirigenti CCNL Terziario)
+    // Il contributo al Fondo Negri riduce l'imponibile IRPEF ed è una trattenuta reale
+    const contributoFondoNegri = fondoMarioNegri
+      ? FONDO_MARIO_NEGRI.contributoOrdinarioDirigente
+      : 0;
+
+    // 7. CALCOLO IMPONIBILE IRPEF
+    // Il Fondo Negri riduce l'imponibile IRPEF (deduzione piena, no massimale)
+    const redditoLavoroDipendente =
+      imponibilePrevidenziale - contributiInps.totaleContributi - contributoFondoNegri;
     const redditoComplessivo = redditoLavoroDipendente + altriRedditi;
 
-    // 7. CALCOLO IRPEF LORDA
+    // 8. CALCOLO IRPEF LORDA
     const irpef = calcolaIrpefLorda(redditoComplessivo);
 
-    // 8. CALCOLO DETRAZIONI LAVORO DIPENDENTE
+    // 9. CALCOLO DETRAZIONI LAVORO DIPENDENTE
     const detrazioniLavoro = calcolaDetrazioniLavoroDipendente(
       redditoComplessivo,
       giorniLavorati,
       tipoContratto,
     );
 
-    // 9. CALCOLO DETRAZIONI CARICHI FAMILIARI
+    // 10. CALCOLO DETRAZIONI CARICHI FAMILIARI
     const detrazioneConiuge = calcolaDetrazioneConiuge(redditoComplessivo, coniuge);
     const { detrazione: detrazioneFigli, numeroFigli } = calcolaDetrazioneFigli(
       redditoComplessivo,
@@ -830,16 +867,16 @@ export class Calculator2026 implements StipendioCalculator {
       totaleDetrazioniFamiliari: detrazioneConiuge + detrazioneFigli + detrazioneAscendenti,
     };
 
-    // 10. CALCOLO CUNEO FISCALE
+    // 11. CALCOLO CUNEO FISCALE
     const cuneoFiscale = calcolaCuneoFiscale(redditoComplessivo, redditoLavoroDipendente);
 
-    // 11. CALCOLO TOTALE DETRAZIONI
+    // 12. CALCOLO TOTALE DETRAZIONI
     const totaleDetrazioniPreTI =
       detrazioniLavoro.detrazioneEffettiva +
       detrazioniFamiliari.totaleDetrazioniFamiliari +
       altreDetrazioni;
 
-    // 12. CALCOLO TRATTAMENTO INTEGRATIVO
+    // 13. CALCOLO TRATTAMENTO INTEGRATIVO
     const trattamentoIntegrativo = calcolaTrattamentoIntegrativo(
       redditoComplessivo,
       irpef.irpefLorda,
@@ -847,7 +884,7 @@ export class Calculator2026 implements StipendioCalculator {
       totaleDetrazioniPreTI,
     );
 
-    // 13. CALCOLO ADDIZIONALI
+    // 14. CALCOLO ADDIZIONALI
     const addRegionale = calcolaAddizionaleRegionale(redditoComplessivo, regione);
     const addComunale = calcolaAddizionaleComunale(redditoComplessivo, comune);
 
@@ -885,9 +922,20 @@ export class Calculator2026 implements StipendioCalculator {
     // IRPEF finale
     const irpefFinale = Math.max(0, irpefNetta - cuneoFiscale.detrazioneAggiuntiva);
 
-    // Totale trattenute
+    // 15. CALCOLO DETTAGLIO FONDO MARIO NEGRI
+    // Determina l'aliquota marginale IRPEF per stimare il risparmio fiscale
+    const aliquotaMarginaleIrpef =
+      irpef.dettaglioScaglioni.length > 0
+        ? irpef.dettaglioScaglioni[irpef.dettaglioScaglioni.length - 1].aliquota
+        : 0;
+    const fondoNegri = calcolaFondoNegri(fondoMarioNegri, aliquotaMarginaleIrpef);
+
+    // Totale trattenute (include contributo Fondo Negri)
     const totaleTrattenute =
-      contributiInps.totaleContributi + irpefFinale + addizionali.totaleAddizionali;
+      contributiInps.totaleContributi +
+      irpefFinale +
+      addizionali.totaleAddizionali +
+      contributoFondoNegri;
 
     // Totale bonus
     const totaleBonus = cuneoFiscale.indennitaEsente + trattamentoIntegrativo.importo;
@@ -928,6 +976,7 @@ export class Calculator2026 implements StipendioCalculator {
       fringeBenefit,
       rimborsiTrasferta,
       benefitNonTassati,
+      fondoNegri,
       irpef,
       detrazioniLavoro,
       detrazioniFamiliari,

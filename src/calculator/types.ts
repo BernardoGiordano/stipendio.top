@@ -79,6 +79,16 @@ export interface BenefitNonTassati {
 /** Anno fiscale di riferimento */
 export type AnnoFiscale = 2025 | 2026;
 
+/** Dettaglio Fondo Mario Negri (previdenza dirigenti CCNL Terziario) */
+export interface DettaglioFondoNegri {
+  /** Contributo annuo a carico del dirigente */
+  contributoAnnuo: number;
+  /** Contributo mensile (contributoAnnuo / 12) */
+  contributoMensile: number;
+  /** Risparmio fiscale stimato annuo (aliquota marginale x contributo) */
+  risparmoFiscaleStimato: number;
+}
+
 /** Informazioni su un figlio a carico */
 export interface FiglioACarico {
   /** Età del figlio */
@@ -167,6 +177,12 @@ export interface InputCalcoloStipendio {
 
   /** Benefit non tassati (welfare aziendale) */
   benefitNonTassati?: BenefitNonTassati;
+
+  /** Contributo Fondo Mario Negri (previdenza complementare dirigenti CCNL Terziario) */
+  fondoMarioNegri?: boolean;
+
+  /** Contributo Fondo Pastore (assistenza sanitaria dirigenti CCNL Terziario) - non ancora implementato */
+  fondoPastore?: boolean;
 }
 
 /** Dettaglio dei contributi INPS */
@@ -363,6 +379,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio benefit non tassati */
   benefitNonTassati: DettaglioBenefitNonTassati;
+
+  /** Dettaglio Fondo Mario Negri (se dirigente CCNL Terziario) */
+  fondoNegri: DettaglioFondoNegri | null;
 
   /** Dettaglio calcolo IRPEF */
   irpef: DettaglioIrpef;
