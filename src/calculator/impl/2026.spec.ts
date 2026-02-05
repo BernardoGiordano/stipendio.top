@@ -1,8 +1,319 @@
 import { Calculator2026 } from './2026';
+import type { InputCalcoloStipendio } from '../types';
 
 const calc = new Calculator2026();
 
 const CONTRIBUTO_FONDO_NEGRI_2026 = 1184.49;
+
+const baseInput: InputCalcoloStipendio = {
+  ral: 25_000,
+  mensilita: 13,
+  tipoContratto: 'indeterminato',
+  annoFiscale: 2026,
+  regione: 'LOMBARDIA',
+  comune: 'MILANO',
+};
+
+describe('Fringe benefit auto aziendale', () => {
+  describe('Scenario utente: RAL 25k, auto pre-2025, CO2 127, trattenuta 2242', () => {
+    // Calcolo atteso:
+    // CO2 127 → fascia 61-160 → percentuale 30%
+    // Valore convenzionale = 0.542 × 15000 × 0.30 = 2439
+    // Netto trattenuta = max(0, 2439 - 2242) = 197
+    // 197 < soglia 1000 → esente → imponibile previdenziale = RAL
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fringeBenefit: {
+        autoAziendale: {
+          costoKmAci: 0.542,
+          tipoAlimentazione: 'altro',
+          mesiUtilizzo: 12,
+          trattenutaDipendente: 2242,
+          assegnatoPre2025: true,
+          emissioniCO2: 127,
+        },
+      },
+    });
+
+    it('il valore auto deve essere il netto della trattenuta (€197)', () => {
+      expect(result.fringeBenefit.autoAziendale).not.toBeNull();
+      expect(result.fringeBenefit.autoAziendale!.valore).toBeCloseTo(197, 0);
+    });
+
+    it('la percentuale applicata deve essere 30% (CO2 61-160)', () => {
+      expect(result.fringeBenefit.autoAziendale!.percentualeApplicata).toBe(0.3);
+    });
+
+    it('la soglia non deve essere superata (197 < 1000)', () => {
+      expect(result.fringeBenefit.sogliaSuperata).toBe(false);
+    });
+
+    it('il valore imponibile deve essere 0 (sotto soglia)', () => {
+      expect(result.fringeBenefit.valoreImponibile).toBe(0);
+    });
+
+    it("l'imponibile previdenziale deve restare uguale alla RAL", () => {
+      expect(result.contributiInps.imponibilePrevidenziale).toBe(25_000);
+    });
+
+    it('la trattenuta dipendente deve ridurre il netto annuo', () => {
+      const resultSenza = calc.calcolaStipendioNetto(baseInput);
+      expect(resultSenza.nettoAnnuo - result.nettoAnnuo).toBeCloseTo(2242, 0);
+    });
+  });
+
+  describe('Auto pre-2025 senza trattenuta, fringe sopra soglia', () => {
+    // CO2 127 → 30%, costoKm 0.542
+    // Valore = 0.542 × 15000 × 0.30 = 2439
+    // 2439 > 1000 → tassabile → imponibile = RAL + 2439
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fringeBenefit: {
+        autoAziendale: {
+          costoKmAci: 0.542,
+          tipoAlimentazione: 'altro',
+          mesiUtilizzo: 12,
+          trattenutaDipendente: 0,
+          assegnatoPre2025: true,
+          emissioniCO2: 127,
+        },
+      },
+    });
+
+    it('il valore auto deve essere €2439 (senza trattenuta)', () => {
+      expect(result.fringeBenefit.autoAziendale!.valore).toBeCloseTo(2439, 0);
+    });
+
+    it('la soglia deve essere superata (2439 > 1000)', () => {
+      expect(result.fringeBenefit.sogliaSuperata).toBe(true);
+    });
+
+    it("l'imponibile previdenziale deve aumentare del fringe benefit", () => {
+      expect(result.contributiInps.imponibilePrevidenziale).toBeCloseTo(25_000 + 2439, 0);
+    });
+  });
+
+  describe('Percentuali CO2 regime pre-2025', () => {
+    const autoBase = {
+      costoKmAci: 0.5,
+      tipoAlimentazione: 'altro' as const,
+      mesiUtilizzo: 12,
+      trattenutaDipendente: 0,
+      assegnatoPre2025: true,
+    };
+
+    it('CO2 ≤ 60 → 25%', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: { autoAziendale: { ...autoBase, emissioniCO2: 60 } },
+      });
+      expect(result.fringeBenefit.autoAziendale!.percentualeApplicata).toBe(0.25);
+      // 0.5 × 15000 × 0.25 = 1875
+      expect(result.fringeBenefit.autoAziendale!.valore).toBeCloseTo(1875, 0);
+    });
+
+    it('CO2 61-160 → 30%', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: { autoAziendale: { ...autoBase, emissioniCO2: 160 } },
+      });
+      expect(result.fringeBenefit.autoAziendale!.percentualeApplicata).toBe(0.3);
+      // 0.5 × 15000 × 0.30 = 2250
+      expect(result.fringeBenefit.autoAziendale!.valore).toBeCloseTo(2250, 0);
+    });
+
+    it('CO2 161-190 → 50%', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: { autoAziendale: { ...autoBase, emissioniCO2: 190 } },
+      });
+      expect(result.fringeBenefit.autoAziendale!.percentualeApplicata).toBe(0.5);
+      // 0.5 × 15000 × 0.50 = 3750
+      expect(result.fringeBenefit.autoAziendale!.valore).toBeCloseTo(3750, 0);
+    });
+
+    it('CO2 > 190 → 60%', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: { autoAziendale: { ...autoBase, emissioniCO2: 191 } },
+      });
+      expect(result.fringeBenefit.autoAziendale!.percentualeApplicata).toBe(0.6);
+      // 0.5 × 15000 × 0.60 = 4500
+      expect(result.fringeBenefit.autoAziendale!.valore).toBeCloseTo(4500, 0);
+    });
+  });
+
+  describe('Percentuali regime 2026 (tipo alimentazione)', () => {
+    const autoBase = {
+      costoKmAci: 0.5,
+      mesiUtilizzo: 12,
+      trattenutaDipendente: 0,
+    };
+
+    it('elettrico → 10%', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: {
+          autoAziendale: { ...autoBase, tipoAlimentazione: 'elettrico' as const },
+        },
+      });
+      expect(result.fringeBenefit.autoAziendale!.percentualeApplicata).toBe(0.1);
+      // 0.5 × 15000 × 0.10 = 750
+      expect(result.fringeBenefit.autoAziendale!.valore).toBeCloseTo(750, 0);
+    });
+
+    it('ibrido plug-in → 20%', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: {
+          autoAziendale: { ...autoBase, tipoAlimentazione: 'ibrido_plugin' as const },
+        },
+      });
+      expect(result.fringeBenefit.autoAziendale!.percentualeApplicata).toBe(0.2);
+      // 0.5 × 15000 × 0.20 = 1500
+      expect(result.fringeBenefit.autoAziendale!.valore).toBeCloseTo(1500, 0);
+    });
+
+    it('altro (benzina, diesel, GPL, metano) → 50%', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: {
+          autoAziendale: { ...autoBase, tipoAlimentazione: 'altro' as const },
+        },
+      });
+      expect(result.fringeBenefit.autoAziendale!.percentualeApplicata).toBe(0.5);
+      // 0.5 × 15000 × 0.50 = 3750
+      expect(result.fringeBenefit.autoAziendale!.valore).toBeCloseTo(3750, 0);
+    });
+  });
+
+  describe('Soglia esenzione con figli a carico', () => {
+    it('senza figli, soglia = €1000', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: {
+          autoAziendale: {
+            costoKmAci: 0.1,
+            tipoAlimentazione: 'elettrico',
+            mesiUtilizzo: 12,
+          },
+        },
+      });
+      // 0.1 × 15000 × 0.10 = 150, sotto soglia 1000
+      expect(result.fringeBenefit.sogliaEsenzione).toBe(1_000);
+      expect(result.fringeBenefit.sogliaSuperata).toBe(false);
+    });
+
+    it('con figli, soglia = €2000', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        haFigliACarico: true,
+        fringeBenefit: {
+          autoAziendale: {
+            costoKmAci: 0.3,
+            tipoAlimentazione: 'elettrico',
+            mesiUtilizzo: 12,
+          },
+        },
+      });
+      // 0.3 × 15000 × 0.10 = 450, sotto soglia 2000
+      expect(result.fringeBenefit.sogliaEsenzione).toBe(2_000);
+      expect(result.fringeBenefit.sogliaSuperata).toBe(false);
+    });
+
+    it('con figli a carico, benefit sopra 1000 ma sotto 2000 resta esente', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        haFigliACarico: true,
+        fringeBenefit: {
+          autoAziendale: {
+            costoKmAci: 0.5,
+            tipoAlimentazione: 'ibrido_plugin',
+            mesiUtilizzo: 12,
+          },
+        },
+      });
+      // 0.5 × 15000 × 0.20 = 1500, sotto soglia 2000
+      expect(result.fringeBenefit.autoAziendale!.valore).toBeCloseTo(1500, 0);
+      expect(result.fringeBenefit.sogliaSuperata).toBe(false);
+      expect(result.fringeBenefit.valoreImponibile).toBe(0);
+    });
+  });
+
+  describe('Rapporto mesi utilizzo', () => {
+    it('6 mesi di utilizzo dimezza il valore', () => {
+      const result12 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: {
+          autoAziendale: {
+            costoKmAci: 0.5,
+            tipoAlimentazione: 'altro',
+            mesiUtilizzo: 12,
+          },
+        },
+      });
+      const result6 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: {
+          autoAziendale: {
+            costoKmAci: 0.5,
+            tipoAlimentazione: 'altro',
+            mesiUtilizzo: 6,
+          },
+        },
+      });
+      expect(result6.fringeBenefit.autoAziendale!.valore).toBeCloseTo(
+        result12.fringeBenefit.autoAziendale!.valore / 2,
+        2,
+      );
+    });
+  });
+
+  describe('Trattenuta non può generare valore negativo', () => {
+    it('se trattenuta > valore convenzionale, il fringe benefit è 0', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fringeBenefit: {
+          autoAziendale: {
+            costoKmAci: 0.1,
+            tipoAlimentazione: 'elettrico',
+            mesiUtilizzo: 12,
+            trattenutaDipendente: 5000,
+          },
+        },
+      });
+      // 0.1 × 15000 × 0.10 = 150, trattenuta 5000 → max(0, 150-5000) = 0
+      expect(result.fringeBenefit.autoAziendale!.valore).toBe(0);
+      expect(result.fringeBenefit.valoreImponibile).toBe(0);
+    });
+  });
+
+  describe('Effetto su imponibile e netto con RAL alta', () => {
+    it('RAL 50k + auto diesel senza trattenuta: imponibile aumenta', () => {
+      const resultSenza = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 50_000,
+      });
+      const resultCon = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 50_000,
+        fringeBenefit: {
+          autoAziendale: {
+            costoKmAci: 0.6,
+            tipoAlimentazione: 'altro',
+            mesiUtilizzo: 12,
+          },
+        },
+      });
+      // 0.6 × 15000 × 0.50 = 4500, sopra soglia 1000
+      const fringeAtteso = 0.6 * 15_000 * 0.5;
+      expect(resultCon.contributiInps.imponibilePrevidenziale).toBeCloseTo(
+        resultSenza.contributiInps.imponibilePrevidenziale + fringeAtteso,
+        0,
+      );
+    });
+  });
+});
 
 describe('Fondo Mario Negri', () => {
   it('senza flag fondoMarioNegri, il campo fondoNegri deve essere null', () => {
