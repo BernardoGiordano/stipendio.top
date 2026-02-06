@@ -10,6 +10,7 @@ import {
   DettaglioDetrazioniFamiliari,
   DettaglioDetrazioniLavoro,
   DettaglioFondoNegri,
+  DettaglioFondoPastore,
   DettaglioFringeBenefit,
   DettaglioIrpef,
   DettaglioRimborsiTrasferta,
@@ -149,6 +150,12 @@ const FONDO_MARIO_NEGRI = {
   retribuzioneConvenzionale: 59_224.54,
   /** Contributo ordinario a carico del dirigente (2% della retribuzione convenzionale) */
   contributoOrdinarioDirigente: 1_184.49,
+} as const;
+
+/** Parametri Fondo Antonio Pastore (assicurativo-previdenziale dirigenti CCNL Terziario) */
+const FONDO_ANTONIO_PASTORE = {
+  /** Contributo annuo a carico del dirigente (fisso) */
+  contributoDirigente: 464.81,
 } as const;
 
 function calcolaFringeBenefitAuto(auto: AutoAziendale): {
@@ -740,6 +747,20 @@ function calcolaFondoNegri(
   };
 }
 
+function calcolaFondoPastore(fondoPastore: boolean): DettaglioFondoPastore | null {
+  if (!fondoPastore) {
+    return null;
+  }
+
+  const contributoAnnuo = FONDO_ANTONIO_PASTORE.contributoDirigente;
+  const contributoMensile = contributoAnnuo / 12;
+
+  return {
+    contributoAnnuo,
+    contributoMensile,
+  };
+}
+
 function calcolaAddizionaleComunale(
   imponibile: number,
   comune: string,
@@ -798,6 +819,7 @@ export class Calculator2026 implements StipendioCalculator {
       rimborsiTrasferta: rimborsiTrasfertaInput,
       benefitNonTassati: benefitNonTassatiInput,
       fondoMarioNegri = false,
+      fondoPastore: fondoPastoreFlag = false,
     } = input;
 
     // 1. CALCOLO FRINGE BENEFIT
@@ -830,6 +852,10 @@ export class Calculator2026 implements StipendioCalculator {
     const contributoFondoNegri = fondoMarioNegri
       ? FONDO_MARIO_NEGRI.contributoOrdinarioDirigente
       : 0;
+
+    // 6c. CALCOLO FONDO ANTONIO PASTORE (assicurativo-previdenziale dirigenti CCNL Terziario)
+    // Il contributo al Fondo Pastore NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
+    const contributoFondoPastore = fondoPastoreFlag ? FONDO_ANTONIO_PASTORE.contributoDirigente : 0;
 
     // 7. CALCOLO IMPONIBILE IRPEF
     // Il Fondo Negri riduce l'imponibile IRPEF (deduzione piena, no massimale)
@@ -930,12 +956,16 @@ export class Calculator2026 implements StipendioCalculator {
         : 0;
     const fondoNegri = calcolaFondoNegri(fondoMarioNegri, aliquotaMarginaleIrpef);
 
-    // Totale trattenute (include contributo Fondo Negri)
+    // 15b. CALCOLO DETTAGLIO FONDO ANTONIO PASTORE
+    const fondoPastore = calcolaFondoPastore(fondoPastoreFlag);
+
+    // Totale trattenute (include contributo Fondo Negri e Fondo Pastore)
     const totaleTrattenute =
       contributiInps.totaleContributi +
       irpefFinale +
       addizionali.totaleAddizionali +
-      contributoFondoNegri;
+      contributoFondoNegri +
+      contributoFondoPastore;
 
     // Totale bonus
     const totaleBonus = cuneoFiscale.indennitaEsente + trattamentoIntegrativo.importo;
@@ -977,6 +1007,7 @@ export class Calculator2026 implements StipendioCalculator {
       rimborsiTrasferta,
       benefitNonTassati,
       fondoNegri,
+      fondoPastore,
       irpef,
       detrazioniLavoro,
       detrazioniFamiliari,

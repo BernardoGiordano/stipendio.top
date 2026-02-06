@@ -4,6 +4,7 @@ import type { InputCalcoloStipendio } from '../types';
 const calc = new Calculator2026();
 
 const CONTRIBUTO_FONDO_NEGRI_2026 = 1184.49;
+const CONTRIBUTO_FONDO_PASTORE_2026 = 464.81;
 
 const baseInput: InputCalcoloStipendio = {
   ral: 25_000,
@@ -444,5 +445,150 @@ describe('Fondo Mario Negri', () => {
       expect(result.fondoNegri).not.toBeNull();
       expect(result.fondoNegri!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_NEGRI_2026, 2);
     }
+  });
+});
+
+describe('Fondo Antonio Pastore', () => {
+  it('senza flag fondoPastore, il campo fondoPastore deve essere null', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+    });
+
+    expect(result.fondoPastore).toBeNull();
+  });
+
+  it('con flag fondoPastore, il contributo annuo deve essere €464,81', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+      fondoPastore: true,
+    });
+
+    expect(result.fondoPastore).not.toBeNull();
+    expect(result.fondoPastore!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_PASTORE_2026, 2);
+  });
+
+  it('il contributo mensile deve essere contributoAnnuo / 12', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+      fondoPastore: true,
+    });
+
+    expect(result.fondoPastore).not.toBeNull();
+    expect(result.fondoPastore!.contributoMensile).toBeCloseTo(
+      CONTRIBUTO_FONDO_PASTORE_2026 / 12,
+      2,
+    );
+  });
+
+  it("l'imponibile IRPEF NON deve essere ridotto (non deducibile)", () => {
+    const resultSenza = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+    });
+
+    const resultCon = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+      fondoPastore: true,
+    });
+
+    expect(resultCon.irpef.imponibileIrpef).toBeCloseTo(resultSenza.irpef.imponibileIrpef, 2);
+  });
+
+  it('il netto annuo deve essere ridotto esattamente di €464,81', () => {
+    const resultSenza = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+    });
+
+    const resultCon = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+      fondoPastore: true,
+    });
+
+    const differenzaNetto = resultSenza.nettoAnnuo - resultCon.nettoAnnuo;
+    expect(differenzaNetto).toBeCloseTo(CONTRIBUTO_FONDO_PASTORE_2026, 2);
+  });
+
+  it('il contributo è fisso €464,81 indipendentemente dalla RAL', () => {
+    const rals = [40_000, 60_000, 80_000, 100_000, 150_000];
+
+    for (const ral of rals) {
+      const result = calc.calcolaStipendioNetto({
+        ral,
+        mensilita: 13,
+        tipoContratto: 'indeterminato',
+        annoFiscale: 2026,
+        regione: 'LOMBARDIA',
+        comune: 'MILANO',
+        fondoPastore: true,
+      });
+
+      expect(result.fondoPastore).not.toBeNull();
+      expect(result.fondoPastore!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_PASTORE_2026, 2);
+    }
+  });
+
+  it('può coesistere con Fondo Mario Negri', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+      fondoMarioNegri: true,
+      fondoPastore: true,
+    });
+
+    expect(result.fondoNegri).not.toBeNull();
+    expect(result.fondoPastore).not.toBeNull();
+    expect(result.fondoNegri!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_NEGRI_2026, 2);
+    expect(result.fondoPastore!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_PASTORE_2026, 2);
+
+    // Verifica che entrambi i contributi siano inclusi nelle trattenute
+    const resultSolo = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+    });
+
+    // Il netto con entrambi i fondi deve essere inferiore a quello senza fondi
+    expect(result.nettoAnnuo).toBeLessThan(resultSolo.nettoAnnuo);
   });
 });

@@ -384,9 +384,24 @@ Fondo di previdenza complementare obbligatorio per i dirigenti del terziario.
 
 > Il contributo aziendale (aliquota integrativa) non impatta il netto del dirigente e non è calcolato.
 
-##### Fondo Pastore
+##### Fondo Antonio Pastore
 
-TODO
+Fondo assicurativo-previdenziale integrativo obbligatorio per i dirigenti del terziario.
+
+**Parametri 2026:**
+
+| Parametro                  | Valore    |
+| -------------------------- | --------- |
+| Contributo annuo dirigente | €464,81   |
+| Contributo annuo azienda   | €4.856,45 |
+| Contributo totale          | €5.321,26 |
+
+**Caratteristiche fiscali:**
+
+- Il contributo **NON riduce l'imponibile IRPEF** (non deducibile)
+- Il contributo **non riduce l'imponibile previdenziale** (INPS)
+- È una **trattenuta diretta dal netto** in busta paga, senza beneficio fiscale
+- A differenza del Fondo Negri, non genera risparmio fiscale
 
 ---
 
@@ -438,6 +453,14 @@ TODO
 │      = €1.184,49/anno (contributo fisso 2026)                   │
 │      → Riduce l'imponibile IRPEF                                │
 │      → È una trattenuta reale dal netto                         │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  6c. FONDO ANTONIO PASTORE (se dirigente CCNL Terziario)        │
+│      = €464,81/anno (contributo fisso 2026)                     │
+│      → NON riduce l'imponibile IRPEF                            │
+│      → Trattenuta diretta dal netto                             │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼

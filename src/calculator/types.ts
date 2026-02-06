@@ -89,6 +89,14 @@ export interface DettaglioFondoNegri {
   risparmoFiscaleStimato: number;
 }
 
+/** Dettaglio Fondo Antonio Pastore (assicurativo-previdenziale dirigenti CCNL Terziario) */
+export interface DettaglioFondoPastore {
+  /** Contributo annuo a carico del dirigente */
+  contributoAnnuo: number;
+  /** Contributo mensile (contributoAnnuo / 12) */
+  contributoMensile: number;
+}
+
 /** Informazioni su un figlio a carico */
 export interface FiglioACarico {
   /** Età del figlio */
@@ -181,7 +189,7 @@ export interface InputCalcoloStipendio {
   /** Contributo Fondo Mario Negri (previdenza complementare dirigenti CCNL Terziario) */
   fondoMarioNegri?: boolean;
 
-  /** Contributo Fondo Pastore (assistenza sanitaria dirigenti CCNL Terziario) - non ancora implementato */
+  /** Contributo Fondo Antonio Pastore (assicurativo-previdenziale dirigenti CCNL Terziario). Non deducibile: trattenuta diretta dal netto */
   fondoPastore?: boolean;
 }
 
@@ -382,6 +390,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio Fondo Mario Negri (se dirigente CCNL Terziario) */
   fondoNegri: DettaglioFondoNegri | null;
+
+  /** Dettaglio Fondo Antonio Pastore (se dirigente CCNL Terziario) */
+  fondoPastore: DettaglioFondoPastore | null;
 
   /** Dettaglio calcolo IRPEF */
   irpef: DettaglioIrpef;
