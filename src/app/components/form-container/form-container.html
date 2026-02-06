@@ -245,6 +245,42 @@
         />
       </label>
     </div>
+
+    <div class="flex items-center gap-2 mb-3">
+      <input
+        id="regimeImpatriati"
+        type="checkbox"
+        [formField]="form.regimeImpatriati"
+        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
+      />
+      <label
+        for="regimeImpatriati"
+        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >Regime impatriati (rientro cervelli)<app-info-tooltip
+          tooltipId="regimeImpatriati-info"
+          text="D.Lgs. 209/2023, art. 5. Per lavoratori che trasferiscono la residenza fiscale in Italia. Il 50% del reddito da lavoro dipendente è esente IRPEF (60% con figli minorenni). Tetto: 600.000 euro. Non riduce i contributi INPS."
+        />
+      </label>
+    </div>
+
+    @if (model.regimeImpatriati) {
+      <div class="flex items-center gap-2 mb-3 ml-6">
+        <input
+          id="regimeImpatriatiMinorenni"
+          type="checkbox"
+          [formField]="form.regimeImpatriatiMinorenni"
+          class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
+        />
+        <label
+          for="regimeImpatriatiMinorenni"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Ho almeno un figlio minorenne residente in Italia<app-info-tooltip
+            tooltipId="regimeImpatriatiMinorenni-info"
+            text="Se hai almeno un figlio minorenne residente in Italia, l'esenzione sale dal 50% al 60% del reddito agevolabile."
+          />
+        </label>
+      </div>
+    }
   </fieldset>
 
   <!-- Sezione Altri Redditi e Detrazioni -->

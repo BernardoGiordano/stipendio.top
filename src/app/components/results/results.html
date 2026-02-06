@@ -198,6 +198,47 @@
             </dl>
           </section>
 
+          <!-- Regime Impatriati -->
+          @if (r.regimeImpatriati) {
+            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
+              <h3
+                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
+              >
+                Regime Impatriati
+              </h3>
+              <dl>
+                <div
+                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+                >
+                  <dt class="text-sm text-stone-600 dark:text-stone-400">Esenzione Applicata</dt>
+                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                    {{ formatPercent(r.regimeImpatriati.percentualeEsenzione) }}
+                    {{ r.regimeImpatriati.haFigliMinorenni ? '(figli minorenni)' : '(standard)' }}
+                  </dd>
+                </div>
+                <div
+                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+                >
+                  <dt class="text-sm text-stone-600 dark:text-stone-400">Reddito Agevolabile</dt>
+                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                    {{ formatCurrency(r.regimeImpatriati.redditoAgevolabile) }}
+                  </dd>
+                </div>
+                <div class="flex justify-between py-1.5">
+                  <dt class="text-sm text-stone-600 dark:text-stone-400">Importo Esente IRPEF</dt>
+                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                    {{ formatCurrency(r.regimeImpatriati.importoEsente) }}
+                  </dd>
+                </div>
+                <div class="flex justify-between py-1 pl-3">
+                  <dt class="text-xs text-stone-500 dark:text-stone-400">
+                    (riduce imponibile IRPEF e addizionali, non INPS)
+                  </dt>
+                </div>
+              </dl>
+            </section>
+          }
+
           <!-- IRPEF -->
           <section class="p-4 border-b border-stone-100 dark:border-stone-700">
             <h3

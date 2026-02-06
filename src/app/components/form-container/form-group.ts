@@ -104,6 +104,8 @@ export interface StipendioFormModel {
   haFigliACarico: boolean;
   fondoMarioNegri: boolean;
   fondoPastore: boolean;
+  regimeImpatriati: boolean;
+  regimeImpatriatiMinorenni: boolean;
 
   // Optional nested objects
   coniuge: ConiugeACaricoFormModel;
@@ -209,6 +211,8 @@ export function createDefaultFormModel(): StipendioFormModel {
     haFigliACarico: false,
     fondoMarioNegri: false,
     fondoPastore: false,
+    regimeImpatriati: false,
+    regimeImpatriatiMinorenni: false,
     coniuge: createDefaultConiuge(),
     fringeBenefit: createDefaultFringeBenefit(),
     rimborsiTrasferta: createDefaultRimborsiTrasferta(),
@@ -493,6 +497,9 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
     ...(model.haFigliACarico && { haFigliACarico: true }),
     ...(model.fondoMarioNegri && { fondoMarioNegri: true }),
     ...(model.fondoPastore && { fondoPastore: true }),
+    ...(model.regimeImpatriati && { regimeImpatriati: true }),
+    ...(model.regimeImpatriati &&
+      model.regimeImpatriatiMinorenni && { regimeImpatriatiMinorenni: true }),
 
     // Nested objects
     ...(() => {

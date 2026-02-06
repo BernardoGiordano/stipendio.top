@@ -191,6 +191,12 @@ export interface InputCalcoloStipendio {
 
   /** Contributo Fondo Antonio Pastore (assicurativo-previdenziale dirigenti CCNL Terziario). Non deducibile: trattenuta diretta dal netto */
   fondoPastore?: boolean;
+
+  /** Regime impatriati (rientro cervelli) - D.Lgs. 209/2023, art. 5 */
+  regimeImpatriati?: boolean;
+
+  /** Indica se il lavoratore ha almeno un figlio minorenne residente in Italia (esenzione 60% invece di 50%) */
+  regimeImpatriatiMinorenni?: boolean;
 }
 
 /** Dettaglio dei contributi INPS */
@@ -353,6 +359,18 @@ export interface DettaglioBenefitNonTassati {
   totaleTassato: number;
 }
 
+/** Dettaglio regime impatriati (rientro cervelli) */
+export interface DettaglioRegimeImpatriati {
+  /** Percentuale di esenzione applicata (0.50 o 0.60) */
+  percentualeEsenzione: number;
+  /** Reddito su cui si applica l'agevolazione (max €600.000) */
+  redditoAgevolabile: number;
+  /** Importo esente da IRPEF */
+  importoEsente: number;
+  /** Indica se ha figli minorenni (per esenzione 60%) */
+  haFigliMinorenni: boolean;
+}
+
 /** Riepilogo completo detrazioni */
 export interface RiepilogoDetrazioni {
   /** Detrazioni lavoro dipendente */
@@ -393,6 +411,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio Fondo Antonio Pastore (se dirigente CCNL Terziario) */
   fondoPastore: DettaglioFondoPastore | null;
+
+  /** Dettaglio regime impatriati (se applicabile) */
+  regimeImpatriati: DettaglioRegimeImpatriati | null;
 
   /** Dettaglio calcolo IRPEF */
   irpef: DettaglioIrpef;

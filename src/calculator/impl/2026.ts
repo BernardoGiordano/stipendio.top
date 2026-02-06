@@ -12,6 +12,7 @@ import {
   DettaglioFondoNegri,
   DettaglioFondoPastore,
   DettaglioFringeBenefit,
+  DettaglioRegimeImpatriati,
   DettaglioIrpef,
   DettaglioRimborsiTrasferta,
   DettaglioTrattamentoIntegrativo,
@@ -156,6 +157,16 @@ const FONDO_MARIO_NEGRI = {
 const FONDO_ANTONIO_PASTORE = {
   /** Contributo annuo a carico del dirigente (fisso) */
   contributoDirigente: 464.81,
+} as const;
+
+/** Parametri Regime Impatriati (D.Lgs. 209/2023, art. 5) */
+const REGIME_IMPATRIATI = {
+  /** Percentuale reddito esente (standard) */
+  percentualeEsenzioneStandard: 0.5,
+  /** Percentuale reddito esente (con figli minorenni) */
+  percentualeEsenzioneMinorenni: 0.6,
+  /** Tetto massimo reddito agevolabile */
+  tettoRedditoAgevolabile: 600_000,
 } as const;
 
 function calcolaFringeBenefitAuto(auto: AutoAziendale): {
@@ -820,6 +831,8 @@ export class Calculator2026 implements StipendioCalculator {
       benefitNonTassati: benefitNonTassatiInput,
       fondoMarioNegri = false,
       fondoPastore: fondoPastoreFlag = false,
+      regimeImpatriati: regimeImpatriatiFlag = false,
+      regimeImpatriatiMinorenni = false,
     } = input;
 
     // 1. CALCOLO FRINGE BENEFIT
@@ -859,8 +872,34 @@ export class Calculator2026 implements StipendioCalculator {
 
     // 7. CALCOLO IMPONIBILE IRPEF
     // Il Fondo Negri riduce l'imponibile IRPEF (deduzione piena, no massimale)
-    const redditoLavoroDipendente =
+    const redditoLavoroDipendenteLordo =
       imponibilePrevidenziale - contributiInps.totaleContributi - contributoFondoNegri;
+
+    // 7b. REGIME IMPATRIATI (D.Lgs. 209/2023, art. 5)
+    // Riduce la base imponibile IRPEF e addizionali. Non riduce INPS.
+    let dettaglioRegimeImpatriati: DettaglioRegimeImpatriati | null = null;
+    let importoEsenteImpatriati = 0;
+
+    if (regimeImpatriatiFlag) {
+      const percentualeEsenzione = regimeImpatriatiMinorenni
+        ? REGIME_IMPATRIATI.percentualeEsenzioneMinorenni
+        : REGIME_IMPATRIATI.percentualeEsenzioneStandard;
+
+      const redditoAgevolabile = Math.min(
+        Math.max(0, redditoLavoroDipendenteLordo),
+        REGIME_IMPATRIATI.tettoRedditoAgevolabile,
+      );
+      importoEsenteImpatriati = redditoAgevolabile * percentualeEsenzione;
+
+      dettaglioRegimeImpatriati = {
+        percentualeEsenzione,
+        redditoAgevolabile,
+        importoEsente: importoEsenteImpatriati,
+        haFigliMinorenni: regimeImpatriatiMinorenni,
+      };
+    }
+
+    const redditoLavoroDipendente = redditoLavoroDipendenteLordo - importoEsenteImpatriati;
     const redditoComplessivo = redditoLavoroDipendente + altriRedditi;
 
     // 8. CALCOLO IRPEF LORDA
@@ -1008,6 +1047,7 @@ export class Calculator2026 implements StipendioCalculator {
       benefitNonTassati,
       fondoNegri,
       fondoPastore,
+      regimeImpatriati: dettaglioRegimeImpatriati,
       irpef,
       detrazioniLavoro,
       detrazioniFamiliari,

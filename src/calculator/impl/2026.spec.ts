@@ -592,3 +592,176 @@ describe('Fondo Antonio Pastore', () => {
     expect(result.nettoAnnuo).toBeLessThan(resultSolo.nettoAnnuo);
   });
 });
+
+describe('Regime Impatriati (Rientro Cervelli)', () => {
+  const baseImpatriati: InputCalcoloStipendio = {
+    ral: 50_000,
+    mensilita: 13,
+    tipoContratto: 'indeterminato',
+    annoFiscale: 2026,
+    regione: 'LOMBARDIA',
+    comune: 'MILANO',
+  };
+
+  it('senza flag regimeImpatriati, il campo regimeImpatriati deve essere null', () => {
+    const result = calc.calcolaStipendioNetto(baseImpatriati);
+    expect(result.regimeImpatriati).toBeNull();
+  });
+
+  it('con flag regimeImpatriati, il dettaglio deve essere presente con esenzione 50%', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      regimeImpatriati: true,
+    });
+
+    expect(result.regimeImpatriati).not.toBeNull();
+    expect(result.regimeImpatriati!.percentualeEsenzione).toBe(0.5);
+    expect(result.regimeImpatriati!.haFigliMinorenni).toBe(false);
+  });
+
+  it('con figli minorenni, esenzione deve essere 60%', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      regimeImpatriati: true,
+      regimeImpatriatiMinorenni: true,
+    });
+
+    expect(result.regimeImpatriati).not.toBeNull();
+    expect(result.regimeImpatriati!.percentualeEsenzione).toBe(0.6);
+    expect(result.regimeImpatriati!.haFigliMinorenni).toBe(true);
+  });
+
+  it("l'imponibile IRPEF deve essere ridotto del 50% (standard)", () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseImpatriati);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      regimeImpatriati: true,
+    });
+
+    // L'imponibile IRPEF senza regime = imponibilePrevidenziale - INPS
+    // Con regime: solo il 50% di quel reddito entra nell'imponibile IRPEF
+    const redditoLavoro =
+      resultSenza.contributiInps.imponibilePrevidenziale -
+      resultSenza.contributiInps.totaleContributi;
+
+    expect(resultCon.irpef.imponibileIrpef).toBeCloseTo(redditoLavoro * 0.5, 0);
+  });
+
+  it("l'imponibile IRPEF deve essere ridotto del 60% (figli minorenni)", () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseImpatriati);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      regimeImpatriati: true,
+      regimeImpatriatiMinorenni: true,
+    });
+
+    const redditoLavoro =
+      resultSenza.contributiInps.imponibilePrevidenziale -
+      resultSenza.contributiInps.totaleContributi;
+
+    // Solo il 40% del reddito entra nell'imponibile (60% esente)
+    expect(resultCon.irpef.imponibileIrpef).toBeCloseTo(redditoLavoro * 0.4, 0);
+  });
+
+  it('i contributi INPS NON devono essere ridotti dal regime', () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseImpatriati);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      regimeImpatriati: true,
+    });
+
+    expect(resultCon.contributiInps.totaleContributi).toBeCloseTo(
+      resultSenza.contributiInps.totaleContributi,
+      2,
+    );
+    expect(resultCon.contributiInps.imponibilePrevidenziale).toBe(
+      resultSenza.contributiInps.imponibilePrevidenziale,
+    );
+  });
+
+  it('le addizionali devono essere ridotte dal regime', () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseImpatriati);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      regimeImpatriati: true,
+    });
+
+    expect(resultCon.addizionali.totaleAddizionali).toBeLessThan(
+      resultSenza.addizionali.totaleAddizionali,
+    );
+  });
+
+  it('il netto annuo deve aumentare significativamente con il regime', () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseImpatriati);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      regimeImpatriati: true,
+    });
+
+    // Con RAL 50k e regime 50%, il risparmio fiscale è molto significativo
+    expect(resultCon.nettoAnnuo).toBeGreaterThan(resultSenza.nettoAnnuo);
+    const differenza = resultCon.nettoAnnuo - resultSenza.nettoAnnuo;
+    // Il risparmio deve essere nell'ordine di migliaia di euro
+    expect(differenza).toBeGreaterThan(3_000);
+  });
+
+  it('il tetto di €600.000 deve limitare il reddito agevolabile', () => {
+    const resultAlto = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      ral: 800_000,
+      regimeImpatriati: true,
+    });
+
+    expect(resultAlto.regimeImpatriati).not.toBeNull();
+    // Il reddito agevolabile è capped al reddito di lavoro dipendente (< 800k post INPS),
+    // ma in ogni caso non più di €600.000
+    expect(resultAlto.regimeImpatriati!.redditoAgevolabile).toBeLessThanOrEqual(600_000);
+  });
+
+  it('il regime è compatibile con Fondo Mario Negri', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      ral: 80_000,
+      regimeImpatriati: true,
+      fondoMarioNegri: true,
+    });
+
+    expect(result.regimeImpatriati).not.toBeNull();
+    expect(result.fondoNegri).not.toBeNull();
+
+    // Il Fondo Negri riduce il reddito PRIMA della riduzione impatriati
+    const redditoLavoroPre =
+      result.contributiInps.imponibilePrevidenziale -
+      result.contributiInps.totaleContributi -
+      result.fondoNegri!.contributoAnnuo;
+
+    expect(result.regimeImpatriati!.redditoAgevolabile).toBeCloseTo(redditoLavoroPre, 0);
+    expect(result.irpef.imponibileIrpef).toBeCloseTo(redditoLavoroPre * 0.5, 0);
+  });
+
+  it("l'esenzione 60% con figli produce netto superiore alla 50%", () => {
+    const result50 = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      regimeImpatriati: true,
+    });
+    const result60 = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      regimeImpatriati: true,
+      regimeImpatriatiMinorenni: true,
+    });
+
+    expect(result60.nettoAnnuo).toBeGreaterThan(result50.nettoAnnuo);
+  });
+
+  it("l'importo esente deve essere coerente con percentuale e reddito", () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseImpatriati,
+      regimeImpatriati: true,
+    });
+
+    expect(result.regimeImpatriati).not.toBeNull();
+    const atteso =
+      result.regimeImpatriati!.redditoAgevolabile * result.regimeImpatriati!.percentualeEsenzione;
+    expect(result.regimeImpatriati!.importoEsente).toBeCloseTo(atteso, 2);
+  });
+});

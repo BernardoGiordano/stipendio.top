@@ -39,6 +39,7 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Rimborsi Spese](#8-rimborsi-spese)
   - [Benefit Non Tassati](#9-benefit-non-tassati-welfare)
   - [Dirigenti CCNL Terziario](#10-dirigenti-ccnl-terziario)
+  - [Regime Impatriati](#11-regime-impatriati-rientro-cervelli)
 - [Sequenza di Calcolo](#sequenza-di-calcolo)
 - [Riferimenti Normativi](#riferimenti-normativi)
 
@@ -405,6 +406,52 @@ Fondo assicurativo-previdenziale integrativo obbligatorio per i dirigenti del te
 
 ---
 
+#### 11. Regime Impatriati (Rientro Cervelli)
+
+Agevolazione fiscale per i lavoratori che trasferiscono la residenza fiscale in Italia, disciplinata dall'art. 5 del D.Lgs. 209/2023 (in vigore dal 1° gennaio 2024).
+
+##### Percentuali di Esenzione
+
+| Condizione                                         | Reddito Esente | Reddito Tassabile |
+| -------------------------------------------------- | -------------- | ----------------- |
+| Standard (senza figli minorenni)                   | 50%            | 50%               |
+| Con almeno un figlio minorenne residente in Italia | 60%            | 40%               |
+
+##### Parametri
+
+| Parametro                 | Valore                            |
+| ------------------------- | --------------------------------- |
+| Tetto reddito agevolabile | €600.000/anno                     |
+| Durata                    | 5 anni fiscali                    |
+| Proroga                   | Non prevista (nuovo regime 2024+) |
+
+##### Effetto sul Calcolo
+
+- **IRPEF:** La base imponibile viene ridotta della percentuale di esenzione (50% o 60%)
+- **Addizionali regionali e comunali:** Calcolate sulla base imponibile ridotta
+- **Contributi INPS:** Calcolati sull'imponibile previdenziale **pieno** (nessuna riduzione)
+- **Detrazioni e bonus:** Calcolati sul reddito complessivo ridotto
+
+##### Formula
+
+```
+Reddito Agevolabile = MIN(Reddito Lavoro Dipendente, €600.000)
+Importo Esente = Reddito Agevolabile × Percentuale Esenzione
+Reddito Tassabile = Reddito Lavoro Dipendente − Importo Esente
+Reddito Complessivo = Reddito Tassabile + Altri Redditi
+```
+
+##### Requisiti di Accesso
+
+1. Non essere stati residenti fiscali in Italia nei 3 periodi d'imposta precedenti (6 se stesso datore/gruppo, 7 se già lavorato in Italia per lo stesso gruppo)
+2. Impegno a mantenere la residenza fiscale in Italia per almeno 4 anni consecutivi
+3. Attività lavorativa prevalentemente in territorio italiano (>183 giorni/anno)
+4. Possesso di laurea (almeno triennale) o esperienza professionale documentata
+
+> Il vecchio regime (art. 16 D.Lgs. 147/2015), con esenzione 70% (90% per il Sud Italia), si applica solo a chi ha trasferito la residenza entro il 31 dicembre 2023.
+
+---
+
 ### Sequenza di Calcolo
 
 ```
@@ -465,9 +512,18 @@ Fondo assicurativo-previdenziale integrativo obbligatorio per i dirigenti del te
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
+│  6d. REGIME IMPATRIATI (se attivo)                              │
+│      → Reddito agevolabile = MIN(Reddito lavoro, €600.000)      │
+│      → Importo esente = Agevolabile × 50% (o 60%)               │
+│      → Riduce imponibile IRPEF e addizionali, NON INPS          │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
 │  7. IMPONIBILE IRPEF                                            │
 │     = Imponibile Previdenziale − Contributi INPS                │
-│       − Contributi obbligatori per qualifica.                   │
+│       − Contributi obbligatori per qualifica                    │
+│       − Importo esente impatriati (se attivo)                   │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -534,6 +590,7 @@ Fondo assicurativo-previdenziale integrativo obbligatorio per i dirigenti del te
 | **Circ. AE 5/E/2024**   | Chiarimenti fringe benefit               |
 | **Circ. AE 10/E/2025**  | Auto aziendali uso promiscuo             |
 | **Circ. AE 15/E/2025**  | Rimborsi trasferta e tracciabilità       |
+| **D.Lgs. 209/2023**     | Regime impatriati (rientro cervelli)     |
 
 ---
 
