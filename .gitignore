@@ -47,3 +47,6 @@ Thumbs.db
 
 deploy.sh
 src/build.json
+
+*.pyc
+2025.comunali.ts
