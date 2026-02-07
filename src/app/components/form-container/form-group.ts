@@ -324,7 +324,6 @@ const coniugeSchema = schema<ConiugeACaricoFormModel>((path) => {
 
 const figlioSchema = schema<FiglioACaricoFormModel>((path) => {
   min(path.eta, 0, { message: 'Età non valida' });
-  max(path.eta, 30, { message: 'Età massima 30 anni' });
 
   min(path.percentualeCarico, 0, { message: 'La percentuale deve essere tra 0 e 100' });
   max(path.percentualeCarico, 100, { message: 'La percentuale deve essere tra 0 e 100' });
@@ -496,7 +495,7 @@ function toFigli(models: FiglioACaricoFormModel[]): FiglioACarico[] | undefined 
   return models.map((m) => ({
     eta: m.eta,
     disabile: m.disabile,
-    ...(m.percentualeCarico !== 100 && { percentualeCarico: m.percentualeCarico }),
+    ...((m.percentualeCarico ?? 0) !== 100 && { percentualeCarico: m.percentualeCarico ?? 0 }),
   }));
 }
 
