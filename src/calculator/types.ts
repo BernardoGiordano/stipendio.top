@@ -197,6 +197,9 @@ export interface InputCalcoloStipendio {
 
   /** Indica se il lavoratore ha almeno un figlio minorenne residente in Italia (esenzione 60% invece di 50%) */
   regimeImpatriatiMinorenni?: boolean;
+
+  /** Previdenza complementare (fondo pensione integrativo) - D.Lgs. 252/2005 */
+  fondoPensioneIntegrativo?: FondoPensioneIntegrativo;
 }
 
 /** Dettaglio dei contributi INPS */
@@ -359,6 +362,32 @@ export interface DettaglioBenefitNonTassati {
   totaleTassato: number;
 }
 
+/** Input previdenza complementare (fondo pensione integrativo) */
+export interface FondoPensioneIntegrativo {
+  /** Percentuale contributo a carico del lavoratore (es. 1.0 = 1%) */
+  contributoLavoratore: number;
+  /** Percentuale contributo a carico del datore di lavoro (es. 1.5 = 1.5%) */
+  contributoDatoreLavoro?: number;
+}
+
+/** Dettaglio previdenza complementare (fondo pensione integrativo) */
+export interface DettaglioFondoPensioneIntegrativo {
+  /** Contributo annuo a carico del lavoratore */
+  contributoLavoratoreAnnuo: number;
+  /** Contributo mensile a carico del lavoratore */
+  contributoLavoratoreMensile: number;
+  /** Contributo annuo a carico del datore di lavoro */
+  contributoDatoreLavoroAnnuo: number;
+  /** Totale contributi (lavoratore + datore) */
+  totaleContributi: number;
+  /** Deduzione effettiva dall'imponibile IRPEF (max €5.300 dal 2026) */
+  deduzioneEffettiva: number;
+  /** Eventuale eccedenza non deducibile */
+  eccedenzaNonDeducibile: number;
+  /** Risparmio fiscale stimato annuo (aliquota marginale x deduzione effettiva) */
+  risparmoFiscaleStimato: number;
+}
+
 /** Dettaglio regime impatriati (rientro cervelli) */
 export interface DettaglioRegimeImpatriati {
   /** Percentuale di esenzione applicata (0.50 o 0.60) */
@@ -411,6 +440,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio Fondo Antonio Pastore (se dirigente CCNL Terziario) */
   fondoPastore: DettaglioFondoPastore | null;
+
+  /** Dettaglio previdenza complementare (se attiva) */
+  fondoPensioneIntegrativo: DettaglioFondoPensioneIntegrativo | null;
 
   /** Dettaglio regime impatriati (se applicabile) */
   regimeImpatriati: DettaglioRegimeImpatriati | null;

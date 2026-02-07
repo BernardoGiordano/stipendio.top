@@ -11,12 +11,14 @@ import {
   DettaglioDetrazioniLavoro,
   DettaglioFondoNegri,
   DettaglioFondoPastore,
+  DettaglioFondoPensioneIntegrativo,
   DettaglioFringeBenefit,
   DettaglioRegimeImpatriati,
   DettaglioIrpef,
   DettaglioRimborsiTrasferta,
   DettaglioTrattamentoIntegrativo,
   FiglioACarico,
+  FondoPensioneIntegrativo,
   FringeBenefit,
   InputCalcoloStipendio,
   OutputCalcoloStipendio,
@@ -140,7 +142,7 @@ const RIMBORSI_TRASFERTA = {
 
 /** Limiti benefit esenti da tassazione */
 const BENEFIT_ESENTI = {
-  previdenzaComplementare: 5_164.57,
+  previdenzaComplementare: 5_300,
   assistenzaSanitaria: 3_615.2,
   buoniPastoCartacei: 4.0,
 } as const;
@@ -157,6 +159,12 @@ const FONDO_MARIO_NEGRI = {
 const FONDO_ANTONIO_PASTORE = {
   /** Contributo annuo a carico del dirigente (fisso) */
   contributoDirigente: 464.81,
+} as const;
+
+/** Parametri previdenza complementare (D.Lgs. 252/2005, aggiornato da L. 199/2025) */
+const PREVIDENZA_COMPLEMENTARE = {
+  /** Limite annuo di deducibilità (art. 10, c.1, lett. e-bis, TUIR - dal 2026: €5.300) */
+  limiteDeducibilita: 5_300,
 } as const;
 
 /** Parametri Regime Impatriati (D.Lgs. 209/2023, art. 5) */
@@ -772,6 +780,41 @@ function calcolaFondoPastore(fondoPastore: boolean): DettaglioFondoPastore | nul
   };
 }
 
+function calcolaFondoPensioneIntegrativo(
+  fondoPensione: FondoPensioneIntegrativo | undefined,
+  ral: number,
+  aliquotaMarginaleIrpef: number,
+  contributoFondoSquilibrio: number,
+): DettaglioFondoPensioneIntegrativo | null {
+  if (!fondoPensione) {
+    return null;
+  }
+
+  const contributoLavoratoreAnnuo = ral * ((fondoPensione.contributoLavoratore || 0) / 100);
+  const contributoDatoreLavoroAnnuo = ral * ((fondoPensione.contributoDatoreLavoro || 0) / 100);
+  const totaleContributi = contributoLavoratoreAnnuo + contributoDatoreLavoroAnnuo;
+
+  // Il plafond di €5.300 è ridotto dai contributi versati a fondi in squilibrio finanziario
+  // (es. Fondo Mario Negri, che gode di deducibilità piena ex art. 20, c.7, D.Lgs. 252/2005)
+  const limiteResiduo = Math.max(
+    0,
+    PREVIDENZA_COMPLEMENTARE.limiteDeducibilita - contributoFondoSquilibrio,
+  );
+  const deduzioneEffettiva = Math.min(totaleContributi, limiteResiduo);
+  const eccedenzaNonDeducibile = Math.max(0, totaleContributi - limiteResiduo);
+  const risparmoFiscaleStimato = deduzioneEffettiva * aliquotaMarginaleIrpef;
+
+  return {
+    contributoLavoratoreAnnuo,
+    contributoLavoratoreMensile: contributoLavoratoreAnnuo / 12,
+    contributoDatoreLavoroAnnuo,
+    totaleContributi,
+    deduzioneEffettiva,
+    eccedenzaNonDeducibile,
+    risparmoFiscaleStimato,
+  };
+}
+
 function calcolaAddizionaleComunale(
   imponibile: number,
   comune: string,
@@ -833,6 +876,7 @@ export class Calculator2026 implements StipendioCalculator {
       fondoPastore: fondoPastoreFlag = false,
       regimeImpatriati: regimeImpatriatiFlag = false,
       regimeImpatriatiMinorenni = false,
+      fondoPensioneIntegrativo: fondoPensioneInput,
     } = input;
 
     // 1. CALCOLO FRINGE BENEFIT
@@ -870,10 +914,34 @@ export class Calculator2026 implements StipendioCalculator {
     // Il contributo al Fondo Pastore NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
     const contributoFondoPastore = fondoPastoreFlag ? FONDO_ANTONIO_PASTORE.contributoDirigente : 0;
 
+    // 6d. CALCOLO FONDO PENSIONE INTEGRATIVO (previdenza complementare)
+    // Il contributo lavoratore + datore è deducibile dall'imponibile IRPEF fino a €5.300/anno
+    // I contributi versati a fondi in squilibrio finanziario (es. Fondo Negri) riducono il plafond
+    // Il contributo lavoratore è una trattenuta reale dal netto in busta paga
+    // Il contributo datore NON è una trattenuta dal netto, ma concorre al limite di deducibilità
+    const contributoFondoPensione = fondoPensioneInput
+      ? ral * ((fondoPensioneInput.contributoLavoratore || 0) / 100)
+      : 0;
+    const contributoDatoreFondoPensione = fondoPensioneInput
+      ? ral * ((fondoPensioneInput.contributoDatoreLavoro || 0) / 100)
+      : 0;
+    const limiteResiduo = Math.max(
+      0,
+      PREVIDENZA_COMPLEMENTARE.limiteDeducibilita - contributoFondoNegri,
+    );
+    const deduzioneFondoPensione = Math.min(
+      contributoFondoPensione + contributoDatoreFondoPensione,
+      limiteResiduo,
+    );
+
     // 7. CALCOLO IMPONIBILE IRPEF
     // Il Fondo Negri riduce l'imponibile IRPEF (deduzione piena, no massimale)
+    // Il Fondo Pensione Integrativo riduce l'imponibile IRPEF (deduzione con cap €5.300)
     const redditoLavoroDipendenteLordo =
-      imponibilePrevidenziale - contributiInps.totaleContributi - contributoFondoNegri;
+      imponibilePrevidenziale -
+      contributiInps.totaleContributi -
+      contributoFondoNegri -
+      deduzioneFondoPensione;
 
     // 7b. REGIME IMPATRIATI (D.Lgs. 209/2023, art. 5)
     // Riduce la base imponibile IRPEF e addizionali. Non riduce INPS.
@@ -998,13 +1066,22 @@ export class Calculator2026 implements StipendioCalculator {
     // 15b. CALCOLO DETTAGLIO FONDO ANTONIO PASTORE
     const fondoPastore = calcolaFondoPastore(fondoPastoreFlag);
 
-    // Totale trattenute (include contributo Fondo Negri e Fondo Pastore)
+    // 15c. CALCOLO DETTAGLIO FONDO PENSIONE INTEGRATIVO
+    const fondoPensioneIntegrativo = calcolaFondoPensioneIntegrativo(
+      fondoPensioneInput,
+      ral,
+      aliquotaMarginaleIrpef,
+      contributoFondoNegri,
+    );
+
+    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore e contributo lavoratore Fondo Pensione)
     const totaleTrattenute =
       contributiInps.totaleContributi +
       irpefFinale +
       addizionali.totaleAddizionali +
       contributoFondoNegri +
-      contributoFondoPastore;
+      contributoFondoPastore +
+      contributoFondoPensione;
 
     // Totale bonus
     const totaleBonus = cuneoFiscale.indennitaEsente + trattamentoIntegrativo.importo;
@@ -1047,6 +1124,7 @@ export class Calculator2026 implements StipendioCalculator {
       benefitNonTassati,
       fondoNegri,
       fondoPastore,
+      fondoPensioneIntegrativo,
       regimeImpatriati: dettaglioRegimeImpatriati,
       irpef,
       detrazioniLavoro,

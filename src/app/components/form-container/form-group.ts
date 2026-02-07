@@ -18,6 +18,7 @@ import {
   BenefitNonTassati,
   ConiugeACarico,
   FiglioACarico,
+  FondoPensioneIntegrativo,
   FringeBenefit,
   InputCalcoloStipendio,
   RimborsiTrasferta,
@@ -69,6 +70,12 @@ export interface BenefitNonTassatiFormModel {
   altri: number;
 }
 
+export interface FondoPensioneIntegrativoFormModel {
+  enabled: boolean;
+  contributoLavoratore: number;
+  contributoDatoreLavoro: number;
+}
+
 export interface ConiugeACaricoFormModel {
   enabled: boolean;
   redditoAnnuo: number;
@@ -108,6 +115,7 @@ export interface StipendioFormModel {
   regimeImpatriatiMinorenni: boolean;
 
   // Optional nested objects
+  fondoPensioneIntegrativo: FondoPensioneIntegrativoFormModel;
   coniuge: ConiugeACaricoFormModel;
   fringeBenefit: FringeBenefitFormModel;
   rimborsiTrasferta: RimborsiTrasfertaFormModel;
@@ -170,6 +178,14 @@ function createDefaultBenefitNonTassati(): BenefitNonTassatiFormModel {
   };
 }
 
+function createDefaultFondoPensioneIntegrativo(): FondoPensioneIntegrativoFormModel {
+  return {
+    enabled: false,
+    contributoLavoratore: 0,
+    contributoDatoreLavoro: 0,
+  };
+}
+
 function createDefaultConiuge(): ConiugeACaricoFormModel {
   return {
     enabled: false,
@@ -213,6 +229,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     fondoPastore: false,
     regimeImpatriati: false,
     regimeImpatriatiMinorenni: false,
+    fondoPensioneIntegrativo: createDefaultFondoPensioneIntegrativo(),
     coniuge: createDefaultConiuge(),
     fringeBenefit: createDefaultFringeBenefit(),
     rimborsiTrasferta: createDefaultRimborsiTrasferta(),
@@ -286,6 +303,13 @@ const benefitNonTassatiSchema = schema<BenefitNonTassatiFormModel>((path) => {
   min(path.altri, 0, { message: 'Valore non valido' });
 });
 
+const fondoPensioneIntegrativoSchema = schema<FondoPensioneIntegrativoFormModel>((path) => {
+  min(path.contributoLavoratore, 0, { message: 'La percentuale non può essere negativa' });
+  max(path.contributoLavoratore, 100, { message: 'La percentuale non può superare 100%' });
+  min(path.contributoDatoreLavoro, 0, { message: 'La percentuale non può essere negativa' });
+  max(path.contributoDatoreLavoro, 100, { message: 'La percentuale non può superare 100%' });
+});
+
 const coniugeSchema = schema<ConiugeACaricoFormModel>((path) => {
   validate(path.redditoAnnuo, ({ value, valueOf }) => {
     if (valueOf(path).enabled && value() < 0) {
@@ -346,6 +370,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   min(path.altreDetrazioni, 0, { message: 'Valore non valido' });
 
   // Nested objects
+  apply(path.fondoPensioneIntegrativo, fondoPensioneIntegrativoSchema);
   apply(path.coniuge, coniugeSchema);
   apply(path.fringeBenefit, fringeBenefitSchema);
   apply(path.rimborsiTrasferta, rimborsiTrasfertaSchema);
@@ -443,6 +468,19 @@ function toBenefitNonTassati(model: BenefitNonTassatiFormModel): BenefitNonTassa
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
+function toFondoPensioneIntegrativo(
+  model: FondoPensioneIntegrativoFormModel,
+): FondoPensioneIntegrativo | undefined {
+  if (!model.enabled || model.contributoLavoratore <= 0) return undefined;
+
+  return {
+    contributoLavoratore: model.contributoLavoratore,
+    ...(model.contributoDatoreLavoro > 0 && {
+      contributoDatoreLavoro: model.contributoDatoreLavoro,
+    }),
+  };
+}
+
 function toConiuge(model: ConiugeACaricoFormModel): ConiugeACarico | undefined {
   if (!model.enabled) return undefined;
 
@@ -502,6 +540,10 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
       model.regimeImpatriatiMinorenni && { regimeImpatriatiMinorenni: true }),
 
     // Nested objects
+    ...(() => {
+      const fondoPensioneIntegrativo = toFondoPensioneIntegrativo(model.fondoPensioneIntegrativo);
+      return fondoPensioneIntegrativo ? { fondoPensioneIntegrativo } : {};
+    })(),
     ...(() => {
       const coniuge = toConiuge(model.coniuge);
       return coniuge ? { coniuge } : {};

@@ -585,6 +585,82 @@
             </section>
           }
 
+          <!-- Fondo Pensione Integrativo -->
+          @if (r.fondoPensioneIntegrativo) {
+            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
+              <h3
+                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
+              >
+                Previdenza Complementare
+              </h3>
+              <dl>
+                <div
+                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+                >
+                  <dt class="text-sm text-stone-600 dark:text-stone-400">
+                    Contributo Lavoratore (annuo)
+                  </dt>
+                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                    - {{ formatCurrency(r.fondoPensioneIntegrativo.contributoLavoratoreAnnuo) }}
+                  </dd>
+                </div>
+                @if (r.fondoPensioneIntegrativo.contributoDatoreLavoroAnnuo > 0) {
+                  <div
+                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+                  >
+                    <dt class="text-sm text-stone-600 dark:text-stone-400">
+                      Contributo Datore (annuo)
+                    </dt>
+                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                      {{ formatCurrency(r.fondoPensioneIntegrativo.contributoDatoreLavoroAnnuo) }}
+                    </dd>
+                  </div>
+                }
+                <div
+                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+                >
+                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Mensile</dt>
+                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                    {{ formatCurrency(r.fondoPensioneIntegrativo.contributoLavoratoreMensile) }}
+                  </dd>
+                </div>
+                <div
+                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+                >
+                  <dt class="text-sm text-stone-600 dark:text-stone-400">Deduzione Effettiva</dt>
+                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                    {{ formatCurrency(r.fondoPensioneIntegrativo.deduzioneEffettiva) }}
+                  </dd>
+                </div>
+                @if (r.fondoPensioneIntegrativo.eccedenzaNonDeducibile > 0) {
+                  <div
+                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+                  >
+                    <dt class="text-sm text-stone-600 dark:text-stone-400">
+                      Eccedenza Non Deducibile
+                    </dt>
+                    <dd class="text-sm font-medium text-stone-500 dark:text-stone-400">
+                      {{ formatCurrency(r.fondoPensioneIntegrativo.eccedenzaNonDeducibile) }}
+                    </dd>
+                  </div>
+                }
+                <div class="flex justify-between py-1.5">
+                  <dt class="text-sm text-stone-600 dark:text-stone-400">
+                    Risparmio Fiscale Stimato
+                  </dt>
+                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                    + {{ formatCurrency(r.fondoPensioneIntegrativo.risparmoFiscaleStimato) }}
+                  </dd>
+                </div>
+                <div class="flex justify-between py-1 pl-3">
+                  <dt class="text-xs text-stone-500 dark:text-stone-400">
+                    (deduzione imponibile IRPEF, max 5.300 euro/anno)
+                  </dt>
+                </div>
+              </dl>
+            </section>
+          }
+
           <!-- Fringe Benefit -->
           @if (r.fringeBenefit.valoreTotaleLordo > 0) {
             <section class="p-4 border-b border-stone-100 dark:border-stone-700">

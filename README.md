@@ -39,7 +39,8 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Rimborsi Spese](#8-rimborsi-spese)
   - [Benefit Non Tassati](#9-benefit-non-tassati-welfare)
   - [Dirigenti CCNL Terziario](#10-dirigenti-ccnl-terziario)
-  - [Regime Impatriati](#11-regime-impatriati-rientro-cervelli)
+  - [Previdenza Complementare](#11-previdenza-complementare-fondo-pensione-integrativo)
+  - [Regime Impatriati](#12-regime-impatriati-rientro-cervelli)
 - [Sequenza di Calcolo](#sequenza-di-calcolo)
 - [Riferimenti Normativi](#riferimenti-normativi)
 
@@ -406,7 +407,75 @@ Fondo assicurativo-previdenziale integrativo obbligatorio per i dirigenti del te
 
 ---
 
-#### 11. Regime Impatriati (Rientro Cervelli)
+#### 11. Previdenza Complementare (Fondo Pensione Integrativo)
+
+La previdenza complementare consente al lavoratore dipendente di versare contributi a un fondo pensione integrativo, ottenendo un beneficio fiscale sotto forma di deduzione dall'imponibile IRPEF.
+
+##### Struttura dei Contributi
+
+| Fonte                 | Descrizione                                                   |
+| --------------------- | ------------------------------------------------------------- |
+| Contributo lavoratore | Percentuale della RAL trattenuta dalla busta paga             |
+| Contributo datore     | Percentuale della RAL versata dall'azienda (costo aggiuntivo) |
+
+Le percentuali dipendono dal CCNL applicato e dalla scelta individuale del lavoratore. Valori tipici: 0,55% - 2% per il lavoratore, 1% - 2% per il datore.
+
+##### Deducibilità Fiscale (Art. 10, c.1, lett. e-bis, TUIR - aggiornato da L. 199/2025)
+
+| Parametro                    | Valore                                    |
+| ---------------------------- | ----------------------------------------- |
+| Limite annuo di deducibilità | €5.300 (dal 2026)                         |
+| Cosa concorre al limite      | Contributo lavoratore + contributo datore |
+| TFR destinato al fondo       | Escluso dal limite                        |
+
+**Formula:**
+
+```
+Contributo Lavoratore = RAL × Percentuale Lavoratore
+Contributo Datore = RAL × Percentuale Datore
+Totale Contributi = Contributo Lavoratore + Contributo Datore
+Deduzione Effettiva = MIN(Totale Contributi, €5.300)
+Eccedenza Non Deducibile = MAX(0, Totale Contributi − €5.300)
+```
+
+##### Effetto sul Calcolo
+
+- **IRPEF:** La deduzione riduce l'imponibile IRPEF (e quindi anche le addizionali regionale e comunale)
+- **Contributi INPS:** Calcolati sull'imponibile previdenziale **pieno** (nessuna riduzione)
+- **Netto in busta:** Solo il contributo lavoratore è una trattenuta reale dal netto
+- **Contributo datore:** Non è una trattenuta dalla busta paga, ma concorre al limite di deducibilità
+
+##### Esempio
+
+Con RAL €40.000, contributo lavoratore 1%, contributo datore 1,5%:
+
+```
+Contributo lavoratore: €40.000 × 1% = €400/anno
+Contributo datore: €40.000 × 1,5% = €600/anno
+Totale: €1.000 (sotto il limite di €5.300)
+Deduzione effettiva: €1.000
+Risparmio IRPEF (aliquota marginale 33%): €330/anno
+Costo netto per il lavoratore: €400 − €330 = €70/anno
+```
+
+> **Nota:** L'eventuale eccedenza non deducibile non genera risparmio fiscale nell'anno di versamento, ma sarà esente da tassazione al momento dell'erogazione della prestazione pensionistica.
+
+##### Interazione con fondi in squilibrio finanziario (Fondo Mario Negri)
+
+Il Fondo Mario Negri è un fondo preesistente ammesso al regime transitorio di deroga (art. 20, c.7, D.Lgs. 252/2005), che riconosce la **completa deducibilità** dei contributi senza alcun limite annuo. Tuttavia, i contributi versati al Fondo Negri **riducono il plafond di €5.300** disponibile per la deducibilità di eventuali contributi a fondi pensione integrativi ordinari.
+
+```
+Plafond residuo = MAX(0, €5.300 − Contributo dirigente Fondo Negri)
+Esempio: €5.300 − €1.184,49 = €4.115,51 disponibili per altri fondi
+```
+
+> **Nota:** nel calcolo, il plafond è ridotto dalla quota del contributo Fondo Negri a carico del dirigente, essendo l'unica componente modellata. La quota aziendale, non inclusa nel calcolo, in realtà concorre anch'essa alla riduzione del plafond.
+
+> **Riferimento normativo:** D.Lgs. 252/2005 (Disciplina delle forme pensionistiche complementari), Art. 10, c.1, lett. e-bis, TUIR (DPR 917/1986), L. 199/2025 (Legge di Bilancio 2026, art. 1, c. 201).
+
+---
+
+#### 12. Regime Impatriati (Rientro Cervelli)
 
 Agevolazione fiscale per i lavoratori che trasferiscono la residenza fiscale in Italia, disciplinata dall'art. 5 del D.Lgs. 209/2023 (in vigore dal 1° gennaio 2024).
 
@@ -512,7 +581,16 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  6d. REGIME IMPATRIATI (se attivo)                              │
+│  6d. PREVIDENZA COMPLEMENTARE (se attiva)                       │
+│      Contributo lav. + datore, deducibile fino a €5.300        │
+│      → Riduce l'imponibile IRPEF (con cap)                     │
+│      → Solo contributo lavoratore è trattenuta dal netto        │
+│      → NON riduce l'imponibile previdenziale (INPS)            │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  6e. REGIME IMPATRIATI (se attivo)                              │
 │      → Reddito agevolabile = MIN(Reddito lavoro, €600.000)      │
 │      → Importo esente = Agevolabile × 50% (o 60%)               │
 │      → Riduce imponibile IRPEF e addizionali, NON INPS          │
@@ -523,6 +601,7 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
 │  7. IMPONIBILE IRPEF                                            │
 │     = Imponibile Previdenziale − Contributi INPS                │
 │       − Contributi obbligatori per qualifica                    │
+│       − Deduzione previdenza complementare (max €5.300)         │
 │       − Importo esente impatriati (se attivo)                   │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -569,7 +648,8 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
 ┌─────────────────────────────────────────────────────────────────┐
 │  13. RISULTATO FINALE                                           │
 │      Netto = Imponibile − Contributi INPS − IRPEF Finale        │
-│     − Addizionali − Contributi obb. per qualifica + Bonus       │
+│     − Addizionali − Contributi obb. qualifica − Prev. compl.    │
+│     + Bonus                                                     │
 │                                                                 │
 │      Totale Percepito = Netto + Esenti                          │
 └─────────────────────────────────────────────────────────────────┘
@@ -590,6 +670,8 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
 | **Circ. AE 5/E/2024**   | Chiarimenti fringe benefit               |
 | **Circ. AE 10/E/2025**  | Auto aziendali uso promiscuo             |
 | **Circ. AE 15/E/2025**  | Rimborsi trasferta e tracciabilità       |
+| **D.Lgs. 252/2005**     | Previdenza complementare                 |
+| **Art. 10 TUIR**        | Deduzioni dal reddito complessivo        |
 | **D.Lgs. 209/2023**     | Regime impatriati (rientro cervelli)     |
 
 ---

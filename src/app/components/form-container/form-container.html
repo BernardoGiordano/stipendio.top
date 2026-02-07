@@ -356,6 +356,118 @@
     </div>
   </fieldset>
 
+  <!-- Sezione Previdenza Complementare -->
+  <fieldset
+    class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200 dark:bg-stone-800 dark:border-stone-700"
+    [class.opacity-60]="!model.fondoPensioneIntegrativo.enabled"
+  >
+    <legend class="px-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
+      Previdenza Complementare
+    </legend>
+
+    <div class="flex items-center gap-2 mb-3">
+      <input
+        id="fondoPensioneEnabled"
+        type="checkbox"
+        [formField]="form.fondoPensioneIntegrativo.enabled"
+        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
+      />
+      <label
+        for="fondoPensioneEnabled"
+        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >Fondo pensione integrativo<app-info-tooltip
+          tooltipId="fondoPensione-info"
+          text="Previdenza complementare (D.Lgs. 252/2005). I contributi del lavoratore e del datore sono deducibili dall'imponibile IRPEF fino a un massimo di 5.300 euro/anno (dal 2026, L. 199/2025). Non riducono i contributi INPS."
+        />
+      </label>
+    </div>
+
+    @if (model.fondoPensioneIntegrativo.enabled) {
+      <p class="text-xs text-stone-500 mb-4 dark:text-stone-400">
+        Inserisci le percentuali di contribuzione sulla RAL. Il limite di deducibilità complessivo
+        (lavoratore + datore) è di 5.300 euro/anno.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1">
+          <label
+            for="contributoLavoratore"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Contributo lavoratore (%)<app-info-tooltip
+              tooltipId="contributoLavoratore-info"
+              text="Percentuale della RAL versata dal lavoratore al fondo pensione. Trattenuta dalla busta paga. Valore tipico: 0,55% - 2% a seconda del CCNL."
+            />
+          </label>
+          <input
+            id="contributoLavoratore"
+            type="number"
+            step="0.01"
+            [formField]="form.fondoPensioneIntegrativo.contributoLavoratore"
+            placeholder="Es. 1.0"
+            [attr.aria-invalid]="form.fondoPensioneIntegrativo.contributoLavoratore().invalid()"
+            [attr.aria-describedby]="
+              form.fondoPensioneIntegrativo.contributoLavoratore().invalid()
+                ? 'contributoLavoratore-error'
+                : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+          />
+          @if (form.fondoPensioneIntegrativo.contributoLavoratore().invalid()) {
+            @for (
+              error of form.fondoPensioneIntegrativo.contributoLavoratore().errors();
+              track error.kind
+            ) {
+              <span
+                id="contributoLavoratore-error"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
+          }
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label
+            for="contributoDatoreLavoro"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Contributo datore di lavoro (%)<app-info-tooltip
+              tooltipId="contributoDatoreLavoro-info"
+              text="Percentuale della RAL versata dal datore di lavoro al fondo pensione. Non è una trattenuta dalla busta paga ma concorre al limite di deducibilità di 5.300 euro. Valore tipico: 1% - 2%."
+            />
+          </label>
+          <input
+            id="contributoDatoreLavoro"
+            type="number"
+            step="0.01"
+            [formField]="form.fondoPensioneIntegrativo.contributoDatoreLavoro"
+            placeholder="Es. 1.5"
+            [attr.aria-invalid]="form.fondoPensioneIntegrativo.contributoDatoreLavoro().invalid()"
+            [attr.aria-describedby]="
+              form.fondoPensioneIntegrativo.contributoDatoreLavoro().invalid()
+                ? 'contributoDatoreLavoro-error'
+                : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+          />
+          @if (form.fondoPensioneIntegrativo.contributoDatoreLavoro().invalid()) {
+            @for (
+              error of form.fondoPensioneIntegrativo.contributoDatoreLavoro().errors();
+              track error.kind
+            ) {
+              <span
+                id="contributoDatoreLavoro-error"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
+          }
+        </div>
+      </div>
+    }
+  </fieldset>
+
   <!-- Sezione Coniuge a Carico -->
   <fieldset
     class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200 dark:bg-stone-800 dark:border-stone-700"

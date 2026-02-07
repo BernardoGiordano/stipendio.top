@@ -765,3 +765,221 @@ describe('Regime Impatriati (Rientro Cervelli)', () => {
     expect(result.regimeImpatriati!.importoEsente).toBeCloseTo(atteso, 2);
   });
 });
+
+describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
+  const LIMITE_DEDUCIBILITA = 5_300;
+
+  it('senza fondoPensioneIntegrativo, il campo deve essere null', () => {
+    const result = calc.calcolaStipendioNetto(baseInput);
+    expect(result.fondoPensioneIntegrativo).toBeNull();
+  });
+
+  describe('Scenario: RAL 30k, contributo lavoratore 1%, datore 1.5%', () => {
+    // Contributo lavoratore = 30000 * 1% = 300
+    // Contributo datore = 30000 * 1.5% = 450
+    // Totale = 750, sotto il limite → deduzione = 750
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 1,
+        contributoDatoreLavoro: 1.5,
+      },
+    });
+
+    it('il contributo lavoratore annuo deve essere €300', () => {
+      expect(result.fondoPensioneIntegrativo).not.toBeNull();
+      expect(result.fondoPensioneIntegrativo!.contributoLavoratoreAnnuo).toBeCloseTo(300, 2);
+    });
+
+    it('il contributo lavoratore mensile deve essere €25', () => {
+      expect(result.fondoPensioneIntegrativo!.contributoLavoratoreMensile).toBeCloseTo(25, 2);
+    });
+
+    it('il contributo datore annuo deve essere €450', () => {
+      expect(result.fondoPensioneIntegrativo!.contributoDatoreLavoroAnnuo).toBeCloseTo(450, 2);
+    });
+
+    it('il totale contributi deve essere €750', () => {
+      expect(result.fondoPensioneIntegrativo!.totaleContributi).toBeCloseTo(750, 2);
+    });
+
+    it('la deduzione effettiva deve essere €750 (sotto il limite)', () => {
+      expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBeCloseTo(750, 2);
+    });
+
+    it("l'eccedenza non deducibile deve essere 0", () => {
+      expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBe(0);
+    });
+
+    it("l'imponibile IRPEF deve essere ridotto di €750", () => {
+      const resultSenza = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+      });
+      const differenza = resultSenza.irpef.imponibileIrpef - result.irpef.imponibileIrpef;
+      expect(differenza).toBeCloseTo(750, 2);
+    });
+  });
+
+  describe('Scenario: RAL 100k, contributo lavoratore 3%, datore 3% (eccede il limite)', () => {
+    // Contributo lavoratore = 100000 * 3% = 3000
+    // Contributo datore = 100000 * 3% = 3000
+    // Totale = 6000 > 5164.57 → deduzione = 5164.57, eccedenza = 835.43
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 100_000,
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 3,
+        contributoDatoreLavoro: 3,
+      },
+    });
+
+    it('il totale contributi deve essere €6000', () => {
+      expect(result.fondoPensioneIntegrativo).not.toBeNull();
+      expect(result.fondoPensioneIntegrativo!.totaleContributi).toBeCloseTo(6_000, 2);
+    });
+
+    it('la deduzione effettiva deve essere limitata a €5.164,57', () => {
+      expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBeCloseTo(
+        LIMITE_DEDUCIBILITA,
+        2,
+      );
+    });
+
+    it("l'eccedenza non deducibile deve essere €835,43", () => {
+      expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBeCloseTo(
+        6_000 - LIMITE_DEDUCIBILITA,
+        2,
+      );
+    });
+
+    it("l'imponibile IRPEF deve essere ridotto solo di €5.164,57", () => {
+      const resultSenza = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 100_000,
+      });
+      const differenza = resultSenza.irpef.imponibileIrpef - result.irpef.imponibileIrpef;
+      expect(differenza).toBeCloseTo(LIMITE_DEDUCIBILITA, 2);
+    });
+  });
+
+  it("l'imponibile previdenziale INPS non deve essere ridotto", () => {
+    const resultSenza = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+    });
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+      fondoPensioneIntegrativo: { contributoLavoratore: 2 },
+    });
+
+    expect(resultCon.contributiInps.imponibilePrevidenziale).toBe(
+      resultSenza.contributiInps.imponibilePrevidenziale,
+    );
+  });
+
+  it('il risparmio fiscale deve usare aliquota marginale IRPEF', () => {
+    // RAL 40k → imponibile IRPEF ~36k → aliquota marginale 33%
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+      fondoPensioneIntegrativo: { contributoLavoratore: 2 },
+    });
+
+    expect(result.fondoPensioneIntegrativo).not.toBeNull();
+    const deduzione = result.fondoPensioneIntegrativo!.deduzioneEffettiva;
+    const aliquotaMarginale =
+      result.irpef.dettaglioScaglioni[result.irpef.dettaglioScaglioni.length - 1].aliquota;
+    expect(result.fondoPensioneIntegrativo!.risparmoFiscaleStimato).toBeCloseTo(
+      deduzione * aliquotaMarginale,
+      2,
+    );
+  });
+
+  it('solo il contributo lavoratore deve ridurre il netto (non il datore)', () => {
+    const resultSoloLavoratore = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+      fondoPensioneIntegrativo: { contributoLavoratore: 1 },
+    });
+
+    const resultConDatore = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+      fondoPensioneIntegrativo: { contributoLavoratore: 1, contributoDatoreLavoro: 1 },
+    });
+
+    // Con il contributo datore, la deduzione IRPEF è maggiore → netto più alto
+    expect(resultConDatore.nettoAnnuo).toBeGreaterThan(resultSoloLavoratore.nettoAnnuo);
+  });
+
+  it('senza contributo datore, solo il contributo lavoratore è deducibile', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 50_000,
+      fondoPensioneIntegrativo: { contributoLavoratore: 2 },
+    });
+
+    expect(result.fondoPensioneIntegrativo).not.toBeNull();
+    expect(result.fondoPensioneIntegrativo!.contributoDatoreLavoroAnnuo).toBe(0);
+    // Contributo lavoratore = 50000 * 2% = 1000 (sotto il limite)
+    expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBeCloseTo(1_000, 2);
+  });
+
+  it('può coesistere con Fondo Mario Negri', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 80_000,
+      fondoMarioNegri: true,
+      fondoPensioneIntegrativo: { contributoLavoratore: 1, contributoDatoreLavoro: 1 },
+    });
+
+    expect(result.fondoNegri).not.toBeNull();
+    expect(result.fondoPensioneIntegrativo).not.toBeNull();
+
+    // Entrambe le deduzioni devono ridurre l'imponibile
+    const resultSenza = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 80_000,
+    });
+
+    expect(result.irpef.imponibileIrpef).toBeLessThan(resultSenza.irpef.imponibileIrpef);
+  });
+
+  it('il Fondo Negri (fondo in squilibrio) riduce il plafond di deducibilità', () => {
+    // Senza Fondo Negri: cap pieno = €5.300
+    const resultSenza = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 80_000,
+      fondoPensioneIntegrativo: { contributoLavoratore: 5, contributoDatoreLavoro: 2 },
+    });
+
+    // Con Fondo Negri: cap residuo = 5300 - 1184.49 = 4115.51
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 80_000,
+      fondoMarioNegri: true,
+      fondoPensioneIntegrativo: { contributoLavoratore: 5, contributoDatoreLavoro: 2 },
+    });
+
+    expect(resultSenza.fondoPensioneIntegrativo).not.toBeNull();
+    expect(resultCon.fondoPensioneIntegrativo).not.toBeNull();
+
+    // Senza Negri: contributi = 80000 * 7% = 5600, deduzione = min(5600, 5300) = 5300
+    expect(resultSenza.fondoPensioneIntegrativo!.deduzioneEffettiva).toBeCloseTo(
+      LIMITE_DEDUCIBILITA,
+      2,
+    );
+
+    // Con Negri: contributi = 5600, cap residuo = 5300 - 1184.49 = 4115.51
+    const capResiduo = LIMITE_DEDUCIBILITA - CONTRIBUTO_FONDO_NEGRI_2026;
+    expect(resultCon.fondoPensioneIntegrativo!.deduzioneEffettiva).toBeCloseTo(capResiduo, 2);
+
+    // L'eccedenza con Negri deve essere maggiore
+    expect(resultCon.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBeGreaterThan(
+      resultSenza.fondoPensioneIntegrativo!.eccedenzaNonDeducibile,
+    );
+  });
+});
