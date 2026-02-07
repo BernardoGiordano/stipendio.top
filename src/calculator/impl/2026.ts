@@ -27,8 +27,9 @@ import {
   RimborsiTrasferta,
   TipoContratto,
 } from '../types';
-import { ADDIZIONALI_COMUNALI, ADDIZIONALI_REGIONALI } from '../addizionali';
 import { StipendioCalculator } from '../calculator';
+import { ADDIZIONALI_REGIONALI } from '../addizionali/2026.regionali';
+import { ADDIZIONALI_COMUNALI } from '../addizionali/2026.comunali';
 
 /** Scaglioni IRPEF 2026 (aliquota intermedia ridotta) */
 const IRPEF_SCAGLIONI = [

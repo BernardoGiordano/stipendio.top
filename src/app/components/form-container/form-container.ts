@@ -6,9 +6,10 @@ import {
   StipendioFieldTree,
   StipendioFormModel,
 } from './form-group';
-import { ADDIZIONALI_COMUNALI, ADDIZIONALI_REGIONALI } from '../../../calculator/addizionali';
 import { TipoAlimentazioneAuto, TipoContratto } from '../../../calculator/types';
 import { InfoTooltip } from '../info-tooltip/info-tooltip';
+import { ADDIZIONALI_REGIONALI } from '../../../calculator/addizionali/2026.regionali';
+import { ADDIZIONALI_COMUNALI } from '../../../calculator/addizionali/2026.comunali';
 
 @Component({
   selector: 'app-form-container',

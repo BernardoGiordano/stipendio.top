@@ -135,7 +135,7 @@ export interface AscendenteACarico {
 
 /** Definizione addizionale comunale */
 export type AddizionaleComunale =
-  | { aliquota: number; esenzione?: number }
+  | { id?: string; aliquota: number; esenzione?: number }
   | { scaglioni: Array<{ limite: number; aliquota: number }>; esenzione?: number };
 
 /** Input per il calcolo dello stipendio netto */
