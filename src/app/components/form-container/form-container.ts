@@ -8,7 +8,10 @@ import {
 } from './form-group';
 import { TipoAlimentazioneAuto, TipoContratto } from '../../../calculator/types';
 import { InfoTooltip } from '../info-tooltip/info-tooltip';
-import { ADDIZIONALI_REGIONALI } from '../../../calculator/addizionali/2026.regionali';
+import {
+  ADDIZIONALI_REGIONALI,
+  REGIONE_LABELS,
+} from '../../../calculator/addizionali/2026.regionali';
 import { ADDIZIONALI_COMUNALI } from '../../../calculator/addizionali/2026.comunali';
 
 @Component({
@@ -25,7 +28,7 @@ export class FormContainer {
     { value: 'DEFAULT', label: 'Altro' },
     ...Object.keys(ADDIZIONALI_REGIONALI)
       .filter((r) => r !== 'DEFAULT')
-      .map((r) => ({ value: r, label: this.formatLabel(r) })),
+      .map((r) => ({ value: r, label: REGIONE_LABELS[r] ?? r })),
   ];
 
   readonly comuniDisponibili: { value: string; label: string }[] = [

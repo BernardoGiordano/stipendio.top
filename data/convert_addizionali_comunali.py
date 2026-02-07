@@ -6,8 +6,8 @@ Converts the MEF "Addizionale Comunale IRPEF" CSV into a TypeScript file
 matching the `AddizionaleComunale` type, keyed by CODICE_CATASTALE.
 
 Output format (TypeScript):
-  { nome: string; provincia: string; aliquota: number; esenzione?: number }
-  | { nome: string; provincia: string; scaglioni: Array<{ limite: number; aliquota: number }>; esenzione?: number }
+  { nome: string; pr: string; regione: string; aliquota: number; esenzione?: number }
+  | { nome: string; pr: string; regione: string; scaglioni: Array<{ limite: number; aliquota: number }>; esenzione?: number }
 
 Usage:
   # Generate a new .ts from a CSV:
@@ -23,6 +23,65 @@ import json
 import re
 import sys
 from pathlib import Path
+
+
+# ---------------------------------------------------------------------------
+# Province -> Region mapping
+# Two-letter custom region codes used as keys in ADDIZIONALI_REGIONALI
+# ---------------------------------------------------------------------------
+
+PROVINCIA_TO_REGIONE: dict[str, str] = {
+    # Abruzzo (AB)
+    "AQ": "AB", "CH": "AB", "PE": "AB", "TE": "AB",
+    # Basilicata (BA)
+    "MT": "BA", "PZ": "BA",
+    # Calabria (CL)
+    "CS": "CL", "CZ": "CL", "KR": "CL", "RC": "CL", "VV": "CL",
+    # Campania (CM)
+    "AV": "CM", "BN": "CM", "CE": "CM", "NA": "CM", "SA": "CM",
+    # Emilia-Romagna (ER)
+    "BO": "ER", "FC": "ER", "FE": "ER",
+    "MO": "ER", "PC": "ER", "PR": "ER",
+    "RA": "ER", "RE": "ER", "RN": "ER",
+    # Friuli Venezia Giulia (FV)
+    "GO": "FV", "PN": "FV", "TS": "FV", "UD": "FV",
+    # Lazio (LA)
+    "FR": "LA", "LT": "LA", "RI": "LA", "RM": "LA", "VT": "LA",
+    # Liguria (LI)
+    "GE": "LI", "IM": "LI", "SP": "LI", "SV": "LI",
+    # Lombardia (LO)
+    "BG": "LO", "BS": "LO", "CO": "LO", "CR": "LO",
+    "LC": "LO", "LO": "LO", "MB": "LO", "MI": "LO",
+    "MN": "LO", "PV": "LO", "SO": "LO", "VA": "LO",
+    # Marche (MA)
+    "AN": "MA", "AP": "MA", "FM": "MA", "MC": "MA", "PU": "MA",
+    # Molise (MO)
+    "CB": "MO", "IS": "MO",
+    # Piemonte (PI)
+    "AL": "PI", "AT": "PI", "BI": "PI", "CN": "PI",
+    "NO": "PI", "TO": "PI", "VB": "PI", "VC": "PI",
+    # Puglia (PU)
+    "BA": "PU", "BR": "PU", "BT": "PU", "FG": "PU",
+    "LE": "PU", "TA": "PU",
+    # Sardegna (SA)
+    "CA": "SA", "NU": "SA", "OR": "SA", "SS": "SA", "SU": "SA",
+    # Sicilia (SI)
+    "AG": "SI", "CL": "SI", "CT": "SI", "EN": "SI",
+    "ME": "SI", "PA": "SI", "RG": "SI", "SR": "SI", "TP": "SI",
+    # Toscana (TO)
+    "AR": "TO", "FI": "TO", "GR": "TO", "LI": "TO",
+    "LU": "TO", "MS": "TO", "PI": "TO", "PO": "TO",
+    "PT": "TO", "SI": "TO",
+    # Trentino-Alto Adige - Province autonome
+    "TN": "TN", "BZ": "BZ",
+    # Umbria (UM)
+    "PG": "UM", "TR": "UM",
+    # Valle d'Aosta (VA)
+    "AO": "VA",
+    # Veneto (VE)
+    "BL": "VE", "PD": "VE", "RO": "VE", "TV": "VE",
+    "VE": "VE", "VI": "VE", "VR": "VE",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -140,7 +199,8 @@ def parse_row(row: dict) -> tuple[str, dict] | None:
     """
     codice = row.get("CODICE_CATASTALE", "").strip()
     nome_raw = row.get("COMUNE", "").strip()
-    provincia = row.get("PR", "").strip()
+    pr = row.get("PR", "").strip()
+    regione = PROVINCIA_TO_REGIONE.get(pr, "")
     if not codice or not nome_raw:
         return None
 
@@ -203,13 +263,13 @@ def parse_row(row: dict) -> tuple[str, dict] | None:
         # Sort by limite (None = Infinity goes last)
         scaglioni.sort(key=lambda s: s["limite"] if s["limite"] is not None else float("inf"))
 
-        result = {"nome": nome, "provincia": provincia, "scaglioni": scaglioni}
+        result = {"nome": nome, "pr": pr, "regione": regione, "scaglioni": scaglioni}
         if esenzione is not None:
             result["esenzione"] = esenzione
         return codice, result
     else:
         rate = bracket_pairs[0][0]
-        result = {"nome": nome, "provincia": provincia, "aliquota": rate}
+        result = {"nome": nome, "pr": pr, "regione": regione, "aliquota": rate}
         if esenzione is not None:
             result["esenzione"] = esenzione
         return codice, result
@@ -269,8 +329,9 @@ def format_ts_number(value: float) -> str:
 def entry_to_ts(entry: dict) -> str:
     """Convert a single entry dict to a TypeScript object literal string."""
     nome = entry["nome"].replace("'", "\\'")
-    provincia = entry.get("provincia", "")
-    parts = [f"nome: '{nome}'", f"provincia: '{provincia}'"]
+    pr = entry.get("pr", "")
+    regione = entry.get("regione", "")
+    parts = [f"nome: '{nome}'", f"pr: '{pr}'", f"regione: '{regione}'"]
 
     if "scaglioni" in entry:
         scaglioni_strs = []

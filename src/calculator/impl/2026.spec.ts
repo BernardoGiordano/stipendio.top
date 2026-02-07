@@ -12,8 +12,8 @@ const baseInput: InputCalcoloStipendio = {
   mensilita: 13,
   tipoContratto: 'indeterminato',
   annoFiscale: 2026,
-  regione: 'LOMBARDIA',
-  comune: 'MILANO',
+  regione: 'LO',
+  comune: 'F205',
 };
 
 describe('Fringe benefit auto aziendale', () => {
@@ -324,8 +324,8 @@ describe('Fondo Mario Negri', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
     });
 
     expect(result.fondoNegri).toBeNull();
@@ -337,8 +337,8 @@ describe('Fondo Mario Negri', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       fondoMarioNegri: true,
     });
 
@@ -352,8 +352,8 @@ describe('Fondo Mario Negri', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       fondoMarioNegri: true,
     });
 
@@ -367,8 +367,8 @@ describe('Fondo Mario Negri', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
     });
 
     const resultCon = calc.calcolaStipendioNetto({
@@ -376,8 +376,8 @@ describe('Fondo Mario Negri', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       fondoMarioNegri: true,
     });
 
@@ -392,8 +392,8 @@ describe('Fondo Mario Negri', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       fondoMarioNegri: true,
     });
 
@@ -410,8 +410,8 @@ describe('Fondo Mario Negri', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
     });
 
     const resultCon = calc.calcolaStipendioNetto({
@@ -419,8 +419,8 @@ describe('Fondo Mario Negri', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       fondoMarioNegri: true,
     });
 
@@ -438,8 +438,8 @@ describe('Fondo Mario Negri', () => {
         mensilita: 13,
         tipoContratto: 'indeterminato',
         annoFiscale: 2026,
-        regione: 'LOMBARDIA',
-        comune: 'MILANO',
+        regione: 'LO',
+        comune: 'F205',
         fondoMarioNegri: true,
       });
 
@@ -456,8 +456,8 @@ describe('Fondo Antonio Pastore', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
     });
 
     expect(result.fondoPastore).toBeNull();
@@ -469,8 +469,8 @@ describe('Fondo Antonio Pastore', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       fondoPastore: true,
     });
 
@@ -484,8 +484,8 @@ describe('Fondo Antonio Pastore', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       fondoPastore: true,
     });
 
@@ -502,8 +502,8 @@ describe('Fondo Antonio Pastore', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
     });
 
     const resultCon = calc.calcolaStipendioNetto({
@@ -511,8 +511,8 @@ describe('Fondo Antonio Pastore', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       fondoPastore: true,
     });
 
@@ -525,8 +525,8 @@ describe('Fondo Antonio Pastore', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
     });
 
     const resultCon = calc.calcolaStipendioNetto({
@@ -534,8 +534,8 @@ describe('Fondo Antonio Pastore', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       fondoPastore: true,
     });
 
@@ -552,8 +552,8 @@ describe('Fondo Antonio Pastore', () => {
         mensilita: 13,
         tipoContratto: 'indeterminato',
         annoFiscale: 2026,
-        regione: 'LOMBARDIA',
-        comune: 'MILANO',
+        regione: 'LO',
+        comune: 'F205',
         fondoPastore: true,
       });
 
@@ -568,8 +568,8 @@ describe('Fondo Antonio Pastore', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       fondoMarioNegri: true,
       fondoPastore: true,
     });
@@ -585,8 +585,8 @@ describe('Fondo Antonio Pastore', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
     });
 
     // Il netto con entrambi i fondi deve essere inferiore a quello senza fondi
@@ -601,8 +601,8 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
     });
 
     expect(result.cfmt).toBeNull();
@@ -614,8 +614,8 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       cfmt: true,
     });
 
@@ -629,8 +629,8 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       cfmt: true,
     });
 
@@ -644,8 +644,8 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
     });
 
     const resultCon = calc.calcolaStipendioNetto({
@@ -653,8 +653,8 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       cfmt: true,
     });
 
@@ -667,8 +667,8 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
     });
 
     const resultCon = calc.calcolaStipendioNetto({
@@ -676,8 +676,8 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
-      regione: 'LOMBARDIA',
-      comune: 'MILANO',
+      regione: 'LO',
+      comune: 'F205',
       cfmt: true,
     });
 
@@ -692,8 +692,8 @@ describe('Regime Impatriati (Rientro Cervelli)', () => {
     mensilita: 13,
     tipoContratto: 'indeterminato',
     annoFiscale: 2026,
-    regione: 'LOMBARDIA',
-    comune: 'MILANO',
+    regione: 'LO',
+    comune: 'F205',
   };
 
   it('senza flag regimeImpatriati, il campo regimeImpatriati deve essere null', () => {
