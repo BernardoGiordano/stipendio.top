@@ -1672,7 +1672,7 @@
   <!-- Sezione Dirigenti CCNL Terziario -->
   <fieldset
     class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200 dark:bg-stone-800 dark:border-stone-700"
-    [class.opacity-60]="!model.fondoMarioNegri && !model.fondoPastore"
+    [class.opacity-60]="!model.fondoMarioNegri && !model.fondoPastore && !model.cfmt"
   >
     <legend class="px-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
       Dirigenti CCNL Terziario
@@ -1711,6 +1711,21 @@
         >Fondo Antonio Pastore<app-info-tooltip
           tooltipId="fondoPastore-info"
           text="Fondo assicurativo-previdenziale integrativo obbligatorio. Contributo 2026: 464,81 euro/anno. NON riduce l'imponibile IRPEF: trattenuta diretta dal netto."
+        />
+      </label>
+    </div>
+
+    <div class="flex items-center gap-2 mb-3">
+      <input
+        id="cfmt"
+        type="checkbox"
+        [formField]="form.cfmt"
+        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
+      />
+      <label for="cfmt" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >CFMT<app-info-tooltip
+          tooltipId="cfmt-info"
+          text="Contributo per formazione e aggiornamento professionale. Contributo 2026: 166 euro/anno (148 formazione + 18 piattaforma welfare). NON riduce l'imponibile IRPEF: trattenuta diretta dal netto."
         />
       </label>
     </div>

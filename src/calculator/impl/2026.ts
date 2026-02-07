@@ -5,6 +5,7 @@ import {
   ConiugeACarico,
   DettaglioAddizionali,
   DettaglioBenefitNonTassati,
+  DettaglioCFMT,
   DettaglioContributiInps,
   DettaglioCuneoFiscale,
   DettaglioDetrazioniFamiliari,
@@ -159,6 +160,13 @@ const FONDO_MARIO_NEGRI = {
 const FONDO_ANTONIO_PASTORE = {
   /** Contributo annuo a carico del dirigente (fisso) */
   contributoDirigente: 464.81,
+} as const;
+
+/** Parametri CFMT (Centro di Formazione Management del Terziario - CCNL Dirigenti Terziario 2026-2028) */
+const CFMT = {
+  contributoFormazione: 148,
+  costoGestionePiattaforma: 18,
+  totaleDirigente: 166,
 } as const;
 
 /** Parametri previdenza complementare (D.Lgs. 252/2005, aggiornato da L. 199/2025) */
@@ -780,6 +788,20 @@ function calcolaFondoPastore(fondoPastore: boolean): DettaglioFondoPastore | nul
   };
 }
 
+function calcolaCFMT(cfmt: boolean): DettaglioCFMT | null {
+  if (!cfmt) {
+    return null;
+  }
+
+  const contributoAnnuo = CFMT.totaleDirigente;
+  const contributoMensile = contributoAnnuo / 12;
+
+  return {
+    contributoAnnuo,
+    contributoMensile,
+  };
+}
+
 function calcolaFondoPensioneIntegrativo(
   fondoPensione: FondoPensioneIntegrativo | undefined,
   ral: number,
@@ -874,6 +896,7 @@ export class Calculator2026 implements StipendioCalculator {
       benefitNonTassati: benefitNonTassatiInput,
       fondoMarioNegri = false,
       fondoPastore: fondoPastoreFlag = false,
+      cfmt: cfmtFlag = false,
       regimeImpatriati: regimeImpatriatiFlag = false,
       regimeImpatriatiMinorenni = false,
       fondoPensioneIntegrativo: fondoPensioneInput,
@@ -914,7 +937,11 @@ export class Calculator2026 implements StipendioCalculator {
     // Il contributo al Fondo Pastore NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
     const contributoFondoPastore = fondoPastoreFlag ? FONDO_ANTONIO_PASTORE.contributoDirigente : 0;
 
-    // 6d. CALCOLO FONDO PENSIONE INTEGRATIVO (previdenza complementare)
+    // 6d. CALCOLO CFMT (Centro di Formazione Management del Terziario)
+    // Il contributo CFMT NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
+    const contributoCFMT = cfmtFlag ? CFMT.totaleDirigente : 0;
+
+    // 6e. CALCOLO FONDO PENSIONE INTEGRATIVO (previdenza complementare)
     // Il contributo lavoratore + datore è deducibile dall'imponibile IRPEF fino a €5.300/anno
     // I contributi versati a fondi in squilibrio finanziario (es. Fondo Negri) riducono il plafond
     // Il contributo lavoratore è una trattenuta reale dal netto in busta paga
@@ -1066,7 +1093,10 @@ export class Calculator2026 implements StipendioCalculator {
     // 15b. CALCOLO DETTAGLIO FONDO ANTONIO PASTORE
     const fondoPastore = calcolaFondoPastore(fondoPastoreFlag);
 
-    // 15c. CALCOLO DETTAGLIO FONDO PENSIONE INTEGRATIVO
+    // 15c. CALCOLO DETTAGLIO CFMT
+    const cfmt = calcolaCFMT(cfmtFlag);
+
+    // 15d. CALCOLO DETTAGLIO FONDO PENSIONE INTEGRATIVO
     const fondoPensioneIntegrativo = calcolaFondoPensioneIntegrativo(
       fondoPensioneInput,
       ral,
@@ -1074,13 +1104,14 @@ export class Calculator2026 implements StipendioCalculator {
       contributoFondoNegri,
     );
 
-    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore e contributo lavoratore Fondo Pensione)
+    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT e contributo lavoratore Fondo Pensione)
     const totaleTrattenute =
       contributiInps.totaleContributi +
       irpefFinale +
       addizionali.totaleAddizionali +
       contributoFondoNegri +
       contributoFondoPastore +
+      contributoCFMT +
       contributoFondoPensione;
 
     // Totale bonus
@@ -1124,6 +1155,7 @@ export class Calculator2026 implements StipendioCalculator {
       benefitNonTassati,
       fondoNegri,
       fondoPastore,
+      cfmt,
       fondoPensioneIntegrativo,
       regimeImpatriati: dettaglioRegimeImpatriati,
       irpef,

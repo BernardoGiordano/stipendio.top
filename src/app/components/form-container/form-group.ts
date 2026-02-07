@@ -111,6 +111,7 @@ export interface StipendioFormModel {
   haFigliACarico: boolean;
   fondoMarioNegri: boolean;
   fondoPastore: boolean;
+  cfmt: boolean;
   regimeImpatriati: boolean;
   regimeImpatriatiMinorenni: boolean;
 
@@ -227,6 +228,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     haFigliACarico: false,
     fondoMarioNegri: false,
     fondoPastore: false,
+    cfmt: false,
     regimeImpatriati: false,
     regimeImpatriatiMinorenni: false,
     fondoPensioneIntegrativo: createDefaultFondoPensioneIntegrativo(),
@@ -534,6 +536,7 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
     ...(model.haFigliACarico && { haFigliACarico: true }),
     ...(model.fondoMarioNegri && { fondoMarioNegri: true }),
     ...(model.fondoPastore && { fondoPastore: true }),
+    ...(model.cfmt && { cfmt: true }),
     ...(model.regimeImpatriati && { regimeImpatriati: true }),
     ...(model.regimeImpatriati &&
       model.regimeImpatriatiMinorenni && { regimeImpatriatiMinorenni: true }),

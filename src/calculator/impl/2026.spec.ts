@@ -5,6 +5,7 @@ const calc = new Calculator2026();
 
 const CONTRIBUTO_FONDO_NEGRI_2026 = 1184.49;
 const CONTRIBUTO_FONDO_PASTORE_2026 = 464.81;
+const CONTRIBUTO_CFMT_2026 = 166;
 
 const baseInput: InputCalcoloStipendio = {
   ral: 25_000,
@@ -590,6 +591,98 @@ describe('Fondo Antonio Pastore', () => {
 
     // Il netto con entrambi i fondi deve essere inferiore a quello senza fondi
     expect(result.nettoAnnuo).toBeLessThan(resultSolo.nettoAnnuo);
+  });
+});
+
+describe('CFMT (Centro di Formazione Management del Terziario)', () => {
+  it('senza flag cfmt, il campo cfmt deve essere null', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+    });
+
+    expect(result.cfmt).toBeNull();
+  });
+
+  it('con flag cfmt, il contributo annuo deve essere €166', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+      cfmt: true,
+    });
+
+    expect(result.cfmt).not.toBeNull();
+    expect(result.cfmt!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_CFMT_2026, 2);
+  });
+
+  it('il contributo mensile deve essere contributoAnnuo / 12', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+      cfmt: true,
+    });
+
+    expect(result.cfmt).not.toBeNull();
+    expect(result.cfmt!.contributoMensile).toBeCloseTo(CONTRIBUTO_CFMT_2026 / 12, 2);
+  });
+
+  it("NON deve ridurre l'imponibile IRPEF (stessa IRPEF con/senza CFMT)", () => {
+    const resultSenza = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+    });
+
+    const resultCon = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+      cfmt: true,
+    });
+
+    expect(resultCon.irpef.imponibileIrpef).toBeCloseTo(resultSenza.irpef.imponibileIrpef, 2);
+  });
+
+  it('deve ridurre il netto esattamente di €166', () => {
+    const resultSenza = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+    });
+
+    const resultCon = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LOMBARDIA',
+      comune: 'MILANO',
+      cfmt: true,
+    });
+
+    const differenzaNetto = resultSenza.nettoAnnuo - resultCon.nettoAnnuo;
+    expect(differenzaNetto).toBeCloseTo(CONTRIBUTO_CFMT_2026, 2);
   });
 });
 

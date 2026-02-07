@@ -97,6 +97,14 @@ export interface DettaglioFondoPastore {
   contributoMensile: number;
 }
 
+/** Dettaglio CFMT (Centro di Formazione Management del Terziario) */
+export interface DettaglioCFMT {
+  /** Contributo annuo a carico del dirigente */
+  contributoAnnuo: number;
+  /** Contributo mensile (contributoAnnuo / 12) */
+  contributoMensile: number;
+}
+
 /** Informazioni su un figlio a carico */
 export interface FiglioACarico {
   /** Età del figlio */
@@ -191,6 +199,9 @@ export interface InputCalcoloStipendio {
 
   /** Contributo Fondo Antonio Pastore (assicurativo-previdenziale dirigenti CCNL Terziario). Non deducibile: trattenuta diretta dal netto */
   fondoPastore?: boolean;
+
+  /** Contributo CFMT (Centro di Formazione Management del Terziario). Non deducibile: trattenuta diretta dal netto */
+  cfmt?: boolean;
 
   /** Regime impatriati (rientro cervelli) - D.Lgs. 209/2023, art. 5 */
   regimeImpatriati?: boolean;
@@ -440,6 +451,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio Fondo Antonio Pastore (se dirigente CCNL Terziario) */
   fondoPastore: DettaglioFondoPastore | null;
+
+  /** Dettaglio CFMT (se dirigente CCNL Terziario) */
+  cfmt: DettaglioCFMT | null;
 
   /** Dettaglio previdenza complementare (se attiva) */
   fondoPensioneIntegrativo: DettaglioFondoPensioneIntegrativo | null;
