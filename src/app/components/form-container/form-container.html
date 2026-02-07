@@ -120,6 +120,7 @@
         <select
           id="regione"
           [formField]="form.regione"
+          (change)="onRegioneChange()"
           aria-required="true"
           [attr.aria-invalid]="form.regione().invalid()"
           [attr.aria-describedby]="form.regione().invalid() ? 'regione-error' : null"
@@ -148,18 +149,20 @@
             text="Determina l'addizionale comunale IRPEF (0-0,8%). Alcuni comuni prevedono esenzioni per redditi bassi."
           />
         </label>
-        <select
-          id="comune"
-          [formField]="form.comune"
+        <ng-select
+          [items]="comuniFiltrati()"
+          bindValue="value"
+          bindLabel="label"
+          [ngModel]="model.comune"
+          (ngModelChange)="onComuneChange($event)"
+          [ngModelOptions]="{ standalone: true }"
+          [searchable]="true"
+          [clearable]="false"
+          notFoundText="Nessun comune trovato"
+          placeholder="Cerca un comune..."
           aria-required="true"
-          [attr.aria-invalid]="form.comune().invalid()"
-          [attr.aria-describedby]="form.comune().invalid() ? 'comune-error' : null"
-          class="h-[42px] px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
-        >
-          @for (comune of comuniDisponibili; track comune.value) {
-            <option [value]="comune.value">{{ comune.label }}</option>
-          }
-        </select>
+          labelForId="comune"
+        ></ng-select>
         @if (form.comune().invalid()) {
           @for (error of form.comune().errors(); track error.kind) {
             <span

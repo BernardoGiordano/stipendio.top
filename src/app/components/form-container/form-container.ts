@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, input, WritableSignal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  OnInit,
+  WritableSignal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
+import { NgSelectComponent } from '@ng-select/ng-select';
 import {
   createDefaultAscendente,
   createDefaultFiglio,
@@ -14,36 +23,36 @@ import {
 } from '../../../calculator/addizionali/2026.regionali';
 import { ADDIZIONALI_COMUNALI } from '../../../calculator/addizionali/2026.comunali';
 
+const COMUNI_PER_REGIONE: Record<string, { value: string; label: string }[]> = {};
+for (const [key, entry] of Object.entries(ADDIZIONALI_COMUNALI)) {
+  const regione = entry.regione;
+  (COMUNI_PER_REGIONE[regione] ??= []).push({ value: key, label: entry.nome });
+}
+for (const comuni of Object.values(COMUNI_PER_REGIONE)) {
+  comuni.sort((a, b) => a.label.localeCompare(b.label, 'it'));
+}
+
 @Component({
   selector: 'app-form-container',
-  imports: [FormField, InfoTooltip],
+  imports: [FormField, FormsModule, NgSelectComponent, InfoTooltip],
   templateUrl: './form-container.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FormContainer {
+export class FormContainer implements OnInit {
   readonly stipendioForm = input.required<StipendioFieldTree>();
   readonly formModel = input.required<WritableSignal<StipendioFormModel>>();
 
-  readonly regioniDisponibili: { value: string; label: string }[] = [
-    { value: 'DEFAULT', label: 'Altro' },
-    ...Object.keys(ADDIZIONALI_REGIONALI)
-      .filter((r) => r !== 'DEFAULT')
-      .map((r) => ({ value: r, label: REGIONE_LABELS[r] ?? r })),
-  ];
+  readonly regioniDisponibili: { value: string; label: string }[] = Object.keys(
+    ADDIZIONALI_REGIONALI,
+  )
+    .filter((r) => r !== 'DEFAULT')
+    .map((r) => ({ value: r, label: REGIONE_LABELS[r] ?? r }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'it'));
 
-  readonly comuniDisponibili: { value: string; label: string }[] = [
-    { value: 'DEFAULT', label: 'Altro' },
-    ...Object.keys(ADDIZIONALI_COMUNALI)
-      .filter((c) => c !== 'DEFAULT')
-      .map((c) => ({ value: c, label: this.formatLabel(c) })),
-  ];
-
-  private formatLabel(key: string): string {
-    return key
-      .split('_')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-  }
+  readonly comuniFiltrati = computed(() => {
+    const regione = this.formModel()().regione;
+    return COMUNI_PER_REGIONE[regione] ?? [];
+  });
 
   readonly tipiContratto: { value: TipoContratto; label: string }[] = [
     { value: 'indeterminato', label: 'Tempo indeterminato' },
@@ -70,6 +79,24 @@ export class FormContainer {
     { value: 'ibrido_plugin', label: 'Ibrido plug-in' },
     { value: 'altro', label: 'Altro (benzina, diesel, GPL, metano)' },
   ];
+
+  ngOnInit(): void {
+    const model = this.formModel()();
+    if (!model.comune) {
+      const comuni = COMUNI_PER_REGIONE[model.regione] ?? [];
+      this.formModel().update((m) => ({ ...m, comune: comuni[0]?.value ?? '' }));
+    }
+  }
+
+  onRegioneChange(): void {
+    const regione = this.formModel()().regione;
+    const comuni = COMUNI_PER_REGIONE[regione] ?? [];
+    this.formModel().update((m) => ({ ...m, comune: comuni[0]?.value ?? '' }));
+  }
+
+  onComuneChange(value: string): void {
+    this.formModel().update((m) => ({ ...m, comune: value }));
+  }
 
   addFiglio(): void {
     this.formModel().update((model) => ({
