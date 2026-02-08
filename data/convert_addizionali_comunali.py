@@ -111,23 +111,45 @@ def parse_euro_amount(text: str) -> float | None:
       "fino a  euro 10.000,00"
       "fino a euro 10000.00"
       "fino a euro 9.999,99"
+      "da 0 a 15.000,00 euro" (bracket upper bound)
     """
-    m = re.search(r"(?:fino\s+a[d]?\s+euro|superiore\s+a[d]?\s+euro)\s+([\d.,]+)", text, re.IGNORECASE)
+    m = re.search(r"(?:fino\s+a[d]?\s+euro|superiore\s+a[d]?\s+euro)\s+([\d.,]+\d)", text, re.IGNORECASE)
     if not m:
-        # Try "inferiori a euro X" pattern
-        m = re.search(r"inferiori?\s+a[d]?\s+euro\s+([\d.,]+)", text, re.IGNORECASE)
+        # Try "inferiori a euro X" pattern (number after "euro")
+        m = re.search(r"inferior[ei]\s+a[d]?\s+euro\s+([\d.,]+\d)", text, re.IGNORECASE)
+    if not m:
+        # Try "inferiore a X euro" pattern (number before "euro")
+        m = re.search(r"inferior[ei]\s+a[d]?\s+([\d.,]+\d)\s+euro", text, re.IGNORECASE)
+    if not m:
+        # Try "fino a X euro" / "superiore a X euro" (number before "euro")
+        m = re.search(r"(?:fino|superiore)\s+a[d]?\s+([\d.,]+\d)\s+euro", text, re.IGNORECASE)
+    if not m:
+        # Try "da X a Y euro" bracket pattern (e.g. "da 0 a 15.000,00 euro")
+        m = re.search(r"\ba\s+([\d.,]+\d)\s+euro", text, re.IGNORECASE)
     if not m:
         return None
     amount_str = m.group(1).strip().rstrip(".")
     # Normalize Italian number format to float:
     # "28.000,00" -> 28000.00  (dots = thousands, comma = decimal)
     # "10000.00"  -> 10000.00  (no thousands sep, dot = decimal)
+    # "8.500"     -> 8500      (dot as thousands, no decimal - Italian format)
     # "12.000.00" -> 12000.00  (dots as thousands, missing comma - MEF typo)
     if "," in amount_str:
         amount_str = amount_str.replace(".", "").replace(",", ".")
-    elif amount_str.count(".") > 1:
-        # Multiple dots with no comma: dots are thousands separators
-        amount_str = amount_str.replace(".", "")
+    elif amount_str.count(".") == 1:
+        # Single dot: check if it's a thousands separator (digits after dot are
+        # exactly 3, e.g. "8.500") vs a decimal (e.g. "10000.00")
+        parts = amount_str.split(".")
+        if len(parts[1]) == 3:
+            amount_str = amount_str.replace(".", "")
+    if amount_str.count(".") > 1:
+        # Multiple dots: last dot is decimal, others are thousands
+        # e.g. "10.000.00" -> "10000.00" (MEF typo for "10.000,00")
+        # or after comma normalization: "10,000,00" -> "10.000.00" -> "10000.00"
+        last_dot = amount_str.rfind(".")
+        integer_part = amount_str[:last_dot].replace(".", "")
+        decimal_part = amount_str[last_dot:]
+        amount_str = integer_part + decimal_part
     # Strip any trailing dots left over
     amount_str = amount_str.rstrip(".")
     return float(amount_str)
