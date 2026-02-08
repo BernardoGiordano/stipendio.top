@@ -105,6 +105,14 @@ export interface DettaglioCFMT {
   contributoMensile: number;
 }
 
+/** Dettaglio FASDAC (Fondo Assistenza Sanitaria Dirigenti Aziende Commerciali - Fondo Mario Besusso) */
+export interface DettaglioFasdac {
+  /** Contributo annuo a carico del dirigente */
+  contributoAnnuo: number;
+  /** Contributo mensile (contributoAnnuo / 12) */
+  contributoMensile: number;
+}
+
 /** Informazioni su un figlio a carico */
 export interface FiglioACarico {
   /** Età del figlio */
@@ -202,6 +210,9 @@ export interface InputCalcoloStipendio {
 
   /** Contributo CFMT (Centro di Formazione Management del Terziario). Non deducibile: trattenuta diretta dal netto */
   cfmt?: boolean;
+
+  /** Contributo FASDAC (Fondo Assistenza Sanitaria Dirigenti - Fondo Mario Besusso). Non deducibile: trattenuta diretta dal netto */
+  fasdac?: boolean;
 
   /** Regime impatriati (rientro cervelli) - D.Lgs. 209/2023, art. 5 */
   regimeImpatriati?: boolean;
@@ -464,6 +475,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio CFMT (se dirigente CCNL Terziario) */
   cfmt: DettaglioCFMT | null;
+
+  /** Dettaglio FASDAC (se dirigente CCNL Terziario) */
+  fasdac: DettaglioFasdac | null;
 
   /** Dettaglio previdenza complementare (se attiva) */
   fondoPensioneIntegrativo: DettaglioFondoPensioneIntegrativo | null;

@@ -7,6 +7,7 @@ import {
   DettaglioBenefitNonTassati,
   DettaglioCFMT,
   DettaglioContributiInps,
+  DettaglioFasdac,
   DettaglioCuneoFiscale,
   DettaglioDetrazioniFamiliari,
   DettaglioDetrazioniLavoro,
@@ -168,6 +169,13 @@ const CFMT = {
   contributoFormazione: 148,
   costoGestionePiattaforma: 18,
   totaleDirigente: 166,
+} as const;
+
+/** Parametri FASDAC (Fondo Assistenza Sanitaria Dirigenti - Fondo Mario Besusso) */
+const FASDAC = {
+  retribuzioneConvenzionale: 45_940,
+  aliquotaDirigente: 1.87,
+  contributoDirigente: 859.08,
 } as const;
 
 /** Parametri previdenza complementare (D.Lgs. 252/2005, aggiornato da L. 199/2025) */
@@ -803,6 +811,20 @@ function calcolaCFMT(cfmt: boolean): DettaglioCFMT | null {
   };
 }
 
+function calcolaFasdac(fasdac: boolean): DettaglioFasdac | null {
+  if (!fasdac) {
+    return null;
+  }
+
+  const contributoAnnuo = FASDAC.contributoDirigente;
+  const contributoMensile = contributoAnnuo / 12;
+
+  return {
+    contributoAnnuo,
+    contributoMensile,
+  };
+}
+
 function calcolaFondoPensioneIntegrativo(
   fondoPensione: FondoPensioneIntegrativo | undefined,
   aliquotaMarginaleIrpef: number,
@@ -911,6 +933,7 @@ export class Calculator2026 implements StipendioCalculator {
       fondoMarioNegri = false,
       fondoPastore: fondoPastoreFlag = false,
       cfmt: cfmtFlag = false,
+      fasdac: fasdacFlag = false,
       regimeImpatriati: regimeImpatriatiFlag = false,
       regimeImpatriatiMinorenni = false,
       fondoPensioneIntegrativo: fondoPensioneInput,
@@ -955,7 +978,11 @@ export class Calculator2026 implements StipendioCalculator {
     // Il contributo CFMT NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
     const contributoCFMT = cfmtFlag ? CFMT.totaleDirigente : 0;
 
-    // 6e. CALCOLO FONDO PENSIONE INTEGRATIVO (previdenza complementare)
+    // 6e. CALCOLO FASDAC (Fondo Assistenza Sanitaria Dirigenti)
+    // Il contributo FASDAC NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
+    const contributoFasdac = fasdacFlag ? FASDAC.contributoDirigente : 0;
+
+    // 6f. CALCOLO FONDO PENSIONE INTEGRATIVO (previdenza complementare)
     // Il contributo lavoratore + datore è deducibile dall'imponibile IRPEF fino a €5.300/anno
     // I contributi versati a fondi in squilibrio finanziario (es. Fondo Negri) riducono il plafond
     // Il contributo lavoratore è una trattenuta reale dal netto in busta paga
@@ -1115,14 +1142,17 @@ export class Calculator2026 implements StipendioCalculator {
     // 15c. CALCOLO DETTAGLIO CFMT
     const cfmt = calcolaCFMT(cfmtFlag);
 
-    // 15d. CALCOLO DETTAGLIO FONDO PENSIONE INTEGRATIVO
+    // 15d. CALCOLO DETTAGLIO FASDAC
+    const fasdac = calcolaFasdac(fasdacFlag);
+
+    // 15e. CALCOLO DETTAGLIO FONDO PENSIONE INTEGRATIVO
     const fondoPensioneIntegrativo = calcolaFondoPensioneIntegrativo(
       fondoPensioneInput,
       aliquotaMarginaleIrpef,
       contributoFondoNegri,
     );
 
-    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT e contributo lavoratore Fondo Pensione)
+    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT, FASDAC e contributo lavoratore Fondo Pensione)
     const totaleTrattenute =
       contributiInps.totaleContributi +
       irpefFinale +
@@ -1130,6 +1160,7 @@ export class Calculator2026 implements StipendioCalculator {
       contributoFondoNegri +
       contributoFondoPastore +
       contributoCFMT +
+      contributoFasdac +
       contributoFondoPensione;
 
     // Totale bonus
@@ -1174,6 +1205,7 @@ export class Calculator2026 implements StipendioCalculator {
       fondoNegri,
       fondoPastore,
       cfmt,
+      fasdac,
       fondoPensioneIntegrativo,
       regimeImpatriati: dettaglioRegimeImpatriati,
       irpef,

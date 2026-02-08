@@ -405,6 +405,28 @@ Fondo assicurativo-previdenziale integrativo obbligatorio per i dirigenti del te
 - È una **trattenuta diretta dal netto** in busta paga, senza beneficio fiscale
 - A differenza del Fondo Negri, non genera risparmio fiscale
 
+##### FASDAC (Fondo Mario Besusso)
+
+Fondo di assistenza sanitaria integrativa obbligatorio per i dirigenti del terziario.
+
+**Parametri 2026:**
+
+| Parametro                     | Valore     |
+| ----------------------------- | ---------- |
+| Retribuzione convenzionale    | €45.940,00 |
+| Aliquota contributo dirigente | 1,87%      |
+| Contributo annuo dirigente    | €859,08    |
+| Contributo mensile            | €71,59     |
+
+**Caratteristiche fiscali:**
+
+- Il contributo **NON riduce l'imponibile IRPEF** (non deducibile)
+- Il contributo **non riduce l'imponibile previdenziale** (INPS)
+- È una **trattenuta diretta dal netto** in busta paga, senza beneficio fiscale
+- A differenza del Fondo Negri, non genera risparmio fiscale
+
+> La quota azienda (5,29% = €2.430,23/anno) non impatta il netto del dirigente e non è calcolata.
+
 ---
 
 #### 11. Previdenza Complementare (Fondo Pensione Integrativo)
@@ -586,7 +608,15 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  6d. PREVIDENZA COMPLEMENTARE (se attiva)                       │
+│  6d. FASDAC (se dirigente CCNL Terziario)                       │
+│      = €859,08/anno (contributo fisso 2026)                     │
+│      → NON riduce l'imponibile IRPEF                            │
+│      → Trattenuta diretta dal netto                             │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  6e. PREVIDENZA COMPLEMENTARE (se attiva)                       │
 │      Contributo lav. + datore + EBITEMP, deduc. fino a €5.300  │
 │      → Riduce l'imponibile IRPEF (con cap)                     │
 │      → Solo contributo lavoratore è trattenuta dal netto        │
@@ -596,7 +626,7 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  6e. REGIME IMPATRIATI (se attivo)                              │
+│  6f. REGIME IMPATRIATI (se attivo)                              │
 │      → Reddito agevolabile = MIN(Reddito lavoro, €600.000)      │
 │      → Importo esente = Agevolabile × 50% (o 60%)               │
 │      → Riduce imponibile IRPEF e addizionali, NON INPS          │

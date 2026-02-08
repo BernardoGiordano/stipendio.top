@@ -6,6 +6,7 @@ const calc = new Calculator2026();
 const CONTRIBUTO_FONDO_NEGRI_2026 = 1184.49;
 const CONTRIBUTO_FONDO_PASTORE_2026 = 464.81;
 const CONTRIBUTO_CFMT_2026 = 166;
+const CONTRIBUTO_FASDAC_2026 = 859.08;
 
 const baseInput: InputCalcoloStipendio = {
   ral: 25_000,
@@ -683,6 +684,98 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
 
     const differenzaNetto = resultSenza.nettoAnnuo - resultCon.nettoAnnuo;
     expect(differenzaNetto).toBeCloseTo(CONTRIBUTO_CFMT_2026, 2);
+  });
+});
+
+describe('FASDAC (Fondo Assistenza Sanitaria Dirigenti)', () => {
+  it('senza flag fasdac, il campo fasdac deve essere null', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+    });
+
+    expect(result.fasdac).toBeNull();
+  });
+
+  it('con flag fasdac, il contributo annuo deve essere €859,08', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+      fasdac: true,
+    });
+
+    expect(result.fasdac).not.toBeNull();
+    expect(result.fasdac!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FASDAC_2026, 2);
+  });
+
+  it('il contributo mensile deve essere contributoAnnuo / 12', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+      fasdac: true,
+    });
+
+    expect(result.fasdac).not.toBeNull();
+    expect(result.fasdac!.contributoMensile).toBeCloseTo(CONTRIBUTO_FASDAC_2026 / 12, 2);
+  });
+
+  it("NON deve ridurre l'imponibile IRPEF (stessa IRPEF con/senza FASDAC)", () => {
+    const resultSenza = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+    });
+
+    const resultCon = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+      fasdac: true,
+    });
+
+    expect(resultCon.irpef.imponibileIrpef).toBeCloseTo(resultSenza.irpef.imponibileIrpef, 2);
+  });
+
+  it('deve ridurre il netto esattamente di €859,08', () => {
+    const resultSenza = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+    });
+
+    const resultCon = calc.calcolaStipendioNetto({
+      ral: 80_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+      fasdac: true,
+    });
+
+    const differenzaNetto = resultSenza.nettoAnnuo - resultCon.nettoAnnuo;
+    expect(differenzaNetto).toBeCloseTo(CONTRIBUTO_FASDAC_2026, 2);
   });
 });
 
@@ -2266,6 +2359,7 @@ describe('Property-based (fuzzy) tests', () => {
         const useFondoNegri = rng() > 0.7;
         const useFondoPastore = rng() > 0.7;
         const useCfmt = rng() > 0.7;
+        const useFasdac = rng() > 0.7;
         const useFondoPensione = rng() > 0.7;
 
         const result = calc.calcolaStipendioNetto({
@@ -2274,6 +2368,7 @@ describe('Property-based (fuzzy) tests', () => {
           fondoMarioNegri: useFondoNegri,
           fondoPastore: useFondoPastore,
           cfmt: useCfmt,
+          fasdac: useFasdac,
           ...(useFondoPensione && {
             fondoPensioneIntegrativo: {
               contributoLavoratore: 2,
@@ -2287,6 +2382,7 @@ describe('Property-based (fuzzy) tests', () => {
           ? result.fondoPastore.contributoAnnuo
           : 0;
         const cfmtContributo = result.cfmt ? result.cfmt.contributoAnnuo : 0;
+        const fasdacContributo = result.fasdac ? result.fasdac.contributoAnnuo : 0;
         const fondoPensioneContributo = result.fondoPensioneIntegrativo
           ? result.fondoPensioneIntegrativo.contributoLavoratoreAnnuo
           : 0;
@@ -2298,6 +2394,7 @@ describe('Property-based (fuzzy) tests', () => {
           fondoNegriContributo +
           fondoPastoreContributo +
           cfmtContributo +
+          fasdacContributo +
           fondoPensioneContributo;
 
         expect(result.totaleTrattenute).toBeCloseTo(expected, 2);
@@ -2306,7 +2403,7 @@ describe('Property-based (fuzzy) tests', () => {
   });
 
   describe('Features opzionali riducono il netto (30 scenari)', () => {
-    it('aggiungere Fondo Negri, Pastore, CFMT o Fondo Pensione non aumenta mai il netto', () => {
+    it('aggiungere Fondo Negri, Pastore, CFMT, FASDAC o Fondo Pensione non aumenta mai il netto', () => {
       for (let i = 0; i < 30; i++) {
         const ral = randomRal();
         const resultBase = calc.calcolaStipendioNetto({ ...baseInput, ral });
@@ -2331,6 +2428,13 @@ describe('Property-based (fuzzy) tests', () => {
           cfmt: true,
         });
         expect(resultCfmt.nettoAnnuo).toBeLessThan(resultBase.nettoAnnuo);
+
+        const resultFasdac = calc.calcolaStipendioNetto({
+          ...baseInput,
+          ral,
+          fasdac: true,
+        });
+        expect(resultFasdac.nettoAnnuo).toBeLessThan(resultBase.nettoAnnuo);
 
         const resultPensione = calc.calcolaStipendioNetto({
           ...baseInput,
