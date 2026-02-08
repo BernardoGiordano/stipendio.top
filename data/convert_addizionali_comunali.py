@@ -380,6 +380,7 @@ def write_ts(entries: dict[str, dict], output_path: Path) -> None:
         "// prettier-ignore-file",
         "import { AddizionaleComunale } from '../types';",
         "",
+        "export const ADDIZIONALE_DEFAULT = 0.008; // Default 0.8% when data is missing",
         "export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {",
     ]
 

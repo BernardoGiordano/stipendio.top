@@ -29,7 +29,7 @@ import {
 } from '../types';
 import { StipendioCalculator } from '../calculator';
 import { ADDIZIONALI_REGIONALI } from '../addizionali/2026.regionali';
-import { ADDIZIONALI_COMUNALI } from '../addizionali/2026.comunali';
+import { ADDIZIONALE_DEFAULT, ADDIZIONALI_COMUNALI } from '../addizionali/2026.comunali';
 
 /** Scaglioni IRPEF 2026 (aliquota intermedia ridotta) */
 const IRPEF_SCAGLIONI = [
@@ -842,7 +842,12 @@ function calcolaAddizionaleComunale(
   imponibile: number,
   comune: string,
 ): { addizionale: number; aliquota: number; esenzioneApplicata: boolean } {
-  const config = ADDIZIONALI_COMUNALI[comune.toUpperCase()] ?? ADDIZIONALI_COMUNALI['DEFAULT'];
+  const config = ADDIZIONALI_COMUNALI[comune.toUpperCase()];
+
+  if (config == null) {
+    const addizionale = imponibile * ADDIZIONALE_DEFAULT;
+    return { addizionale, aliquota: ADDIZIONALE_DEFAULT, esenzioneApplicata: false };
+  }
 
   if (config.esenzione && imponibile <= config.esenzione) {
     const aliquotaDefault = 'aliquota' in config ? config.aliquota : config.scaglioni[0].aliquota;

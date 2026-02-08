@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  OnInit,
-  WritableSignal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { NgSelectComponent } from '@ng-select/ng-select';
@@ -23,14 +16,19 @@ import {
 } from '../../../calculator/addizionali/2026.regionali';
 import { ADDIZIONALI_COMUNALI } from '../../../calculator/addizionali/2026.comunali';
 
+const ALTRO_OPTION = { value: 'DEFAULT', label: 'Non specificato' } as const;
+
 const COMUNI_PER_REGIONE: Record<string, { value: string; label: string }[]> = {};
 for (const [key, entry] of Object.entries(ADDIZIONALI_COMUNALI)) {
   const regione = entry.regione;
   (COMUNI_PER_REGIONE[regione] ??= []).push({ value: key, label: entry.nome });
 }
-for (const comuni of Object.values(COMUNI_PER_REGIONE)) {
+for (const [regione, comuni] of Object.entries(COMUNI_PER_REGIONE)) {
   comuni.sort((a, b) => a.label.localeCompare(b.label, 'it'));
+  COMUNI_PER_REGIONE[regione] = [ALTRO_OPTION, ...comuni];
 }
+
+const FALLBACK_COMUNI = [ALTRO_OPTION];
 
 @Component({
   selector: 'app-form-container',
@@ -38,7 +36,7 @@ for (const comuni of Object.values(COMUNI_PER_REGIONE)) {
   templateUrl: './form-container.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FormContainer implements OnInit {
+export class FormContainer {
   readonly stipendioForm = input.required<StipendioFieldTree>();
   readonly formModel = input.required<WritableSignal<StipendioFormModel>>();
 
@@ -49,9 +47,10 @@ export class FormContainer implements OnInit {
     .map((r) => ({ value: r, label: REGIONE_LABELS[r] ?? r }))
     .sort((a, b) => a.label.localeCompare(b.label, 'it'));
 
+  private readonly selectedRegione = computed(() => this.formModel()().regione);
+
   readonly comuniFiltrati = computed(() => {
-    const regione = this.formModel()().regione;
-    return COMUNI_PER_REGIONE[regione] ?? [];
+    return COMUNI_PER_REGIONE[this.selectedRegione()] ?? FALLBACK_COMUNI;
   });
 
   readonly tipiContratto: { value: TipoContratto; label: string }[] = [
@@ -80,18 +79,8 @@ export class FormContainer implements OnInit {
     { value: 'altro', label: 'Altro (benzina, diesel, GPL, metano)' },
   ];
 
-  ngOnInit(): void {
-    const model = this.formModel()();
-    if (!model.comune) {
-      const comuni = COMUNI_PER_REGIONE[model.regione] ?? [];
-      this.formModel().update((m) => ({ ...m, comune: comuni[0]?.value ?? '' }));
-    }
-  }
-
   onRegioneChange(): void {
-    const regione = this.formModel()().regione;
-    const comuni = COMUNI_PER_REGIONE[regione] ?? [];
-    this.formModel().update((m) => ({ ...m, comune: comuni[0]?.value ?? '' }));
+    this.formModel().update((m) => ({ ...m, comune: 'DEFAULT' }));
   }
 
   onComuneChange(value: string): void {

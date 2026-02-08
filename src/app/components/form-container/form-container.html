@@ -144,7 +144,7 @@
 
       <div class="flex flex-col gap-1">
         <label for="comune" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
-          >Comune *<app-info-tooltip
+          >Comune<app-info-tooltip
             tooltipId="comune-info"
             text="Determina l'addizionale comunale IRPEF (0-0,8%). Alcuni comuni prevedono esenzioni per redditi bassi."
           />
@@ -160,19 +160,8 @@
           [clearable]="false"
           notFoundText="Nessun comune trovato"
           placeholder="Cerca un comune..."
-          aria-required="true"
           labelForId="comune"
         ></ng-select>
-        @if (form.comune().invalid()) {
-          @for (error of form.comune().errors(); track error.kind) {
-            <span
-              id="comune-error"
-              class="text-xs text-red-600 mt-1 dark:text-red-400"
-              role="alert"
-              >{{ error.message }}</span
-            >
-          }
-        }
       </div>
     </div>
   </fieldset>

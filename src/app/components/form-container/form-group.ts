@@ -219,7 +219,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     tipoContratto: 'indeterminato',
     annoFiscale: String(currentYear),
     regione: 'AB',
-    comune: '',
+    comune: 'DEFAULT',
     giorniLavorati: 365,
     aziendaConCigs: false,
     iscrittoPost1996: true,
@@ -354,9 +354,6 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
 
   required(path.regione, { message: 'Regione obbligatoria' });
   minLength(path.regione, 2, { message: 'Codice regione non valido' });
-
-  required(path.comune, { message: 'Comune obbligatorio' });
-  minLength(path.comune, 2, { message: 'Codice comune non valido' });
 
   // Optional fields with range validation
   validate(path.giorniLavorati, ({ value }) => {

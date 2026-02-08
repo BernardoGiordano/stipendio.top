@@ -1,6 +1,7 @@
 // prettier-ignore-file
 import { AddizionaleComunale } from '../types';
 
+export const ADDIZIONALE_DEFAULT = 0.008; // Default 0.8% when data is missing
 export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   A001: { nome: 'Abano Terme', pr: 'PD', regione: 'VE', aliquota: 0.008, esenzione: 12_000 },
   A004: { nome: 'Abbadia Cerreto', pr: 'LO', regione: 'LO', aliquota: 0.007, esenzione: 10_000 },
