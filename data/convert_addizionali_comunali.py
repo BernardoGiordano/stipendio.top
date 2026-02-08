@@ -6,8 +6,8 @@ Converts the MEF "Addizionale Comunale IRPEF" CSV into a TypeScript file
 matching the `AddizionaleComunale` type, keyed by CODICE_CATASTALE.
 
 Output format (TypeScript):
-  { nome: string; pr: string; regione: string; aliquota: number; esenzione?: number }
-  | { nome: string; pr: string; regione: string; scaglioni: Array<{ limite: number; aliquota: number }>; esenzione?: number }
+  { n: string; p: string; r: string; aliquota: number; e?: number }
+  | { n: string; p: string; r: string; scaglioni: Array<{ limite: number; aliquota: number }>; e?: number }
 
 Usage:
   # Generate a new .ts from a CSV:
@@ -285,15 +285,15 @@ def parse_row(row: dict) -> tuple[str, dict] | None:
         # Sort by limite (None = Infinity goes last)
         scaglioni.sort(key=lambda s: s["limite"] if s["limite"] is not None else float("inf"))
 
-        result = {"nome": nome, "pr": pr, "regione": regione, "scaglioni": scaglioni}
+        result = {"n": nome, "p": pr, "r": regione, "scaglioni": scaglioni}
         if esenzione is not None:
-            result["esenzione"] = esenzione
+            result["e"] = esenzione
         return codice, result
     else:
         rate = bracket_pairs[0][0]
-        result = {"nome": nome, "pr": pr, "regione": regione, "aliquota": rate}
+        result = {"n": nome, "p": pr, "r": regione, "aliquota": rate}
         if esenzione is not None:
-            result["esenzione"] = esenzione
+            result["e"] = esenzione
         return codice, result
 
 
@@ -350,10 +350,10 @@ def format_ts_number(value: float) -> str:
 
 def entry_to_ts(entry: dict) -> str:
     """Convert a single entry dict to a TypeScript object literal string."""
-    nome = entry["nome"].replace("'", "\\'")
-    pr = entry.get("pr", "")
-    regione = entry.get("regione", "")
-    parts = [f"nome: '{nome}'", f"pr: '{pr}'", f"regione: '{regione}'"]
+    nome = entry["n"].replace("'", "\\'")
+    pr = entry.get("p", "")
+    regione = entry.get("r", "")
+    parts = [f"n: '{nome}'", f"p: '{pr}'", f"r: '{regione}'"]
 
     if "scaglioni" in entry:
         scaglioni_strs = []
@@ -368,8 +368,8 @@ def entry_to_ts(entry: dict) -> str:
     else:
         parts.append(f"aliquota: {format_ts_number(entry['aliquota'])}")
 
-    if "esenzione" in entry:
-        parts.append(f"esenzione: {format_ts_number(entry['esenzione'])}")
+    if "e" in entry:
+        parts.append(f"e: {format_ts_number(entry['e'])}")
 
     return "{ " + ", ".join(parts) + " }"
 

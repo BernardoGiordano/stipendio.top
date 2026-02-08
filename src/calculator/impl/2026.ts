@@ -913,7 +913,7 @@ function calcolaAddizionaleComunale(
     return { addizionale, aliquota: ADDIZIONALE_DEFAULT, esenzioneApplicata: false };
   }
 
-  if (config.esenzione && imponibile <= config.esenzione) {
+  if (config.e && imponibile <= config.e) {
     const aliquotaDefault = 'aliquota' in config ? config.aliquota : config.scaglioni[0].aliquota;
     return { addizionale: 0, aliquota: aliquotaDefault, esenzioneApplicata: true };
   }
