@@ -1185,3 +1185,1195 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
     expect(result.fondoPensioneIntegrativo!.contributoEbitempAnnuo).toBe(0);
   });
 });
+
+// ============================================================================
+// CONTRIBUTI INPS
+// ============================================================================
+
+describe('Contributi INPS', () => {
+  it('indeterminato senza CIGS: aliquota 9.19%', () => {
+    const result = calc.calcolaStipendioNetto(baseInput);
+    expect(result.contributiInps.aliquotaApplicata).toBe(0.0919);
+    expect(result.contributiInps.contributiBase).toBeCloseTo(25_000 * 0.0919, 2);
+    expect(result.contributiInps.contributoAggiuntivo).toBe(0);
+    expect(result.contributiInps.totaleContributi).toBeCloseTo(25_000 * 0.0919, 2);
+  });
+
+  it('apprendistato: aliquota 5.84%', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      tipoContratto: 'apprendistato',
+    });
+    expect(result.contributiInps.aliquotaApplicata).toBe(0.0584);
+    expect(result.contributiInps.contributiBase).toBeCloseTo(25_000 * 0.0584, 2);
+  });
+
+  it('indeterminato con CIGS: aliquota 9.49%', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      aziendaConCigs: true,
+    });
+    expect(result.contributiInps.aliquotaApplicata).toBe(0.0949);
+    expect(result.contributiInps.contributiBase).toBeCloseTo(25_000 * 0.0949, 2);
+  });
+
+  it('contributo aggiuntivo 1% per imponibile > €55.448', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 60_000,
+    });
+    expect(result.contributiInps.contributoAggiuntivo).toBeCloseTo((60_000 - 55_448) * 0.01, 2);
+    expect(result.contributiInps.totaleContributi).toBeCloseTo(
+      60_000 * 0.0919 + (60_000 - 55_448) * 0.01,
+      2,
+    );
+  });
+
+  it('nessun contributo aggiuntivo per imponibile ≤ €55.448', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 55_000,
+    });
+    expect(result.contributiInps.contributoAggiuntivo).toBe(0);
+  });
+
+  it('massimale INPS post-1996: imponibile capped a €120.607', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 150_000,
+      iscrittoPost1996: true,
+    });
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(120_607);
+    expect(result.contributiInps.contributiBase).toBeCloseTo(120_607 * 0.0919, 2);
+  });
+
+  it('pre-1996: nessun massimale', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 150_000,
+      iscrittoPost1996: false,
+    });
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(150_000);
+    expect(result.contributiInps.contributiBase).toBeCloseTo(150_000 * 0.0919, 2);
+  });
+
+  it("l'imponibile previdenziale include fringe benefit sopra soglia", () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fringeBenefit: { buoniAcquisto: 1500 },
+    });
+    // buoniAcquisto 1500 > soglia 1000 → tassabile → imponibile = RAL + 1500
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(25_000 + 1_500);
+  });
+});
+
+// ============================================================================
+// IRPEF SCAGLIONI
+// ============================================================================
+
+describe('IRPEF scaglioni', () => {
+  it('reddito nel solo primo scaglione (≤28k): solo aliquota 23%', () => {
+    const result = calc.calcolaStipendioNetto(baseInput); // RAL 25k → reddito ~22.7k
+    expect(result.irpef.dettaglioScaglioni.length).toBe(1);
+    expect(result.irpef.dettaglioScaglioni[0].aliquota).toBe(0.23);
+  });
+
+  it('reddito che attraversa due scaglioni (28k-50k): 23% + 33%', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+    });
+    expect(result.irpef.dettaglioScaglioni.length).toBe(2);
+    expect(result.irpef.dettaglioScaglioni[0].aliquota).toBe(0.23);
+    expect(result.irpef.dettaglioScaglioni[0].imponibileScaglione).toBe(28_000);
+    expect(result.irpef.dettaglioScaglioni[1].aliquota).toBe(0.33);
+  });
+
+  it('reddito che attraversa tutti e tre gli scaglioni (>50k): 23% + 33% + 43%', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 80_000,
+    });
+    expect(result.irpef.dettaglioScaglioni.length).toBe(3);
+    expect(result.irpef.dettaglioScaglioni[0].imponibileScaglione).toBe(28_000);
+    expect(result.irpef.dettaglioScaglioni[1].imponibileScaglione).toBe(22_000);
+    expect(result.irpef.dettaglioScaglioni[2].aliquota).toBe(0.43);
+  });
+
+  it('irpefLorda = somma di tutte le imposte degli scaglioni', () => {
+    for (const ral of [15_000, 25_000, 40_000, 60_000, 80_000, 120_000]) {
+      const result = calc.calcolaStipendioNetto({ ...baseInput, ral });
+      const somma = result.irpef.dettaglioScaglioni.reduce((acc, s) => acc + s.impostaScaglione, 0);
+      expect(result.irpef.irpefLorda).toBeCloseTo(somma, 2);
+    }
+  });
+
+  it("l'imponibile IRPEF è RAL meno contributi INPS (caso base)", () => {
+    const result = calc.calcolaStipendioNetto(baseInput);
+    expect(result.irpef.imponibileIrpef).toBeCloseTo(
+      baseInput.ral - result.contributiInps.totaleContributi,
+      2,
+    );
+  });
+});
+
+// ============================================================================
+// DETRAZIONI LAVORO DIPENDENTE
+// ============================================================================
+
+describe('Detrazioni lavoro dipendente', () => {
+  it('reddito ≤ 15k: detrazione fissa €1.955 (indeterminato)', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 15_000,
+    });
+    expect(result.detrazioniLavoro.detrazioneTeorica).toBe(1_955);
+  });
+
+  it('reddito ≤ 15k, determinato: minimo €1.380', () => {
+    // Con RAL molto bassa, la detrazione potrebbe scendere, ma il minimo è €1.380
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 5_000,
+      tipoContratto: 'determinato',
+    });
+    expect(result.detrazioniLavoro.detrazioneTeorica).toBeGreaterThanOrEqual(1_380);
+  });
+
+  it('reddito ≤ 15k, indeterminato: minimo €690', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 5_000,
+      tipoContratto: 'indeterminato',
+    });
+    expect(result.detrazioniLavoro.detrazioneTeorica).toBeGreaterThanOrEqual(690);
+  });
+
+  it('reddito 15k-28k: formula con coefficiente', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 25_000, // reddito ~22.7k → nella fascia 15k-28k
+    });
+    // Detrazione: 1910 + 1190 * (28000 - reddito) / 13000
+    const reddito = result.irpef.imponibileIrpef;
+    const attesa = 1_910 + 1_190 * ((28_000 - reddito) / 13_000);
+    expect(result.detrazioniLavoro.detrazioneTeorica).toBeCloseTo(attesa, 2);
+  });
+
+  it('reddito 28k-50k: formula decrescente', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000, // reddito ~36.3k
+    });
+    const reddito = result.irpef.imponibileIrpef;
+    const attesa = 1_910 * ((50_000 - reddito) / 22_000);
+    expect(result.detrazioniLavoro.detrazioneTeorica).toBeCloseTo(attesa, 2);
+  });
+
+  it('reddito > 50k: detrazione zero', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 80_000, // reddito ~72.4k
+    });
+    expect(result.detrazioniLavoro.detrazioneTeorica).toBe(0);
+  });
+
+  it('maggiorazione €65 per redditi 25k-35k', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 35_000, // reddito ~31.8k → tra 25k e 35k
+    });
+    expect(result.detrazioniLavoro.maggiorazione).toBe(65);
+  });
+
+  it('nessuna maggiorazione per redditi < 25k', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 25_000, // reddito ~22.7k < 25k
+    });
+    expect(result.detrazioniLavoro.maggiorazione).toBe(0);
+  });
+
+  it('nessuna maggiorazione per redditi > 35k', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 50_000, // reddito ~45.4k > 35k
+    });
+    expect(result.detrazioniLavoro.maggiorazione).toBe(0);
+  });
+
+  it('giorniLavorati < 365: detrazione ridotta proporzionalmente', () => {
+    const resultFull = calc.calcolaStipendioNetto(baseInput);
+    const resultPartial = calc.calcolaStipendioNetto({
+      ...baseInput,
+      giorniLavorati: 200,
+    });
+    expect(resultPartial.detrazioniLavoro.coefficienteGiorni).toBeCloseTo(200 / 365, 4);
+    expect(resultPartial.detrazioniLavoro.detrazioneEffettiva).toBeCloseTo(
+      resultFull.detrazioniLavoro.detrazioneEffettiva * (200 / 365),
+      2,
+    );
+  });
+});
+
+// ============================================================================
+// DETRAZIONI CARICHI FAMILIARI
+// ============================================================================
+
+describe('Detrazioni carichi familiari', () => {
+  describe('Coniuge a carico', () => {
+    it('coniuge con reddito > €2.840,51: nessuna detrazione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        coniuge: { redditoAnnuo: 3_000 },
+      });
+      expect(result.detrazioniFamiliari.detrazioneConiuge).toBe(0);
+    });
+
+    it('coniuge con reddito ≤ €2.840,51 e reddito complessivo ≤ 15k: formula fascia 1', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 15_000,
+        coniuge: { redditoAnnuo: 0 },
+      });
+      expect(result.detrazioniFamiliari.detrazioneConiuge).toBeGreaterThan(0);
+      // Fascia 1: 800 - 110 * (reddito / 15000)
+      const reddito = result.irpef.imponibileIrpef;
+      const attesa = 800 - 110 * (reddito / 15_000);
+      expect(result.detrazioniFamiliari.detrazioneConiuge).toBeCloseTo(attesa, 0);
+    });
+
+    it('coniuge con reddito complessivo 15k-40k: importo fisso €690 + eventuali maggiorazioni', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        coniuge: { redditoAnnuo: 0 },
+      });
+      // Fascia 2: 690 fisso (reddito ~27.2k → nessuna maggiorazione)
+      expect(result.detrazioniFamiliari.detrazioneConiuge).toBe(690);
+    });
+
+    it('coniuge con maggiorazione (reddito 29.2k-34.7k → +€20)', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 35_000, // reddito ~31.8k → nella fascia 29.2k-34.7k
+        coniuge: { redditoAnnuo: 0 },
+      });
+      expect(result.detrazioniFamiliari.detrazioneConiuge).toBe(710);
+    });
+
+    it('coniuge con reddito complessivo 40k-80k: formula decrescente', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 55_000,
+        coniuge: { redditoAnnuo: 0 },
+      });
+      const reddito = result.irpef.imponibileIrpef;
+      const attesa = 690 * ((80_000 - reddito) / 40_000);
+      expect(result.detrazioniFamiliari.detrazioneConiuge).toBeCloseTo(attesa, 0);
+    });
+
+    it('coniuge con reddito complessivo > 80k: zero', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 100_000,
+        coniuge: { redditoAnnuo: 0 },
+      });
+      expect(result.detrazioniFamiliari.detrazioneConiuge).toBe(0);
+    });
+
+    it('coniuge con percentualeCarico 50%: detrazione dimezzata', () => {
+      const result100 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        coniuge: { redditoAnnuo: 0, percentualeCarico: 100 },
+      });
+      const result50 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        coniuge: { redditoAnnuo: 0, percentualeCarico: 50 },
+      });
+      expect(result50.detrazioniFamiliari.detrazioneConiuge).toBeCloseTo(
+        result100.detrazioniFamiliari.detrazioneConiuge / 2,
+        2,
+      );
+    });
+  });
+
+  describe('Figli a carico', () => {
+    it('figlio età 25 (21-29): ha diritto alla detrazione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 25, disabile: false }],
+      });
+      expect(result.detrazioniFamiliari.numeroFigliConDetrazione).toBe(1);
+      expect(result.detrazioniFamiliari.detrazioneFigli).toBeGreaterThan(0);
+    });
+
+    it('figlio età 20 (<21, non disabile): NON ha diritto alla detrazione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 20, disabile: false }],
+      });
+      expect(result.detrazioniFamiliari.numeroFigliConDetrazione).toBe(0);
+      expect(result.detrazioniFamiliari.detrazioneFigli).toBe(0);
+    });
+
+    it('figlio età 31 (≥30, non disabile): NON ha diritto alla detrazione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 31, disabile: false }],
+      });
+      expect(result.detrazioniFamiliari.numeroFigliConDetrazione).toBe(0);
+    });
+
+    it('figlio disabile di qualsiasi età: ha diritto alla detrazione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 15, disabile: true }],
+      });
+      expect(result.detrazioniFamiliari.numeroFigliConDetrazione).toBe(1);
+      expect(result.detrazioniFamiliari.detrazioneFigli).toBeGreaterThan(0);
+    });
+
+    it('figlio con reddito troppo alto: nessuna detrazione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 25, disabile: false, redditoAnnuo: 5_000 }],
+      });
+      expect(result.detrazioniFamiliari.numeroFigliConDetrazione).toBe(0);
+    });
+
+    it('figlio ≤ 24 anni: limite reddito più alto (€4.000)', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 22, disabile: false, redditoAnnuo: 3_500 }],
+      });
+      // 3500 ≤ 4000 (limite giovani) → a carico, età 22 (21 ≤ 22 < 30) → detrazione
+      expect(result.detrazioniFamiliari.numeroFigliConDetrazione).toBe(1);
+    });
+
+    it('figlio con percentualeCarico 50%: detrazione dimezzata', () => {
+      const result100 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 25, disabile: false }],
+      });
+      const result50 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 25, disabile: false, percentualeCarico: 50 }],
+      });
+      expect(result50.detrazioniFamiliari.detrazioneFigli).toBeCloseTo(
+        result100.detrazioniFamiliari.detrazioneFigli / 2,
+        2,
+      );
+    });
+
+    it('più figli: coefficienteBase aumenta di €15.000 per figlio', () => {
+      const result1 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 25, disabile: false }],
+      });
+      const result2 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [
+          { eta: 25, disabile: false },
+          { eta: 27, disabile: false },
+        ],
+      });
+      expect(result2.detrazioniFamiliari.numeroFigliConDetrazione).toBe(2);
+      expect(result2.detrazioniFamiliari.detrazioneFigli).toBeGreaterThan(
+        result1.detrazioniFamiliari.detrazioneFigli,
+      );
+    });
+  });
+
+  describe('Ascendenti a carico', () => {
+    it('ascendente convivente con reddito ≤ €2.840,51: ha diritto alla detrazione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        ascendenti: [{ redditoAnnuo: 2_000, convivente: true }],
+      });
+      expect(result.detrazioniFamiliari.numeroAscendentiConDetrazione).toBe(1);
+      expect(result.detrazioniFamiliari.detrazioneAscendenti).toBeGreaterThan(0);
+    });
+
+    it('ascendente NON convivente: nessuna detrazione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        ascendenti: [{ redditoAnnuo: 2_000, convivente: false }],
+      });
+      expect(result.detrazioniFamiliari.numeroAscendentiConDetrazione).toBe(0);
+      expect(result.detrazioniFamiliari.detrazioneAscendenti).toBe(0);
+    });
+
+    it('ascendente con reddito > €2.840,51: nessuna detrazione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        ascendenti: [{ redditoAnnuo: 3_000, convivente: true }],
+      });
+      expect(result.detrazioniFamiliari.numeroAscendentiConDetrazione).toBe(0);
+    });
+  });
+
+  it('senza carichi familiari: tutte le detrazioni familiari sono zero', () => {
+    const result = calc.calcolaStipendioNetto(baseInput);
+    expect(result.detrazioniFamiliari.detrazioneConiuge).toBe(0);
+    expect(result.detrazioniFamiliari.detrazioneFigli).toBe(0);
+    expect(result.detrazioniFamiliari.detrazioneAscendenti).toBe(0);
+    expect(result.detrazioniFamiliari.totaleDetrazioniFamiliari).toBe(0);
+  });
+
+  it('totaleDetrazioniFamiliari = coniuge + figli + ascendenti', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+      coniuge: { redditoAnnuo: 0 },
+      figli: [{ eta: 25, disabile: false }],
+      ascendenti: [{ redditoAnnuo: 1_000, convivente: true }],
+    });
+    expect(result.detrazioniFamiliari.totaleDetrazioniFamiliari).toBeCloseTo(
+      result.detrazioniFamiliari.detrazioneConiuge +
+        result.detrazioniFamiliari.detrazioneFigli +
+        result.detrazioniFamiliari.detrazioneAscendenti,
+      2,
+    );
+  });
+});
+
+// ============================================================================
+// CUNEO FISCALE
+// ============================================================================
+
+describe('Cuneo fiscale', () => {
+  it('reddito complessivo ≤ 8.500: indennità esente 7.1%', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 7_000, // reddito ~6.4k
+    });
+    expect(result.cuneoFiscale.spettaIndennita).toBe(true);
+    expect(result.cuneoFiscale.spettaDetrazione).toBe(false);
+    expect(result.cuneoFiscale.percentualeIndennita).toBe(0.071);
+    expect(result.cuneoFiscale.indennitaEsente).toBeGreaterThan(0);
+  });
+
+  it('reddito complessivo 8.500-15.000: indennità esente 5.3%', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 12_000, // reddito ~10.9k
+    });
+    expect(result.cuneoFiscale.spettaIndennita).toBe(true);
+    expect(result.cuneoFiscale.percentualeIndennita).toBe(0.053);
+  });
+
+  it('reddito complessivo 15.000-20.000: indennità esente 4.8%', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 18_000, // reddito ~16.3k
+    });
+    expect(result.cuneoFiscale.spettaIndennita).toBe(true);
+    expect(result.cuneoFiscale.percentualeIndennita).toBe(0.048);
+  });
+
+  it('reddito complessivo 20.000-32.000: detrazione €1.000', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000, // reddito ~27.2k
+    });
+    expect(result.cuneoFiscale.spettaIndennita).toBe(false);
+    expect(result.cuneoFiscale.spettaDetrazione).toBe(true);
+    expect(result.cuneoFiscale.detrazioneAggiuntiva).toBe(1_000);
+  });
+
+  it('reddito complessivo 32.000-40.000: detrazione in decalage', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 38_000, // reddito ~34.5k
+    });
+    expect(result.cuneoFiscale.spettaDetrazione).toBe(true);
+    const reddito = result.irpef.imponibileIrpef;
+    const attesa = 1_000 * ((40_000 - reddito) / 8_000);
+    expect(result.cuneoFiscale.detrazioneAggiuntiva).toBeCloseTo(attesa, 0);
+    expect(result.cuneoFiscale.detrazioneAggiuntiva).toBeLessThan(1_000);
+  });
+
+  it('reddito complessivo > 40.000: né indennità né detrazione', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 50_000,
+    });
+    expect(result.cuneoFiscale.spettaIndennita).toBe(false);
+    expect(result.cuneoFiscale.spettaDetrazione).toBe(false);
+    expect(result.cuneoFiscale.indennitaEsente).toBe(0);
+    expect(result.cuneoFiscale.detrazioneAggiuntiva).toBe(0);
+  });
+});
+
+// ============================================================================
+// TRATTAMENTO INTEGRATIVO
+// ============================================================================
+
+describe('Trattamento integrativo', () => {
+  it('reddito ≤ 15k con IRPEF sufficiente (capienza): spetta €1.200 pieno', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 12_000, // reddito ~10.9k → IRPEF lorda ~2.5k > soglia capienza
+    });
+    expect(result.trattamentoIntegrativo.spetta).toBe(true);
+    expect(result.trattamentoIntegrativo.importo).toBe(1_200);
+    expect(result.trattamentoIntegrativo.importoPieno).toBe(true);
+  });
+
+  it('reddito ≤ 15k con IRPEF insufficiente (no capienza): non spetta', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 5_000, // reddito ~4.5k → IRPEF lorda ~1.0k < detrazioneLavoro - 75
+    });
+    expect(result.trattamentoIntegrativo.spetta).toBe(false);
+  });
+
+  it('reddito > 28k: non spetta', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+    });
+    expect(result.trattamentoIntegrativo.spetta).toBe(false);
+    expect(result.trattamentoIntegrativo.importo).toBe(0);
+  });
+
+  it('reddito 15k-28k con detrazioni > IRPEF: spetta parziale', () => {
+    // Per avere detrazioni > IRPEF in questa fascia servono altreDetrazioni
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 20_000,
+      altreDetrazioni: 5_000,
+    });
+    const reddito = result.irpef.imponibileIrpef;
+    if (reddito > 15_000 && reddito <= 28_000) {
+      if (result.trattamentoIntegrativo.spetta) {
+        expect(result.trattamentoIntegrativo.importo).toBeLessThanOrEqual(1_200);
+      }
+    }
+  });
+});
+
+// ============================================================================
+// ADDIZIONALI
+// ============================================================================
+
+describe('Addizionali', () => {
+  it('addizionale regionale Lombardia: calcolo per scaglioni progressivi', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000, // reddito ~36.3k → attraversa 3 scaglioni LO
+    });
+    const reddito = result.irpef.imponibileIrpef;
+    // Lombardia: ≤15k @ 1.23%, 15k-28k @ 1.58%, 28k-50k @ 1.72%
+    const attesa =
+      15_000 * 0.0123 +
+      (Math.min(reddito, 28_000) - 15_000) * 0.0158 +
+      Math.max(0, reddito - 28_000) * 0.0172;
+    expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 0);
+    expect(result.addizionali.addizionaleRegionale).toBeGreaterThan(0);
+  });
+
+  it('addizionale comunale Milano (F205): aliquota fissa 0.8%', () => {
+    // Milano ha esenzione 23k, con reddito sopra soglia → aliquota 0.8%
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+    });
+    const reddito = result.irpef.imponibileIrpef;
+    expect(result.addizionali.addizionaleComunale).toBeCloseTo(reddito * 0.008, 0);
+    expect(result.addizionali.aliquotaComunale).toBe(0.008);
+  });
+
+  it('addizionale comunale con esenzione: reddito sotto soglia → zero', () => {
+    // Milano: esenzione 23k → con RAL bassa il reddito è sotto 23k
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 20_000, // reddito ~18.2k < 23k
+    });
+    expect(result.addizionali.addizionaleComunale).toBe(0);
+    expect(result.addizionali.esenzioneComunaleApplicata).toBe(true);
+  });
+
+  it('comune sconosciuto: fallback a aliquota default 0.8%', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      comune: 'ZZZZ',
+      ral: 40_000,
+    });
+    const reddito = result.irpef.imponibileIrpef;
+    expect(result.addizionali.addizionaleComunale).toBeCloseTo(reddito * 0.008, 0);
+  });
+
+  it('comune con scaglioni progressivi: calcolo corretto', () => {
+    // A005 = Abbadia Lariana: scaglioni [28k@0.76%, 50k@0.77%, ∞@0.80%], esenzione 15k
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      comune: 'A005',
+      ral: 40_000,
+    });
+    const reddito = result.irpef.imponibileIrpef;
+    // reddito ~36.3k > 15k esenzione → non esente
+    expect(result.addizionali.esenzioneComunaleApplicata).toBe(false);
+    const attesa = 28_000 * 0.0076 + Math.min(reddito - 28_000, 22_000) * 0.0077;
+    expect(result.addizionali.addizionaleComunale).toBeCloseTo(attesa, 0);
+  });
+
+  it('totaleAddizionali = regionale + comunale', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+    });
+    expect(result.addizionali.totaleAddizionali).toBeCloseTo(
+      result.addizionali.addizionaleRegionale + result.addizionali.addizionaleComunale,
+      2,
+    );
+  });
+});
+
+// ============================================================================
+// RIMBORSI TRASFERTA
+// ============================================================================
+
+describe('Rimborsi trasferta', () => {
+  it('senza rimborsi: tutto a zero', () => {
+    const result = calc.calcolaStipendioNetto(baseInput);
+    expect(result.rimborsiTrasferta.totaleRimborsi).toBe(0);
+  });
+
+  it('forfettario: €46.48/giorno Italia + €77.47/giorno estero', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        giorniTrasfertaItalia: 10,
+        giorniTrasfertaEstero: 5,
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(
+      10 * 46.48 + 5 * 77.47,
+      2,
+    );
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBe(0);
+  });
+
+  it('misto con solo vitto: riduzione 1/3 del forfettario', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        giorniTrasfertaItalia: 10,
+        rimborsoVitto: 500,
+      },
+    });
+    const atteso = 10 * 46.48 * (2 / 3);
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(atteso, 2);
+    expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(500, 2);
+  });
+
+  it('misto con vitto + alloggio: riduzione 2/3 del forfettario', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        giorniTrasfertaItalia: 10,
+        rimborsoVitto: 500,
+        rimborsoAlloggio: 300,
+      },
+    });
+    const atteso = 10 * 46.48 * (1 / 3);
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(atteso, 2);
+    expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(800, 2);
+  });
+
+  it('pagamenti non tracciabili: vitto e alloggio diventano tassati', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        giorniTrasfertaItalia: 10,
+        rimborsoVitto: 500,
+        rimborsoAlloggio: 300,
+        rimborsoViaggio: 200,
+        pagamentiTracciabili: false,
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(800, 2);
+    expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(200, 2);
+  });
+
+  it('totaleRimborsi = totaleEsente + rimborsiTassati', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        giorniTrasfertaItalia: 10,
+        rimborsoVitto: 500,
+        rimborsoViaggio: 200,
+        pagamentiTracciabili: false,
+      },
+    });
+    expect(result.rimborsiTrasferta.totaleRimborsi).toBeCloseTo(
+      result.rimborsiTrasferta.totaleEsente + result.rimborsiTrasferta.rimborsiTassati,
+      2,
+    );
+  });
+});
+
+// ============================================================================
+// BENEFIT NON TASSATI (Welfare aziendale)
+// ============================================================================
+
+describe('Benefit non tassati', () => {
+  it('senza benefit: tutto a zero', () => {
+    const result = calc.calcolaStipendioNetto(baseInput);
+    expect(result.benefitNonTassati.totaleEsente).toBe(0);
+    expect(result.benefitNonTassati.totaleTassato).toBe(0);
+  });
+
+  it('previdenza complementare sopra cap €5.300: eccedente tassato', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      benefitNonTassati: { previdenzaComplementare: 7_000 },
+    });
+    expect(result.benefitNonTassati.previdenzaComplementare).toBe(5_300);
+    expect(result.benefitNonTassati.totaleTassato).toBeCloseTo(1_700, 2);
+  });
+
+  it('previdenza complementare sotto cap: tutto esente', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      benefitNonTassati: { previdenzaComplementare: 3_000 },
+    });
+    expect(result.benefitNonTassati.previdenzaComplementare).toBe(3_000);
+    expect(result.benefitNonTassati.totaleTassato).toBe(0);
+  });
+
+  it('assistenza sanitaria sopra cap €3.615,20: eccedente tassato', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      benefitNonTassati: { assistenzaSanitaria: 5_000 },
+    });
+    expect(result.benefitNonTassati.assistenzaSanitaria).toBeCloseTo(3_615.2, 2);
+    expect(result.benefitNonTassati.totaleTassato).toBeCloseTo(1_384.8, 2);
+  });
+
+  it('buoni pasto elettronici: soglia €10/giorno × 220 giorni = €2.200', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      benefitNonTassati: { buoniPasto: 3_000, buoniPastoElettronici: true },
+    });
+    expect(result.benefitNonTassati.buoniPastoEsenti).toBe(2_200);
+    expect(result.benefitNonTassati.buoniPastoTassati).toBe(800);
+  });
+
+  it('buoni pasto cartacei: soglia €4/giorno × 220 giorni = €880', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      benefitNonTassati: { buoniPasto: 1_000, buoniPastoElettronici: false },
+    });
+    expect(result.benefitNonTassati.buoniPastoEsenti).toBe(880);
+    expect(result.benefitNonTassati.buoniPastoTassati).toBe(120);
+  });
+
+  it('welfare (abbonamento + servizi): tutto esente', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      benefitNonTassati: {
+        abbonamentoTrasporto: 500,
+        serviziWelfare: 1_000,
+        altri: 200,
+      },
+    });
+    expect(result.benefitNonTassati.altriWelfare).toBe(1_700);
+    expect(result.benefitNonTassati.totaleEsente).toBe(1_700);
+    expect(result.benefitNonTassati.totaleTassato).toBe(0);
+  });
+
+  it('totaleEsente + totaleTassato = tutti i benefit', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      benefitNonTassati: {
+        previdenzaComplementare: 7_000,
+        assistenzaSanitaria: 5_000,
+        buoniPasto: 3_000,
+        buoniPastoElettronici: true,
+        abbonamentoTrasporto: 500,
+      },
+    });
+    expect(result.benefitNonTassati.totaleEsente).toBeCloseTo(
+      result.benefitNonTassati.previdenzaComplementare +
+        result.benefitNonTassati.assistenzaSanitaria +
+        result.benefitNonTassati.buoniPastoEsenti +
+        result.benefitNonTassati.altriWelfare,
+      2,
+    );
+  });
+});
+
+// ============================================================================
+// FRINGE BENEFIT MONETARI (non auto)
+// ============================================================================
+
+describe('Fringe benefit monetari', () => {
+  it('buoni acquisto sotto soglia (€1000): esente, imponibile = 0', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fringeBenefit: { buoniAcquisto: 500 },
+    });
+    expect(result.fringeBenefit.sogliaSuperata).toBe(false);
+    expect(result.fringeBenefit.valoreImponibile).toBe(0);
+    expect(result.fringeBenefit.valoreEsente).toBe(500);
+  });
+
+  it('buoni acquisto sopra soglia: TUTTO tassabile', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fringeBenefit: { buoniAcquisto: 1_500 },
+    });
+    expect(result.fringeBenefit.sogliaSuperata).toBe(true);
+    expect(result.fringeBenefit.valoreImponibile).toBe(1_500);
+    expect(result.fringeBenefit.valoreEsente).toBe(0);
+  });
+
+  it('mix buoni + rimborso utenze: totale lordo cumulato per soglia', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fringeBenefit: {
+        buoniAcquisto: 600,
+        rimborsoUtenze: 500,
+      },
+    });
+    // 600 + 500 = 1100 > 1000 → tutto tassabile
+    expect(result.fringeBenefit.valoreTotaleLordo).toBe(1_100);
+    expect(result.fringeBenefit.sogliaSuperata).toBe(true);
+    expect(result.fringeBenefit.valoreImponibile).toBe(1_100);
+  });
+
+  it('auto + buoni combinati: valore totale cumulato per soglia', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fringeBenefit: {
+        buoniAcquisto: 200,
+        autoAziendale: {
+          costoKmAci: 0.1,
+          tipoAlimentazione: 'elettrico',
+          mesiUtilizzo: 12,
+        },
+      },
+    });
+    // Auto: 0.1 × 15000 × 0.10 = 150. Buoni: 200. Totale: 350 < 1000
+    expect(result.fringeBenefit.valoreTotaleLordo).toBeCloseTo(350, 0);
+    expect(result.fringeBenefit.sogliaSuperata).toBe(false);
+  });
+
+  it('valoreMonetarioImponibile esclude auto quando sopra soglia', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fringeBenefit: {
+        buoniAcquisto: 500,
+        autoAziendale: {
+          costoKmAci: 0.5,
+          tipoAlimentazione: 'altro',
+          mesiUtilizzo: 12,
+        },
+      },
+    });
+    // Auto: 0.5 × 15000 × 0.5 = 3750. Buoni: 500. Totale: 4250 > 1000
+    expect(result.fringeBenefit.sogliaSuperata).toBe(true);
+    expect(result.fringeBenefit.valoreMonetarioImponibile).toBe(500);
+    expect(result.fringeBenefit.valoreAutoImponibile).toBeCloseTo(3_750, 0);
+  });
+});
+
+// ============================================================================
+// 14 MENSILITA, ALTRI REDDITI, ALTRE DETRAZIONI
+// ============================================================================
+
+describe('14 mensilità, altriRedditi, altreDetrazioni', () => {
+  it('14 mensilità: nettoMensile = nettoAnnuo / 14', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      mensilita: 14,
+    });
+    expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / 14, 2);
+    expect(result.mensilita).toBe(14);
+  });
+
+  it('14 mensilità produce netto mensile inferiore a 13 mensilità', () => {
+    const result13 = calc.calcolaStipendioNetto({ ...baseInput, mensilita: 13 });
+    const result14 = calc.calcolaStipendioNetto({ ...baseInput, mensilita: 14 });
+    expect(result14.nettoMensile).toBeLessThan(result13.nettoMensile);
+    // Ma il netto annuo è lo stesso
+    expect(result14.nettoAnnuo).toBeCloseTo(result13.nettoAnnuo, 0);
+  });
+
+  it('altriRedditi aumentano il reddito complessivo e la tassazione', () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseInput);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseInput,
+      altriRedditi: 10_000,
+    });
+    // Più IRPEF, meno netto
+    expect(resultCon.irpef.irpefLorda).toBeGreaterThan(resultSenza.irpef.irpefLorda);
+    expect(resultCon.nettoAnnuo).toBeLessThan(resultSenza.nettoAnnuo);
+  });
+
+  it('altreDetrazioni riducono IRPEF netta', () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseInput);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseInput,
+      altreDetrazioni: 1_000,
+    });
+    expect(resultCon.irpefNetta).toBeLessThan(resultSenza.irpefNetta);
+    expect(resultCon.nettoAnnuo).toBeGreaterThan(resultSenza.nettoAnnuo);
+  });
+
+  it('riepilogoDetrazioni.totale include tutte le voci', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      coniuge: { redditoAnnuo: 0 },
+      altreDetrazioni: 500,
+    });
+    expect(result.riepilogoDetrazioni.totale).toBeCloseTo(
+      result.riepilogoDetrazioni.lavoroDipendente +
+        result.riepilogoDetrazioni.carichiFamiliari +
+        result.riepilogoDetrazioni.cuneoFiscale +
+        result.riepilogoDetrazioni.altre,
+      2,
+    );
+  });
+});
+
+// ============================================================================
+// TEST PROPERTY-BASED (FUZZY)
+// ============================================================================
+
+describe('Property-based (fuzzy) tests', () => {
+  // Pseudo-random seeded generator for reproducibility
+  function seededRandom(seed: number) {
+    let s = seed;
+    return () => {
+      s = (s * 16807 + 0) % 2147483647;
+      return s / 2147483647;
+    };
+  }
+
+  const rng = seededRandom(42);
+  const randomRal = () => Math.round(10_000 + rng() * 190_000); // 10k - 200k
+  const randomMensilita = () => (rng() > 0.5 ? 14 : 13);
+
+  describe('Invarianti base (100 RAL casuali)', () => {
+    const rals = Array.from({ length: 100 }, () => randomRal());
+
+    it('nettoAnnuo > 0 per qualsiasi RAL ≥ 10k', () => {
+      for (const ral of rals) {
+        const result = calc.calcolaStipendioNetto({ ...baseInput, ral });
+        expect(result.nettoAnnuo).toBeGreaterThan(0);
+      }
+    });
+
+    it('nettoAnnuo < RAL per redditi medi/alti (RAL ≥ 25k)', () => {
+      // Per RAL basse, il netto può superare la RAL grazie a trattamento integrativo + cuneo fiscale
+      for (const ral of rals.filter((r) => r >= 25_000)) {
+        const result = calc.calcolaStipendioNetto({ ...baseInput, ral });
+        expect(result.nettoAnnuo).toBeLessThan(ral);
+      }
+    });
+
+    it('nettoMensile = nettoAnnuo / mensilità (esattamente)', () => {
+      for (const ral of rals) {
+        const mensilita = randomMensilita();
+        const result = calc.calcolaStipendioNetto({ ...baseInput, ral, mensilita });
+        expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / mensilita, 6);
+      }
+    });
+
+    it('irpefLorda = somma esatta degli scaglioni', () => {
+      for (const ral of rals) {
+        const result = calc.calcolaStipendioNetto({ ...baseInput, ral });
+        const somma = result.irpef.dettaglioScaglioni.reduce(
+          (acc, s) => acc + s.impostaScaglione,
+          0,
+        );
+        expect(result.irpef.irpefLorda).toBeCloseTo(somma, 6);
+      }
+    });
+
+    it('irpefNetta ≥ 0 sempre', () => {
+      for (const ral of rals) {
+        const result = calc.calcolaStipendioNetto({ ...baseInput, ral });
+        expect(result.irpefNetta).toBeGreaterThanOrEqual(0);
+      }
+    });
+
+    it('irpefFinale ≥ 0 sempre', () => {
+      for (const ral of rals) {
+        const result = calc.calcolaStipendioNetto({ ...baseInput, ral });
+        expect(result.irpefFinale).toBeGreaterThanOrEqual(0);
+      }
+    });
+
+    it('aliquotaEffettiva ∈ (-1, 1) sempre, e > 0 per RAL ≥ 25k', () => {
+      // Per RAL basse, l'aliquota effettiva può essere negativa (bonus > trattenute)
+      for (const ral of rals) {
+        const result = calc.calcolaStipendioNetto({ ...baseInput, ral });
+        expect(result.aliquotaEffettiva).toBeLessThan(1);
+        expect(result.aliquotaEffettiva).toBeGreaterThan(-1);
+        if (ral >= 25_000) {
+          expect(result.aliquotaEffettiva).toBeGreaterThan(0);
+        }
+      }
+    });
+  });
+
+  describe('Monotonia del netto (caso base)', () => {
+    it('RAL più alta → netto più alto (senza features opzionali)', () => {
+      const rals = [
+        10_000, 15_000, 20_000, 25_000, 30_000, 40_000, 50_000, 60_000, 80_000, 100_000, 150_000,
+        200_000,
+      ];
+      let prevNetto = 0;
+      for (const ral of rals) {
+        const result = calc.calcolaStipendioNetto({ ...baseInput, ral });
+        expect(result.nettoAnnuo).toBeGreaterThan(prevNetto);
+        prevNetto = result.nettoAnnuo;
+      }
+    });
+  });
+
+  describe('Consistenza totaleTrattenute (50 scenari casuali)', () => {
+    it('totaleTrattenute = INPS + IRPEF finale + addizionali + fondi', () => {
+      for (let i = 0; i < 50; i++) {
+        const ral = randomRal();
+        const useFondoNegri = rng() > 0.7;
+        const useFondoPastore = rng() > 0.7;
+        const useCfmt = rng() > 0.7;
+        const useFondoPensione = rng() > 0.7;
+
+        const result = calc.calcolaStipendioNetto({
+          ...baseInput,
+          ral,
+          fondoMarioNegri: useFondoNegri,
+          fondoPastore: useFondoPastore,
+          cfmt: useCfmt,
+          ...(useFondoPensione && {
+            fondoPensioneIntegrativo: {
+              contributoLavoratore: 2,
+              ralLavoratore: ral,
+            },
+          }),
+        });
+
+        const fondoNegriContributo = result.fondoNegri ? result.fondoNegri.contributoAnnuo : 0;
+        const fondoPastoreContributo = result.fondoPastore
+          ? result.fondoPastore.contributoAnnuo
+          : 0;
+        const cfmtContributo = result.cfmt ? result.cfmt.contributoAnnuo : 0;
+        const fondoPensioneContributo = result.fondoPensioneIntegrativo
+          ? result.fondoPensioneIntegrativo.contributoLavoratoreAnnuo
+          : 0;
+
+        const expected =
+          result.contributiInps.totaleContributi +
+          result.irpefFinale +
+          result.addizionali.totaleAddizionali +
+          fondoNegriContributo +
+          fondoPastoreContributo +
+          cfmtContributo +
+          fondoPensioneContributo;
+
+        expect(result.totaleTrattenute).toBeCloseTo(expected, 2);
+      }
+    });
+  });
+
+  describe('Features opzionali riducono il netto (30 scenari)', () => {
+    it('aggiungere Fondo Negri, Pastore, CFMT o Fondo Pensione non aumenta mai il netto', () => {
+      for (let i = 0; i < 30; i++) {
+        const ral = randomRal();
+        const resultBase = calc.calcolaStipendioNetto({ ...baseInput, ral });
+
+        const resultNegri = calc.calcolaStipendioNetto({
+          ...baseInput,
+          ral,
+          fondoMarioNegri: true,
+        });
+        expect(resultNegri.nettoAnnuo).toBeLessThanOrEqual(resultBase.nettoAnnuo);
+
+        const resultPastore = calc.calcolaStipendioNetto({
+          ...baseInput,
+          ral,
+          fondoPastore: true,
+        });
+        expect(resultPastore.nettoAnnuo).toBeLessThan(resultBase.nettoAnnuo);
+
+        const resultCfmt = calc.calcolaStipendioNetto({
+          ...baseInput,
+          ral,
+          cfmt: true,
+        });
+        expect(resultCfmt.nettoAnnuo).toBeLessThan(resultBase.nettoAnnuo);
+
+        const resultPensione = calc.calcolaStipendioNetto({
+          ...baseInput,
+          ral,
+          fondoPensioneIntegrativo: { contributoLavoratore: 2, ralLavoratore: ral },
+        });
+        expect(resultPensione.nettoAnnuo).toBeLessThan(resultBase.nettoAnnuo);
+      }
+    });
+  });
+
+  describe('Regime Impatriati aumenta il netto (20 scenari)', () => {
+    it('attivare il regime impatriati aumenta sempre il netto', () => {
+      for (let i = 0; i < 20; i++) {
+        const ral = randomRal();
+        const resultSenza = calc.calcolaStipendioNetto({ ...baseInput, ral });
+        const resultCon = calc.calcolaStipendioNetto({
+          ...baseInput,
+          ral,
+          regimeImpatriati: true,
+        });
+        expect(resultCon.nettoAnnuo).toBeGreaterThan(resultSenza.nettoAnnuo);
+      }
+    });
+
+    it('esenzione 60% (figli) produce netto ≥ esenzione 50% per RAL ≥ 25k', () => {
+      // Per RAL basse, interazioni con cuneo fiscale e trattamento integrativo
+      // possono invertire il rapporto (non-monotonia del sistema fiscale)
+      for (let i = 0; i < 20; i++) {
+        const ral = 25_000 + Math.round(rng() * 175_000);
+        const result50 = calc.calcolaStipendioNetto({
+          ...baseInput,
+          ral,
+          regimeImpatriati: true,
+        });
+        const result60 = calc.calcolaStipendioNetto({
+          ...baseInput,
+          ral,
+          regimeImpatriati: true,
+          regimeImpatriatiMinorenni: true,
+        });
+        expect(result60.nettoAnnuo).toBeGreaterThanOrEqual(result50.nettoAnnuo);
+      }
+    });
+  });
+});
