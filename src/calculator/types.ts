@@ -142,7 +142,12 @@ export interface AscendenteACarico {
 }
 
 /** Definizione addizionale comunale */
-type AddizionaleComunaleBase = { nome: string; pr: string; regione: string; esenzione?: number };
+type AddizionaleComunaleBase = {
+  n: string; // nome
+  p: string; // provincia
+  r: string; // regione
+  e?: number; // esenzione
+};
 export type AddizionaleComunale = AddizionaleComunaleBase &
   ({ aliquota: number } | { scaglioni: Array<{ limite: number; aliquota: number }> });
 

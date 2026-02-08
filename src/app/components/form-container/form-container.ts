@@ -20,8 +20,8 @@ const ALTRO_OPTION = { value: 'DEFAULT', label: 'Non specificato' } as const;
 
 const COMUNI_PER_REGIONE: Record<string, { value: string; label: string }[]> = {};
 for (const [key, entry] of Object.entries(ADDIZIONALI_COMUNALI)) {
-  const regione = entry.regione;
-  (COMUNI_PER_REGIONE[regione] ??= []).push({ value: key, label: entry.nome });
+  const regione = entry.r;
+  (COMUNI_PER_REGIONE[regione] ??= []).push({ value: key, label: entry.n });
 }
 for (const [regione, comuni] of Object.entries(COMUNI_PER_REGIONE)) {
   comuni.sort((a, b) => a.label.localeCompare(b.label, 'it'));
