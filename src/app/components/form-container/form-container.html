@@ -376,11 +376,12 @@
 
     @if (model.fondoPensioneIntegrativo.enabled) {
       <p class="text-xs text-stone-500 mb-4 dark:text-stone-400">
-        Inserisci le percentuali di contribuzione sulla RAL. Il limite di deducibilità complessivo
-        (lavoratore + datore) è di 5.300 euro/anno.
+        Inserisci le percentuali di contribuzione e la RAL di riferimento. Il limite di deducibilità
+        complessivo (lavoratore + datore) è di 5.300 euro/anno.
       </p>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Riga contributo lavoratore -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div class="flex flex-col gap-1">
           <label
             for="contributoLavoratore"
@@ -421,6 +422,45 @@
 
         <div class="flex flex-col gap-1">
           <label
+            for="ralLavoratore"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >RAL di riferimento (€)<app-info-tooltip
+              tooltipId="ralLavoratore-info"
+              text="RAL sulla quale calcolare il contributo del lavoratore."
+            />
+          </label>
+          <input
+            id="ralLavoratore"
+            type="number"
+            step="1"
+            [formField]="form.fondoPensioneIntegrativo.ralLavoratore"
+            placeholder="RAL di riferimento"
+            [attr.aria-invalid]="form.fondoPensioneIntegrativo.ralLavoratore().invalid()"
+            [attr.aria-describedby]="
+              form.fondoPensioneIntegrativo.ralLavoratore().invalid() ? 'ralLavoratore-error' : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+          />
+          @if (form.fondoPensioneIntegrativo.ralLavoratore().invalid()) {
+            @for (
+              error of form.fondoPensioneIntegrativo.ralLavoratore().errors();
+              track error.kind
+            ) {
+              <span
+                id="ralLavoratore-error"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Riga contributo datore di lavoro -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1">
+          <label
             for="contributoDatoreLavoro"
             class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
             >Contributo datore di lavoro (%)<app-info-tooltip
@@ -449,6 +489,44 @@
             ) {
               <span
                 id="contributoDatoreLavoro-error"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
+          }
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label
+            for="ralDatoreLavoro"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >RAL di riferimento (€)<app-info-tooltip
+              tooltipId="ralDatoreLavoro-info"
+              text="RAL sulla quale calcolare il contributo del datore di lavoro."
+            />
+          </label>
+          <input
+            id="ralDatoreLavoro"
+            type="number"
+            step="1"
+            [formField]="form.fondoPensioneIntegrativo.ralDatoreLavoro"
+            placeholder="RAL di riferimento"
+            [attr.aria-invalid]="form.fondoPensioneIntegrativo.ralDatoreLavoro().invalid()"
+            [attr.aria-describedby]="
+              form.fondoPensioneIntegrativo.ralDatoreLavoro().invalid()
+                ? 'ralDatoreLavoro-error'
+                : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+          />
+          @if (form.fondoPensioneIntegrativo.ralDatoreLavoro().invalid()) {
+            @for (
+              error of form.fondoPensioneIntegrativo.ralDatoreLavoro().errors();
+              track error.kind
+            ) {
+              <span
+                id="ralDatoreLavoro-error"
                 class="text-xs text-red-600 mt-1 dark:text-red-400"
                 role="alert"
                 >{{ error.message }}</span

@@ -14,8 +14,8 @@ import {
   DettaglioFondoPastore,
   DettaglioFondoPensioneIntegrativo,
   DettaglioFringeBenefit,
-  DettaglioRegimeImpatriati,
   DettaglioIrpef,
+  DettaglioRegimeImpatriati,
   DettaglioRimborsiTrasferta,
   DettaglioTrattamentoIntegrativo,
   FiglioACarico,
@@ -805,7 +805,6 @@ function calcolaCFMT(cfmt: boolean): DettaglioCFMT | null {
 
 function calcolaFondoPensioneIntegrativo(
   fondoPensione: FondoPensioneIntegrativo | undefined,
-  ral: number,
   aliquotaMarginaleIrpef: number,
   contributoFondoSquilibrio: number,
 ): DettaglioFondoPensioneIntegrativo | null {
@@ -813,8 +812,13 @@ function calcolaFondoPensioneIntegrativo(
     return null;
   }
 
-  const contributoLavoratoreAnnuo = ral * ((fondoPensione.contributoLavoratore || 0) / 100);
-  const contributoDatoreLavoroAnnuo = ral * ((fondoPensione.contributoDatoreLavoro || 0) / 100);
+  const ralLavoratore = fondoPensione.ralLavoratore || 0;
+  const ralDatore = fondoPensione.ralDatoreLavoro || 0;
+
+  const contributoLavoratoreAnnuo =
+    ralLavoratore * ((fondoPensione.contributoLavoratore || 0) / 100);
+  const contributoDatoreLavoroAnnuo =
+    ralDatore * ((fondoPensione.contributoDatoreLavoro || 0) / 100);
   const totaleContributi = contributoLavoratoreAnnuo + contributoDatoreLavoroAnnuo;
 
   // Il plafond di €5.300 è ridotto dai contributi versati a fondi in squilibrio finanziario
@@ -953,10 +957,12 @@ export class Calculator2026 implements StipendioCalculator {
     // Il contributo lavoratore è una trattenuta reale dal netto in busta paga
     // Il contributo datore NON è una trattenuta dal netto, ma concorre al limite di deducibilità
     const contributoFondoPensione = fondoPensioneInput
-      ? ral * ((fondoPensioneInput.contributoLavoratore || 0) / 100)
+      ? (fondoPensioneInput.ralLavoratore || 0) *
+        ((fondoPensioneInput.contributoLavoratore || 0) / 100)
       : 0;
     const contributoDatoreFondoPensione = fondoPensioneInput
-      ? ral * ((fondoPensioneInput.contributoDatoreLavoro || 0) / 100)
+      ? (fondoPensioneInput.ralDatoreLavoro || 0) *
+        ((fondoPensioneInput.contributoDatoreLavoro || 0) / 100)
       : 0;
     const limiteResiduo = Math.max(
       0,
@@ -1105,7 +1111,6 @@ export class Calculator2026 implements StipendioCalculator {
     // 15d. CALCOLO DETTAGLIO FONDO PENSIONE INTEGRATIVO
     const fondoPensioneIntegrativo = calcolaFondoPensioneIntegrativo(
       fondoPensioneInput,
-      ral,
       aliquotaMarginaleIrpef,
       contributoFondoNegri,
     );

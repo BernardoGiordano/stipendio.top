@@ -876,7 +876,9 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       ral: 30_000,
       fondoPensioneIntegrativo: {
         contributoLavoratore: 1,
+        ralLavoratore: 30_000,
         contributoDatoreLavoro: 1.5,
+        ralDatoreLavoro: 30_000,
       },
     });
 
@@ -924,7 +926,9 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       ral: 100_000,
       fondoPensioneIntegrativo: {
         contributoLavoratore: 3,
+        ralLavoratore: 100_000,
         contributoDatoreLavoro: 3,
+        ralDatoreLavoro: 100_000,
       },
     });
 
@@ -965,7 +969,7 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
     const resultCon = calc.calcolaStipendioNetto({
       ...baseInput,
       ral: 40_000,
-      fondoPensioneIntegrativo: { contributoLavoratore: 2 },
+      fondoPensioneIntegrativo: { contributoLavoratore: 2, ralLavoratore: 40_000 },
     });
 
     expect(resultCon.contributiInps.imponibilePrevidenziale).toBe(
@@ -978,7 +982,7 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
       ral: 40_000,
-      fondoPensioneIntegrativo: { contributoLavoratore: 2 },
+      fondoPensioneIntegrativo: { contributoLavoratore: 2, ralLavoratore: 40_000 },
     });
 
     expect(result.fondoPensioneIntegrativo).not.toBeNull();
@@ -995,13 +999,18 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
     const resultSoloLavoratore = calc.calcolaStipendioNetto({
       ...baseInput,
       ral: 40_000,
-      fondoPensioneIntegrativo: { contributoLavoratore: 1 },
+      fondoPensioneIntegrativo: { contributoLavoratore: 1, ralLavoratore: 40_000 },
     });
 
     const resultConDatore = calc.calcolaStipendioNetto({
       ...baseInput,
       ral: 40_000,
-      fondoPensioneIntegrativo: { contributoLavoratore: 1, contributoDatoreLavoro: 1 },
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 1,
+        ralLavoratore: 40_000,
+        contributoDatoreLavoro: 1,
+        ralDatoreLavoro: 40_000,
+      },
     });
 
     // Con il contributo datore, la deduzione IRPEF è maggiore → netto più alto
@@ -1012,7 +1021,7 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
       ral: 50_000,
-      fondoPensioneIntegrativo: { contributoLavoratore: 2 },
+      fondoPensioneIntegrativo: { contributoLavoratore: 2, ralLavoratore: 50_000 },
     });
 
     expect(result.fondoPensioneIntegrativo).not.toBeNull();
@@ -1026,7 +1035,12 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       ...baseInput,
       ral: 80_000,
       fondoMarioNegri: true,
-      fondoPensioneIntegrativo: { contributoLavoratore: 1, contributoDatoreLavoro: 1 },
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 1,
+        ralLavoratore: 80_000,
+        contributoDatoreLavoro: 1,
+        ralDatoreLavoro: 80_000,
+      },
     });
 
     expect(result.fondoNegri).not.toBeNull();
@@ -1046,7 +1060,12 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
     const resultSenza = calc.calcolaStipendioNetto({
       ...baseInput,
       ral: 80_000,
-      fondoPensioneIntegrativo: { contributoLavoratore: 5, contributoDatoreLavoro: 2 },
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 5,
+        ralLavoratore: 80_000,
+        contributoDatoreLavoro: 2,
+        ralDatoreLavoro: 80_000,
+      },
     });
 
     // Con Fondo Negri: cap residuo = 5300 - 1184.49 = 4115.51
@@ -1054,7 +1073,12 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       ...baseInput,
       ral: 80_000,
       fondoMarioNegri: true,
-      fondoPensioneIntegrativo: { contributoLavoratore: 5, contributoDatoreLavoro: 2 },
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 5,
+        ralLavoratore: 80_000,
+        contributoDatoreLavoro: 2,
+        ralDatoreLavoro: 80_000,
+      },
     });
 
     expect(resultSenza.fondoPensioneIntegrativo).not.toBeNull();

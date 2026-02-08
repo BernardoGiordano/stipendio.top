@@ -377,8 +377,12 @@ export interface DettaglioBenefitNonTassati {
 export interface FondoPensioneIntegrativo {
   /** Percentuale contributo a carico del lavoratore (es. 1.0 = 1%) */
   contributoLavoratore: number;
+  /** RAL di riferimento per il contributo lavoratore */
+  ralLavoratore?: number;
   /** Percentuale contributo a carico del datore di lavoro (es. 1.5 = 1.5%) */
   contributoDatoreLavoro?: number;
+  /** RAL di riferimento per il contributo datore */
+  ralDatoreLavoro?: number;
 }
 
 /** Dettaglio previdenza complementare (fondo pensione integrativo) */
