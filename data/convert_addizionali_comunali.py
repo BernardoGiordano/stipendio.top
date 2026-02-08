@@ -6,8 +6,8 @@ Converts the MEF "Addizionale Comunale IRPEF" CSV into a TypeScript file
 matching the `AddizionaleComunale` type, keyed by CODICE_CATASTALE.
 
 Output format (TypeScript):
-  { n: string; p: string; r: string; aliquota: number; e?: number }
-  | { n: string; p: string; r: string; scaglioni: Array<{ limite: number; aliquota: number }>; e?: number }
+  { n: string; p: string; r: string; a: number; e?: number }
+  | { n: string; p: string; r: string; s: Array<{ l: number; a: number }>; e?: number }
 
 Usage:
   # Generate a new .ts from a CSV:
@@ -274,24 +274,24 @@ def parse_row(row: dict) -> tuple[str, dict] | None:
         scaglioni = []
         for rate, fascia in bracket_pairs:
             if "oltre" in fascia.lower():
-                scaglioni.append({"limite": None, "aliquota": rate})
+                scaglioni.append({"l": None, "a": rate})
             else:
                 limite = parse_euro_amount(fascia)
                 if limite is not None:
-                    scaglioni.append({"limite": limite, "aliquota": rate})
+                    scaglioni.append({"l": limite, "a": rate})
                 else:
-                    scaglioni.append({"limite": None, "aliquota": rate})
+                    scaglioni.append({"l": None, "a": rate})
 
         # Sort by limite (None = Infinity goes last)
-        scaglioni.sort(key=lambda s: s["limite"] if s["limite"] is not None else float("inf"))
+        scaglioni.sort(key=lambda s: s["l"] if s["l"] is not None else float("inf"))
 
-        result = {"n": nome, "p": pr, "r": regione, "scaglioni": scaglioni}
+        result = {"n": nome, "p": pr, "r": regione, "s": scaglioni}
         if esenzione is not None:
             result["e"] = esenzione
         return codice, result
     else:
         rate = bracket_pairs[0][0]
-        result = {"n": nome, "p": pr, "r": regione, "aliquota": rate}
+        result = {"n": nome, "p": pr, "r": regione, "a": rate}
         if esenzione is not None:
             result["e"] = esenzione
         return codice, result
@@ -355,18 +355,18 @@ def entry_to_ts(entry: dict) -> str:
     regione = entry.get("r", "")
     parts = [f"n: '{nome}'", f"p: '{pr}'", f"r: '{regione}'"]
 
-    if "scaglioni" in entry:
+    if "s" in entry:
         scaglioni_strs = []
-        for s in entry["scaglioni"]:
-            limite = s["limite"]
-            aliquota = format_ts_number(s["aliquota"])
+        for s in entry["s"]:
+            limite = s["l"]
+            aliquota = format_ts_number(s["a"])
             if limite is None:
-                scaglioni_strs.append(f"{{ limite: Infinity, aliquota: {aliquota} }}")
+                scaglioni_strs.append(f"{{ l: Infinity, a: {aliquota} }}")
             else:
-                scaglioni_strs.append(f"{{ limite: {format_ts_number(limite)}, aliquota: {aliquota} }}")
-        parts.append(f"scaglioni: [{', '.join(scaglioni_strs)}]")
+                scaglioni_strs.append(f"{{ l: {format_ts_number(limite)}, a: {aliquota} }}")
+        parts.append(f"s: [{', '.join(scaglioni_strs)}]")
     else:
-        parts.append(f"aliquota: {format_ts_number(entry['aliquota'])}")
+        parts.append(f"a: {format_ts_number(entry['a'])}")
 
     if "e" in entry:
         parts.append(f"e: {format_ts_number(entry['e'])}")
