@@ -1099,4 +1099,89 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       resultSenza.fondoPensioneIntegrativo!.eccedenzaNonDeducibile,
     );
   });
+
+  describe('con contributo EBITEMP (lavoratori somministrati)', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 1,
+        ralLavoratore: 30_000,
+        contributoDatoreLavoro: 1,
+        ralDatoreLavoro: 30_000,
+        contributoEbitemp: 2,
+        ralEbitemp: 30_000,
+      },
+    });
+
+    it('il contributo EBITEMP annuo deve essere €600', () => {
+      expect(result.fondoPensioneIntegrativo).not.toBeNull();
+      expect(result.fondoPensioneIntegrativo!.contributoEbitempAnnuo).toBeCloseTo(600, 2);
+    });
+
+    it('il totale contributi deve includere EBITEMP (€300 + €300 + €600 = €1200)', () => {
+      expect(result.fondoPensioneIntegrativo!.totaleContributi).toBeCloseTo(1_200, 2);
+    });
+
+    it('la deduzione effettiva deve essere €1200 (sotto il limite)', () => {
+      expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBeCloseTo(1_200, 2);
+    });
+
+    it('il contributo EBITEMP non deve essere trattenuta dal netto (come contributo datore)', () => {
+      // Solo il contributo lavoratore (€300) è trattenuta reale
+      const resultSenzaEbitemp = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        fondoPensioneIntegrativo: {
+          contributoLavoratore: 1,
+          ralLavoratore: 30_000,
+          contributoDatoreLavoro: 1,
+          ralDatoreLavoro: 30_000,
+        },
+      });
+
+      // Il netto con EBITEMP deve essere >= netto senza, perché EBITEMP
+      // aumenta la deduzione (risparmio fiscale) senza aggiungere trattenute
+      expect(result.nettoAnnuo).toBeGreaterThanOrEqual(resultSenzaEbitemp.nettoAnnuo);
+    });
+  });
+
+  it('EBITEMP deve concorrere al cap di deducibilità', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 100_000,
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 2,
+        ralLavoratore: 100_000,
+        contributoDatoreLavoro: 2,
+        ralDatoreLavoro: 100_000,
+        contributoEbitemp: 2,
+        ralEbitemp: 100_000,
+      },
+    });
+
+    expect(result.fondoPensioneIntegrativo).not.toBeNull();
+    // Totale = 2000 + 2000 + 2000 = 6000
+    expect(result.fondoPensioneIntegrativo!.totaleContributi).toBeCloseTo(6_000, 2);
+    // Cap a 5300
+    expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBeCloseTo(LIMITE_DEDUCIBILITA, 2);
+    expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBeCloseTo(
+      6_000 - LIMITE_DEDUCIBILITA,
+      2,
+    );
+  });
+
+  it('senza contributoEbitemp, il campo contributoEbitempAnnuo deve essere 0', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 1,
+        ralLavoratore: 30_000,
+      },
+    });
+
+    expect(result.fondoPensioneIntegrativo).not.toBeNull();
+    expect(result.fondoPensioneIntegrativo!.contributoEbitempAnnuo).toBe(0);
+  });
 });

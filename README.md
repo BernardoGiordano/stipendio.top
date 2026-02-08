@@ -413,27 +413,31 @@ La previdenza complementare consente al lavoratore dipendente di versare contrib
 
 ##### Struttura dei Contributi
 
-| Fonte                 | Descrizione                                                   |
-| --------------------- | ------------------------------------------------------------- |
-| Contributo lavoratore | Percentuale della RAL trattenuta dalla busta paga             |
-| Contributo datore     | Percentuale della RAL versata dall'azienda (costo aggiuntivo) |
+| Fonte                 | Descrizione                                                                   |
+| --------------------- | ----------------------------------------------------------------------------- |
+| Contributo lavoratore | Percentuale della RAL trattenuta dalla busta paga                             |
+| Contributo datore     | Percentuale della RAL versata dall'azienda (costo aggiuntivo)                 |
+| Contributo EBITEMP    | Percentuale della RAL versata dall'ente bilaterale (lavoratori somministrati) |
 
 Le percentuali dipendono dal CCNL applicato e dalla scelta individuale del lavoratore. Valori tipici: 0,55% - 2% per il lavoratore, 1% - 2% per il datore.
 
+Per i **lavoratori somministrati** iscritti a Fon.Te., l'ente bilaterale EBITEMP (Ente Bilaterale Nazionale per il Lavoro Temporaneo) versa un contributo aggiuntivo al fondo pensione. Il contributo EBITEMP non è una trattenuta dalla busta paga del lavoratore, ma concorre al limite annuo di deducibilità. Valore tipico: 2%.
+
 ##### Deducibilità Fiscale (Art. 10, c.1, lett. e-bis, TUIR - aggiornato da L. 199/2025)
 
-| Parametro                    | Valore                                    |
-| ---------------------------- | ----------------------------------------- |
-| Limite annuo di deducibilità | €5.300 (dal 2026)                         |
-| Cosa concorre al limite      | Contributo lavoratore + contributo datore |
-| TFR destinato al fondo       | Escluso dal limite                        |
+| Parametro                    | Valore                                   |
+| ---------------------------- | ---------------------------------------- |
+| Limite annuo di deducibilità | €5.300 (dal 2026)                        |
+| Cosa concorre al limite      | Contributo lavoratore + datore + EBITEMP |
+| TFR destinato al fondo       | Escluso dal limite                       |
 
 **Formula:**
 
 ```
 Contributo Lavoratore = RAL × Percentuale Lavoratore
 Contributo Datore = RAL × Percentuale Datore
-Totale Contributi = Contributo Lavoratore + Contributo Datore
+Contributo EBITEMP = RAL × Percentuale EBITEMP (se lavoratore somministrato)
+Totale Contributi = Contributo Lavoratore + Contributo Datore + Contributo EBITEMP
 Deduzione Effettiva = MIN(Totale Contributi, €5.300)
 Eccedenza Non Deducibile = MAX(0, Totale Contributi − €5.300)
 ```
@@ -444,6 +448,7 @@ Eccedenza Non Deducibile = MAX(0, Totale Contributi − €5.300)
 - **Contributi INPS:** Calcolati sull'imponibile previdenziale **pieno** (nessuna riduzione)
 - **Netto in busta:** Solo il contributo lavoratore è una trattenuta reale dal netto
 - **Contributo datore:** Non è una trattenuta dalla busta paga, ma concorre al limite di deducibilità
+- **Contributo EBITEMP:** Come il contributo datore, non è una trattenuta dal netto, ma concorre al limite di deducibilità
 
 ##### Esempio
 
@@ -582,9 +587,10 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  6d. PREVIDENZA COMPLEMENTARE (se attiva)                       │
-│      Contributo lav. + datore, deducibile fino a €5.300        │
+│      Contributo lav. + datore + EBITEMP, deduc. fino a €5.300  │
 │      → Riduce l'imponibile IRPEF (con cap)                     │
 │      → Solo contributo lavoratore è trattenuta dal netto        │
+│      → Contributo datore e EBITEMP non sono trattenute          │
 │      → NON riduce l'imponibile previdenziale (INPS)            │
 └─────────────────────────────────────────────────────────────────┘
                               │

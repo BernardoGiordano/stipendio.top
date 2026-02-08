@@ -76,6 +76,8 @@ export interface FondoPensioneIntegrativoFormModel {
   ralLavoratore: number;
   contributoDatoreLavoro: number;
   ralDatoreLavoro: number;
+  contributoEbitemp: number;
+  ralEbitemp: number;
 }
 
 export interface ConiugeACaricoFormModel {
@@ -188,6 +190,8 @@ function createDefaultFondoPensioneIntegrativo(): FondoPensioneIntegrativoFormMo
     ralLavoratore: 0,
     contributoDatoreLavoro: 0,
     ralDatoreLavoro: 0,
+    contributoEbitemp: 0,
+    ralEbitemp: 0,
   };
 }
 
@@ -316,6 +320,9 @@ const fondoPensioneIntegrativoSchema = schema<FondoPensioneIntegrativoFormModel>
   min(path.contributoDatoreLavoro, 0, { message: 'La percentuale non può essere negativa' });
   max(path.contributoDatoreLavoro, 100, { message: 'La percentuale non può superare 100%' });
   min(path.ralDatoreLavoro, 0, { message: 'La RAL non può essere negativa' });
+  min(path.contributoEbitemp, 0, { message: 'La percentuale non può essere negativa' });
+  max(path.contributoEbitemp, 100, { message: 'La percentuale non può superare 100%' });
+  min(path.ralEbitemp, 0, { message: 'La RAL non può essere negativa' });
 });
 
 const coniugeSchema = schema<ConiugeACaricoFormModel>((path) => {
@@ -483,6 +490,10 @@ function toFondoPensioneIntegrativo(
     ...(model.contributoDatoreLavoro > 0 && {
       contributoDatoreLavoro: model.contributoDatoreLavoro,
       ralDatoreLavoro: model.ralDatoreLavoro,
+    }),
+    ...(model.contributoEbitemp > 0 && {
+      contributoEbitemp: model.contributoEbitemp,
+      ralEbitemp: model.ralEbitemp,
     }),
   };
 }

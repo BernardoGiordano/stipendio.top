@@ -535,6 +535,80 @@
           }
         </div>
       </div>
+
+      <!-- Riga contributo EBITEMP (lavoratori somministrati) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div class="flex flex-col gap-1">
+          <label
+            for="contributoEbitemp"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Contributo EBITEMP (%)<app-info-tooltip
+              tooltipId="contributoEbitemp-info"
+              text="Contributo dell'ente bilaterale EBITEMP al fondo pensione, previsto per i lavoratori somministrati. Non è una trattenuta dalla busta paga ma concorre al limite di deducibilità di 5.300 euro. Valore tipico: 2%."
+            />
+          </label>
+          <input
+            id="contributoEbitemp"
+            type="number"
+            step="0.01"
+            [formField]="form.fondoPensioneIntegrativo.contributoEbitemp"
+            placeholder="Es. 2.0"
+            [attr.aria-invalid]="form.fondoPensioneIntegrativo.contributoEbitemp().invalid()"
+            [attr.aria-describedby]="
+              form.fondoPensioneIntegrativo.contributoEbitemp().invalid()
+                ? 'contributoEbitemp-error'
+                : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+          />
+          @if (form.fondoPensioneIntegrativo.contributoEbitemp().invalid()) {
+            @for (
+              error of form.fondoPensioneIntegrativo.contributoEbitemp().errors();
+              track error.kind
+            ) {
+              <span
+                id="contributoEbitemp-error"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
+          }
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label
+            for="ralEbitemp"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >RAL di riferimento (€)<app-info-tooltip
+              tooltipId="ralEbitemp-info"
+              text="RAL sulla quale calcolare il contributo EBITEMP."
+            />
+          </label>
+          <input
+            id="ralEbitemp"
+            type="number"
+            step="1"
+            [formField]="form.fondoPensioneIntegrativo.ralEbitemp"
+            placeholder="RAL di riferimento"
+            [attr.aria-invalid]="form.fondoPensioneIntegrativo.ralEbitemp().invalid()"
+            [attr.aria-describedby]="
+              form.fondoPensioneIntegrativo.ralEbitemp().invalid() ? 'ralEbitemp-error' : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+          />
+          @if (form.fondoPensioneIntegrativo.ralEbitemp().invalid()) {
+            @for (error of form.fondoPensioneIntegrativo.ralEbitemp().errors(); track error.kind) {
+              <span
+                id="ralEbitemp-error"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
+          }
+        </div>
+      </div>
     }
   </fieldset>
 

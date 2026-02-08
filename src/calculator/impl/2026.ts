@@ -814,12 +814,15 @@ function calcolaFondoPensioneIntegrativo(
 
   const ralLavoratore = fondoPensione.ralLavoratore || 0;
   const ralDatore = fondoPensione.ralDatoreLavoro || 0;
+  const ralEbitemp = fondoPensione.ralEbitemp || 0;
 
   const contributoLavoratoreAnnuo =
     ralLavoratore * ((fondoPensione.contributoLavoratore || 0) / 100);
   const contributoDatoreLavoroAnnuo =
     ralDatore * ((fondoPensione.contributoDatoreLavoro || 0) / 100);
-  const totaleContributi = contributoLavoratoreAnnuo + contributoDatoreLavoroAnnuo;
+  const contributoEbitempAnnuo = ralEbitemp * ((fondoPensione.contributoEbitemp || 0) / 100);
+  const totaleContributi =
+    contributoLavoratoreAnnuo + contributoDatoreLavoroAnnuo + contributoEbitempAnnuo;
 
   // Il plafond di €5.300 è ridotto dai contributi versati a fondi in squilibrio finanziario
   // (es. Fondo Mario Negri, che gode di deducibilità piena ex art. 20, c.7, D.Lgs. 252/2005)
@@ -835,6 +838,7 @@ function calcolaFondoPensioneIntegrativo(
     contributoLavoratoreAnnuo,
     contributoLavoratoreMensile: contributoLavoratoreAnnuo / 12,
     contributoDatoreLavoroAnnuo,
+    contributoEbitempAnnuo,
     totaleContributi,
     deduzioneEffettiva,
     eccedenzaNonDeducibile,
@@ -964,12 +968,15 @@ export class Calculator2026 implements StipendioCalculator {
       ? (fondoPensioneInput.ralDatoreLavoro || 0) *
         ((fondoPensioneInput.contributoDatoreLavoro || 0) / 100)
       : 0;
+    const contributoEbitempFondoPensione = fondoPensioneInput
+      ? (fondoPensioneInput.ralEbitemp || 0) * ((fondoPensioneInput.contributoEbitemp || 0) / 100)
+      : 0;
     const limiteResiduo = Math.max(
       0,
       PREVIDENZA_COMPLEMENTARE.limiteDeducibilita - contributoFondoNegri,
     );
     const deduzioneFondoPensione = Math.min(
-      contributoFondoPensione + contributoDatoreFondoPensione,
+      contributoFondoPensione + contributoDatoreFondoPensione + contributoEbitempFondoPensione,
       limiteResiduo,
     );
 

@@ -383,6 +383,10 @@ export interface FondoPensioneIntegrativo {
   contributoDatoreLavoro?: number;
   /** RAL di riferimento per il contributo datore */
   ralDatoreLavoro?: number;
+  /** Percentuale contributo EBITEMP (ente bilaterale lavoro somministrato, es. 2.0 = 2%) */
+  contributoEbitemp?: number;
+  /** RAL di riferimento per il contributo EBITEMP */
+  ralEbitemp?: number;
 }
 
 /** Dettaglio previdenza complementare (fondo pensione integrativo) */
@@ -393,7 +397,9 @@ export interface DettaglioFondoPensioneIntegrativo {
   contributoLavoratoreMensile: number;
   /** Contributo annuo a carico del datore di lavoro */
   contributoDatoreLavoroAnnuo: number;
-  /** Totale contributi (lavoratore + datore) */
+  /** Contributo annuo EBITEMP (ente bilaterale lavoro somministrato) */
+  contributoEbitempAnnuo: number;
+  /** Totale contributi (lavoratore + datore + EBITEMP) */
   totaleContributi: number;
   /** Deduzione effettiva dall'imponibile IRPEF (max €5.300 dal 2026) */
   deduzioneEffettiva: number;
