@@ -41,6 +41,7 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Dirigenti CCNL Terziario](#10-dirigenti-ccnl-terziario)
   - [Previdenza Complementare](#11-previdenza-complementare-fondo-pensione-integrativo)
   - [Regime Impatriati](#12-regime-impatriati-rientro-cervelli)
+  - [Costo Aziendale](#13-costo-aziendale)
 - [Sequenza di Calcolo](#sequenza-di-calcolo)
 - [Riferimenti Normativi](#riferimenti-normativi)
 
@@ -384,7 +385,7 @@ Fondo di previdenza complementare obbligatorio per i dirigenti del terziario.
 - È una **trattenuta reale** che si sottrae dal netto in busta paga
 - Il risparmio fiscale dipende dall'aliquota marginale IRPEF del dirigente
 
-> Il contributo aziendale (aliquota integrativa) non impatta il netto del dirigente e non è calcolato.
+> Il contributo aziendale (ordinario 12,86% + integrativo 2,52% = 15,38% della retribuzione convenzionale) non impatta il netto del dirigente, ma è incluso nel calcolo del [Costo Aziendale](#13-costo-aziendale).
 
 ##### Fondo Antonio Pastore
 
@@ -425,7 +426,7 @@ Fondo di assistenza sanitaria integrativa obbligatorio per i dirigenti del terzi
 - È una **trattenuta diretta dal netto** in busta paga, senza beneficio fiscale
 - A differenza del Fondo Negri, non genera risparmio fiscale
 
-> La quota azienda (5,29% = €2.430,23/anno) non impatta il netto del dirigente e non è calcolata.
+> La quota azienda (5,29% dirigenti in servizio + 2,78% gestione pensionati = 8,07% della retribuzione convenzionale) non impatta il netto del dirigente, ma è inclusa nel calcolo del [Costo Aziendale](#13-costo-aziendale).
 
 ---
 
@@ -545,6 +546,100 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
 4. Possesso di laurea (almeno triennale) o esperienza professionale documentata
 
 > Il vecchio regime (art. 16 D.Lgs. 147/2015), con esenzione 70% (90% per il Sud Italia), si applica solo a chi ha trasferito la residenza entro il 31 dicembre 2023.
+
+---
+
+#### 13. Costo Aziendale
+
+Il costo aziendale rappresenta la spesa complessiva che l'azienda sostiene per un dipendente, ed è sempre significativamente superiore alla RAL. Viene calcolato automaticamente a partire dai dati già inseriti, senza necessità di input aggiuntivi.
+
+##### Formula
+
+```
+COSTO AZIENDALE = RAL + Contributi INPS Datore + TFR
+                + Fondi Dirigenti (datore) + Fondo Pensione (datore)
+                + Fringe Benefit + Rimborsi Trasferta + Benefit Non Tassati (Welfare)
+```
+
+##### Contributi INPS a Carico del Datore di Lavoro
+
+I contributi INPS a carico del datore sono calcolati sull'imponibile previdenziale (lo stesso utilizzato per la quota lavoratore) e includono IVS, NASpI, malattia, maternità, CUAF, CIG e Fondo Garanzia TFR.
+
+| Tipologia                     | Aliquota Datore |
+| ----------------------------- | --------------- |
+| Operai/impiegati (senza CIGS) | 28,98%          |
+| Operai/impiegati (con CIGS)   | 29,68%          |
+| Apprendisti                   | 11,61%          |
+| Dirigenti (senza CIGS)        | 26,54%          |
+| Dirigenti (con CIGS)          | 27,24%          |
+
+> Le aliquote si riferiscono al settore Commercio/Terziario 2026 (fonte: tabelle INPS/Kitech). La qualifica di dirigente viene rilevata automaticamente dall'attivazione dei fondi contrattuali (Fondo Negri, Pastore, CFMT, FASDAC).
+
+##### TFR (Trattamento di Fine Rapporto)
+
+```
+TFR Annuo = RAL / 13,5
+```
+
+Il TFR è un accantonamento obbligatorio a carico del datore (Art. 2120 c.c.), indipendentemente da dove viene destinato (azienda, INPS o fondo pensione).
+
+##### Fondi Contrattuali Dirigenti (Quota Datore - CCNL Terziario 2026)
+
+Per i dirigenti del CCNL Terziario, il datore sostiene costi aggiuntivi per i fondi obbligatori:
+
+| Fondo                 | Base di Calcolo    | Aliquota/Importo | Costo Annuo Datore |
+| --------------------- | ------------------ | ---------------- | ------------------ |
+| Fondo Mario Negri     | €59.224,54 (conv.) | 15,38%           | ~€9.112            |
+| Fondo Antonio Pastore | Importo fisso      | —                | €4.856,45          |
+| CFMT                  | Importo fisso      | —                | €276               |
+| FASDAC                | €45.940 (conv.)    | 8,07%            | ~€3.707            |
+
+Dettaglio aliquote:
+
+- **Fondo Mario Negri**: contributo ordinario azienda 12,86% + integrativo 2,52% = 15,38% della retribuzione convenzionale
+- **FASDAC**: 5,29% per dirigenti in servizio + 2,78% per gestione pensionati = 8,07% della retribuzione convenzionale
+
+##### Fondo Pensione Integrativo (Quota Datore)
+
+Se attiva la previdenza complementare con contributo a carico del datore, tale importo è incluso nel costo aziendale.
+
+##### Fringe Benefit, Rimborsi Trasferta e Benefit Non Tassati
+
+Il costo aziendale include anche le componenti variabili erogate dall'azienda, se presenti:
+
+- **Fringe Benefit:** il valore totale dei fringe benefit erogati (buoni acquisto, buoni carburante, rimborsi utenze/affitto/mutuo, auto aziendale, altri). Per l'auto aziendale, viene utilizzato il valore convenzionale ai fini fiscali.
+- **Rimborsi Trasferta:** il totale dei rimborsi spese per trasferte (forfettari ed analitici, sia esenti che tassati).
+- **Benefit Non Tassati (Welfare):** il totale dei benefit di welfare aziendale erogati (buoni pasto, previdenza complementare, assistenza sanitaria, abbonamento trasporti, servizi welfare).
+
+> Queste voci contribuiscono anche all'imponibile previdenziale per le eventuali parti tassabili, e il relativo costo INPS datore è già incluso nella voce "Contributi INPS Datore".
+
+##### Esempio
+
+Per un impiegato con RAL €35.000, senza CIGS:
+
+```
+RAL:                   €35.000,00
+INPS Datore (28,98%):  €10.143,00
+TFR (35.000/13,5):     € 2.592,59
+────────────────────────────────────
+Costo Aziendale:       €47.735,59
+```
+
+Per un dirigente con RAL €80.000, con tutti i fondi CCNL Terziario:
+
+```
+RAL:                   €80.000,00
+INPS Datore (26,54%):  €21.232,00
+TFR (80.000/13,5):     € 5.925,93
+Fondo Negri (datore):  € 9.112,82
+Fondo Pastore (datore):€ 4.856,45
+CFMT (datore):         €   276,00
+FASDAC (datore):       € 3.707,36
+────────────────────────────────────
+Costo Aziendale:       €125.110,56
+```
+
+> **Nota:** Il calcolo non include INAIL (assicurazione infortuni), il cui premio varia significativamente per settore e rischio professionale (da 0,3% a oltre 12%).
 
 ---
 
@@ -689,6 +784,14 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
 │                                                                 │
 │      Totale Percepito = Netto + Esenti                          │
 └─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  14. COSTO AZIENDALE                                            │
+│      = RAL + INPS Datore + TFR + Fondi Dirigenti (datore)       │
+│        + Fondo Pensione (datore) + Fringe Benefit               │
+│        + Rimborsi Trasferta + Benefit Non Tassati               │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Riferimenti Normativi
@@ -709,6 +812,7 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
 | **D.Lgs. 252/2005**     | Previdenza complementare                 |
 | **Art. 10 TUIR**        | Deduzioni dal reddito complessivo        |
 | **D.Lgs. 209/2023**     | Regime impatriati (rientro cervelli)     |
+| **Art. 2120 c.c.**      | Trattamento di Fine Rapporto (TFR)       |
 
 ---
 

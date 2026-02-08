@@ -2481,3 +2481,203 @@ describe('Property-based (fuzzy) tests', () => {
     });
   });
 });
+
+describe('Costo aziendale', () => {
+  describe('Caso base: RAL 30k, impiegato senza CIGS', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+    });
+
+    it('deve usare aliquota INPS datore 28,98%', () => {
+      expect(result.costoAziendale.aliquotaInpsDatore).toBe(0.2898);
+    });
+
+    it('deve calcolare contributi INPS datore correttamente', () => {
+      expect(result.costoAziendale.contributiInpsDatore).toBeCloseTo(30_000 * 0.2898, 2);
+    });
+
+    it('deve calcolare TFR = RAL / 13,5', () => {
+      expect(result.costoAziendale.tfr).toBeCloseTo(30_000 / 13.5, 2);
+    });
+
+    it('non deve includere fondi dirigenti', () => {
+      expect(result.costoAziendale.fondoNegriDatore).toBe(0);
+      expect(result.costoAziendale.fondoPastoreDatore).toBe(0);
+      expect(result.costoAziendale.cfmtDatore).toBe(0);
+      expect(result.costoAziendale.fasdacDatore).toBe(0);
+    });
+
+    it('fringe benefit, rimborsi e welfare devono essere 0 se non presenti', () => {
+      expect(result.costoAziendale.fringeBenefit).toBe(0);
+      expect(result.costoAziendale.rimborsiTrasferta).toBe(0);
+      expect(result.costoAziendale.benefitNonTassati).toBe(0);
+    });
+
+    it('deve calcolare totale annuo = RAL + INPS datore + TFR', () => {
+      const expected = 30_000 + 30_000 * 0.2898 + 30_000 / 13.5;
+      expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(expected, 2);
+    });
+
+    it('deve calcolare totale mensile = totale annuo / 12', () => {
+      expect(result.costoAziendale.totaleMensile).toBeCloseTo(
+        result.costoAziendale.totaleAnnuo / 12,
+        2,
+      );
+    });
+  });
+
+  describe('Con CIGS', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 40_000,
+      aziendaConCigs: true,
+    });
+
+    it('deve usare aliquota INPS datore con CIGS (29,68%)', () => {
+      expect(result.costoAziendale.aliquotaInpsDatore).toBe(0.2968);
+    });
+  });
+
+  describe('Apprendistato', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 25_000,
+      tipoContratto: 'apprendistato',
+    });
+
+    it('deve usare aliquota ridotta apprendistato (11,61%)', () => {
+      expect(result.costoAziendale.aliquotaInpsDatore).toBe(0.1161);
+    });
+  });
+
+  describe('Dirigente con fondi CCNL Terziario', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 80_000,
+      fondoMarioNegri: true,
+      fondoPastore: true,
+      cfmt: true,
+      fasdac: true,
+    });
+
+    it('deve usare aliquota dirigente (26,54%)', () => {
+      expect(result.costoAziendale.aliquotaInpsDatore).toBe(0.2654);
+    });
+
+    it('deve includere Fondo Negri datore (15,38% di retribuzione convenzionale)', () => {
+      expect(result.costoAziendale.fondoNegriDatore).toBeCloseTo(59_224.54 * 0.1538, 2);
+    });
+
+    it('deve includere Fondo Pastore datore', () => {
+      expect(result.costoAziendale.fondoPastoreDatore).toBe(4_856.45);
+    });
+
+    it('deve includere CFMT datore', () => {
+      expect(result.costoAziendale.cfmtDatore).toBe(276);
+    });
+
+    it('deve includere FASDAC datore (8,07% di retribuzione convenzionale)', () => {
+      expect(result.costoAziendale.fasdacDatore).toBeCloseTo(45_940 * 0.0807, 2);
+    });
+
+    it('il costo aziendale deve includere tutte le voci', () => {
+      const expected =
+        80_000 +
+        80_000 * 0.2654 +
+        80_000 / 13.5 +
+        59_224.54 * 0.1538 +
+        4_856.45 +
+        276 +
+        45_940 * 0.0807;
+      expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(expected, 0);
+    });
+  });
+
+  describe('Con fondo pensione integrativo (contributo datore)', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 35_000,
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 1,
+        ralLavoratore: 35_000,
+        contributoDatoreLavoro: 2,
+        ralDatoreLavoro: 35_000,
+      },
+    });
+
+    it('deve includere il contributo datore fondo pensione nel costo aziendale', () => {
+      expect(result.costoAziendale.fondoPensioneIntegrativoDatore).toBeCloseTo(700, 2);
+    });
+
+    it('il totale deve includere il contributo datore', () => {
+      const expected = 35_000 + 35_000 * 0.2898 + 35_000 / 13.5 + 700;
+      expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(expected, 0);
+    });
+  });
+
+  describe('Con fringe benefit', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      fringeBenefit: {
+        buoniAcquisto: 500,
+        buoniCarburante: 200,
+      },
+    });
+
+    it('deve includere i fringe benefit nel costo aziendale', () => {
+      expect(result.costoAziendale.fringeBenefit).toBe(700);
+    });
+
+    it('il totale deve includere i fringe benefit', () => {
+      expect(result.costoAziendale.totaleAnnuo).toBeGreaterThan(
+        30_000 + 30_000 * 0.2898 + 30_000 / 13.5,
+      );
+    });
+  });
+
+  describe('Con rimborsi trasferta', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        giorniTrasfertaItalia: 10,
+      },
+    });
+
+    it('deve includere i rimborsi trasferta nel costo aziendale', () => {
+      expect(result.costoAziendale.rimborsiTrasferta).toBeCloseTo(46.48 * 10, 2);
+    });
+  });
+
+  describe('Con benefit non tassati (welfare)', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      benefitNonTassati: {
+        buoniPasto: 1_500,
+        buoniPastoElettronici: true,
+        abbonamentoTrasporto: 300,
+        serviziWelfare: 800,
+      },
+    });
+
+    it('deve includere i benefit non tassati nel costo aziendale', () => {
+      expect(result.costoAziendale.benefitNonTassati).toBe(1_500 + 300 + 800);
+    });
+
+    it('il totale deve includere i benefit non tassati', () => {
+      const baseExpected = 30_000 + 30_000 * 0.2898 + 30_000 / 13.5;
+      expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(baseExpected + 2_600, 0);
+    });
+  });
+
+  describe('Il costo aziendale è sempre maggiore della RAL', () => {
+    it.each([20_000, 30_000, 50_000, 80_000, 120_000])('RAL %d', (ral) => {
+      const result = calc.calcolaStipendioNetto({ ...baseInput, ral });
+      expect(result.costoAziendale.totaleAnnuo).toBeGreaterThan(ral);
+    });
+  });
+});

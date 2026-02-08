@@ -420,6 +420,38 @@ export interface DettaglioFondoPensioneIntegrativo {
   risparmoFiscaleStimato: number;
 }
 
+/** Dettaglio costo aziendale del dipendente */
+export interface DettaglioCostoAziendale {
+  /** RAL (retribuzione annua lorda) */
+  ral: number;
+  /** Contributi INPS a carico del datore di lavoro */
+  contributiInpsDatore: number;
+  /** Aliquota INPS applicata al datore */
+  aliquotaInpsDatore: number;
+  /** TFR annuo (RAL / 13,5) */
+  tfr: number;
+  /** Contributo Fondo Mario Negri a carico azienda (se dirigente) */
+  fondoNegriDatore: number;
+  /** Contributo Fondo Antonio Pastore a carico azienda (se dirigente) */
+  fondoPastoreDatore: number;
+  /** Contributo CFMT a carico azienda (se dirigente) */
+  cfmtDatore: number;
+  /** Contributo FASDAC a carico azienda (se dirigente) */
+  fasdacDatore: number;
+  /** Contributo fondo pensione integrativo a carico datore */
+  fondoPensioneIntegrativoDatore: number;
+  /** Fringe benefit erogati (valore totale lordo) */
+  fringeBenefit: number;
+  /** Rimborsi spese trasferta erogati */
+  rimborsiTrasferta: number;
+  /** Benefit non tassati (welfare aziendale) erogati */
+  benefitNonTassati: number;
+  /** Costo aziendale totale annuo */
+  totaleAnnuo: number;
+  /** Costo aziendale mensile (totaleAnnuo / 12) */
+  totaleMensile: number;
+}
+
 /** Dettaglio regime impatriati (rientro cervelli) */
 export interface DettaglioRegimeImpatriati {
   /** Percentuale di esenzione applicata (0.50 o 0.60) */
@@ -484,6 +516,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio regime impatriati (se applicabile) */
   regimeImpatriati: DettaglioRegimeImpatriati | null;
+
+  /** Dettaglio costo aziendale del dipendente */
+  costoAziendale: DettaglioCostoAziendale;
 
   /** Dettaglio calcolo IRPEF */
   irpef: DettaglioIrpef;

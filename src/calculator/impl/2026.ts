@@ -7,6 +7,7 @@ import {
   DettaglioBenefitNonTassati,
   DettaglioCFMT,
   DettaglioContributiInps,
+  DettaglioCostoAziendale,
   DettaglioFasdac,
   DettaglioCuneoFiscale,
   DettaglioDetrazioniFamiliari,
@@ -182,6 +183,39 @@ const FASDAC = {
 const PREVIDENZA_COMPLEMENTARE = {
   /** Limite annuo di deducibilità (art. 10, c.1, lett. e-bis, TUIR - dal 2026: €5.300) */
   limiteDeducibilita: 5_300,
+} as const;
+
+/** Aliquote contributive INPS a carico del datore di lavoro (Commercio/Terziario 2026) */
+const ALIQUOTE_INPS_DATORE = {
+  /** Operai/impiegati senza CIGS (≤50 dip. commercio) */
+  base: 0.2898,
+  /** Con CIGS */
+  conCigs: 0.2968,
+  /** Apprendistato (aliquota agevolata) */
+  apprendista: 0.1161,
+  /** Dirigenti senza CIGS */
+  dirigente: 0.2654,
+  /** Dirigenti con CIGS */
+  dirigenteConCigs: 0.2724,
+} as const;
+
+/** Contributi fondi contrattuali a carico del datore - CCNL Dirigenti Terziario 2026 */
+const FONDI_DATORE_DIRIGENTI = {
+  /** Fondo Mario Negri: ordinario 12,86% + integrativo 2,52% = 15,38% di retribuzione convenzionale */
+  fondoNegriAliquota: 0.1538,
+  fondoNegriRetribuzioneConvenzionale: 59_224.54,
+  /** Associazione Antonio Pastore: premio annuo azienda */
+  fondoPastore: 4_856.45,
+  /** CFMT: €258 formazione + €18 piattaforma welfare */
+  cfmt: 276,
+  /** FASDAC: 5,29% dirigenti in servizio + 2,78% gestione pensionati = 8,07% di retribuzione convenzionale */
+  fasdacAliquota: 0.0807,
+  fasdacRetribuzioneConvenzionale: 45_940,
+} as const;
+
+/** Parametri TFR (Art. 2120 c.c.) */
+const TFR = {
+  divisore: 13.5,
 } as const;
 
 /** Parametri Regime Impatriati (D.Lgs. 209/2023, art. 5) */
@@ -910,6 +944,82 @@ function calcolaAddizionaleComunale(
   return { addizionale, aliquota: config.aliquota, esenzioneApplicata: false };
 }
 
+function calcolaCostoAziendale(
+  ral: number,
+  imponibilePrevidenziale: number,
+  tipoContratto: TipoContratto,
+  aziendaConCigs: boolean,
+  isDirigente: boolean,
+  fondoMarioNegri: boolean,
+  fondoPastore: boolean,
+  cfmt: boolean,
+  fasdac: boolean,
+  contributoDatoreFondoPensione: number,
+  fringeBenefitTotale: number,
+  rimborsiTrasfertaTotale: number,
+  benefitNonTassatiTotale: number,
+): DettaglioCostoAziendale {
+  // 1. Aliquota INPS datore
+  let aliquotaInpsDatore: number;
+  if (tipoContratto === 'apprendistato') {
+    aliquotaInpsDatore = ALIQUOTE_INPS_DATORE.apprendista;
+  } else if (isDirigente) {
+    aliquotaInpsDatore = aziendaConCigs
+      ? ALIQUOTE_INPS_DATORE.dirigenteConCigs
+      : ALIQUOTE_INPS_DATORE.dirigente;
+  } else if (aziendaConCigs) {
+    aliquotaInpsDatore = ALIQUOTE_INPS_DATORE.conCigs;
+  } else {
+    aliquotaInpsDatore = ALIQUOTE_INPS_DATORE.base;
+  }
+  const contributiInpsDatore = imponibilePrevidenziale * aliquotaInpsDatore;
+
+  // 2. TFR
+  const tfr = ral / TFR.divisore;
+
+  // 3. Fondi contrattuali dirigenti (a carico datore)
+  const fondoNegriDatore = fondoMarioNegri
+    ? FONDI_DATORE_DIRIGENTI.fondoNegriAliquota *
+      FONDI_DATORE_DIRIGENTI.fondoNegriRetribuzioneConvenzionale
+    : 0;
+  const fondoPastoreDatore = fondoPastore ? FONDI_DATORE_DIRIGENTI.fondoPastore : 0;
+  const cfmtDatore = cfmt ? FONDI_DATORE_DIRIGENTI.cfmt : 0;
+  const fasdacDatore = fasdac
+    ? FONDI_DATORE_DIRIGENTI.fasdacAliquota * FONDI_DATORE_DIRIGENTI.fasdacRetribuzioneConvenzionale
+    : 0;
+
+  // 4. Totale
+  const totaleAnnuo =
+    ral +
+    contributiInpsDatore +
+    tfr +
+    fondoNegriDatore +
+    fondoPastoreDatore +
+    cfmtDatore +
+    fasdacDatore +
+    contributoDatoreFondoPensione +
+    fringeBenefitTotale +
+    rimborsiTrasfertaTotale +
+    benefitNonTassatiTotale;
+
+  return {
+    ral,
+    contributiInpsDatore,
+    aliquotaInpsDatore,
+    tfr,
+    fondoNegriDatore,
+    fondoPastoreDatore,
+    cfmtDatore,
+    fasdacDatore,
+    fondoPensioneIntegrativoDatore: contributoDatoreFondoPensione,
+    fringeBenefit: fringeBenefitTotale,
+    rimborsiTrasferta: rimborsiTrasfertaTotale,
+    benefitNonTassati: benefitNonTassatiTotale,
+    totaleAnnuo,
+    totaleMensile: totaleAnnuo / 12,
+  };
+}
+
 export class Calculator2026 implements StipendioCalculator {
   calcolaStipendioNetto(input: InputCalcoloStipendio): OutputCalcoloStipendio {
     const {
@@ -1152,6 +1262,24 @@ export class Calculator2026 implements StipendioCalculator {
       contributoFondoNegri,
     );
 
+    // 16. CALCOLO COSTO AZIENDALE
+    const isDirigente = fondoMarioNegri || fondoPastoreFlag || cfmtFlag || fasdacFlag;
+    const costoAziendale = calcolaCostoAziendale(
+      ral,
+      contributiInps.imponibilePrevidenziale,
+      tipoContratto,
+      aziendaConCigs,
+      isDirigente,
+      fondoMarioNegri,
+      fondoPastoreFlag,
+      cfmtFlag,
+      fasdacFlag,
+      contributoDatoreFondoPensione,
+      fringeBenefit.valoreTotaleLordo,
+      rimborsiTrasferta.totaleRimborsi,
+      benefitNonTassati.totaleEsente + benefitNonTassati.totaleTassato,
+    );
+
     // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT, FASDAC e contributo lavoratore Fondo Pensione)
     const totaleTrattenute =
       contributiInps.totaleContributi +
@@ -1208,6 +1336,7 @@ export class Calculator2026 implements StipendioCalculator {
       fasdac,
       fondoPensioneIntegrativo,
       regimeImpatriati: dettaglioRegimeImpatriati,
+      costoAziendale,
       irpef,
       detrazioniLavoro,
       detrazioniFamiliari,
