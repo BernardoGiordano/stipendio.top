@@ -914,34 +914,34 @@ function calcolaAddizionaleComunale(
   }
 
   if (config.e && imponibile <= config.e) {
-    const aliquotaDefault = 'aliquota' in config ? config.aliquota : config.scaglioni[0].aliquota;
+    const aliquotaDefault = 'a' in config ? config.a : config.s[0].a;
     return { addizionale: 0, aliquota: aliquotaDefault, esenzioneApplicata: true };
   }
 
   // Gestione scaglioni progressivi (es. Torino)
-  if ('scaglioni' in config) {
+  if ('s' in config) {
     let addizionale = 0;
     let residuo = imponibile;
     let precedente = 0;
     let aliquotaEffettiva = 0;
 
-    for (const scaglione of config.scaglioni) {
-      const importoScaglione = Math.min(residuo, scaglione.limite - precedente);
+    for (const scaglione of config.s) {
+      const importoScaglione = Math.min(residuo, scaglione.l - precedente);
       if (importoScaglione > 0) {
-        addizionale += importoScaglione * scaglione.aliquota;
-        aliquotaEffettiva = scaglione.aliquota;
+        addizionale += importoScaglione * scaglione.a;
+        aliquotaEffettiva = scaglione.a;
       }
       residuo -= importoScaglione;
-      precedente = scaglione.limite;
+      precedente = scaglione.l;
       if (residuo <= 0) break;
     }
 
     return { addizionale, aliquota: aliquotaEffettiva, esenzioneApplicata: false };
   }
 
-  const addizionale = imponibile * config.aliquota;
+  const addizionale = imponibile * config.a;
 
-  return { addizionale, aliquota: config.aliquota, esenzioneApplicata: false };
+  return { addizionale, aliquota: config.a, esenzioneApplicata: false };
 }
 
 function calcolaCostoAziendale(

@@ -149,7 +149,18 @@ type AddizionaleComunaleBase = {
   e?: number; // esenzione
 };
 export type AddizionaleComunale = AddizionaleComunaleBase &
-  ({ aliquota: number } | { scaglioni: Array<{ limite: number; aliquota: number }> });
+  (
+    | {
+        a: number; // aliquota
+      }
+    | {
+        s: Array<{
+          // scaglioni
+          l: number; // limite
+          a: number; // aliquota
+        }>;
+      }
+  );
 
 /** Input per il calcolo dello stipendio netto */
 export interface InputCalcoloStipendio {
