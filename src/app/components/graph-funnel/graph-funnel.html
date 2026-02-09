@@ -48,21 +48,21 @@
                 <title>{{ node.label }}: {{ formatCurrency(node.value) }}</title>
               </rect>
 
-              <!-- Column 0: Labels on LEFT side (outside) -->
+              <!-- Column 0: Labels -->
               @if (node.column === 0) {
                 <text
-                  [attr.x]="node.x - 8"
+                  [attr.x]="node.x + 26"
                   [attr.y]="node.y + node.height / 2 - 6"
-                  text-anchor="end"
+                  text-anchor="start"
                   dominant-baseline="middle"
                   class="text-[11px] font-medium fill-stone-700 dark:fill-stone-300"
                 >
                   {{ node.label }}
                 </text>
                 <text
-                  [attr.x]="node.x - 8"
+                  [attr.x]="node.x + 26"
                   [attr.y]="node.y + node.height / 2 + 8"
-                  text-anchor="end"
+                  text-anchor="start"
                   dominant-baseline="middle"
                   class="text-[11px] font-semibold fill-stone-900 dark:fill-stone-100"
                 >
@@ -114,21 +114,21 @@
                 </text>
               }
 
-              <!-- Column 3: Labels on RIGHT side (outside) -->
+              <!-- Column 3: Labels -->
               @if (node.column === 3) {
                 <text
-                  [attr.x]="node.x + 26"
+                  [attr.x]="node.x - 8"
                   [attr.y]="node.y + node.height / 2 - 6"
-                  text-anchor="start"
+                  text-anchor="end"
                   dominant-baseline="middle"
                   class="text-[11px] font-medium fill-stone-700 dark:fill-stone-300"
                 >
                   {{ node.label }}
                 </text>
                 <text
-                  [attr.x]="node.x + 26"
+                  [attr.x]="node.x - 8"
                   [attr.y]="node.y + node.height / 2 + 8"
-                  text-anchor="start"
+                  text-anchor="end"
                   dominant-baseline="middle"
                   class="text-[11px] font-semibold fill-stone-900 dark:fill-stone-100"
                 >

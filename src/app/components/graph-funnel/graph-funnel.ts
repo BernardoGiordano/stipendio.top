@@ -95,7 +95,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     height: number,
     isMonthly: boolean,
   ): { nodes: SankeyNode[]; links: SankeyLink[]; width: number; height: number } {
-    const padding = { top: 30, right: 110, bottom: 30, left: 110 };
+    const padding = { top: 30, right: 10, bottom: 30, left: 10 };
     const nodeWidth = 18;
     const nodePadding = 10;
 
