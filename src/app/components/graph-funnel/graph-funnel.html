@@ -6,8 +6,8 @@
     role="img"
     [attr.aria-label]="
       viewMode() === 'monthly'
-        ? 'Grafico Sankey che mostra la distribuzione mensile dello stipendio lordo tra tasse, contributi e totale percepito'
-        : 'Grafico Sankey che mostra la distribuzione annuale dello stipendio lordo tra tasse, contributi e totale percepito'
+        ? 'Grafico Sankey che mostra il flusso mensile dal costo aziendale al percepito netto, passando per trattenute e contributi'
+        : 'Grafico Sankey che mostra il flusso annuale dal costo aziendale al percepito netto, passando per trattenute e contributi'
     "
   >
     @if (chartData(); as data) {
@@ -94,6 +94,28 @@
 
               <!-- Column 2: Labels on RIGHT side (outside) -->
               @if (node.column === 2) {
+                <text
+                  [attr.x]="node.x + 26"
+                  [attr.y]="node.y + node.height / 2 - 6"
+                  text-anchor="start"
+                  dominant-baseline="middle"
+                  class="text-[10px] font-medium fill-stone-600 dark:fill-stone-400"
+                >
+                  {{ node.label }}
+                </text>
+                <text
+                  [attr.x]="node.x + 26"
+                  [attr.y]="node.y + node.height / 2 + 7"
+                  text-anchor="start"
+                  dominant-baseline="middle"
+                  class="text-[10px] font-semibold fill-stone-800 dark:fill-stone-200"
+                >
+                  {{ formatCurrency(node.value) }}
+                </text>
+              }
+
+              <!-- Column 3: Labels on RIGHT side (outside) -->
+              @if (node.column === 3) {
                 <text
                   [attr.x]="node.x + 26"
                   [attr.y]="node.y + node.height / 2 - 6"

@@ -104,162 +104,191 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
 
     // Divisor for monthly values
     const divisor = isMonthly ? result.mensilita : 1;
+    const d = (v: number) => v / divisor;
 
-    // Extract values (divided by divisor for monthly view)
-    const ral = result.ral / divisor;
-    const inps = result.contributiInps.totaleContributi / divisor;
-    const irpefFinale = result.irpefFinale / divisor;
-    const addizionali = result.addizionali.totaleAddizionali / divisor;
-    const totalePercepito = result.totalePercepito / divisor;
-    const cuneoIndennita = result.cuneoFiscale.indennitaEsente / divisor;
-    const trattamentoIntegrativo = result.trattamentoIntegrativo.importo / divisor;
-    const rimborsiEsenti = result.rimborsiTrasferta.totaleEsente / divisor;
-    const benefitEsenti = result.benefitNonTassati.totaleEsente / divisor;
-    const totalBonus = cuneoIndennita + trattamentoIntegrativo;
-    const nettoBase = result.nettoAnnuo / divisor - totalBonus;
+    // === Extract values ===
+    const ca = result.costoAziendale;
+    const ral = d(result.ral);
+    const inpsDip = d(result.contributiInps.totaleContributi);
+    const irpefFinale = d(result.irpefFinale);
+    const addizionali = d(result.addizionali.totaleAddizionali);
+    const cuneoIndennita = d(result.cuneoFiscale.indennitaEsente);
+    const trattamentoIntegrativo = d(result.trattamentoIntegrativo.importo);
+    const rimborsiEsenti = d(result.rimborsiTrasferta.totaleEsente);
+    const benefitEsenti = d(result.benefitNonTassati.totaleEsente);
+    const totalePercepito = d(result.totalePercepito);
 
-    // Colors
+    // Costo aziendale components
+    const inpsDatore = d(ca.contributiInpsDatore);
+    const tfr = d(ca.tfr);
+
+    // Fondi datore (raggruppati)
+    const fondiDatoreComponents = [
+      ca.fondoNegriDatore,
+      ca.fondoPastoreDatore,
+      ca.cfmtDatore,
+      ca.fasdacDatore,
+      ca.fondoPensioneIntegrativoDatore,
+    ];
+    const fondiDatore = d(fondiDatoreComponents.reduce((s, v) => s + v, 0));
+
+    // Fondi dipendente (raggruppati)
+    const fondiDipComponents = [
+      result.fondoNegri?.contributoAnnuo ?? 0,
+      result.fondoPastore?.contributoAnnuo ?? 0,
+      result.cfmt?.contributoAnnuo ?? 0,
+      result.fasdac?.contributoAnnuo ?? 0,
+      result.fondoPensioneIntegrativo?.contributoLavoratoreAnnuo ?? 0,
+    ];
+    const fondiDip = d(fondiDipComponents.reduce((s, v) => s + v, 0));
+
+    // Netto from RAL = RAL - all deductions from RAL
+    const nettoFromRAL = ral - inpsDip - irpefFinale - addizionali - fondiDip;
+
+    // Costo aziendale totale
+    const costoAziendale = d(ca.totaleAnnuo);
+
+    // === Colors ===
     const colors: Record<string, string> = {
+      costoAziendale: '#a8a29e',
       ral: '#78716c',
-      inps: '#ef4444',
-      irpef: '#f97316',
-      addizionali: '#eab308',
-      nettoBase: '#84cc16',
-      cuneo: '#3b82f6',
-      trattamento: '#8b5cf6',
+      inpsDatore: '#dc2626',
+      tfr: '#d97706',
+      fondiDatore: '#7c3aed',
       rimborsi: '#14b8a6',
       benefit: '#06b6d4',
+      inpsDip: '#ef4444',
+      irpef: '#f97316',
+      addizionali: '#eab308',
+      fondiDip: '#a855f7',
+      nettoFromRAL: '#84cc16',
+      cuneo: '#3b82f6',
+      trattamento: '#8b5cf6',
       totale: '#22c55e',
     };
 
-    // Column X positions
-    const columnGap = (innerWidth - nodeWidth * 3) / 2;
+    // === Column X positions (4 columns) ===
+    const columnGap = (innerWidth - nodeWidth * 4) / 3;
     const col0X = padding.left;
     const col1X = padding.left + nodeWidth + columnGap;
     const col2X = padding.left + (nodeWidth + columnGap) * 2;
+    const col3X = padding.left + (nodeWidth + columnGap) * 3;
 
-    // Collect all values
+    // === Build column value arrays (filtered > 0) ===
     const col1Values = [
-      { id: 'inps', value: inps, label: 'INPS' },
+      { id: 'ral', value: ral, label: isMonthly ? 'Lordo Mensile' : 'RAL (Lordo)' },
+      { id: 'inpsDatore', value: inpsDatore, label: 'INPS Datore' },
+      { id: 'tfr', value: tfr, label: 'TFR' },
+      ...(fondiDatore > 0
+        ? [{ id: 'fondiDatore', value: fondiDatore, label: 'Fondi Datore' }]
+        : []),
+      ...(rimborsiEsenti > 0
+        ? [{ id: 'rimborsi', value: rimborsiEsenti, label: 'Rimborsi Esenti' }]
+        : []),
+      ...(benefitEsenti > 0
+        ? [{ id: 'benefit', value: benefitEsenti, label: 'Benefit Esenti' }]
+        : []),
+    ];
+
+    const col2Values = [
+      { id: 'inpsDip', value: inpsDip, label: 'INPS Dip.' },
       { id: 'irpef', value: irpefFinale, label: 'IRPEF' },
-      { id: 'addizionali', value: addizionali, label: 'Addizionali' },
-      { id: 'nettoBase', value: nettoBase, label: 'Netto Base' },
+      ...(addizionali > 0 ? [{ id: 'addizionali', value: addizionali, label: 'Addizionali' }] : []),
+      ...(fondiDip > 0 ? [{ id: 'fondiDip', value: fondiDip, label: 'Fondi Dip.' }] : []),
+      { id: 'nettoFromRAL', value: nettoFromRAL, label: 'Netto' },
     ].filter((v) => v.value > 0);
 
-    const bonusSources = [
-      { id: 'cuneo', value: cuneoIndennita, label: 'Cuneo Fiscale' },
-      { id: 'trattamento', value: trattamentoIntegrativo, label: 'Tratt. Integrativo' },
-      { id: 'rimborsi', value: rimborsiEsenti, label: 'Rimborsi Esenti' },
-      { id: 'benefit', value: benefitEsenti, label: 'Benefit Esenti' },
-    ].filter((v) => v.value > 0);
+    // Col0 sources: Costo Aziendale + external bonuses
+    const col0Sources = [
+      { id: 'costoAziendale', value: costoAziendale, label: 'Costo Aziendale' },
+      ...(cuneoIndennita > 0
+        ? [{ id: 'cuneo', value: cuneoIndennita, label: 'Cuneo Fiscale' }]
+        : []),
+      ...(trattamentoIntegrativo > 0
+        ? [{ id: 'trattamento', value: trattamentoIntegrativo, label: 'Tratt. Integrativo' }]
+        : []),
+    ];
 
-    // Calculate scale: use RAL + bonuses as the reference (everything flows through this)
-    const totalSourceValue = ral + bonusSources.reduce((s, b) => s + b.value, 0);
+    // === Scale based on the tallest column ===
+    const colCounts = [col0Sources.length, col1Values.length, col2Values.length, 1 /* totale */];
+    const colSums = [
+      col0Sources.reduce((s, v) => s + v.value, 0),
+      col1Values.reduce((s, v) => s + v.value, 0),
+      col2Values.reduce((s, v) => s + v.value, 0),
+      totalePercepito,
+    ];
 
-    // Account for padding between nodes
-    const col1NodeCount = col1Values.length;
-    const col0NodeCount = 1 + bonusSources.length; // RAL + bonuses
-    const maxNodeCount = Math.max(col0NodeCount, col1NodeCount);
-    const totalPadding = nodePadding * (maxNodeCount - 1);
+    // Find the column that needs the most vertical space
+    let maxRequiredHeight = 0;
+    for (let c = 0; c < 4; c++) {
+      const totalPad = nodePadding * Math.max(0, colCounts[c] - 1);
+      if (colSums[c] > 0) {
+        const s = (innerHeight - totalPad) / colSums[c];
+        if (maxRequiredHeight === 0 || s < maxRequiredHeight) {
+          maxRequiredHeight = s;
+        }
+      }
+    }
+    const scale = maxRequiredHeight;
 
-    const scale = (innerHeight - totalPadding) / totalSourceValue;
-
-    // Helper to get height
-    const getHeight = (value: number) => value * scale;
+    const getHeight = (value: number) => Math.max(value * scale, 2); // min 2px for visibility
 
     const nodes: SankeyNode[] = [];
     const links: SankeyLink[] = [];
 
-    // === Calculate all heights first ===
-    const ralHeight = getHeight(ral);
-    const col1Heights = col1Values.map((v) => getHeight(v.value));
-    const bonusHeights = bonusSources.map((v) => getHeight(v.value));
-    const totaleHeight = getHeight(totalePercepito);
+    // === Helper: position nodes in a column centered vertically ===
+    const positionColumn = (
+      values: { id: string; value: number; label: string }[],
+      colX: number,
+      column: number,
+    ): SankeyNode[] => {
+      const heights = values.map((v) => getHeight(v.value));
+      const totalH =
+        heights.reduce((s, h) => s + h, 0) + nodePadding * Math.max(0, values.length - 1);
+      const startY = padding.top + (innerHeight - totalH) / 2;
 
-    // === Position col1 nodes (align top with RAL) ===
-    // Col1 total height with padding
-    const col1TotalHeight =
-      col1Heights.reduce((s, h) => s + h, 0) + nodePadding * (col1Values.length - 1);
-
-    // Calculate starting Y to center the entire chart
-    const bonusTotalHeight =
-      bonusHeights.reduce((s, h) => s + h, 0) +
-      (bonusSources.length > 0 ? nodePadding * bonusSources.length : 0);
-    const totalChartHeight = Math.max(col1TotalHeight, ralHeight) + bonusTotalHeight;
-    const startY = padding.top + (innerHeight - totalChartHeight) / 2;
-
-    // Position col1 nodes
-    let col1Y = startY;
-    const col1Nodes: SankeyNode[] = [];
-    for (let i = 0; i < col1Values.length; i++) {
-      const v = col1Values[i];
-      const h = col1Heights[i];
-      col1Nodes.push({
-        id: v.id,
-        label: v.label,
-        value: v.value,
-        color: colors[v.id],
-        column: 1,
-        x: col1X,
-        y: col1Y,
-        height: h,
-      });
-      col1Y += h + nodePadding;
-    }
-    nodes.push(...col1Nodes);
-
-    // === Position RAL (same height, aligned with col1) ===
-    const ralNode: SankeyNode = {
-      id: 'ral',
-      label: isMonthly ? 'Lordo Mensile' : 'RAL (Lordo)',
-      value: ral,
-      color: colors['ral'],
-      column: 0,
-      x: col0X,
-      y: startY,
-      height: ralHeight,
+      const result: SankeyNode[] = [];
+      let y = startY;
+      for (let i = 0; i < values.length; i++) {
+        const v = values[i];
+        const h = heights[i];
+        result.push({
+          id: v.id,
+          label: v.label,
+          value: v.value,
+          color: colors[v.id],
+          column,
+          x: colX,
+          y,
+          height: h,
+        });
+        y += h + nodePadding;
+      }
+      return result;
     };
-    nodes.push(ralNode);
 
-    // === Position bonus sources below RAL ===
-    const bonusNodes: SankeyNode[] = [];
-    let bonusY = startY + ralHeight + nodePadding;
-    for (let i = 0; i < bonusSources.length; i++) {
-      const bonus = bonusSources[i];
-      const h = bonusHeights[i];
-      bonusNodes.push({
-        id: bonus.id,
-        label: bonus.label,
-        value: bonus.value,
-        color: colors[bonus.id],
-        column: 0,
-        x: col0X,
-        y: bonusY,
-        height: h,
-      });
-      bonusY += h + nodePadding;
-    }
-    nodes.push(...bonusNodes);
+    // === Position all columns ===
+    const col0Nodes = positionColumn(col0Sources, col0X, 0);
+    const col1Nodes = positionColumn(col1Values, col1X, 1);
+    const col2Nodes = positionColumn(col2Values, col2X, 2);
+    const col3Nodes = positionColumn(
+      [
+        {
+          id: 'totale',
+          value: totalePercepito,
+          label: isMonthly ? 'Percepito Mensile' : 'Totale Percepito',
+        },
+      ],
+      col3X,
+      3,
+    );
 
-    // === Position Totale Percepito ===
-    // Its height equals the sum of incoming flows: nettoBase + all bonuses
-    const nettoBaseNode = col1Nodes.find((n) => n.id === 'nettoBase');
-    const totaleY = nettoBaseNode ? nettoBaseNode.y : startY;
+    nodes.push(...col0Nodes, ...col1Nodes, ...col2Nodes, ...col3Nodes);
 
-    const totaleNode: SankeyNode = {
-      id: 'totale',
-      label: isMonthly ? 'Percepito Mensile' : 'Totale Percepito',
-      value: totalePercepito,
-      color: colors['totale'],
-      column: 2,
-      x: col2X,
-      y: totaleY,
-      height: totaleHeight,
-    };
-    nodes.push(totaleNode);
+    // === Build node map for quick lookup ===
+    const nodeMap = new Map(nodes.map((n) => [n.id, n]));
 
-    // === Build links ===
-    // Track offsets for stacking flows
+    // === Track source/target Y offsets for stacking flows ===
     const sourceOffsets = new Map<string, number>();
     const targetOffsets = new Map<string, number>();
     nodes.forEach((n) => {
@@ -267,59 +296,50 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
       targetOffsets.set(n.id, n.y);
     });
 
-    // RAL → Col1 links (flows split from RAL to each col1 node)
-    for (const col1Node of col1Nodes) {
-      const flowHeight = col1Node.height; // Same height as target
-      const sourceY = sourceOffsets.get('ral')!;
+    const addLink = (fromId: string, toId: string, value: number) => {
+      if (value <= 0) return;
+      const fromNode = nodeMap.get(fromId);
+      const toNode = nodeMap.get(toId);
+      if (!fromNode || !toNode) return;
+
+      const flowHeight = getHeight(value);
+      const sourceY = sourceOffsets.get(fromId)!;
+      const targetY = targetOffsets.get(toId)!;
 
       links.push({
-        from: 'ral',
-        to: col1Node.id,
-        value: col1Node.value,
+        from: fromId,
+        to: toId,
+        value,
         sourceY,
         sourceHeight: flowHeight,
-        targetY: col1Node.y,
-        targetHeight: col1Node.height,
-      });
-
-      sourceOffsets.set('ral', sourceY + flowHeight);
-    }
-
-    // NettoBase → Totale link
-    if (nettoBaseNode) {
-      const flowHeight = nettoBaseNode.height;
-      const targetY = targetOffsets.get('totale')!;
-
-      links.push({
-        from: 'nettoBase',
-        to: 'totale',
-        value: nettoBase,
-        sourceY: nettoBaseNode.y,
-        sourceHeight: flowHeight,
         targetY,
         targetHeight: flowHeight,
       });
 
-      targetOffsets.set('totale', targetY + flowHeight);
+      sourceOffsets.set(fromId, sourceY + flowHeight);
+      targetOffsets.set(toId, targetY + flowHeight);
+    };
+
+    // === Col0 → Col1: Costo Aziendale decomposes into its components ===
+    for (const col1Node of col1Nodes) {
+      addLink('costoAziendale', col1Node.id, col1Node.value);
     }
 
-    // Bonus → Totale links
-    for (const bonusNode of bonusNodes) {
-      const flowHeight = bonusNode.height;
-      const targetY = targetOffsets.get('totale')!;
-
-      links.push({
-        from: bonusNode.id,
-        to: 'totale',
-        value: bonusNode.value,
-        sourceY: bonusNode.y,
-        sourceHeight: flowHeight,
-        targetY,
-        targetHeight: flowHeight,
-      });
-
-      targetOffsets.set('totale', targetY + flowHeight);
+    // === Col1 → Col2: RAL decomposes into deductions + netto ===
+    for (const col2Node of col2Nodes) {
+      addLink('ral', col2Node.id, col2Node.value);
     }
+
+    // === Col2 → Col3: Netto flows to Totale Percepito ===
+    addLink('nettoFromRAL', 'totale', nettoFromRAL);
+
+    // === Col1 → Col3: Rimborsi/Benefit skip col2, go directly to Totale ===
+    addLink('rimborsi', 'totale', rimborsiEsenti);
+    addLink('benefit', 'totale', benefitEsenti);
+
+    // === Col0 → Col3: External bonuses go directly to Totale ===
+    addLink('cuneo', 'totale', cuneoIndennita);
+    addLink('trattamento', 'totale', trattamentoIntegrativo);
 
     return { nodes, links, width, height };
   }
