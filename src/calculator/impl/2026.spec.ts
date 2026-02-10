@@ -1000,13 +1000,16 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBe(0);
     });
 
-    it("l'imponibile IRPEF deve essere ridotto di €750", () => {
+    it("l'imponibile IRPEF deve essere ridotto solo del contributo lavoratore (€300)", () => {
+      // Il contributo datore è reddito (Art. 51 TUIR) ma anche deducibile (Art. 10 TUIR):
+      // viene aggiunto e poi dedotto → effetto netto zero sull'imponibile.
+      // Solo il contributo lavoratore riduce effettivamente l'imponibile.
       const resultSenza = calc.calcolaStipendioNetto({
         ...baseInput,
         ral: 30_000,
       });
       const differenza = resultSenza.irpef.imponibileIrpef - result.irpef.imponibileIrpef;
-      expect(differenza).toBeCloseTo(750, 2);
+      expect(differenza).toBeCloseTo(300, 2);
     });
   });
 
@@ -1044,13 +1047,15 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       );
     });
 
-    it("l'imponibile IRPEF deve essere ridotto solo di €5.164,57", () => {
+    it("l'imponibile IRPEF deve essere ridotto di deduzione - contributo datore", () => {
+      // Contributo datore (3000) è aggiunto come reddito e poi dedotto.
+      // Riduzione netta imponibile = deduzione (5300) - contributoDatore (3000) = 2300
       const resultSenza = calc.calcolaStipendioNetto({
         ...baseInput,
         ral: 100_000,
       });
       const differenza = resultSenza.irpef.imponibileIrpef - result.irpef.imponibileIrpef;
-      expect(differenza).toBeCloseTo(LIMITE_DEDUCIBILITA, 2);
+      expect(differenza).toBeCloseTo(LIMITE_DEDUCIBILITA - 3_000, 2);
     });
   });
 
@@ -1088,7 +1093,9 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
     );
   });
 
-  it('solo il contributo lavoratore deve ridurre il netto (non il datore)', () => {
+  it('il contributo datore non deve modificare il netto (entro il cap)', () => {
+    // Il contributo datore è reddito (Art. 51 TUIR) ma deducibile (Art. 10 TUIR):
+    // aggiunto e poi dedotto → effetto netto zero. Il netto non cambia.
     const resultSoloLavoratore = calc.calcolaStipendioNetto({
       ...baseInput,
       ral: 40_000,
@@ -1106,8 +1113,7 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       },
     });
 
-    // Con il contributo datore, la deduzione IRPEF è maggiore → netto più alto
-    expect(resultConDatore.nettoAnnuo).toBeGreaterThan(resultSoloLavoratore.nettoAnnuo);
+    expect(resultConDatore.nettoAnnuo).toBeCloseTo(resultSoloLavoratore.nettoAnnuo, 2);
   });
 
   it('senza contributo datore, solo il contributo lavoratore è deducibile', () => {

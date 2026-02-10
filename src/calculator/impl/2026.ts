@@ -1120,8 +1120,12 @@ export class Calculator2026 implements StipendioCalculator {
     // 7. CALCOLO IMPONIBILE IRPEF
     // Il Fondo Negri riduce l'imponibile IRPEF (deduzione piena, no massimale)
     // Il Fondo Pensione Integrativo riduce l'imponibile IRPEF (deduzione con cap €5.300)
+    // Il contributo datore + Ebitemp al fondo pensione è reddito per il dipendente (Art. 51 TUIR)
+    // ma è deducibile entro il cap (Art. 10 TUIR): effetto netto zero se entro il limite
     const redditoLavoroDipendenteLordo =
-      imponibilePrevidenziale -
+      imponibilePrevidenziale +
+      contributoDatoreFondoPensione +
+      contributoEbitempFondoPensione -
       contributiInps.totaleContributi -
       contributoFondoNegri -
       deduzioneFondoPensione;
