@@ -1016,7 +1016,6 @@ function calcolaCostoAziendale(
     rimborsiTrasferta: rimborsiTrasfertaTotale,
     benefitNonTassati: benefitNonTassatiTotale,
     totaleAnnuo,
-    totaleMensile: totaleAnnuo / 12,
   };
 }
 

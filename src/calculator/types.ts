@@ -464,8 +464,6 @@ export interface DettaglioCostoAziendale {
   benefitNonTassati: number;
   /** Costo aziendale totale annuo */
   totaleAnnuo: number;
-  /** Costo aziendale mensile (totaleAnnuo / 12) */
-  totaleMensile: number;
 }
 
 /** Dettaglio regime impatriati (rientro cervelli) */

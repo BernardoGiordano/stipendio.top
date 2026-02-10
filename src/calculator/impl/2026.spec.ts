@@ -2524,13 +2524,6 @@ describe('Costo aziendale', () => {
       const expected = 30_000 + 30_000 * 0.2898 + 30_000 / 13.5;
       expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(expected, 2);
     });
-
-    it('deve calcolare totale mensile = totale annuo / 12', () => {
-      expect(result.costoAziendale.totaleMensile).toBeCloseTo(
-        result.costoAziendale.totaleAnnuo / 12,
-        2,
-      );
-    });
   });
 
   describe('Con CIGS', () => {
