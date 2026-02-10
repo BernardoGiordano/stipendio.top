@@ -883,6 +883,7 @@ function calcolaFondoPensioneIntegrativo(
   aliquotaMarginaleIrpef: number,
   contributoFondoSquilibrio: number,
   contributoVolontario: number = 0,
+  mensilita: number = 12,
 ): DettaglioFondoPensioneIntegrativo | null {
   if (!fondoPensione && contributoVolontario <= 0) {
     return null;
@@ -915,7 +916,8 @@ function calcolaFondoPensioneIntegrativo(
 
   return {
     contributoLavoratoreAnnuo,
-    contributoLavoratoreMensile: contributoLavoratoreAnnuo / 12,
+    contributoLavoratoreMensile:
+      contributoLavoratoreAnnuo / (fondoPensione?.ripartizionePerMensilita ? mensilita : 12),
     contributoDatoreLavoroAnnuo,
     contributoEbitempAnnuo,
     contributoVolontarioAnnuo: contributoVolontario,
@@ -1307,6 +1309,7 @@ export class Calculator2026 implements StipendioCalculator {
       aliquotaMarginaleIrpef,
       contributoFondoNegri,
       contributoVolontarioPensione,
+      mensilita,
     );
 
     // 16. CALCOLO COSTO AZIENDALE

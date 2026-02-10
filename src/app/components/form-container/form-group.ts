@@ -78,6 +78,7 @@ export interface FondoPensioneIntegrativoFormModel {
   ralDatoreLavoro: number;
   contributoEbitemp: number;
   ralEbitemp: number;
+  ripartizionePerMensilita: boolean;
 }
 
 export interface ConiugeACaricoFormModel {
@@ -194,6 +195,7 @@ function createDefaultFondoPensioneIntegrativo(): FondoPensioneIntegrativoFormMo
     ralDatoreLavoro: 0,
     contributoEbitemp: 0,
     ralEbitemp: 0,
+    ripartizionePerMensilita: false,
   };
 }
 
@@ -499,6 +501,7 @@ function toFondoPensioneIntegrativo(
       contributoEbitemp: model.contributoEbitemp,
       ralEbitemp: model.ralEbitemp,
     }),
+    ...(model.ripartizionePerMensilita && { ripartizionePerMensilita: true }),
   };
 }
 

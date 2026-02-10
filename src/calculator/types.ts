@@ -425,6 +425,8 @@ export interface FondoPensioneIntegrativo {
   contributoEbitemp?: number;
   /** RAL di riferimento per il contributo EBITEMP */
   ralEbitemp?: number;
+  /** Ripartisci il contributo mensile per il numero di mensilità anziché per 12 */
+  ripartizionePerMensilita?: boolean;
 }
 
 /** Dettaglio previdenza complementare (fondo pensione integrativo) */

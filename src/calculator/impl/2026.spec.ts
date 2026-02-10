@@ -1479,6 +1479,78 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       expect(resultCon.nettoAnnuo).toBeLessThan(resultSenza.nettoAnnuo);
     });
   });
+
+  describe('Ripartizione contributo per mensilità', () => {
+    it('senza flag, il contributo mensile è diviso per 12', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        fondoPensioneIntegrativo: {
+          contributoLavoratore: 1,
+          ralLavoratore: 30_000,
+        },
+      });
+      // 30000 * 1% = 300 annuo → 300/12 = 25
+      expect(result.fondoPensioneIntegrativo!.contributoLavoratoreMensile).toBeCloseTo(25, 2);
+    });
+
+    it('con ripartizionePerMensilita, il contributo mensile è diviso per il numero di mensilità', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        fondoPensioneIntegrativo: {
+          contributoLavoratore: 1,
+          ralLavoratore: 30_000,
+          ripartizionePerMensilita: true,
+        },
+      });
+      // 30000 * 1% = 300 annuo → 300/13 ≈ 23.08
+      expect(result.fondoPensioneIntegrativo!.contributoLavoratoreMensile).toBeCloseTo(300 / 13, 2);
+    });
+
+    it('con 14 mensilità, il contributo mensile è diviso per 14', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 42_000,
+        mensilita: 14,
+        fondoPensioneIntegrativo: {
+          contributoLavoratore: 2,
+          ralLavoratore: 42_000,
+          ripartizionePerMensilita: true,
+        },
+      });
+      // 42000 * 2% = 840 annuo → 840/14 = 60
+      expect(result.fondoPensioneIntegrativo!.contributoLavoratoreMensile).toBeCloseTo(60, 2);
+    });
+
+    it('il contributo annuo non cambia con ripartizionePerMensilita', () => {
+      const resultSenza = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        fondoPensioneIntegrativo: {
+          contributoLavoratore: 1,
+          ralLavoratore: 30_000,
+        },
+      });
+      const resultCon = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        fondoPensioneIntegrativo: {
+          contributoLavoratore: 1,
+          ralLavoratore: 30_000,
+          ripartizionePerMensilita: true,
+        },
+      });
+      expect(resultCon.fondoPensioneIntegrativo!.contributoLavoratoreAnnuo).toBeCloseTo(
+        resultSenza.fondoPensioneIntegrativo!.contributoLavoratoreAnnuo,
+        2,
+      );
+    });
+  });
 });
 
 // ============================================================================

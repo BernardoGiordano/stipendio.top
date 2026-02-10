@@ -609,6 +609,24 @@
           }
         </div>
       </div>
+
+      <!-- Opzione ripartizione per mensilità -->
+      <div class="flex items-center gap-2 mt-4">
+        <input
+          id="ripartizionePerMensilita"
+          type="checkbox"
+          [formField]="form.fondoPensioneIntegrativo.ripartizionePerMensilita"
+          class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
+        />
+        <label
+          for="ripartizionePerMensilita"
+          class="text-sm text-stone-700 dark:text-stone-300 flex items-center"
+          >Dividi contributo per numero mensilità<app-info-tooltip
+            tooltipId="ripartizionePerMensilita-info"
+            text="Se attivo, il contributo mensile del lavoratore viene diviso per il numero di mensilità (es. 13 o 14) anziché per 12. Alcune aziende ripartiscono il contributo su tutte le mensilità, inclusa la tredicesima."
+          />
+        </label>
+      </div>
     }
   </fieldset>
 
