@@ -128,6 +128,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
       ca.fondoPastoreDatore,
       ca.cfmtDatore,
       ca.fasdacDatore,
+      ca.fondoEstDatore,
       ca.fondoPensioneIntegrativoDatore,
     ];
     const fondiDatore = d(fondiDatoreComponents.reduce((s, v) => s + v, 0));
@@ -138,6 +139,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
       result.fondoPastore?.contributoAnnuo ?? 0,
       result.cfmt?.contributoAnnuo ?? 0,
       result.fasdac?.contributoAnnuo ?? 0,
+      result.fondoEst?.contributoAnnuo ?? 0,
       result.fondoPensioneIntegrativo?.contributoLavoratoreAnnuo ?? 0,
     ];
     const fondiDip = d(fondiDipComponents.reduce((s, v) => s + v, 0));

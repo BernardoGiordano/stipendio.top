@@ -9,6 +9,7 @@ import {
   DettaglioContributiInps,
   DettaglioCostoAziendale,
   DettaglioFasdac,
+  DettaglioFondoEst,
   DettaglioCuneoFiscale,
   DettaglioDetrazioniFamiliari,
   DettaglioDetrazioniLavoro,
@@ -177,6 +178,14 @@ const FASDAC = {
   retribuzioneConvenzionale: 45_940,
   aliquotaDirigente: 1.87,
   contributoDirigente: 859.08,
+} as const;
+
+/** Parametri Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio - Art. 104 CCNL, dal 1 aprile 2025) */
+const FONDO_EST = {
+  contributoDipendenteMensile: 2,
+  contributoDipendente: 24,
+  contributoDatoreMensile: 13,
+  contributoDatore: 156,
 } as const;
 
 /** Parametri previdenza complementare (D.Lgs. 252/2005, aggiornato da L. 199/2025) */
@@ -859,6 +868,20 @@ function calcolaFasdac(fasdac: boolean): DettaglioFasdac | null {
   };
 }
 
+function calcolaFondoEst(fondoEst: boolean): DettaglioFondoEst | null {
+  if (!fondoEst) {
+    return null;
+  }
+
+  const contributoAnnuo = FONDO_EST.contributoDipendente;
+  const contributoMensile = contributoAnnuo / 12;
+
+  return {
+    contributoAnnuo,
+    contributoMensile,
+  };
+}
+
 function calcolaFondoPensioneIntegrativo(
   fondoPensione: FondoPensioneIntegrativo | undefined,
   aliquotaMarginaleIrpef: number,
@@ -954,6 +977,7 @@ function calcolaCostoAziendale(
   fondoPastore: boolean,
   cfmt: boolean,
   fasdac: boolean,
+  fondoEst: boolean,
   contributoDatoreFondoPensione: number,
   fringeBenefitTotale: number,
   rimborsiTrasfertaTotale: number,
@@ -988,6 +1012,9 @@ function calcolaCostoAziendale(
     ? FONDI_DATORE_DIRIGENTI.fasdacAliquota * FONDI_DATORE_DIRIGENTI.fasdacRetribuzioneConvenzionale
     : 0;
 
+  // 3b. Fondo EST (dipendenti CCNL Commercio)
+  const fondoEstDatore = fondoEst ? FONDO_EST.contributoDatore : 0;
+
   // 4. Totale
   const totaleAnnuo =
     ral +
@@ -997,6 +1024,7 @@ function calcolaCostoAziendale(
     fondoPastoreDatore +
     cfmtDatore +
     fasdacDatore +
+    fondoEstDatore +
     contributoDatoreFondoPensione +
     fringeBenefitTotale +
     rimborsiTrasfertaTotale +
@@ -1011,6 +1039,7 @@ function calcolaCostoAziendale(
     fondoPastoreDatore,
     cfmtDatore,
     fasdacDatore,
+    fondoEstDatore,
     fondoPensioneIntegrativoDatore: contributoDatoreFondoPensione,
     fringeBenefit: fringeBenefitTotale,
     rimborsiTrasferta: rimborsiTrasfertaTotale,
@@ -1043,6 +1072,7 @@ export class Calculator2026 implements StipendioCalculator {
       fondoPastore: fondoPastoreFlag = false,
       cfmt: cfmtFlag = false,
       fasdac: fasdacFlag = false,
+      fondoEst: fondoEstFlag = false,
       regimeImpatriati: regimeImpatriatiFlag = false,
       regimeImpatriatiMinorenni = false,
       fondoPensioneIntegrativo: fondoPensioneInput,
@@ -1091,7 +1121,11 @@ export class Calculator2026 implements StipendioCalculator {
     // Il contributo FASDAC NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
     const contributoFasdac = fasdacFlag ? FASDAC.contributoDirigente : 0;
 
-    // 6f. CALCOLO FONDO PENSIONE INTEGRATIVO (previdenza complementare)
+    // 6f. CALCOLO FONDO EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
+    // Il contributo Fondo EST NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
+    const contributoFondoEst = fondoEstFlag ? FONDO_EST.contributoDipendente : 0;
+
+    // 6g. CALCOLO FONDO PENSIONE INTEGRATIVO (previdenza complementare)
     // Il contributo lavoratore + datore è deducibile dall'imponibile IRPEF fino a €5.300/anno
     // I contributi versati a fondi in squilibrio finanziario (es. Fondo Negri) riducono il plafond
     // Il contributo lavoratore è una trattenuta reale dal netto in busta paga
@@ -1258,6 +1292,9 @@ export class Calculator2026 implements StipendioCalculator {
     // 15d. CALCOLO DETTAGLIO FASDAC
     const fasdac = calcolaFasdac(fasdacFlag);
 
+    // 15d2. CALCOLO DETTAGLIO FONDO EST
+    const fondoEst = calcolaFondoEst(fondoEstFlag);
+
     // 15e. CALCOLO DETTAGLIO FONDO PENSIONE INTEGRATIVO
     const fondoPensioneIntegrativo = calcolaFondoPensioneIntegrativo(
       fondoPensioneInput,
@@ -1277,13 +1314,14 @@ export class Calculator2026 implements StipendioCalculator {
       fondoPastoreFlag,
       cfmtFlag,
       fasdacFlag,
+      fondoEstFlag,
       contributoDatoreFondoPensione,
       fringeBenefit.valoreTotaleLordo,
       rimborsiTrasferta.totaleRimborsi,
       benefitNonTassati.totaleEsente + benefitNonTassati.totaleTassato,
     );
 
-    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT, FASDAC e contributo lavoratore Fondo Pensione)
+    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT, FASDAC, Fondo EST e contributo lavoratore Fondo Pensione)
     const totaleTrattenute =
       contributiInps.totaleContributi +
       irpefFinale +
@@ -1292,6 +1330,7 @@ export class Calculator2026 implements StipendioCalculator {
       contributoFondoPastore +
       contributoCFMT +
       contributoFasdac +
+      contributoFondoEst +
       contributoFondoPensione;
 
     // Totale bonus
@@ -1337,6 +1376,7 @@ export class Calculator2026 implements StipendioCalculator {
       fondoPastore,
       cfmt,
       fasdac,
+      fondoEst,
       fondoPensioneIntegrativo,
       regimeImpatriati: dettaglioRegimeImpatriati,
       costoAziendale,

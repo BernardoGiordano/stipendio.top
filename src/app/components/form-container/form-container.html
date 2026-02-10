@@ -1813,6 +1813,35 @@
     }
   </fieldset>
 
+  <!-- Sezione Dipendenti CCNL Commercio -->
+  <fieldset
+    class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200 dark:bg-stone-800 dark:border-stone-700"
+    [class.opacity-60]="!model.fondoEst"
+  >
+    <legend class="px-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
+      Dipendenti CCNL Commercio
+    </legend>
+
+    <p class="text-xs text-stone-500 mb-4 dark:text-stone-400">
+      Trattenute per i dipendenti non dirigenti del settore commercio, turismo e servizi.
+    </p>
+
+    <div class="flex items-center gap-2 mb-3">
+      <input
+        id="fondoEst"
+        type="checkbox"
+        [formField]="form.fondoEst"
+        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
+      />
+      <label for="fondoEst" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >Fondo EST<app-info-tooltip
+          tooltipId="fondoEst-info"
+          text="Assistenza sanitaria integrativa per dipendenti CCNL Commercio. Contributo 2026: 24 euro/anno (2 euro/mese). NON riduce l'imponibile IRPEF: trattenuta diretta dal netto."
+        />
+      </label>
+    </div>
+  </fieldset>
+
   <!-- Sezione Dirigenti CCNL Terziario -->
   <fieldset
     class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200 dark:bg-stone-800 dark:border-stone-700"

@@ -39,6 +39,7 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Rimborsi Spese](#8-rimborsi-spese)
   - [Benefit Non Tassati](#9-benefit-non-tassati-welfare)
   - [Dirigenti CCNL Terziario](#10-dirigenti-ccnl-terziario)
+  - [Fondo EST (CCNL Commercio)](#10b-fondo-est-ccnl-commercio)
   - [Previdenza Complementare](#11-previdenza-complementare-fondo-pensione-integrativo)
   - [Regime Impatriati](#12-regime-impatriati-rientro-cervelli)
   - [Costo Aziendale](#13-costo-aziendale)
@@ -430,6 +431,30 @@ Fondo di assistenza sanitaria integrativa obbligatorio per i dirigenti del terzi
 
 ---
 
+#### 10b. Fondo EST (CCNL Commercio)
+
+Il Fondo EST (Ente di assistenza Sanitaria integrativa per i dipendenti delle aziende del Commercio, Turismo, Servizi e Settori affini) è il fondo di assistenza sanitaria integrativa per i **dipendenti non dirigenti** del CCNL Commercio/Terziario.
+
+**Parametri 2026 (dal 1 aprile 2025, Art. 104 CCNL Commercio):**
+
+| Parametro                     | Valore |
+| ----------------------------- | ------ |
+| Contributo mensile dipendente | €2     |
+| Contributo annuo dipendente   | €24    |
+| Contributo mensile datore     | €13    |
+| Contributo annuo datore       | €156   |
+
+**Caratteristiche fiscali:**
+
+- Il contributo dipendente **NON riduce l'imponibile IRPEF** (non deducibile)
+- Il contributo **non riduce l'imponibile previdenziale** (INPS)
+- È una **trattenuta diretta dal netto** in busta paga, senza beneficio fiscale
+- Il contributo datore è esente per il dipendente (Art. 51, c.2, lett. a) TUIR, entro €3.615,20/anno)
+
+> La quota azienda (€156/anno) non impatta il netto del dipendente, ma è inclusa nel calcolo del [Costo Aziendale](#13-costo-aziendale).
+
+---
+
 #### 11. Previdenza Complementare (Fondo Pensione Integrativo)
 
 La previdenza complementare consente al lavoratore dipendente di versare contributi a un fondo pensione integrativo, ottenendo un beneficio fiscale sotto forma di deduzione dall'imponibile IRPEF.
@@ -557,7 +582,8 @@ Il costo aziendale rappresenta la spesa complessiva che l'azienda sostiene per u
 
 ```
 COSTO AZIENDALE = RAL + Contributi INPS Datore + TFR
-                + Fondi Dirigenti (datore) + Fondo Pensione (datore)
+                + Fondi Dirigenti (datore) + Fondo EST (datore)
+                + Fondo Pensione (datore)
                 + Fringe Benefit + Rimborsi Trasferta + Benefit Non Tassati (Welfare)
 ```
 
@@ -598,6 +624,14 @@ Dettaglio aliquote:
 
 - **Fondo Mario Negri**: contributo ordinario azienda 12,86% + integrativo 2,52% = 15,38% della retribuzione convenzionale
 - **FASDAC**: 5,29% per dirigenti in servizio + 2,78% per gestione pensionati = 8,07% della retribuzione convenzionale
+
+##### Fondo EST (Quota Datore - CCNL Commercio 2026)
+
+Per i dipendenti non dirigenti del CCNL Commercio, il datore versa un contributo al Fondo EST:
+
+| Fondo     | Importo          | Costo Annuo Datore |
+| --------- | ---------------- | ------------------ |
+| Fondo EST | €13/mese (fisso) | €156               |
 
 ##### Fondo Pensione Integrativo (Quota Datore)
 
@@ -711,6 +745,14 @@ Costo Aziendale:       €125.110,56
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
+│  6d2. FONDO EST (se dipendente CCNL Commercio)                  │
+│       = €24/anno (€2/mese, contributo fisso 2026)               │
+│       → NON riduce l'imponibile IRPEF                           │
+│       → Trattenuta diretta dal netto                            │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
 │  6e. PREVIDENZA COMPLEMENTARE (se attiva)                       │
 │      Contributo lav. + datore + EBITEMP, deduc. fino a €5.300  │
 │      → Riduce l'imponibile IRPEF (con cap)                     │
@@ -789,8 +831,8 @@ Costo Aziendale:       €125.110,56
 ┌─────────────────────────────────────────────────────────────────┐
 │  14. COSTO AZIENDALE                                            │
 │      = RAL + INPS Datore + TFR + Fondi Dirigenti (datore)       │
-│        + Fondo Pensione (datore) + Fringe Benefit               │
-│        + Rimborsi Trasferta + Benefit Non Tassati               │
+│        + Fondo EST (datore) + Fondo Pensione (datore)           │
+│        + Fringe Benefit + Rimborsi Trasferta + Benefit Non Tass.│
 └─────────────────────────────────────────────────────────────────┘
 ```
 

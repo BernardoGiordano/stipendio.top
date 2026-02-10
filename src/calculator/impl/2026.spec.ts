@@ -7,6 +7,7 @@ const CONTRIBUTO_FONDO_NEGRI_2026 = 1184.49;
 const CONTRIBUTO_FONDO_PASTORE_2026 = 464.81;
 const CONTRIBUTO_CFMT_2026 = 166;
 const CONTRIBUTO_FASDAC_2026 = 859.08;
+const CONTRIBUTO_FONDO_EST_2026 = 24;
 
 const baseInput: InputCalcoloStipendio = {
   ral: 25_000,
@@ -776,6 +777,124 @@ describe('FASDAC (Fondo Assistenza Sanitaria Dirigenti)', () => {
 
     const differenzaNetto = resultSenza.nettoAnnuo - resultCon.nettoAnnuo;
     expect(differenzaNetto).toBeCloseTo(CONTRIBUTO_FASDAC_2026, 2);
+  });
+});
+
+describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)', () => {
+  it('senza flag fondoEst, il campo fondoEst deve essere null', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 25_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+    });
+
+    expect(result.fondoEst).toBeNull();
+  });
+
+  it('con flag fondoEst, il contributo annuo deve essere €24', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 25_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+      fondoEst: true,
+    });
+
+    expect(result.fondoEst).not.toBeNull();
+    expect(result.fondoEst!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_EST_2026, 2);
+  });
+
+  it('il contributo mensile deve essere €2', () => {
+    const result = calc.calcolaStipendioNetto({
+      ral: 25_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+      fondoEst: true,
+    });
+
+    expect(result.fondoEst).not.toBeNull();
+    expect(result.fondoEst!.contributoMensile).toBeCloseTo(CONTRIBUTO_FONDO_EST_2026 / 12, 2);
+  });
+
+  it("NON deve ridurre l'imponibile IRPEF (stessa IRPEF con/senza Fondo EST)", () => {
+    const resultSenza = calc.calcolaStipendioNetto({
+      ral: 25_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+    });
+
+    const resultCon = calc.calcolaStipendioNetto({
+      ral: 25_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+      fondoEst: true,
+    });
+
+    expect(resultCon.irpef.imponibileIrpef).toBeCloseTo(resultSenza.irpef.imponibileIrpef, 2);
+  });
+
+  it('deve ridurre il netto esattamente di €24', () => {
+    const resultSenza = calc.calcolaStipendioNetto({
+      ral: 25_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+    });
+
+    const resultCon = calc.calcolaStipendioNetto({
+      ral: 25_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+      fondoEst: true,
+    });
+
+    const differenzaNetto = resultSenza.nettoAnnuo - resultCon.nettoAnnuo;
+    expect(differenzaNetto).toBeCloseTo(CONTRIBUTO_FONDO_EST_2026, 2);
+  });
+
+  it('il costo aziendale deve includere €156 fondoEstDatore', () => {
+    const resultSenza = calc.calcolaStipendioNetto({
+      ral: 25_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+    });
+
+    const resultCon = calc.calcolaStipendioNetto({
+      ral: 25_000,
+      mensilita: 13,
+      tipoContratto: 'indeterminato',
+      annoFiscale: 2026,
+      regione: 'LO',
+      comune: 'F205',
+      fondoEst: true,
+    });
+
+    expect(resultCon.costoAziendale.fondoEstDatore).toBe(156);
+    expect(
+      resultCon.costoAziendale.totaleAnnuo - resultSenza.costoAziendale.totaleAnnuo,
+    ).toBeCloseTo(156, 2);
   });
 });
 
@@ -2366,6 +2485,7 @@ describe('Property-based (fuzzy) tests', () => {
         const useFondoPastore = rng() > 0.7;
         const useCfmt = rng() > 0.7;
         const useFasdac = rng() > 0.7;
+        const useFondoEst = rng() > 0.7;
         const useFondoPensione = rng() > 0.7;
 
         const result = calc.calcolaStipendioNetto({
@@ -2375,6 +2495,7 @@ describe('Property-based (fuzzy) tests', () => {
           fondoPastore: useFondoPastore,
           cfmt: useCfmt,
           fasdac: useFasdac,
+          fondoEst: useFondoEst,
           ...(useFondoPensione && {
             fondoPensioneIntegrativo: {
               contributoLavoratore: 2,
@@ -2389,6 +2510,7 @@ describe('Property-based (fuzzy) tests', () => {
           : 0;
         const cfmtContributo = result.cfmt ? result.cfmt.contributoAnnuo : 0;
         const fasdacContributo = result.fasdac ? result.fasdac.contributoAnnuo : 0;
+        const fondoEstContributo = result.fondoEst ? result.fondoEst.contributoAnnuo : 0;
         const fondoPensioneContributo = result.fondoPensioneIntegrativo
           ? result.fondoPensioneIntegrativo.contributoLavoratoreAnnuo
           : 0;
@@ -2401,6 +2523,7 @@ describe('Property-based (fuzzy) tests', () => {
           fondoPastoreContributo +
           cfmtContributo +
           fasdacContributo +
+          fondoEstContributo +
           fondoPensioneContributo;
 
         expect(result.totaleTrattenute).toBeCloseTo(expected, 2);
@@ -2409,7 +2532,7 @@ describe('Property-based (fuzzy) tests', () => {
   });
 
   describe('Features opzionali riducono il netto (30 scenari)', () => {
-    it('aggiungere Fondo Negri, Pastore, CFMT, FASDAC o Fondo Pensione non aumenta mai il netto', () => {
+    it('aggiungere Fondo Negri, Pastore, CFMT, FASDAC, Fondo EST o Fondo Pensione non aumenta mai il netto', () => {
       for (let i = 0; i < 30; i++) {
         const ral = randomRal();
         const resultBase = calc.calcolaStipendioNetto({ ...baseInput, ral });
@@ -2441,6 +2564,13 @@ describe('Property-based (fuzzy) tests', () => {
           fasdac: true,
         });
         expect(resultFasdac.nettoAnnuo).toBeLessThan(resultBase.nettoAnnuo);
+
+        const resultFondoEst = calc.calcolaStipendioNetto({
+          ...baseInput,
+          ral,
+          fondoEst: true,
+        });
+        expect(resultFondoEst.nettoAnnuo).toBeLessThan(resultBase.nettoAnnuo);
 
         const resultPensione = calc.calcolaStipendioNetto({
           ...baseInput,
@@ -2507,11 +2637,12 @@ describe('Costo aziendale', () => {
       expect(result.costoAziendale.tfr).toBeCloseTo(30_000 / 13.5, 2);
     });
 
-    it('non deve includere fondi dirigenti', () => {
+    it('non deve includere fondi dirigenti né Fondo EST', () => {
       expect(result.costoAziendale.fondoNegriDatore).toBe(0);
       expect(result.costoAziendale.fondoPastoreDatore).toBe(0);
       expect(result.costoAziendale.cfmtDatore).toBe(0);
       expect(result.costoAziendale.fasdacDatore).toBe(0);
+      expect(result.costoAziendale.fondoEstDatore).toBe(0);
     });
 
     it('fringe benefit, rimborsi e welfare devono essere 0 se non presenti', () => {

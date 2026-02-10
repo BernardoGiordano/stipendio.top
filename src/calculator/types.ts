@@ -113,6 +113,14 @@ export interface DettaglioFasdac {
   contributoMensile: number;
 }
 
+/** Dettaglio Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio) */
+export interface DettaglioFondoEst {
+  /** Contributo annuo a carico del dipendente */
+  contributoAnnuo: number;
+  /** Contributo mensile (contributoAnnuo / 12) */
+  contributoMensile: number;
+}
+
 /** Informazioni su un figlio a carico */
 export interface FiglioACarico {
   /** Età del figlio */
@@ -229,6 +237,9 @@ export interface InputCalcoloStipendio {
 
   /** Contributo FASDAC (Fondo Assistenza Sanitaria Dirigenti - Fondo Mario Besusso). Non deducibile: trattenuta diretta dal netto */
   fasdac?: boolean;
+
+  /** Contributo Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio). Non deducibile: trattenuta diretta dal netto */
+  fondoEst?: boolean;
 
   /** Regime impatriati (rientro cervelli) - D.Lgs. 209/2023, art. 5 */
   regimeImpatriati?: boolean;
@@ -454,6 +465,8 @@ export interface DettaglioCostoAziendale {
   cfmtDatore: number;
   /** Contributo FASDAC a carico azienda (se dirigente) */
   fasdacDatore: number;
+  /** Contributo Fondo EST a carico azienda (se dipendente CCNL Commercio) */
+  fondoEstDatore: number;
   /** Contributo fondo pensione integrativo a carico datore */
   fondoPensioneIntegrativoDatore: number;
   /** Fringe benefit erogati (valore totale lordo) */
@@ -524,6 +537,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio FASDAC (se dirigente CCNL Terziario) */
   fasdac: DettaglioFasdac | null;
+
+  /** Dettaglio Fondo EST (se dipendente CCNL Commercio) */
+  fondoEst: DettaglioFondoEst | null;
 
   /** Dettaglio previdenza complementare (se attiva) */
   fondoPensioneIntegrativo: DettaglioFondoPensioneIntegrativo | null;
