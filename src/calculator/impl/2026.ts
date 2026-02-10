@@ -147,7 +147,6 @@ const RIMBORSI_TRASFERTA = {
 
 /** Limiti benefit esenti da tassazione */
 const BENEFIT_ESENTI = {
-  previdenzaComplementare: 5_300,
   assistenzaSanitaria: 3_615.2,
   buoniPastoCartacei: 4.0,
 } as const;
@@ -427,14 +426,11 @@ function calcolaBenefitNonTassati(
     };
   }
 
-  const previdenza = Math.min(
-    benefit.previdenzaComplementare ?? 0,
-    BENEFIT_ESENTI.previdenzaComplementare,
-  );
-  const previdenzaEccedente = Math.max(
-    0,
-    (benefit.previdenzaComplementare ?? 0) - BENEFIT_ESENTI.previdenzaComplementare,
-  );
+  // La previdenza complementare volontaria NON è un benefit welfare:
+  // è un contributo volontario del lavoratore che condivide il cap €5.300
+  // con il fondo pensione integrativo (Art. 10, c.1, lett. e-bis, TUIR).
+  // Viene gestita nella sezione previdenza complementare, non qui.
+  const previdenza = benefit.previdenzaComplementare ?? 0;
 
   const sanita = Math.min(benefit.assistenzaSanitaria ?? 0, BENEFIT_ESENTI.assistenzaSanitaria);
   const sanitaEccedente = Math.max(
@@ -455,8 +451,8 @@ function calcolaBenefitNonTassati(
   const altriWelfare =
     (benefit.abbonamentoTrasporto ?? 0) + (benefit.serviziWelfare ?? 0) + (benefit.altri ?? 0);
 
-  const totaleEsente = previdenza + sanita + buoniPastoEsenti + altriWelfare;
-  const totaleTassato = previdenzaEccedente + sanitaEccedente + buoniPastoTassati;
+  const totaleEsente = sanita + buoniPastoEsenti + altriWelfare;
+  const totaleTassato = sanitaEccedente + buoniPastoTassati;
 
   return {
     previdenzaComplementare: previdenza,
@@ -886,22 +882,26 @@ function calcolaFondoPensioneIntegrativo(
   fondoPensione: FondoPensioneIntegrativo | undefined,
   aliquotaMarginaleIrpef: number,
   contributoFondoSquilibrio: number,
+  contributoVolontario: number = 0,
 ): DettaglioFondoPensioneIntegrativo | null {
-  if (!fondoPensione) {
+  if (!fondoPensione && contributoVolontario <= 0) {
     return null;
   }
 
-  const ralLavoratore = fondoPensione.ralLavoratore || 0;
-  const ralDatore = fondoPensione.ralDatoreLavoro || 0;
-  const ralEbitemp = fondoPensione.ralEbitemp || 0;
+  const ralLavoratore = fondoPensione?.ralLavoratore || 0;
+  const ralDatore = fondoPensione?.ralDatoreLavoro || 0;
+  const ralEbitemp = fondoPensione?.ralEbitemp || 0;
 
   const contributoLavoratoreAnnuo =
-    ralLavoratore * ((fondoPensione.contributoLavoratore || 0) / 100);
+    ralLavoratore * ((fondoPensione?.contributoLavoratore || 0) / 100);
   const contributoDatoreLavoroAnnuo =
-    ralDatore * ((fondoPensione.contributoDatoreLavoro || 0) / 100);
-  const contributoEbitempAnnuo = ralEbitemp * ((fondoPensione.contributoEbitemp || 0) / 100);
+    ralDatore * ((fondoPensione?.contributoDatoreLavoro || 0) / 100);
+  const contributoEbitempAnnuo = ralEbitemp * ((fondoPensione?.contributoEbitemp || 0) / 100);
   const totaleContributi =
-    contributoLavoratoreAnnuo + contributoDatoreLavoroAnnuo + contributoEbitempAnnuo;
+    contributoLavoratoreAnnuo +
+    contributoDatoreLavoroAnnuo +
+    contributoEbitempAnnuo +
+    contributoVolontario;
 
   // Il plafond di €5.300 è ridotto dai contributi versati a fondi in squilibrio finanziario
   // (es. Fondo Mario Negri, che gode di deducibilità piena ex art. 20, c.7, D.Lgs. 252/2005)
@@ -918,6 +918,7 @@ function calcolaFondoPensioneIntegrativo(
     contributoLavoratoreMensile: contributoLavoratoreAnnuo / 12,
     contributoDatoreLavoroAnnuo,
     contributoEbitempAnnuo,
+    contributoVolontarioAnnuo: contributoVolontario,
     totaleContributi,
     deduzioneEffettiva,
     eccedenzaNonDeducibile,
@@ -1130,6 +1131,7 @@ export class Calculator2026 implements StipendioCalculator {
     // I contributi versati a fondi in squilibrio finanziario (es. Fondo Negri) riducono il plafond
     // Il contributo lavoratore è una trattenuta reale dal netto in busta paga
     // Il contributo datore NON è una trattenuta dal netto, ma concorre al limite di deducibilità
+    // Il contributo volontario (da sezione welfare) è una trattenuta reale che condivide il cap
     const contributoFondoPensione = fondoPensioneInput
       ? (fondoPensioneInput.ralLavoratore || 0) *
         ((fondoPensioneInput.contributoLavoratore || 0) / 100)
@@ -1141,12 +1143,16 @@ export class Calculator2026 implements StipendioCalculator {
     const contributoEbitempFondoPensione = fondoPensioneInput
       ? (fondoPensioneInput.ralEbitemp || 0) * ((fondoPensioneInput.contributoEbitemp || 0) / 100)
       : 0;
+    const contributoVolontarioPensione = benefitNonTassatiInput?.previdenzaComplementare ?? 0;
     const limiteResiduo = Math.max(
       0,
       PREVIDENZA_COMPLEMENTARE.limiteDeducibilita - contributoFondoNegri,
     );
     const deduzioneFondoPensione = Math.min(
-      contributoFondoPensione + contributoDatoreFondoPensione + contributoEbitempFondoPensione,
+      contributoFondoPensione +
+        contributoDatoreFondoPensione +
+        contributoEbitempFondoPensione +
+        contributoVolontarioPensione,
       limiteResiduo,
     );
 
@@ -1300,6 +1306,7 @@ export class Calculator2026 implements StipendioCalculator {
       fondoPensioneInput,
       aliquotaMarginaleIrpef,
       contributoFondoNegri,
+      contributoVolontarioPensione,
     );
 
     // 16. CALCOLO COSTO AZIENDALE
@@ -1321,7 +1328,7 @@ export class Calculator2026 implements StipendioCalculator {
       benefitNonTassati.totaleEsente + benefitNonTassati.totaleTassato,
     );
 
-    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT, FASDAC, Fondo EST e contributo lavoratore Fondo Pensione)
+    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT, FASDAC, Fondo EST, contributo lavoratore Fondo Pensione e contributo volontario)
     const totaleTrattenute =
       contributiInps.totaleContributi +
       irpefFinale +
@@ -1331,7 +1338,8 @@ export class Calculator2026 implements StipendioCalculator {
       contributoCFMT +
       contributoFasdac +
       contributoFondoEst +
-      contributoFondoPensione;
+      contributoFondoPensione +
+      contributoVolontarioPensione;
 
     // Totale bonus
     const totaleBonus = cuneoFiscale.indennitaEsente + trattamentoIntegrativo.importo;

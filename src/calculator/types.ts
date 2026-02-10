@@ -437,7 +437,9 @@ export interface DettaglioFondoPensioneIntegrativo {
   contributoDatoreLavoroAnnuo: number;
   /** Contributo annuo EBITEMP (ente bilaterale lavoro somministrato) */
   contributoEbitempAnnuo: number;
-  /** Totale contributi (lavoratore + datore + EBITEMP) */
+  /** Contributo volontario annuo aggiuntivo del lavoratore (da sezione welfare) */
+  contributoVolontarioAnnuo: number;
+  /** Totale contributi (lavoratore + datore + EBITEMP + volontario) */
   totaleContributi: number;
   /** Deduzione effettiva dall'imponibile IRPEF (max €5.300 dal 2026) */
   deduzioneEffettiva: number;

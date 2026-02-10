@@ -40,7 +40,6 @@ const METRIC_CONFIGS: Record<MetricType, MetricConfig> = {
       const bn = input.benefitNonTassati;
       if (!bn) return 0;
       return (
-        (bn.previdenzaComplementare ?? 0) +
         (bn.assistenzaSanitaria ?? 0) +
         (bn.buoniPasto ?? 0) +
         (bn.abbonamentoTrasporto ?? 0) +

@@ -1402,6 +1402,83 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
     expect(result.fondoPensioneIntegrativo).not.toBeNull();
     expect(result.fondoPensioneIntegrativo!.contributoEbitempAnnuo).toBe(0);
   });
+
+  describe('cap condiviso con contributo volontario da welfare', () => {
+    it('contributo volontario condivide il cap €5.300 con contributi %', () => {
+      // Contributo % lavoratore: 30k * 2% = 600
+      // Contributo volontario: 3000
+      // Totale: 3600 < 5300 → tutto deducibile
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        fondoPensioneIntegrativo: { contributoLavoratore: 2, ralLavoratore: 30_000 },
+        benefitNonTassati: { previdenzaComplementare: 3_000 },
+      });
+      expect(result.fondoPensioneIntegrativo).not.toBeNull();
+      expect(result.fondoPensioneIntegrativo!.contributoVolontarioAnnuo).toBe(3_000);
+      expect(result.fondoPensioneIntegrativo!.totaleContributi).toBeCloseTo(3_600, 2);
+      expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBeCloseTo(3_600, 2);
+      expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBe(0);
+    });
+
+    it('contributo volontario + contributi % > €5.300: eccedenza non deducibile', () => {
+      // Contributo % lavoratore: 30k * 2% = 600
+      // Contributo volontario: 5000
+      // Totale: 5600 > 5300 → eccedenza 300
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        fondoPensioneIntegrativo: { contributoLavoratore: 2, ralLavoratore: 30_000 },
+        benefitNonTassati: { previdenzaComplementare: 5_000 },
+      });
+      expect(result.fondoPensioneIntegrativo!.totaleContributi).toBeCloseTo(5_600, 2);
+      expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBeCloseTo(5_300, 2);
+      expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBeCloseTo(300, 2);
+    });
+
+    it('solo contributo volontario (senza sezione %): crea dettaglio fondo pensione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        benefitNonTassati: { previdenzaComplementare: 2_000 },
+      });
+      expect(result.fondoPensioneIntegrativo).not.toBeNull();
+      expect(result.fondoPensioneIntegrativo!.contributoLavoratoreAnnuo).toBe(0);
+      expect(result.fondoPensioneIntegrativo!.contributoVolontarioAnnuo).toBe(2_000);
+      expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBe(2_000);
+    });
+
+    it('contributo volontario NON va in costo aziendale', () => {
+      const resultSenza = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+      });
+      const resultCon = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        benefitNonTassati: { previdenzaComplementare: 3_000 },
+      });
+      // Il costo aziendale non deve cambiare con contributo volontario
+      expect(resultCon.costoAziendale.totaleAnnuo).toBeCloseTo(
+        resultSenza.costoAziendale.totaleAnnuo,
+        0,
+      );
+      expect(resultCon.costoAziendale.benefitNonTassati).toBe(0);
+    });
+
+    it('contributo volontario è una trattenuta reale dal netto', () => {
+      const resultSenza = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+      });
+      const resultCon = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        benefitNonTassati: { previdenzaComplementare: 2_000 },
+      });
+      // Il netto deve diminuire (contributo volontario meno risparmio fiscale)
+      expect(resultCon.nettoAnnuo).toBeLessThan(resultSenza.nettoAnnuo);
+    });
+  });
 });
 
 // ============================================================================
@@ -2165,22 +2242,31 @@ describe('Benefit non tassati', () => {
     expect(result.benefitNonTassati.totaleTassato).toBe(0);
   });
 
-  it('previdenza complementare sopra cap €5.300: eccedente tassato', () => {
+  it('previdenza complementare: valore raw passato (cap condiviso con fondo pensione)', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
       benefitNonTassati: { previdenzaComplementare: 7_000 },
     });
-    expect(result.benefitNonTassati.previdenzaComplementare).toBe(5_300);
-    expect(result.benefitNonTassati.totaleTassato).toBeCloseTo(1_700, 2);
+    // Il valore raw viene restituito in benefitNonTassati (cap applicato nel fondo pensione)
+    expect(result.benefitNonTassati.previdenzaComplementare).toBe(7_000);
+    // La previdenza NON va in totaleTassato (non è un benefit welfare)
+    expect(result.benefitNonTassati.totaleTassato).toBe(0);
+    // Il cap €5.300 è applicato nella sezione fondo pensione integrativo
+    expect(result.fondoPensioneIntegrativo).not.toBeNull();
+    expect(result.fondoPensioneIntegrativo!.contributoVolontarioAnnuo).toBe(7_000);
+    expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBe(5_300);
+    expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBeCloseTo(1_700, 2);
   });
 
-  it('previdenza complementare sotto cap: tutto esente', () => {
+  it('previdenza complementare sotto cap: tutto deducibile', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
       benefitNonTassati: { previdenzaComplementare: 3_000 },
     });
     expect(result.benefitNonTassati.previdenzaComplementare).toBe(3_000);
     expect(result.benefitNonTassati.totaleTassato).toBe(0);
+    expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBe(3_000);
+    expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBe(0);
   });
 
   it('assistenza sanitaria sopra cap €3.615,20: eccedente tassato', () => {
@@ -2224,7 +2310,7 @@ describe('Benefit non tassati', () => {
     expect(result.benefitNonTassati.totaleTassato).toBe(0);
   });
 
-  it('totaleEsente + totaleTassato = tutti i benefit', () => {
+  it('totaleEsente + totaleTassato = tutti i benefit (esclusa previdenza)', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
       benefitNonTassati: {
@@ -2235,9 +2321,9 @@ describe('Benefit non tassati', () => {
         abbonamentoTrasporto: 500,
       },
     });
+    // La previdenza complementare NON è inclusa nei totali benefit (gestita nel fondo pensione)
     expect(result.benefitNonTassati.totaleEsente).toBeCloseTo(
-      result.benefitNonTassati.previdenzaComplementare +
-        result.benefitNonTassati.assistenzaSanitaria +
+      result.benefitNonTassati.assistenzaSanitaria +
         result.benefitNonTassati.buoniPastoEsenti +
         result.benefitNonTassati.altriWelfare,
       2,

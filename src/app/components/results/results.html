@@ -871,6 +871,18 @@
                     </dd>
                   </div>
                 }
+                @if (r.fondoPensioneIntegrativo.contributoVolontarioAnnuo > 0) {
+                  <div
+                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+                  >
+                    <dt class="text-sm text-stone-600 dark:text-stone-400">
+                      Contributo Volontario (annuo)
+                    </dt>
+                    <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                      - {{ formatCurrency(r.fondoPensioneIntegrativo.contributoVolontarioAnnuo) }}
+                    </dd>
+                  </div>
+                }
                 <div
                   class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
                 >
@@ -1076,18 +1088,6 @@
                 Benefit Non Tassati (Welfare)
               </h3>
               <dl>
-                @if (r.benefitNonTassati.previdenzaComplementare > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Previdenza Complementare
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.benefitNonTassati.previdenzaComplementare) }}
-                    </dd>
-                  </div>
-                }
                 @if (r.benefitNonTassati.assistenzaSanitaria > 0) {
                   <div
                     class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
