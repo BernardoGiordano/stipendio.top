@@ -4,11 +4,7 @@
     #svgContainer
     class="flex-1 min-h-0 w-full min-h-[450px]"
     role="img"
-    [attr.aria-label]="
-      viewMode() === 'monthly'
-        ? 'Grafico Sankey che mostra il flusso mensile dal costo aziendale al percepito netto, passando per trattenute e contributi'
-        : 'Grafico Sankey che mostra il flusso annuale dal costo aziendale al percepito netto, passando per trattenute e contributi'
-    "
+    aria-label="Grafico Sankey che mostra il flusso annuale dal costo aziendale al percepito netto, passando per trattenute e contributi"
   >
     @if (chartData(); as data) {
       <svg
@@ -144,33 +140,5 @@
         <p>Compila il form per visualizzare il grafico.</p>
       </div>
     }
-  </div>
-
-  <!-- View Mode Toggle -->
-  <div class="flex justify-end gap-2 pt-3" role="group" aria-label="Visualizzazione">
-    <button
-      type="button"
-      [class]="
-        viewMode() === 'monthly'
-          ? 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
-          : 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
-      "
-      [attr.aria-pressed]="viewMode() === 'monthly'"
-      (click)="setViewMode('monthly')"
-    >
-      Mensile
-    </button>
-    <button
-      type="button"
-      [class]="
-        viewMode() === 'annual'
-          ? 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
-          : 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
-      "
-      [attr.aria-pressed]="viewMode() === 'annual'"
-      (click)="setViewMode('annual')"
-    >
-      Annuale
-    </button>
   </div>
 </div>

@@ -12,8 +12,6 @@ import {
 import { OutputCalcoloStipendio } from '../../../calculator/types';
 import { formatCurrency } from '../../utils/intl';
 
-type ViewMode = 'monthly' | 'annual';
-
 interface SankeyNode {
   id: string;
   label: string;
@@ -48,9 +46,6 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
   readonly formatCurrency = formatCurrency;
   readonly result = input<OutputCalcoloStipendio | null>(null);
 
-  /** View mode: monthly or annual */
-  readonly viewMode = signal<ViewMode>('annual');
-
   private readonly svgContainer = viewChild<ElementRef<HTMLDivElement>>('svgContainer');
   private resizeObserver: ResizeObserver | null = null;
   private readonly containerSize = signal({ width: 0, height: 0 });
@@ -62,13 +57,8 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     const size = this.containerSize();
     if (size.width === 0 || size.height === 0) return null;
 
-    const isMonthly = this.viewMode() === 'monthly';
-    return this.buildSankeyLayout(result, size.width, size.height, isMonthly);
+    return this.buildSankeyLayout(result, size.width, size.height);
   });
-
-  setViewMode(mode: ViewMode): void {
-    this.viewMode.set(mode);
-  }
 
   ngAfterViewInit(): void {
     const container = this.svgContainer();
@@ -93,7 +83,6 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     result: OutputCalcoloStipendio,
     width: number,
     height: number,
-    isMonthly: boolean,
   ): { nodes: SankeyNode[]; links: SankeyLink[]; width: number; height: number } {
     const padding = { top: 30, right: 10, bottom: 30, left: 10 };
     const nodeWidth = 18;
@@ -102,25 +91,21 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     const innerWidth = width - padding.left - padding.right;
     const innerHeight = height - padding.top - padding.bottom;
 
-    // Divisor for monthly values
-    const divisor = isMonthly ? result.mensilita : 1;
-    const d = (v: number) => v / divisor;
-
     // === Extract values ===
     const ca = result.costoAziendale;
-    const ral = d(result.ral);
-    const inpsDip = d(result.contributiInps.totaleContributi);
-    const irpefFinale = d(result.irpefFinale);
-    const addizionali = d(result.addizionali.totaleAddizionali);
-    const cuneoIndennita = d(result.cuneoFiscale.indennitaEsente);
-    const trattamentoIntegrativo = d(result.trattamentoIntegrativo.importo);
-    const rimborsiEsenti = d(result.rimborsiTrasferta.totaleEsente);
-    const benefitEsenti = d(result.benefitNonTassati.totaleEsente);
-    const totalePercepito = d(result.totalePercepito);
+    const ral = result.ral;
+    const inpsDip = result.contributiInps.totaleContributi;
+    const irpefFinale = result.irpefFinale;
+    const addizionali = result.addizionali.totaleAddizionali;
+    const cuneoIndennita = result.cuneoFiscale.indennitaEsente;
+    const trattamentoIntegrativo = result.trattamentoIntegrativo.importo;
+    const rimborsiEsenti = result.rimborsiTrasferta.totaleEsente;
+    const benefitEsenti = result.benefitNonTassati.totaleEsente;
+    const totalePercepito = result.totalePercepito;
 
     // Costo aziendale components
-    const inpsDatore = d(ca.contributiInpsDatore);
-    const tfr = d(ca.tfr);
+    const inpsDatore = ca.contributiInpsDatore;
+    const tfr = ca.tfr;
 
     // Fondi datore (raggruppati)
     const fondiDatoreComponents = [
@@ -131,7 +116,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
       ca.fondoEstDatore,
       ca.fondoPensioneIntegrativoDatore,
     ];
-    const fondiDatore = d(fondiDatoreComponents.reduce((s, v) => s + v, 0));
+    const fondiDatore = fondiDatoreComponents.reduce((s, v) => s + v, 0);
 
     // Fondi dipendente (raggruppati)
     const fondiDipComponents = [
@@ -142,13 +127,13 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
       result.fondoEst?.contributoAnnuo ?? 0,
       result.fondoPensioneIntegrativo?.contributoLavoratoreAnnuo ?? 0,
     ];
-    const fondiDip = d(fondiDipComponents.reduce((s, v) => s + v, 0));
+    const fondiDip = fondiDipComponents.reduce((s, v) => s + v, 0);
 
     // Netto from RAL = RAL - all deductions from RAL
     const nettoFromRAL = ral - inpsDip - irpefFinale - addizionali - fondiDip;
 
     // Costo aziendale totale
-    const costoAziendale = d(ca.totaleAnnuo);
+    const costoAziendale = ca.totaleAnnuo;
 
     // === Colors ===
     const colors: Record<string, string> = {
@@ -178,7 +163,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
 
     // === Build column value arrays (filtered > 0) ===
     const col1Values = [
-      { id: 'ral', value: ral, label: isMonthly ? 'Lordo Mensile' : 'RAL (Lordo)' },
+      { id: 'ral', value: ral, label: 'RAL (Lordo)' },
       { id: 'inpsDatore', value: inpsDatore, label: 'INPS Datore' },
       { id: 'tfr', value: tfr, label: 'TFR' },
       ...(fondiDatore > 0
@@ -278,7 +263,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
         {
           id: 'totale',
           value: totalePercepito,
-          label: isMonthly ? 'Percepito Mensile' : 'Totale Percepito',
+          label: 'Totale Percepito',
         },
       ],
       col3X,
