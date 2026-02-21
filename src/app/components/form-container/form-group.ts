@@ -16,6 +16,7 @@ import {
   AscendenteACarico,
   AutoAziendale,
   BenefitNonTassati,
+  BorsaDiStudio,
   ConiugeACarico,
   FiglioACarico,
   FondoPensioneIntegrativo,
@@ -81,6 +82,11 @@ export interface FondoPensioneIntegrativoFormModel {
   ripartizionePerMensilita: boolean;
 }
 
+export interface BorsaDiStudioFormModel {
+  enabled: boolean;
+  importoAnnuo: number;
+}
+
 export interface ConiugeACaricoFormModel {
   enabled: boolean;
   redditoAnnuo: number;
@@ -123,6 +129,7 @@ export interface StipendioFormModel {
   regimeImpatriatiMinorenni: boolean;
 
   // Optional nested objects
+  borsaDiStudio: BorsaDiStudioFormModel;
   fondoPensioneIntegrativo: FondoPensioneIntegrativoFormModel;
   coniuge: ConiugeACaricoFormModel;
   fringeBenefit: FringeBenefitFormModel;
@@ -199,6 +206,13 @@ function createDefaultFondoPensioneIntegrativo(): FondoPensioneIntegrativoFormMo
   };
 }
 
+function createDefaultBorsaDiStudio(): BorsaDiStudioFormModel {
+  return {
+    enabled: false,
+    importoAnnuo: 0,
+  };
+}
+
 function createDefaultConiuge(): ConiugeACaricoFormModel {
   return {
     enabled: false,
@@ -245,6 +259,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     fondoEst: false,
     regimeImpatriati: false,
     regimeImpatriatiMinorenni: false,
+    borsaDiStudio: createDefaultBorsaDiStudio(),
     fondoPensioneIntegrativo: createDefaultFondoPensioneIntegrativo(),
     coniuge: createDefaultConiuge(),
     fringeBenefit: createDefaultFringeBenefit(),
@@ -331,6 +346,10 @@ const fondoPensioneIntegrativoSchema = schema<FondoPensioneIntegrativoFormModel>
   min(path.ralEbitemp, 0, { message: 'La RAL non può essere negativa' });
 });
 
+const borsaDiStudioSchema = schema<BorsaDiStudioFormModel>((path) => {
+  min(path.importoAnnuo, 0, { message: "L'importo non può essere negativo" });
+});
+
 const coniugeSchema = schema<ConiugeACaricoFormModel>((path) => {
   validate(path.redditoAnnuo, ({ value, valueOf }) => {
     if (valueOf(path).enabled && value() < 0) {
@@ -387,6 +406,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   min(path.altreDetrazioni, 0, { message: 'Valore non valido' });
 
   // Nested objects
+  apply(path.borsaDiStudio, borsaDiStudioSchema);
   apply(path.fondoPensioneIntegrativo, fondoPensioneIntegrativoSchema);
   apply(path.coniuge, coniugeSchema);
   apply(path.fringeBenefit, fringeBenefitSchema);
@@ -505,6 +525,14 @@ function toFondoPensioneIntegrativo(
   };
 }
 
+function toBorsaDiStudio(model: BorsaDiStudioFormModel): BorsaDiStudio | undefined {
+  if (!model.enabled || model.importoAnnuo <= 0) return undefined;
+
+  return {
+    importoAnnuo: model.importoAnnuo,
+  };
+}
+
 function toConiuge(model: ConiugeACaricoFormModel): ConiugeACarico | undefined {
   if (!model.enabled) return undefined;
 
@@ -567,6 +595,10 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
       model.regimeImpatriatiMinorenni && { regimeImpatriatiMinorenni: true }),
 
     // Nested objects
+    ...(() => {
+      const borsaDiStudio = toBorsaDiStudio(model.borsaDiStudio);
+      return borsaDiStudio ? { borsaDiStudio } : {};
+    })(),
     ...(() => {
       const fondoPensioneIntegrativo = toFondoPensioneIntegrativo(model.fondoPensioneIntegrativo);
       return fondoPensioneIntegrativo ? { fondoPensioneIntegrativo } : {};

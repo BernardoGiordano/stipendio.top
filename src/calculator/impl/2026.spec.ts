@@ -898,6 +898,109 @@ describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
   });
 });
 
+describe('Borsa di Studio (Dottorato/Post-laurea)', () => {
+  it('senza borsa, il campo borsaDiStudio deve essere null', () => {
+    const result = calc.calcolaStipendioNetto(baseInput);
+    expect(result.borsaDiStudio).toBeNull();
+  });
+
+  it('con borsa €16.243, il contributo GS borsista deve essere circa €1.896,30', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      borsaDiStudio: { importoAnnuo: 16_243 },
+    });
+
+    expect(result.borsaDiStudio).not.toBeNull();
+    // 16243 × 0.3503 / 3 ≈ 1896.30
+    expect(result.borsaDiStudio!.contributoGestioneSeparataBorsista).toBeCloseTo(
+      (16_243 * 0.3503) / 3,
+      2,
+    );
+    expect(result.borsaDiStudio!.contributoGestioneSeparataEnte).toBeCloseTo(
+      (16_243 * 0.3503 * 2) / 3,
+      2,
+    );
+    expect(result.borsaDiStudio!.aliquotaGestioneSeparata).toBe(0.3503);
+  });
+
+  it("la borsa deve aumentare l'imponibile IRPEF complessivo", () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseInput);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseInput,
+      borsaDiStudio: { importoAnnuo: 16_243 },
+    });
+
+    expect(resultCon.irpef.imponibileIrpef).toBeGreaterThan(resultSenza.irpef.imponibileIrpef);
+    // La differenza deve essere pari all'imponibile borsa (lordo - contributo GS borsista)
+    const imponibileBorsa = 16_243 - (16_243 * 0.3503) / 3;
+    expect(resultCon.irpef.imponibileIrpef - resultSenza.irpef.imponibileIrpef).toBeCloseTo(
+      imponibileBorsa,
+      0,
+    );
+  });
+
+  it('il netto totale deve aumentare (borsa netta positiva)', () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseInput);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseInput,
+      borsaDiStudio: { importoAnnuo: 16_243 },
+    });
+
+    expect(resultCon.nettoAnnuo).toBeGreaterThan(resultSenza.nettoAnnuo);
+  });
+
+  it("l'INPS ordinario (lavoro dipendente) non deve cambiare", () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseInput);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseInput,
+      borsaDiStudio: { importoAnnuo: 16_243 },
+    });
+
+    expect(resultCon.contributiInps.totaleContributi).toBeCloseTo(
+      resultSenza.contributiInps.totaleContributi,
+      2,
+    );
+    expect(resultCon.contributiInps.imponibilePrevidenziale).toBe(
+      resultSenza.contributiInps.imponibilePrevidenziale,
+    );
+  });
+
+  it('il costo aziendale non deve cambiare con la borsa', () => {
+    const resultSenza = calc.calcolaStipendioNetto(baseInput);
+    const resultCon = calc.calcolaStipendioNetto({
+      ...baseInput,
+      borsaDiStudio: { importoAnnuo: 16_243 },
+    });
+
+    expect(resultCon.costoAziendale.totaleAnnuo).toBeCloseTo(
+      resultSenza.costoAziendale.totaleAnnuo,
+      2,
+    );
+  });
+
+  it("l'imponibile IRPEF borsa deve essere lordo - contributo GS borsista", () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      borsaDiStudio: { importoAnnuo: 16_243 },
+    });
+
+    const expectedImponibile = 16_243 - result.borsaDiStudio!.contributoGestioneSeparataBorsista;
+    expect(result.borsaDiStudio!.imponibileIrpef).toBeCloseTo(expectedImponibile, 2);
+  });
+
+  it('il netto mensile borsa deve essere netto annuo / 12', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      borsaDiStudio: { importoAnnuo: 16_243 },
+    });
+
+    expect(result.borsaDiStudio!.nettoMensile).toBeCloseTo(
+      result.borsaDiStudio!.nettoAnnuo / 12,
+      2,
+    );
+  });
+});
+
 describe('Regime Impatriati (Rientro Cervelli)', () => {
   const baseImpatriati: InputCalcoloStipendio = {
     ral: 50_000,

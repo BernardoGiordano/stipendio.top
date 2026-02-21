@@ -43,6 +43,7 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Previdenza Complementare](#11-previdenza-complementare-fondo-pensione-integrativo)
   - [Regime Impatriati](#12-regime-impatriati-rientro-cervelli)
   - [Costo Aziendale](#13-costo-aziendale)
+  - [Borse di Studio](#14-borse-di-studio-dottoratopost-laurea)
 - [Sequenza di Calcolo](#sequenza-di-calcolo)
 - [Riferimenti Normativi](#riferimenti-normativi)
 
@@ -674,6 +675,43 @@ Costo Aziendale:       €125.110,56
 ```
 
 > **Nota:** Il calcolo non include INAIL (assicurazione infortuni), il cui premio varia significativamente per settore e rischio professionale (da 0,3% a oltre 12%).
+
+#### 14. Borse di Studio (Dottorato/Post-laurea)
+
+Dal 7 giugno 2025, le borse di studio post-laurea assegnate da università italiane sono soggette a tassazione come **redditi assimilati al lavoro dipendente** (Art. 50, comma 1, lett. c, TUIR), per effetto del D.L. 45/2025 convertito in L. 79/2025.
+
+##### INPS Gestione Separata
+
+Le borse sono soggette a INPS Gestione Separata con le seguenti aliquote (2026):
+
+| Voce                     | Aliquota      | A carico di     |
+| ------------------------ | ------------- | --------------- |
+| Gestione Separata totale | 35,03%        | -               |
+| Quota borsista           | 1/3 (~11,68%) | Borsista        |
+| Quota ente               | 2/3 (~23,35%) | Università/Ente |
+
+##### Cumulo IRPEF
+
+L'imponibile IRPEF della borsa (importo lordo − contributo GS borsista) si **cumula** con il reddito da lavoro dipendente per il calcolo di:
+
+- Scaglioni IRPEF
+- Detrazioni lavoro dipendente (ricalcolate sul reddito complessivo)
+- Addizionali regionali e comunali
+- Cuneo fiscale e trattamento integrativo
+
+##### Non influisce su
+
+- INPS ordinario (lavoro dipendente)
+- Costo aziendale
+- TFR
+
+##### Formula
+
+```
+Imponibile Borsa = Importo Lordo − (Importo Lordo × 35,03% / 3)
+Reddito Complessivo = Reddito Lavoro Dipendente + Imponibile Borsa + Altri Redditi
+Netto Borsa = Importo Lordo − Contributo GS Borsista − Quota IRPEF/Addizionali sulla Borsa
+```
 
 ---
 

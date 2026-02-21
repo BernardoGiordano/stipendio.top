@@ -2,9 +2,11 @@ import {
   AscendenteACarico,
   AutoAziendale,
   BenefitNonTassati,
+  BorsaDiStudio,
   ConiugeACarico,
   DettaglioAddizionali,
   DettaglioBenefitNonTassati,
+  DettaglioBorsaDiStudio,
   DettaglioCFMT,
   DettaglioContributiInps,
   DettaglioCostoAziendale,
@@ -234,6 +236,16 @@ const REGIME_IMPATRIATI = {
   percentualeEsenzioneMinorenni: 0.6,
   /** Tetto massimo reddito agevolabile */
   tettoRedditoAgevolabile: 600_000,
+} as const;
+
+/** Parametri INPS Gestione Separata per borse di studio post-laurea (D.L. 45/2025, L. 79/2025) */
+const GESTIONE_SEPARATA_BORSE = {
+  /** Aliquota totale 2026 */
+  aliquotaTotale: 0.3503,
+  /** Quota a carico del borsista (1/3) */
+  quotaBorsista: 1 / 3,
+  /** Quota a carico dell'ente (2/3) */
+  quotaEnte: 2 / 3,
 } as const;
 
 function calcolaFringeBenefitAuto(auto: AutoAziendale): {
@@ -1051,6 +1063,37 @@ function calcolaCostoAziendale(
   };
 }
 
+function calcolaBorsaDiStudio(borsa: BorsaDiStudio | undefined): {
+  contributoGSBorsista: number;
+  imponibileBorsa: number;
+  dettaglio: DettaglioBorsaDiStudio | null;
+} {
+  const importoLordo = borsa?.importoAnnuo || 0;
+  if (importoLordo <= 0) {
+    return { contributoGSBorsista: 0, imponibileBorsa: 0, dettaglio: null };
+  }
+  const contributoTotale = importoLordo * GESTIONE_SEPARATA_BORSE.aliquotaTotale;
+  const contributoGSBorsista = contributoTotale * GESTIONE_SEPARATA_BORSE.quotaBorsista;
+  const contributoGSEnte = contributoTotale * GESTIONE_SEPARATA_BORSE.quotaEnte;
+  const imponibileBorsa = importoLordo - contributoGSBorsista;
+
+  return {
+    contributoGSBorsista,
+    imponibileBorsa,
+    dettaglio: {
+      importoLordo,
+      aliquotaGestioneSeparata: GESTIONE_SEPARATA_BORSE.aliquotaTotale,
+      contributoGestioneSeparataTotale: contributoTotale,
+      contributoGestioneSeparataBorsista: contributoGSBorsista,
+      contributoGestioneSeparataEnte: contributoGSEnte,
+      imponibileIrpef: imponibileBorsa,
+      // nettoAnnuo e nettoMensile vengono calcolati dopo IRPEF/addizionali
+      nettoAnnuo: 0,
+      nettoMensile: 0,
+    },
+  };
+}
+
 export class Calculator2026 implements StipendioCalculator {
   calcolaStipendioNetto(input: InputCalcoloStipendio): OutputCalcoloStipendio {
     const {
@@ -1079,6 +1122,7 @@ export class Calculator2026 implements StipendioCalculator {
       regimeImpatriati: regimeImpatriatiFlag = false,
       regimeImpatriatiMinorenni = false,
       fondoPensioneIntegrativo: fondoPensioneInput,
+      borsaDiStudio: borsaDiStudioInput,
     } = input;
 
     // 1. CALCOLO FRINGE BENEFIT
@@ -1196,7 +1240,13 @@ export class Calculator2026 implements StipendioCalculator {
     }
 
     const redditoLavoroDipendente = redditoLavoroDipendenteLordo - importoEsenteImpatriati;
-    const redditoComplessivo = redditoLavoroDipendente + altriRedditi;
+
+    // 7c. CALCOLO BORSA DI STUDIO (dottorato/post-laurea tassata)
+    // INPS Gestione Separata 35,03%, 1/3 a carico borsista, cumulo IRPEF
+    const borsaCalcolo = calcolaBorsaDiStudio(borsaDiStudioInput);
+
+    const redditoComplessivo =
+      redditoLavoroDipendente + altriRedditi + borsaCalcolo.imponibileBorsa;
 
     // 8. CALCOLO IRPEF LORDA
     const irpef = calcolaIrpefLorda(redditoComplessivo);
@@ -1331,7 +1381,7 @@ export class Calculator2026 implements StipendioCalculator {
       benefitNonTassati.totaleEsente + benefitNonTassati.totaleTassato,
     );
 
-    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT, FASDAC, Fondo EST, contributo lavoratore Fondo Pensione e contributo volontario)
+    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT, FASDAC, Fondo EST, contributo lavoratore Fondo Pensione, contributo volontario, e contributo GS borsista)
     const totaleTrattenute =
       contributiInps.totaleContributi +
       irpefFinale +
@@ -1342,7 +1392,8 @@ export class Calculator2026 implements StipendioCalculator {
       contributoFasdac +
       contributoFondoEst +
       contributoFondoPensione +
-      contributoVolontarioPensione;
+      contributoVolontarioPensione +
+      borsaCalcolo.contributoGSBorsista;
 
     // Totale bonus
     const totaleBonus = cuneoFiscale.indennitaEsente + trattamentoIntegrativo.importo;
@@ -1351,13 +1402,33 @@ export class Calculator2026 implements StipendioCalculator {
     // Nota: l'auto aziendale è un beneficio in natura (non denaro), quindi non aumenta il netto.
     // Solo i fringe benefit monetari (buoni, rimborsi) aumentano il netto perché sono valore ricevuto.
     // La trattenuta auto è un costo reale che il dipendente paga, quindi si sottrae dal netto.
+    // La borsa di studio aggiunge il suo importo lordo alla base (il contributo GS borsista è in totaleTrattenute)
     const baseImponibile =
       ral +
       fringeBenefit.valoreMonetarioImponibile +
       rimborsiTrasferta.rimborsiTassati +
-      benefitNonTassati.totaleTassato;
+      benefitNonTassati.totaleTassato +
+      (borsaCalcolo.dettaglio ? borsaCalcolo.dettaglio.importoLordo : 0);
     const nettoAnnuo =
       baseImponibile - totaleTrattenute + totaleBonus - fringeBenefit.trattenutaAutoDipendente;
+
+    // Calcolo netto annuo borsa di studio (se presente)
+    // Il netto borsa = importo lordo − contributo GS borsista − quota IRPEF/addizionali sulla borsa
+    // La quota IRPEF/addizionali è proporzionale: (imponibileBorsa / redditoComplessivo) × (irpefFinale + addizionali)
+    let dettaglioBorsaDiStudio: DettaglioBorsaDiStudio | null = null;
+    if (borsaCalcolo.dettaglio) {
+      const quotaBorsaSuComplessivo =
+        redditoComplessivo > 0 ? borsaCalcolo.imponibileBorsa / redditoComplessivo : 0;
+      const irpefBorsa = (irpefFinale + addizionali.totaleAddizionali) * quotaBorsaSuComplessivo;
+      const nettoBorsaAnnuo =
+        borsaCalcolo.dettaglio.importoLordo - borsaCalcolo.contributoGSBorsista - irpefBorsa;
+
+      dettaglioBorsaDiStudio = {
+        ...borsaCalcolo.dettaglio,
+        nettoAnnuo: nettoBorsaAnnuo,
+        nettoMensile: nettoBorsaAnnuo / 12,
+      };
+    }
 
     // Stipendio netto mensile
     const nettoMensile = nettoAnnuo / mensilita;
@@ -1390,6 +1461,7 @@ export class Calculator2026 implements StipendioCalculator {
       fondoEst,
       fondoPensioneIntegrativo,
       regimeImpatriati: dettaglioRegimeImpatriati,
+      borsaDiStudio: dettaglioBorsaDiStudio,
       costoAziendale,
       irpef,
       detrazioniLavoro,

@@ -249,6 +249,9 @@ export interface InputCalcoloStipendio {
 
   /** Previdenza complementare (fondo pensione integrativo) - D.Lgs. 252/2005 */
   fondoPensioneIntegrativo?: FondoPensioneIntegrativo;
+
+  /** Borsa di studio post-laurea (tassata dal 7/6/2025) - D.L. 45/2025, convertito in L. 79/2025 */
+  borsaDiStudio?: BorsaDiStudio;
 }
 
 /** Dettaglio dei contributi INPS */
@@ -411,6 +414,12 @@ export interface DettaglioBenefitNonTassati {
   totaleTassato: number;
 }
 
+/** Input borsa di studio (dottorato/post-laurea, tassata dal 7/6/2025 - D.L. 45/2025, L. 79/2025) */
+export interface BorsaDiStudio {
+  /** Importo annuo lordo della borsa */
+  importoAnnuo: number;
+}
+
 /** Input previdenza complementare (fondo pensione integrativo) */
 export interface FondoPensioneIntegrativo {
   /** Percentuale contributo a carico del lavoratore (es. 1.0 = 1%) */
@@ -449,6 +458,26 @@ export interface DettaglioFondoPensioneIntegrativo {
   eccedenzaNonDeducibile: number;
   /** Risparmio fiscale stimato annuo (aliquota marginale x deduzione effettiva) */
   risparmoFiscaleStimato: number;
+}
+
+/** Dettaglio borsa di studio (dottorato/post-laurea tassata) */
+export interface DettaglioBorsaDiStudio {
+  /** Importo lordo annuo della borsa */
+  importoLordo: number;
+  /** Aliquota INPS Gestione Separata totale (35,03% nel 2026) */
+  aliquotaGestioneSeparata: number;
+  /** Contributo Gestione Separata totale (lordo × aliquota) */
+  contributoGestioneSeparataTotale: number;
+  /** Contributo Gestione Separata a carico del borsista (1/3 del totale) */
+  contributoGestioneSeparataBorsista: number;
+  /** Contributo Gestione Separata a carico dell'ente (2/3 del totale) */
+  contributoGestioneSeparataEnte: number;
+  /** Imponibile IRPEF della borsa (lordo − contributo borsista) */
+  imponibileIrpef: number;
+  /** Netto annuo della borsa (lordo − contributo borsista − IRPEF e addizionali quota borsa) */
+  nettoAnnuo: number;
+  /** Netto mensile della borsa (nettoAnnuo / 12) */
+  nettoMensile: number;
 }
 
 /** Dettaglio costo aziendale del dipendente */
@@ -550,6 +579,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio regime impatriati (se applicabile) */
   regimeImpatriati: DettaglioRegimeImpatriati | null;
+
+  /** Dettaglio borsa di studio (se presente) */
+  borsaDiStudio: DettaglioBorsaDiStudio | null;
 
   /** Dettaglio costo aziendale del dipendente */
   costoAziendale: DettaglioCostoAziendale;

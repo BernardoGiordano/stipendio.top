@@ -1831,6 +1831,69 @@
     }
   </fieldset>
 
+  <!-- Sezione Borsa di Studio -->
+  <fieldset
+    class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200 dark:bg-stone-800 dark:border-stone-700"
+    [class.opacity-60]="!model.borsaDiStudio.enabled"
+  >
+    <legend class="px-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
+      Borsa di Studio
+    </legend>
+
+    <p class="text-xs text-stone-500 mb-4 dark:text-stone-400">
+      Borse di studio post-laurea assegnate da universit&agrave; italiane, tassate dal 7 giugno 2025
+      (D.L. 45/2025, L. 79/2025). Soggette a INPS Gestione Separata e cumulo IRPEF.
+    </p>
+
+    <div class="flex items-center gap-2 mb-3">
+      <input
+        id="borsaDiStudioEnabled"
+        type="checkbox"
+        [formField]="form.borsaDiStudio.enabled"
+        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
+      />
+      <label
+        for="borsaDiStudioEnabled"
+        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >Ho una borsa di studio<app-info-tooltip
+          tooltipId="borsaDiStudio-info"
+          text="Dal 7/6/2025 le borse post-laurea sono redditi assimilati al lavoro dipendente. INPS Gestione Separata 35,03% (1/3 borsista, 2/3 ente). L'imponibile si cumula con la RAL per IRPEF e addizionali."
+        />
+      </label>
+    </div>
+
+    @if (model.borsaDiStudio.enabled) {
+      <div class="flex flex-col gap-1 mb-4">
+        <label
+          for="borsaDiStudioImporto"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Importo annuo lordo (&euro;/anno)</label
+        >
+        <input
+          id="borsaDiStudioImporto"
+          type="number"
+          [formField]="form.borsaDiStudio.importoAnnuo"
+          placeholder="Es. 16243"
+          [attr.aria-invalid]="form.borsaDiStudio.importoAnnuo().invalid()"
+          [attr.aria-describedby]="
+            form.borsaDiStudio.importoAnnuo().invalid() ? 'borsaDiStudioImporto-error' : null
+          "
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+        />
+        @if (form.borsaDiStudio.importoAnnuo().invalid()) {
+          @for (error of form.borsaDiStudio.importoAnnuo().errors(); track error.kind) {
+            <span
+              id="borsaDiStudioImporto-error"
+              class="text-xs text-red-600 mt-1 dark:text-red-400"
+              role="alert"
+              >{{ error.message }}</span
+            >
+          }
+        }
+      </div>
+    }
+  </fieldset>
+
   <!-- Sezione Dipendenti CCNL Commercio -->
   <fieldset
     class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200 dark:bg-stone-800 dark:border-stone-700"
