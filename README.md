@@ -713,6 +713,57 @@ Reddito Complessivo = Reddito Lavoro Dipendente + Imponibile Borsa + Altri Reddi
 Netto Borsa = Importo Lordo − Contributo GS Borsista − Quota IRPEF/Addizionali sulla Borsa
 ```
 
+#### 15. Borsa di Studio come Tipo di Contratto (Dottorato di Ricerca)
+
+Le borse di dottorato di ricerca, specializzazione medica e corsi di perfezionamento all'estero sono **totalmente esenti da IRPEF** (Art. 4, L. 476/1984; Art. 6, co. 6, L. 398/1989). Questa esenzione **non** è stata toccata dal D.L. 45/2025 che ha colpito solo le borse post-laurea generiche.
+
+Quando si seleziona "Borsa di studio" come tipo di contratto, il calcolo è drasticamente semplificato rispetto al lavoro dipendente.
+
+##### Cosa si applica
+
+| Voce                                      | Si applica? |
+| ----------------------------------------- | ----------- |
+| INPS Gestione Separata                    | Sì          |
+| IRPEF e scaglioni                         | No (esente) |
+| Addizionali regionali/comunali            | No (esente) |
+| Detrazioni lavoro dipendente              | No          |
+| Cuneo fiscale / Trattamento integrativo   | No          |
+| TFR                                       | No          |
+| Tredicesima / Quattordicesima             | No          |
+| CCNL, fondi dirigenti, Fondo EST          | No          |
+| Regime impatriati                         | No          |
+| Previdenza complementare (fondo pensione) | No          |
+
+##### INPS Gestione Separata
+
+| Copertura pensionistica          | Aliquota totale | Borsista (1/3) | Ente (2/3) |
+| -------------------------------- | --------------- | -------------- | ---------- |
+| Senza altra copertura            | 35,03%          | ~11,68%        | ~23,35%    |
+| Con altra copertura obbligatoria | 24,00%          | ~8,00%         | ~16,00%    |
+
+L'aliquota ridotta al 24% si applica quando il borsista ha un'altra posizione previdenziale obbligatoria (es. iscrizione a una cassa professionale).
+
+##### Formula
+
+```
+Netto Annuo = Importo Lordo − (Importo Lordo × Aliquota GS / 3)
+Netto Mensile = Netto Annuo / 12
+Costo Ente = Importo Lordo + (Importo Lordo × Aliquota GS × 2/3)
+```
+
+##### Esempio: Borsa di dottorato €16.243 (senza altra copertura)
+
+```
+Importo Lordo:         € 16.243,00
+GS Totale (35,03%):    €  5.690,33
+GS Borsista (1/3):     € -1.896,78
+────────────────────────────────────
+Netto Annuo:           € 14.346,22
+Netto Mensile:         €  1.195,52
+
+Costo per l'Ente:      € 20.036,55
+```
+
 ---
 
 ### Sequenza di Calcolo

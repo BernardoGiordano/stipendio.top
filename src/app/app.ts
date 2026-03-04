@@ -7,7 +7,9 @@ import {
   signal,
 } from '@angular/core';
 import { FormContainer } from './components/form-container/form-container';
+import { FormBorsaContainer } from './components/form-borsa-container/form-borsa-container';
 import { Results } from './components/results/results';
+import { ResultsBorsa } from './components/results-borsa/results-borsa';
 import { Resizer } from './components/resizer/resizer';
 import {
   createDefaultFormModel,
@@ -34,7 +36,9 @@ import buildInfo from '../build.json';
   selector: 'app-root',
   imports: [
     FormContainer,
+    FormBorsaContainer,
     Results,
+    ResultsBorsa,
     Resizer,
     CdkMenu,
     CdkMenuItem,
@@ -56,6 +60,8 @@ export class App {
 
   readonly formModel = signal<StipendioFormModel>(this.loadInitialFormState());
   readonly stipendioForm = createStipendioForm(this.formModel);
+
+  readonly isBorsaDiStudio = computed(() => this.formModel().tipoContratto === 'borsaDiStudio');
 
   /** Whether the form was loaded from a shared URL */
   readonly loadedFromUrl = signal(false);

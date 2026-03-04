@@ -3072,3 +3072,192 @@ describe('Costo aziendale', () => {
     });
   });
 });
+
+describe('Borsa di Studio come tipo di contratto (dottorato, specializzazione)', () => {
+  const borsaInput: InputCalcoloStipendio = {
+    ral: 16_243,
+    mensilita: 12,
+    tipoContratto: 'borsaDiStudio',
+    annoFiscale: 2026,
+    regione: 'LO',
+    comune: 'F205',
+  };
+
+  describe('Calcolo base con aliquota piena (35,03%)', () => {
+    const result = calc.calcolaStipendioNetto(borsaInput);
+
+    it('il contributo GS borsista deve essere 1/3 del totale (lordo × 35,03% / 3)', () => {
+      const expectedBorsista = (16_243 * 0.3503) / 3;
+      expect(result.borsaDiStudio).not.toBeNull();
+      expect(result.borsaDiStudio!.contributoGestioneSeparataBorsista).toBeCloseTo(
+        expectedBorsista,
+        2,
+      );
+    });
+
+    it('il contributo GS ente deve essere 2/3 del totale (lordo × 35,03% × 2/3)', () => {
+      const expectedEnte = (16_243 * 0.3503 * 2) / 3;
+      expect(result.borsaDiStudio!.contributoGestioneSeparataEnte).toBeCloseTo(expectedEnte, 2);
+    });
+
+    it("l'aliquota GS deve essere 35,03%", () => {
+      expect(result.borsaDiStudio!.aliquotaGestioneSeparata).toBe(0.3503);
+    });
+
+    it('il netto annuo deve essere lordo - GS borsista', () => {
+      const expectedNetto = 16_243 - (16_243 * 0.3503) / 3;
+      expect(result.nettoAnnuo).toBeCloseTo(expectedNetto, 2);
+    });
+
+    it('il netto mensile deve essere netto annuo / 12', () => {
+      expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / 12, 2);
+    });
+
+    it('le mensilità devono essere 12', () => {
+      expect(result.mensilita).toBe(12);
+    });
+  });
+
+  describe('Esenzione IRPEF (Art. 4 L. 476/1984)', () => {
+    const result = calc.calcolaStipendioNetto(borsaInput);
+
+    it("l'IRPEF lorda deve essere zero", () => {
+      expect(result.irpef.irpefLorda).toBe(0);
+    });
+
+    it("l'IRPEF netta deve essere zero", () => {
+      expect(result.irpefNetta).toBe(0);
+    });
+
+    it("l'IRPEF finale deve essere zero", () => {
+      expect(result.irpefFinale).toBe(0);
+    });
+
+    it("l'imponibile IRPEF della borsa deve essere zero", () => {
+      expect(result.borsaDiStudio!.imponibileIrpef).toBe(0);
+    });
+
+    it('le addizionali regionali devono essere zero', () => {
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+    });
+
+    it('le addizionali comunali devono essere zero', () => {
+      expect(result.addizionali.addizionaleComunale).toBe(0);
+    });
+  });
+
+  describe('Campi non applicabili devono essere null/zero', () => {
+    const result = calc.calcolaStipendioNetto(borsaInput);
+
+    it('non ci sono detrazioni lavoro dipendente', () => {
+      expect(result.detrazioniLavoro.detrazioneEffettiva).toBe(0);
+    });
+
+    it('non ci sono detrazioni familiari', () => {
+      expect(result.detrazioniFamiliari.totaleDetrazioniFamiliari).toBe(0);
+    });
+
+    it('non ci sono bonus (cuneo/trattamento integrativo)', () => {
+      expect(result.totaleBonus).toBe(0);
+    });
+
+    it('il fondo Negri è null', () => {
+      expect(result.fondoNegri).toBeNull();
+    });
+
+    it('il fondo Pastore è null', () => {
+      expect(result.fondoPastore).toBeNull();
+    });
+
+    it('il CFMT è null', () => {
+      expect(result.cfmt).toBeNull();
+    });
+
+    it('il FASDAC è null', () => {
+      expect(result.fasdac).toBeNull();
+    });
+
+    it('il fondo EST è null', () => {
+      expect(result.fondoEst).toBeNull();
+    });
+
+    it('il fondo pensione integrativo è null', () => {
+      expect(result.fondoPensioneIntegrativo).toBeNull();
+    });
+
+    it('il regime impatriati è null', () => {
+      expect(result.regimeImpatriati).toBeNull();
+    });
+
+    it('il TFR deve essere zero', () => {
+      expect(result.costoAziendale.tfr).toBe(0);
+    });
+  });
+
+  describe('Aliquota ridotta (24%) con altra copertura pensionistica', () => {
+    const resultRidotta = calc.calcolaStipendioNetto({
+      ...borsaInput,
+      altraCoperturaPensionistica: true,
+    });
+
+    it("l'aliquota GS deve essere 24%", () => {
+      expect(resultRidotta.borsaDiStudio!.aliquotaGestioneSeparata).toBe(0.24);
+    });
+
+    it('il contributo GS borsista deve essere lordo × 24% / 3', () => {
+      const expectedBorsista = (16_243 * 0.24) / 3;
+      expect(resultRidotta.borsaDiStudio!.contributoGestioneSeparataBorsista).toBeCloseTo(
+        expectedBorsista,
+        2,
+      );
+    });
+
+    it('il netto deve essere superiore rispetto al caso con aliquota piena', () => {
+      const resultPiena = calc.calcolaStipendioNetto(borsaInput);
+      expect(resultRidotta.nettoAnnuo).toBeGreaterThan(resultPiena.nettoAnnuo);
+    });
+
+    it('il netto annuo deve essere lordo - GS borsista (24%)', () => {
+      const expectedNetto = 16_243 - (16_243 * 0.24) / 3;
+      expect(resultRidotta.nettoAnnuo).toBeCloseTo(expectedNetto, 2);
+    });
+  });
+
+  describe('Costo per ente', () => {
+    const result = calc.calcolaStipendioNetto(borsaInput);
+
+    it('il costo ente deve essere lordo + GS ente (2/3)', () => {
+      const expectedCosto = 16_243 + (16_243 * 0.3503 * 2) / 3;
+      expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(expectedCosto, 2);
+    });
+
+    it('contributi INPS datore = GS ente', () => {
+      const expectedEnte = (16_243 * 0.3503 * 2) / 3;
+      expect(result.costoAziendale.contributiInpsDatore).toBeCloseTo(expectedEnte, 2);
+    });
+  });
+
+  describe('Aliquota effettiva', () => {
+    it("l'aliquota effettiva deve riflettere solo il contributo GS borsista", () => {
+      const result = calc.calcolaStipendioNetto(borsaInput);
+      const expectedAliquota = (16_243 * 0.3503) / 3 / 16_243;
+      expect(result.aliquotaEffettiva).toBeCloseTo(expectedAliquota, 4);
+    });
+  });
+
+  describe('Borsa con importo diverso (€21.000)', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...borsaInput,
+      ral: 21_000,
+    });
+
+    it('il netto annuo deve essere corretto', () => {
+      const expectedNetto = 21_000 - (21_000 * 0.3503) / 3;
+      expect(result.nettoAnnuo).toBeCloseTo(expectedNetto, 2);
+    });
+
+    it('il netto mensile deve essere netto annuo / 12', () => {
+      expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / 12, 2);
+    });
+  });
+});

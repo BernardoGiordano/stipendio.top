@@ -1,0 +1,199 @@
+<aside
+  class="bg-white border border-stone-200 rounded-lg overflow-hidden lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] flex flex-col dark:bg-stone-800 dark:border-stone-700"
+>
+  @if (hasResult()) {
+    @let r = result()!;
+
+    <!-- Header con risultati principali -->
+    <header
+      class="bg-stone-100 border-b border-stone-200 p-6 dark:bg-stone-900 dark:border-stone-700"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-stone-500 dark:text-stone-400">Netto Mensile</span>
+          <span class="text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">{{
+            formatCurrency(r.nettoMensile)
+          }}</span>
+          <span class="text-xs text-stone-400">su 12 rate mensili</span>
+        </div>
+        <div class="flex flex-col gap-1 sm:items-end">
+          <span class="text-sm text-stone-500 dark:text-stone-400">Netto Annuo</span>
+          <span class="text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">{{
+            formatCurrency(r.nettoAnnuo)
+          }}</span>
+          <span class="text-xs text-stone-400">(stipendio netto)</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenuto -->
+    <div class="flex-1 overflow-y-auto">
+      @if (r.borsaDiStudio) {
+        <!-- Riepilogo Borsa di Studio -->
+        <section class="p-4 border-b border-stone-100 dark:border-stone-700">
+          <h3
+            class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
+          >
+            Riepilogo Borsa di Studio
+          </h3>
+          <dl>
+            <div
+              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+            >
+              <dt class="text-sm text-stone-600 dark:text-stone-400">Importo Lordo Annuo</dt>
+              <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                {{ formatCurrency(r.borsaDiStudio.importoLordo) }}
+              </dd>
+            </div>
+            <div
+              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+            >
+              <dt class="text-sm text-stone-600 dark:text-stone-400">IRPEF</dt>
+              <dd class="text-sm font-medium text-green-600 dark:text-green-400">Esente</dd>
+            </div>
+            <div
+              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+            >
+              <dt class="text-sm text-stone-600 dark:text-stone-400">Addizionali</dt>
+              <dd class="text-sm font-medium text-green-600 dark:text-green-400">Esenti</dd>
+            </div>
+            <div
+              class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
+            >
+              <dt class="text-sm text-stone-800 dark:text-stone-200">Netto Annuo</dt>
+              <dd class="text-sm text-stone-900 dark:text-stone-100">
+                {{ formatCurrency(r.nettoAnnuo) }}
+              </dd>
+            </div>
+            <div class="flex justify-between py-1.5">
+              <dt class="text-sm text-stone-600 dark:text-stone-400">Aliquota Effettiva</dt>
+              <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                {{ formatPercent(r.aliquotaEffettiva) }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- INPS Gestione Separata -->
+        <section class="p-4 border-b border-stone-100 dark:border-stone-700">
+          <h3
+            class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
+          >
+            INPS Gestione Separata
+          </h3>
+          <dl>
+            <div
+              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+            >
+              <dt class="text-sm text-stone-600 dark:text-stone-400">Aliquota Totale</dt>
+              <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                {{ formatPercent(r.borsaDiStudio.aliquotaGestioneSeparata) }}
+              </dd>
+            </div>
+            <div
+              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+            >
+              <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Totale</dt>
+              <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                {{ formatCurrency(r.borsaDiStudio.contributoGestioneSeparataTotale) }}
+              </dd>
+            </div>
+            <div
+              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+            >
+              <dt class="text-sm text-stone-600 dark:text-stone-400">A carico borsista (1/3)</dt>
+              <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                - {{ formatCurrency(r.borsaDiStudio.contributoGestioneSeparataBorsista) }}
+              </dd>
+            </div>
+            <div class="flex justify-between py-1.5">
+              <dt class="text-sm text-stone-600 dark:text-stone-400">A carico ente (2/3)</dt>
+              <dd class="text-sm font-medium text-stone-500 dark:text-stone-400">
+                {{ formatCurrency(r.borsaDiStudio.contributoGestioneSeparataEnte) }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- Costo Ente -->
+        <section class="p-4 border-b border-stone-100 dark:border-stone-700">
+          <h3
+            class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
+          >
+            Costo per l'Ente
+          </h3>
+          <dl>
+            <div
+              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+            >
+              <dt class="text-sm text-stone-600 dark:text-stone-400">Importo Borsa</dt>
+              <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                {{ formatCurrency(r.costoAziendale.ral) }}
+              </dd>
+            </div>
+            <div
+              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+            >
+              <dt class="text-sm text-stone-600 dark:text-stone-400">GS a carico ente (2/3)</dt>
+              <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                {{ formatCurrency(r.costoAziendale.contributiInpsDatore) }}
+              </dd>
+            </div>
+            <div
+              class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
+            >
+              <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Annuo</dt>
+              <dd class="text-sm text-stone-900 dark:text-stone-100">
+                {{ formatCurrency(r.costoAziendale.totaleAnnuo) }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- Netto Mensile -->
+        <section class="p-4">
+          <h3
+            class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
+          >
+            Dettaglio Mensile
+          </h3>
+          <dl>
+            <div
+              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+            >
+              <dt class="text-sm text-stone-600 dark:text-stone-400">Lordo Mensile</dt>
+              <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                {{ formatCurrency(r.borsaDiStudio.importoLordo / 12) }}
+              </dd>
+            </div>
+            <div
+              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+            >
+              <dt class="text-sm text-stone-600 dark:text-stone-400">GS Borsista Mensile</dt>
+              <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                - {{ formatCurrency(r.borsaDiStudio.contributoGestioneSeparataBorsista / 12) }}
+              </dd>
+            </div>
+            <div
+              class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
+            >
+              <dt class="text-sm text-stone-800 dark:text-stone-200">Netto Mensile</dt>
+              <dd class="text-sm text-green-700 dark:text-green-400">
+                {{ formatCurrency(r.nettoMensile) }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+      }
+    </div>
+  } @else {
+    <div class="p-8 text-center">
+      <p class="text-stone-500 mb-2 dark:text-stone-400">
+        Compila il form per calcolare il netto della tua borsa di studio.
+      </p>
+      <p class="text-sm text-stone-400 dark:text-stone-500">
+        Inserisci l'importo annuo lordo della borsa.
+      </p>
+    </div>
+  }
+</aside>

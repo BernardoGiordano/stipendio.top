@@ -1,5 +1,5 @@
 /** Tipologia di contratto */
-export type TipoContratto = 'indeterminato' | 'determinato' | 'apprendistato';
+export type TipoContratto = 'indeterminato' | 'determinato' | 'apprendistato' | 'borsaDiStudio';
 
 /** Tipologia alimentazione auto aziendale */
 export type TipoAlimentazioneAuto = 'elettrico' | 'ibrido_plugin' | 'altro';
@@ -252,6 +252,10 @@ export interface InputCalcoloStipendio {
 
   /** Borsa di studio post-laurea (tassata dal 7/6/2025) - D.L. 45/2025, convertito in L. 79/2025 */
   borsaDiStudio?: BorsaDiStudio;
+
+  /** Indica se il borsista ha altra copertura pensionistica obbligatoria (riduce GS da 35,03% a 24%).
+   *  Rilevante solo quando tipoContratto = 'borsaDiStudio'. */
+  altraCoperturaPensionistica?: boolean;
 }
 
 /** Dettaglio dei contributi INPS */

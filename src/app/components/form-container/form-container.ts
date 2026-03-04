@@ -57,6 +57,7 @@ export class FormContainer {
     { value: 'indeterminato', label: 'Tempo indeterminato' },
     { value: 'determinato', label: 'Tempo determinato' },
     { value: 'apprendistato', label: 'Apprendistato' },
+    { value: 'borsaDiStudio', label: 'Borsa di studio (dottorato, specializzazione)' },
   ];
 
   readonly anniFiscali = ['2026', '2027', '2028', '2029', '2030'];

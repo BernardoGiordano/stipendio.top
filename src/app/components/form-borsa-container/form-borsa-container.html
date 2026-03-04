@@ -1,0 +1,108 @@
+<form class="flex flex-col gap-4">
+  @let form = stipendioForm();
+
+  <!-- Sezione Dati Principali -->
+  <fieldset
+    class="bg-white border border-stone-200 rounded-lg p-5 dark:bg-stone-800 dark:border-stone-700"
+  >
+    <legend class="px-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
+      Dati Borsa di Studio
+    </legend>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="flex flex-col gap-1">
+        <label for="ral" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Importo Annuo Lordo *<app-info-tooltip
+            tooltipId="ral-info"
+            text="Importo annuo lordo della borsa di studio prima dei contributi INPS Gestione Separata."
+          />
+        </label>
+        <input
+          id="ral"
+          type="number"
+          [formField]="form.ral"
+          placeholder="Es. 16243"
+          aria-required="true"
+          [attr.aria-invalid]="form.ral().invalid()"
+          [attr.aria-describedby]="form.ral().invalid() ? 'ral-error' : null"
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+        />
+        @if (form.ral().invalid()) {
+          @for (error of form.ral().errors(); track error.kind) {
+            <span id="ral-error" class="text-xs text-red-600 mt-1 dark:text-red-400" role="alert">{{
+              error.message
+            }}</span>
+          }
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label
+          for="tipoContratto"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Tipo Contratto *<app-info-tooltip
+            tooltipId="tipoContratto-info"
+            text="Gli apprendisti hanno un'aliquota INPS ridotta (5,84%). I contratti a tempo determinato hanno una detrazione minima garantita inferiore."
+          />
+        </label>
+        <select
+          id="tipoContratto"
+          [formField]="form.tipoContratto"
+          aria-required="true"
+          class="h-[42px] px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+        >
+          @for (tipo of tipiContratto; track tipo.value) {
+            <option [value]="tipo.value">{{ tipo.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label
+          for="annoFiscale"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Anno Fiscale *<app-info-tooltip
+            tooltipId="annoFiscale-info"
+            text="Anno di riferimento per il calcolo."
+          />
+        </label>
+        <select
+          id="annoFiscale"
+          [formField]="form.annoFiscale"
+          aria-required="true"
+          class="h-[42px] px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+        >
+          @for (anno of anniFiscali; track anno) {
+            <option [value]="anno">{{ anno }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Sezione Opzioni Borsa di Studio -->
+  <fieldset
+    class="bg-white border border-stone-200 rounded-lg p-5 dark:bg-stone-800 dark:border-stone-700"
+  >
+    <legend class="px-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
+      Opzioni Borsa di Studio
+    </legend>
+
+    <div class="flex items-center gap-2">
+      <input
+        id="altraCoperturaPensionistica"
+        type="checkbox"
+        [formField]="form.altraCoperturaPensionistica"
+        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
+      />
+      <label
+        for="altraCoperturaPensionistica"
+        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+        >Ho altra copertura pensionistica obbligatoria<app-info-tooltip
+          tooltipId="altraCoperturaPensionistica-info"
+          text="Se hai un'altra posizione previdenziale obbligatoria (es. iscrizione a una cassa professionale), l'aliquota INPS Gestione Separata si riduce dal 35,03% al 24%."
+        />
+      </label>
+    </div>
+  </fieldset>
+</form>

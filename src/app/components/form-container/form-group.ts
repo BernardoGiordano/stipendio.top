@@ -127,6 +127,7 @@ export interface StipendioFormModel {
   fondoEst: boolean;
   regimeImpatriati: boolean;
   regimeImpatriatiMinorenni: boolean;
+  altraCoperturaPensionistica: boolean;
 
   // Optional nested objects
   borsaDiStudio: BorsaDiStudioFormModel;
@@ -259,6 +260,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     fondoEst: false,
     regimeImpatriati: false,
     regimeImpatriatiMinorenni: false,
+    altraCoperturaPensionistica: false,
     borsaDiStudio: createDefaultBorsaDiStudio(),
     fondoPensioneIntegrativo: createDefaultFondoPensioneIntegrativo(),
     coniuge: createDefaultConiuge(),
@@ -566,7 +568,24 @@ function toAscendenti(models: AscendenteACaricoFormModel[]): AscendenteACarico[]
  * Returns null if required fields are missing.
  */
 export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcoloStipendio | null {
-  if (!model.ral || Number.isNaN(model.ral) || !model.regione || !model.comune) {
+  if (!model.ral || Number.isNaN(model.ral)) {
+    return null;
+  }
+
+  // Borsa di studio: input semplificato (solo importo + copertura pensionistica)
+  if (model.tipoContratto === 'borsaDiStudio') {
+    return {
+      ral: model.ral,
+      mensilita: 12,
+      tipoContratto: 'borsaDiStudio',
+      annoFiscale: Number(model.annoFiscale) as AnnoFiscale,
+      regione: model.regione.toUpperCase(),
+      comune: model.comune.toUpperCase(),
+      ...(model.altraCoperturaPensionistica && { altraCoperturaPensionistica: true }),
+    };
+  }
+
+  if (!model.regione || !model.comune) {
     return null;
   }
 

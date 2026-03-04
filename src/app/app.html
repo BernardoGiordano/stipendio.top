@@ -383,11 +383,19 @@
   [style.--split-ratio]="splitRatio()"
 >
   <div class="w-full lg:w-auto lg:flex-[var(--split-ratio)]">
-    <app-form-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
+    @if (isBorsaDiStudio()) {
+      <app-form-borsa-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
+    } @else {
+      <app-form-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
+    }
   </div>
   <app-resizer (resize)="onResize($event)" />
   <div class="w-full lg:w-auto lg:flex-[calc(1-var(--split-ratio))]">
-    <app-results [result]="calculationResult()" [baseInput]="calculationInput()" />
+    @if (isBorsaDiStudio()) {
+      <app-results-borsa [result]="calculationResult()" />
+    } @else {
+      <app-results [result]="calculationResult()" [baseInput]="calculationInput()" />
+    }
   </div>
 </main>
 

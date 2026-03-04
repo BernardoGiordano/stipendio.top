@@ -240,8 +240,10 @@ const REGIME_IMPATRIATI = {
 
 /** Parametri INPS Gestione Separata per borse di studio post-laurea (D.L. 45/2025, L. 79/2025) */
 const GESTIONE_SEPARATA_BORSE = {
-  /** Aliquota totale 2026 */
+  /** Aliquota totale 2026 (senza altra copertura pensionistica) */
   aliquotaTotale: 0.3503,
+  /** Aliquota ridotta 2026 (con altra copertura pensionistica obbligatoria) */
+  aliquotaRidotta: 0.24,
   /** Quota a carico del borsista (1/3) */
   quotaBorsista: 1 / 3,
   /** Quota a carico dell'ente (2/3) */
@@ -1094,8 +1096,165 @@ function calcolaBorsaDiStudio(borsa: BorsaDiStudio | undefined): {
   };
 }
 
+/**
+ * Calcola il netto per borsa di studio esente IRPEF (dottorato di ricerca, specializzazione, ecc.)
+ * Art. 4 L. 476/1984, Art. 6 co. 6 L. 398/1989. Solo INPS Gestione Separata.
+ */
+function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalcoloStipendio {
+  const importoLordo = input.ral;
+  const aliquotaGS = input.altraCoperturaPensionistica
+    ? GESTIONE_SEPARATA_BORSE.aliquotaRidotta
+    : GESTIONE_SEPARATA_BORSE.aliquotaTotale;
+
+  const contributoGSTotale = importoLordo * aliquotaGS;
+  const contributoGSBorsista = contributoGSTotale * GESTIONE_SEPARATA_BORSE.quotaBorsista;
+  const contributoGSEnte = contributoGSTotale * GESTIONE_SEPARATA_BORSE.quotaEnte;
+
+  const nettoAnnuo = importoLordo - contributoGSBorsista;
+  const nettoMensile = nettoAnnuo / 12;
+
+  // Dettaglio contributi INPS (GS borsista)
+  const contributiInps: DettaglioContributiInps = {
+    imponibilePrevidenziale: importoLordo,
+    aliquotaApplicata: aliquotaGS * GESTIONE_SEPARATA_BORSE.quotaBorsista,
+    contributiBase: contributoGSBorsista,
+    contributoAggiuntivo: 0,
+    totaleContributi: contributoGSBorsista,
+  };
+
+  // Dettaglio borsa di studio
+  const borsaDiStudio: DettaglioBorsaDiStudio = {
+    importoLordo,
+    aliquotaGestioneSeparata: aliquotaGS,
+    contributoGestioneSeparataTotale: contributoGSTotale,
+    contributoGestioneSeparataBorsista: contributoGSBorsista,
+    contributoGestioneSeparataEnte: contributoGSEnte,
+    imponibileIrpef: 0, // Esente IRPEF
+    nettoAnnuo,
+    nettoMensile,
+  };
+
+  // Zero values for all irrelevant output fields
+  const zeroFringeBenefit: DettaglioFringeBenefit = {
+    valoreTotaleLordo: 0,
+    autoAziendale: null,
+    trattenutaAutoDipendente: 0,
+    sogliaEsenzione: 0,
+    sogliaSuperata: false,
+    valoreImponibile: 0,
+    valoreEsente: 0,
+    valoreMonetarioImponibile: 0,
+    valoreAutoImponibile: 0,
+  };
+
+  const zeroRimborsiTrasferta: DettaglioRimborsiTrasferta = {
+    rimborsoForfettarioEsente: 0,
+    rimborsoDocumentatoEsente: 0,
+    rimborsiTassati: 0,
+    totaleEsente: 0,
+    totaleRimborsi: 0,
+  };
+
+  const zeroBenefitNonTassati: DettaglioBenefitNonTassati = {
+    previdenzaComplementare: 0,
+    assistenzaSanitaria: 0,
+    buoniPastoEsenti: 0,
+    buoniPastoTassati: 0,
+    altriWelfare: 0,
+    totaleEsente: 0,
+    totaleTassato: 0,
+  };
+
+  const zeroCostoAziendale: DettaglioCostoAziendale = {
+    ral: importoLordo,
+    contributiInpsDatore: contributoGSEnte,
+    aliquotaInpsDatore: aliquotaGS * GESTIONE_SEPARATA_BORSE.quotaEnte,
+    tfr: 0,
+    fondoNegriDatore: 0,
+    fondoPastoreDatore: 0,
+    cfmtDatore: 0,
+    fasdacDatore: 0,
+    fondoEstDatore: 0,
+    fondoPensioneIntegrativoDatore: 0,
+    fringeBenefit: 0,
+    rimborsiTrasferta: 0,
+    benefitNonTassati: 0,
+    totaleAnnuo: importoLordo + contributoGSEnte,
+  };
+
+  return {
+    ral: importoLordo,
+    annoFiscale: 2026,
+    mensilita: 12,
+    contributiInps,
+    fringeBenefit: zeroFringeBenefit,
+    rimborsiTrasferta: zeroRimborsiTrasferta,
+    benefitNonTassati: zeroBenefitNonTassati,
+    fondoNegri: null,
+    fondoPastore: null,
+    cfmt: null,
+    fasdac: null,
+    fondoEst: null,
+    fondoPensioneIntegrativo: null,
+    regimeImpatriati: null,
+    borsaDiStudio,
+    costoAziendale: zeroCostoAziendale,
+    irpef: { imponibileIrpef: 0, irpefLorda: 0, dettaglioScaglioni: [] },
+    detrazioniLavoro: {
+      detrazioneTeorica: 0,
+      maggiorazione: 0,
+      coefficienteGiorni: 0,
+      detrazioneEffettiva: 0,
+    },
+    detrazioniFamiliari: {
+      detrazioneConiuge: 0,
+      detrazioneFigli: 0,
+      numeroFigliConDetrazione: 0,
+      detrazioneAscendenti: 0,
+      numeroAscendentiConDetrazione: 0,
+      totaleDetrazioniFamiliari: 0,
+    },
+    cuneoFiscale: {
+      spettaIndennita: false,
+      spettaDetrazione: false,
+      indennitaEsente: 0,
+      detrazioneAggiuntiva: 0,
+    },
+    trattamentoIntegrativo: { spetta: false, importo: 0, importoPieno: false },
+    riepilogoDetrazioni: {
+      lavoroDipendente: 0,
+      carichiFamiliari: 0,
+      cuneoFiscale: 0,
+      altre: 0,
+      totale: 0,
+    },
+    addizionali: {
+      addizionaleRegionale: 0,
+      aliquotaRegionale: 0,
+      addizionaleComunale: 0,
+      aliquotaComunale: 0,
+      esenzioneComunaleApplicata: false,
+      totaleAddizionali: 0,
+    },
+    irpefNetta: 0,
+    irpefFinale: 0,
+    totaleTrattenute: contributoGSBorsista,
+    totaleBonus: 0,
+    nettoAnnuo,
+    nettoMensile,
+    nettoMensilePercepito: nettoMensile,
+    aliquotaEffettiva: contributoGSBorsista / importoLordo,
+    totalePercepito: nettoAnnuo,
+  };
+}
+
 export class Calculator2026 implements StipendioCalculator {
   calcolaStipendioNetto(input: InputCalcoloStipendio): OutputCalcoloStipendio {
+    // Borsa di studio come contratto: calcolo semplificato (solo GS INPS, esente IRPEF)
+    if (input.tipoContratto === 'borsaDiStudio') {
+      return calcolaBorsaDiStudioContratto(input);
+    }
+
     const {
       ral,
       mensilita,
