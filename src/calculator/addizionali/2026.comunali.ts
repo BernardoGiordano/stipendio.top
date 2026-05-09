@@ -14906,7 +14906,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   H939: { n: 'San Gregorio Matese', p: 'CE', r: 'CM', a: 0.006 },
   H940: { n: 'San Gregorio Di Catania', p: 'CT', r: 'SI', a: 0.008, e: 15_000 },
   H941: { n: "San Gregorio D'Ippona", p: 'VV', r: 'CL', a: 0.004 },
-  H942: { n: 'San Gregorio Da Sassola', p: 'RM', r: 'LA', a: 0.006 },
+  H942: { n: 'San Gregorio Da Sassola', p: 'RM', r: 'LA', a: 0.008 },
   H944: { n: 'Sanguinetto', p: 'VR', r: 'VE', a: 0.008, e: 15_000 },
   H945: { n: 'San Lazzaro Di Savena', p: 'BO', r: 'ER', a: 0.008, e: 10_000 },
   H949: { n: 'San Leo', p: 'RN', r: 'ER', a: 0.008 },
