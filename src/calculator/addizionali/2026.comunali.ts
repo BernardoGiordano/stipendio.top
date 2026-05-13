@@ -9304,7 +9304,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   },
   E936: { n: 'Marcon', p: 'VE', r: 'VE', a: 0.0075, e: 12_000 },
   E939: { n: 'Marene', p: 'CN', r: 'PI', a: 0.008 },
-  E940: { n: 'Mareno Di Piave', p: 'TV', r: 'VE', a: 0.008, e: 10_000 },
+  E940: { n: 'Mareno Di Piave', p: 'TV', r: 'VE', a: 0.008, e: 12_000 },
   E941: { n: 'Marentino', p: 'TO', r: 'PI', a: 0.008, e: 7_500 },
   E944: { n: 'Maretto', p: 'AT', r: 'PI', a: 0.008 },
   E945: {
@@ -15904,7 +15904,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     e: 6_000,
   },
   I510: { n: 'Scarlino', p: 'GR', r: 'TO', a: 0.008, e: 14_999 },
-  I511: { n: 'Scarmagno', p: 'TO', r: 'PI', a: 0.002 },
+  I511: { n: 'Scarmagno', p: 'TO', r: 'PI', a: 0.006 },
   I512: { n: 'Scarnafigi', p: 'CN', r: 'PI', a: 0.005 },
   I514: { n: 'Scarperia', p: 'FI', r: 'TO', a: 0.005 },
   I520: { n: 'Scerni', p: 'CH', r: 'AB', a: 0.008 },
@@ -17514,7 +17514,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   },
   L424: { n: 'Trieste', p: 'TS', r: 'FV', a: 0.008, e: 12_500 },
   L425: { n: 'Triggiano', p: 'BA', r: 'PU', a: 0.008, e: 7_499.99 },
-  L426: { n: 'Trigolo', p: 'CR', r: 'LO', a: 0.006, e: 15_000 },
+  L426: { n: 'Trigolo', p: 'CR', r: 'LO', a: 0.008, e: 15_000 },
   L427: {
     n: "Trinita'",
     p: 'CN',
