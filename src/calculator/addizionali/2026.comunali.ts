@@ -2386,7 +2386,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   },
   B310: { n: "San Paolo D'Argon", p: 'BG', r: 'LO', a: 0.005 },
   B311: { n: 'Cabella Ligure', p: 'AL', r: 'PI', a: 0.004 },
-  B312: { n: 'Castello Cabiaglio', p: 'VA', r: 'LO', a: 0.005 },
+  B312: { n: 'Castello Cabiaglio', p: 'VA', r: 'LO', a: 0.007, e: 10_000 },
   B313: { n: 'Cabiate', p: 'CO', r: 'LO', a: 0.008, e: 18_000 },
   B314: { n: 'Cabras', p: 'OR', r: 'SA', a: 0.0055, e: 8_500 },
   B315: { n: 'Caccamo', p: 'PA', r: 'SI', a: 0.008, e: 4_800 },
@@ -7361,7 +7361,6 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'LC',
     r: 'LO',
     s: [
-      { l: 15_000, a: 0.006 },
       { l: 28_000, a: 0.0072 },
       { l: 50_000, a: 0.0077 },
       { l: Infinity, a: 0.008 },
