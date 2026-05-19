@@ -16724,7 +16724,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   I963: { n: 'Stornarella', p: 'FG', r: 'PU', a: 0.008 },
   I965: { n: 'Stra', p: 'VE', r: 'VE', a: 0.008, e: 10_000 },
   I968: { n: 'Stradella', p: 'PV', r: 'LO', a: 0.008, e: 15_000 },
-  I969: { n: 'Strambinello', p: 'TO', r: 'PI', a: 0.004 },
+  I969: { n: 'Strambinello', p: 'TO', r: 'PI', a: 0.005 },
   I970: { n: 'Strambino', p: 'TO', r: 'PI', a: 0.008, e: 11_071.34 },
   I973: {
     n: 'Strangolagalli',
