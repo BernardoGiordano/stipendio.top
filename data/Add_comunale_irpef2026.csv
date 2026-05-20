@@ -741,7 +741,7 @@ A946;BOLOGNETTA;PA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A947;BOLOGNOLA;MC;27;22/12/2025;31/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8000
 A948;BOLOTANA;NU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A949;BOLSENA;VT;62;12/12/2025;14/01/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-A950;BOLTIERE;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A950;BOLTIERE;BG;39;17/12/2025;19/05/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A952;BOLZANO;BZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A953;BOLZANO NOVARESE;NO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A954;BOLZANO VICENTINO;VI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -916,7 +916,7 @@ B178;BRIGNANO GERA D'ADDA;BG;58;22/12/2025;14/01/2026;MODIFICA;SI;0;Esenzione pe
 B179;BRIGNANO-FRASCATA;AL;13;09/12/2025;30/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 B180;BRINDISI;BR;107;22/12/2025;25/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;1,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 B181;BRINDISI MONTAGNA;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B182;BRINZIO;VA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B182;BRINZIO;VA;22;19/12/2025;19/05/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 B183;BRIONA;NO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B184;BRIONE;BS;19;24/11/2025;09/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 11.000,00;,7;Applicabile a scaglione di reddito fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;11000
 B187;BRIOSCO;MB;23;19/12/2025;19/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 12.500,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;12500
@@ -1016,7 +1016,7 @@ B314;CABRAS;OR;45;30/12/2025;15/01/2026;CONFERMA;SI;0;Esenzione per redditi impo
 B315;CACCAMO;PA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B319;CACCURI;KR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B326;CADEGLIANO-VICONAGO;VA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B328;CADELBOSCO DI SOPRA;RE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B328;CADELBOSCO DI SOPRA;RE;60;29/12/2025;19/05/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 12.000,00;,78;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;12000
 B332;CADEO;PC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B335;CADERZONE TERME;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B345;CADONEGHE;PD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -3020,7 +3020,7 @@ D961;GEMMANO;RN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D962;GEMONA DEL FRIULI;UD;46;27/11/2025;24/03/2026;CONFERMA;SI;0,7;Applicabile a scaglione di reddito fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,77;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 D963;GEMONIO;VA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D964;GENAZZANO;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-D965;GENGA;AN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+D965;GENGA;AN;86;30/12/2025;19/05/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D966;GENIVOLTA;CR;39;29/12/2025;27/01/2026;CONFERMA;SI;0,4;Applicabile a scaglione di reddito fino a euro 28.000,00;,5;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,7;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 D967;GENOLA;CN;27;18/12/2025;09/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,7;Applicabile a scaglione di reddito fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;10000
 D968;GENONI;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -4738,7 +4738,7 @@ G167;OSPEDALETTO EUGANEO;PD;36;30/12/2025;27/02/2026;CONFERMA;NO;0,8;Aliquota un
 G166;OSPEDALETTO LODIGIANO;LO;33;16/12/2025;18/02/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,4;Applicabile a scaglione di reddito fino a euro 15.000,00;,7;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,8;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 15.000,00;;;;;;;;;;;;;;;0;0
 G169;OSPITALE DI CADORE;BL;26;30/12/2025;06/02/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G170;OSPITALETTO;BS;44;30/12/2025;18/02/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 20.000,00;,69;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;20000
-G171;OSSAGO LODIGIANO;LO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G171;OSSAGO LODIGIANO;LO;62;19/12/2025;19/05/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,68;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 G173;OSSANA;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G178;OSSI;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G179;OSSIMO;BS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5896,7 +5896,7 @@ H672;SAINT-NICOLAS;AO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H673;SAINT-OYEN;AO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H674;SAINT-PIERRE;AO;41;22/12/2025;20/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 H675;SAINT-RHEMY-EN-BOSSES;AO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-H676;SAINT-VINCENT;AO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H676;SAINT-VINCENT;AO;58;25/11/2025;19/05/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 22.500,00;,35;Applicabile a scaglione di reddito fino a euro 28.000,00;,45;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,6;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;22500
 H682;SALA BAGANZA;PR;24;15/12/2025;13/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 H681;SALA BIELLESE;BI;40;15/12/2025;23/03/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H678;SALA BOLOGNESE;BO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6259,7 +6259,7 @@ I152;SAN SEBASTIANO DA PO;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I154;SAN SECONDO DI PINEROLO;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I153;SAN SECONDO PARMENSE;PR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I157;SAN SEVERINO LUCANO;PZ;2;25/02/2026;14/04/2026;MODIFICA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-I156;SAN SEVERINO MARCHE;MC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I156;SAN SEVERINO MARCHE;MC;60;29/12/2025;19/05/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,6;Applicabile a scaglione di reddito fino a euro 15.000,00;,75;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,78;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,79;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;0;0
 I158;SAN SEVERO;FG;95;27/11/2025;14/01/2026;CONFERMA;SI;0,6;Applicabile a scaglione di reddito fino a euro 15.000,00;,7;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;0;0
 I162;SAN SIRO;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I163;SAN SOSSIO BARONIA;AV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6284,7 +6284,7 @@ I402;SAN VITO;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I403;SAN VITO AL TAGLIAMENTO;PN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I404;SAN VITO AL TORRE;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I394;SAN VITO CHIETINO;CH;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-I396;SAN VITO DEI NORMANNI;BR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I396;SAN VITO DEI NORMANNI;BR;67;27/11/2025;19/05/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 7.500,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;7500
 I392;SAN VITO DI CADORE;BL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I405;SAN VITO DI FAGAGNA;UD;33;26/11/2025;07/01/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,6;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;10000
 I401;SAN VITO DI LEGUZZANO;VI;46;23/12/2025;08/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.500,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8500

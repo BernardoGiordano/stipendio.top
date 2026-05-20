@@ -2144,7 +2144,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   B179: { n: 'Brignano-frascata', p: 'AL', r: 'PI', a: 0.006, e: 10_000 },
   B180: { n: 'Brindisi', p: 'BR', r: 'PU', a: 0.012, e: 10_000 },
   B181: { n: 'Brindisi Montagna', p: 'PZ', r: 'BA', a: 0.001 },
-  B182: { n: 'Brinzio', p: 'VA', r: 'LO', a: 0.005, e: 9_999.99 },
+  B182: { n: 'Brinzio', p: 'VA', r: 'LO', a: 0.006, e: 10_000 },
   B183: { n: 'Briona', p: 'NO', r: 'PI', a: 0.008, e: 9_000 },
   B184: {
     n: 'Brione',
@@ -14403,7 +14403,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
       { l: 50_000, a: 0.0045 },
       { l: Infinity, a: 0.006 },
     ],
-    e: 15_000,
+    e: 22_500,
   },
   H677: { n: 'Sala Monferrato', p: 'AL', r: 'PI', a: 0.007 },
   H678: { n: 'Sala Bolognese', p: 'BO', r: 'ER', a: 0.008, e: 10_000 },
