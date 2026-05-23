@@ -5801,8 +5801,8 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'RE',
     r: 'ER',
     s: [
-      { l: 28_000, a: 0.0025 },
-      { l: 50_000, a: 0.006 },
+      { l: 28_000, a: 0.0037 },
+      { l: 50_000, a: 0.0072 },
       { l: Infinity, a: 0.008 },
     ],
     e: 15_000,
@@ -17103,9 +17103,9 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'PG',
     r: 'UM',
     s: [
-      { l: 28_000, a: 0.006 },
-      { l: 50_000, a: 0.0061 },
-      { l: Infinity, a: 0.0062 },
+      { l: 28_000, a: 0.0059 },
+      { l: 50_000, a: 0.006 },
+      { l: Infinity, a: 0.0061 },
     ],
     e: 11_000,
   },
