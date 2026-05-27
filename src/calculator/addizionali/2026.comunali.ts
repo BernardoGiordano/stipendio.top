@@ -5372,7 +5372,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
       { l: 50_000, a: 0.004 },
       { l: Infinity, a: 0.006 },
     ],
-    e: 28_000,
+    e: 20_000,
   },
   C814: { n: 'Codigoro', p: 'FE', r: 'ER', a: 0.0075, e: 8_000 },
   C815: { n: "Codogne'", p: 'TV', r: 'VE', a: 0.008, e: 9_000 },
