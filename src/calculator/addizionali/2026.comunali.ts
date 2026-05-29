@@ -7733,7 +7733,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   E070: { n: 'Sesta Godano', p: 'SP', r: 'LI', a: 0.006, e: 7_500 },
   E071: { n: "Godega Di Sant'Urbano", p: 'TV', r: 'VE', a: 0.008, e: 10_000 },
   E072: { n: 'Godiasco Salice Terme', p: 'PV', r: 'LO', a: 0.008, e: 15_000 },
-  E074: { n: 'Godrano', p: 'PA', r: 'SI', a: 0.005 },
+  E074: { n: 'Godrano', p: 'PA', r: 'SI', a: 0.007 },
   E078: { n: 'Goito', p: 'MN', r: 'LO', a: 0.008, e: 12_000 },
   E079: { n: 'Golasecca', p: 'VA', r: 'LO', a: 0.008, e: 14_000 },
   E082: { n: 'Gombito', p: 'CR', r: 'LO', a: 0.008 },
