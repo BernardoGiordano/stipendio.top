@@ -42,7 +42,7 @@ M211;ACQUEDOLCI;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A052;ACQUI TERME;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A053;ACRI;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A054;ACUTO;FR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-A055;ADELFIA;BA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A055;ADELFIA;BA;3;13/01/2026;29/05/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A056;ADRANO;CT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A057;ADRARA SAN MARTINO;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A058;ADRARA SAN ROCCO;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -220,7 +220,7 @@ A263;AMENDOLARA;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A264;AMENO;NO;32;17/12/2025;30/04/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,2;Applicabile a  SCAGLIONE DI REDDITO FINO A € 15.000,00;,4;Applicabile a SCAGLIONE DI REDDITO DA € 15.000,01 A € 28.000,00;,6;Applicabile a SCAGLIONE DI REDDITO DA € 28.000,01 A € 50.000,00;,8;Applicabile a SCAGLIONE DI REDDITO DA € 50.000,01 ;0;Esenzione per redditi imponibili fino a euro 12.000,00;;;;;;;;;;;;;;;0;0
 A265;AMOROSI;BN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A267;AMPEZZO;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-A268;ANACAPRI;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A268;ANACAPRI;NA;57;17/12/2025;29/05/2026;CONFERMA;SI;0,4;Applicabile a scaglione di reddito fino a euro 28.000,00;,6;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,79;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 A269;ANAGNI;FR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A270;ANCARANO;TE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A271;ANCONA;AN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -431,7 +431,7 @@ A526;AZZANELLO;CR;28;22/12/2025;03/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;
 A527;AZZANO D'ASTI;AT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A530;AZZANO DECIMO;PN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A529;AZZANO MELLA;BS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-A528;AZZANO SAN PAOLO;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A528;AZZANO SAN PAOLO;BG;60;15/12/2025;29/05/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,64;Applicabile a scaglione di reddito fino a euro 28.000,00;,66;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,7;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;10000
 A531;AZZATE;VA;48;22/12/2025;10/02/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 16.000,00;,75;Applicabile a scaglione di reddito fino a euro 28.000,00;,8;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;16000
 A532;AZZIO;VA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A533;AZZONE;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -1087,7 +1087,7 @@ B428;CALTAGIRONE;CT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B429;CALTANISSETTA;CL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B430;CALTAVUTURO;PA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B431;CALTIGNAGA;NO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B432;CALTO;RO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B432;CALTO;RO;43;27/11/2025;29/05/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B433;CALTRANO;VI;59;30/12/2025;09/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B434;CALUSCO D'ADDA;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B435;CALUSO;TO;54;22/12/2025;19/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -5626,7 +5626,7 @@ M410;RIVA DEL PO;FE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H331;RIVA DI SOLTO;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H328;RIVA LIGURE;IM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H337;RIVA PRESSO CHIERI;TO;42;22/12/2025;24/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 9.100,00;,73;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;9100
-H333;RIVALBA;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H333;RIVALBA;TO;19;23/12/2025;29/05/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H334;RIVALTA BORMIDA;AL;34;18/12/2025;20/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H335;RIVALTA DI TORINO;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H327;RIVAMONTE AGORDINO;BL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
