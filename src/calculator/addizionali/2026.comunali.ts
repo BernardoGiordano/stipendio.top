@@ -284,7 +284,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     e: 10_000,
   },
   A143: { n: 'Albavilla', p: 'CO', r: 'LO', a: 0.008, e: 13_000 },
-  A145: { n: 'Albenga', p: 'SV', r: 'LI', a: 0.0065 },
+  A145: { n: 'Albenga', p: 'SV', r: 'LI', a: 0.008 },
   A146: { n: 'Albera Ligure', p: 'AL', r: 'PI', a: 0.0045 },
   A149: {
     n: 'Alberobello',
@@ -17777,7 +17777,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   L596: { n: 'Vallebona', p: 'IM', r: 'LI', a: 0.008 },
   L597: { n: 'Valle Castellana', p: 'TE', r: 'AB', a: 0.005 },
   L598: { n: 'Vallecorsa', p: 'FR', r: 'LA', a: 0.008 },
-  L599: { n: 'Vallecrosia', p: 'IM', r: 'LI', a: 0.008 },
+  L599: { n: 'Vallecrosia Al Mare', p: 'IM', r: 'LI', a: 0.008 },
   L601: { n: 'Valle Di Casies', p: 'BZ', r: 'BZ', a: 0.002 },
   L604: {
     n: 'Valledoria',
