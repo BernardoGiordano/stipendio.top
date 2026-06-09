@@ -5340,7 +5340,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   C784: { n: 'Civitella San Paolo', p: 'RM', r: 'LA', a: 0.008 },
   C785: { n: 'Civo', p: 'SO', r: 'LO', a: 0.003, e: 15_000 },
   C787: { n: 'Claino Con Osteno', p: 'CO', r: 'LO', a: 0.005, e: 15_000 },
-  C789: { n: 'Ubiale Clanezzo', p: 'BG', r: 'LO', a: 0.004 },
+  C789: { n: 'Ubiale Clanezzo', p: 'BG', r: 'LO', a: 0.006 },
   C792: { n: 'Clavesana', p: 'CN', r: 'PI', a: 0.007 },
   C795: { n: 'Cleto', p: 'CS', r: 'CL', a: 0.008, e: 10_632.96 },
   C796: { n: 'Clivio', p: 'VA', r: 'LO', a: 0.007, e: 12_000 },
@@ -12125,7 +12125,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   G516: { n: 'Petritoli', p: 'FM', r: 'MA', a: 0.007 },
   G517: { n: 'Petrizzi', p: 'CZ', r: 'CL', a: 0.004 },
   G518: { n: "Petrona'", p: 'CZ', r: 'CL', a: 0.008, e: 6_000 },
-  G519: { n: 'Petruro Irpino', p: 'AV', r: 'CM', a: 0.004 },
+  G519: { n: 'Petruro Irpino', p: 'AV', r: 'CM', a: 0.005 },
   G520: {
     n: 'Pettenasco',
     p: 'NO',
