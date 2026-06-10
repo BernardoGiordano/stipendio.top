@@ -1789,8 +1789,8 @@ C332;CASTREZZATO;BS;57;30/12/2025;22/01/2026;CONFERMA;SI;0;Esenzione per redditi
 C334;CASTRI DI LECCE;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C335;CASTRIGNANO DE' GRECI;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C336;CASTRIGNANO DEL CAPO;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-M261;CASTRO;LE;1;25/02/2026;06/03/2026;ISTITUISCE;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C337;CASTRO;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+M261;CASTRO;LE;1;25/02/2026;06/03/2026;ISTITUISCE;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C338;CASTRO DEI VOLSCI;FR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C339;CASTROCARO TERME E TERRA DEL SOLE;FC;65;29/12/2025;22/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,3;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 C340;CASTROCIELO;FR;18;29/12/2025;22/01/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -1865,7 +1865,7 @@ C435;CELLA DATI;CR;15;26/11/2025;12/02/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;
 C432;CELLA MONTE;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C436;CELLAMARE;BA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C437;CELLARA;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-C438;CELLARENGO;AT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+C438;CELLARENGO;AT;20;23/12/2025;09/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C439;CELLATICA;BS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C444;CELLE DI BULGHERIA;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C441;CELLE DI MACRA;CN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -2185,7 +2185,7 @@ C851;COLLE BRIANZA;LC;57;22/12/2025;17/02/2026;DELIBERA ADOTTATA EX ART. 1, COMM
 C854;COLLE D'ANCHISE;CB;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C857;COLLE DI TORA;RI;5;27/02/2026;03/03/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C847;COLLE DI VAL D'ELSA;SI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-C870;COLLE SAN MAGNO;FR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+C870;COLLE SAN MAGNO;FR;37;23/12/2025;09/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C846;COLLE SANNITA;BN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C872;COLLE SANTA LUCIA;BL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C848;COLLE UMBERTO;TV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -2669,7 +2669,7 @@ D508;FASANO;BR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D509;FASCIA;GE;14;12/12/2025;19/01/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D510;FAUGLIA;PI;52;31/12/2025;22/01/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,53;Applicabile a redditi fino a 15.000,00;,77;Applicabile a redditi tra 15.000,01 e 28.000,00;,78;Applicabile a redditi tra 28.000,01 e 50.000,00;,8;Applicabile a redditi oltre 50.000,00;0;Esenzione per redditi imponibili fino a euro 7.500,00;;;;;;;;;;;;;;;0;0
 D511;FAULE;CN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-D512;FAVALE DI MALVARO;GE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+D512;FAVALE DI MALVARO;GE;24;17/12/2025;09/06/2026;MODIFICA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D514;FAVARA;AG;18;26/03/2026;16/04/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 D518;FAVIGNANA;TP;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D520;FAVRIA;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -4055,7 +4055,7 @@ F304;MOLTENO;LC;38;24/11/2025;13/05/2026;MODIFICA;SI;0;Esenzione per redditi imp
 F305;MOLTRASIO;CO;36;22/12/2025;09/01/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F307;MOLVENO;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F308;MOMBALDONE;AT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-F309;MOMBARCARO;CN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+F309;MOMBARCARO;CN;16;25/11/2025;09/06/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F310;MOMBAROCCIO;PU;28;29/12/2025;08/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 F311;MOMBARUZZO;AT;24;16/12/2025;17/03/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F312;MOMBASIGLIO;CN;17;15/12/2025;14/01/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -7317,7 +7317,7 @@ L462;TUGLIE;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L463;TUILI;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L464;TULA;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L466;TUORO SUL TRASIMENO;PG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-G507;TURANIA;RI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G507;TURANIA;RI;20;29/12/2025;09/06/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L469;TURANO LODIGIANO;LO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L470;TURATE;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L471;TURBIGO;MI;53;29/12/2025;05/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000

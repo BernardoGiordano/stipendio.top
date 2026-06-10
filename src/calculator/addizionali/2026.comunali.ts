@@ -6590,7 +6590,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   D509: { n: 'Fascia', p: 'GE', r: 'LI', a: 0.005 },
   D510: { n: 'Fauglia', p: 'PI', r: 'TO', a: 0.0053, e: 7_500 },
   D511: { n: 'Faule', p: 'CN', r: 'PI', a: 0.008 },
-  D512: { n: 'Favale Di Malvaro', p: 'GE', r: 'LI', a: 0.005 },
+  D512: { n: 'Favale Di Malvaro', p: 'GE', r: 'LI', a: 0.008 },
   D513: { n: 'Valsinni', p: 'MT', r: 'BA', a: 0.007 },
   D514: { n: 'Favara', p: 'AG', r: 'SI', a: 0.008, e: 10_000 },
   D520: {
