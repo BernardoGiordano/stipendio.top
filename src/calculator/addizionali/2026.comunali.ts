@@ -5754,7 +5754,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     ],
     e: 15_000,
   },
-  D003: { n: 'Cori', p: 'LT', r: 'LA', a: 0.007 },
+  D003: { n: 'Cori', p: 'LT', r: 'LA', a: 0.008 },
   D004: {
     n: 'Coriano',
     p: 'RN',
@@ -8228,7 +8228,18 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   E339: { n: 'Isola Di Capo Rizzuto', p: 'KR', r: 'CL', a: 0.008, e: 10_000 },
   E340: { n: 'Isola Del Liri', p: 'FR', r: 'LA', a: 0.008, e: 5_000 },
   E341: { n: 'Isola Del Cantone', p: 'GE', r: 'LI', a: 0.008 },
-  E343: { n: "Isola Del Gran Sasso D'Italia", p: 'TE', r: 'AB', a: 0.0075, e: 15_000 },
+  E343: {
+    n: "Isola Del Gran Sasso D'Italia",
+    p: 'TE',
+    r: 'AB',
+    s: [
+      { l: 15_000, a: 0.007 },
+      { l: 28_000, a: 0.0075 },
+      { l: Infinity, a: 0.0078 },
+      { l: Infinity, a: 0.008 },
+    ],
+    e: 15_000,
+  },
   E345: { n: 'Isolabella', p: 'TO', r: 'PI', a: 0.008 },
   E346: { n: 'Isolabona', p: 'IM', r: 'LI', a: 0.008 },
   E348: {
