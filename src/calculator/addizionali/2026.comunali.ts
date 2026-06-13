@@ -9854,10 +9854,9 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'CT',
     r: 'SI',
     s: [
-      { l: 15_000, a: 0.003 },
-      { l: 28_000, a: 0.005 },
-      { l: 50_000, a: 0.007 },
-      { l: Infinity, a: 0.0075 },
+      { l: 28_000, a: 0.008 },
+      { l: 50_000, a: 0.008 },
+      { l: Infinity, a: 0.008 },
     ],
   },
   F218: { n: 'Minerbe', p: 'VR', r: 'VE', a: 0.008, e: 12_000 },
