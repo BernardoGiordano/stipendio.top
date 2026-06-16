@@ -491,7 +491,7 @@ A603;BALSORANO;AQ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A604;BALVANO;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A605;BALZOLA;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A606;BANARI;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-A607;BANCHETTE;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A607;BANCHETTE;TO;28;17/12/2025;15/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A610;BANNIO ANZINO;VB;27;30/12/2025;08/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 7.999,99;,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;7999,99
 A612;BANZI;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A613;BAONE;PD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -1992,7 +1992,7 @@ C585;CETO;BS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C587;CETONA;SI;61;18/12/2025;09/01/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,58;Applicabile a scaglione di reddito fino a euro 15.000,00;,6;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,63;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00 ;,75;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 9.500,00;;;;;;;;;;;;;;;0;0
 C588;CETRARO;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C589;CEVA;CN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-C591;CEVO;BS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+C591;CEVO;BS;28;18/12/2025;15/06/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C593;CHALLAND-SAINT-ANSELME;AO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C594;CHALLAND-SAINT-VICTOR;AO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C595;CHAMBAVE;AO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -3114,7 +3114,7 @@ E078;GOITO;MN;51;15/12/2025;11/02/2026;CONFERMA;SI;0;Esenzione per redditi impon
 E079;GOLASECCA;VA;25;22/12/2025;08/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 14.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;14000
 E081;GOLFERENZO;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M274;GOLFO ARANCI;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-E082;GOMBITO;CR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+E082;GOMBITO;CR;32;17/12/2025;15/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 E083;GONARS;UD;4;19/02/2026;24/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,6;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
 E084;GONI;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E086;GONNESA;SU;37;22/12/2025;05/03/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -6031,7 +6031,7 @@ M277;SAN FERDINANDO;RC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H839;SAN FERDINANDO DI PUGLIA;BT;71;29/12/2025;19/01/2026;CONFERMA;SI;0,75;Applicabile a scaglione di reddito fino a euro 28.000,00;,78;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 H840;SAN FERMO DELLA BATTAGLIA;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H841;SAN FILI;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-H842;SAN FILIPPO DEL MELA;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H842;SAN FILIPPO DEL MELA;ME;42;18/12/2025;15/06/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H843;SAN FIOR;TV;52;23/12/2025;09/03/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,7;Applicabile a scaglione di reddito fino a euro 28.000,00;,8;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
 H844;SAN FIORANO;LO;36;20/12/2025;09/01/2026;MODIFICA;NO;0,55;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H845;SAN FLORIANO DEL COLLIO;GO;35;09/12/2025;16/03/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,6;Applicabile a  scaglione di reddito fino a euro 15.000,00;,7;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 8.500,00;;;;;;;;;;;;;;;0;0
