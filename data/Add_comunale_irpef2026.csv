@@ -262,7 +262,7 @@ A317;ANTRONA SCHIERANCO;VB;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A318;ANVERSA DEGLI ABRUZZI;AQ;23;20/12/2025;10/02/2026;NON APPLICA;NO;0;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A319;ANZANO DEL PARCO;CO;29;19/12/2025;13/01/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,4;Applicabile a scaglione di reddito fino a euro 15.000,00;,4;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,4;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,6;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 15.000,00;;;;;;;;;;;;;;;0;0
 A320;ANZANO DI PUGLIA;FG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-A321;ANZI;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A321;ANZI;PZ;45;30/12/2025;16/06/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A323;ANZIO;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A324;ANZOLA DELL'EMILIA;BO;65;18/12/2025;02/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 13.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;13000
 A325;ANZOLA D'OSSOLA;VB;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -552,7 +552,7 @@ A686;BARZANO';LC;3;26/02/2026;05/03/2026;CONFERMA;SI;0;Esenzione per redditi imp
 A687;BARZIO;LC;54;10/12/2025;28/04/2026;CONFERMA;NO;0,3;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A689;BASALUZZO;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A690;BASCAPE';PV;3;04/02/2026;07/04/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 13.000,00;,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;13000
-A691;BASCHI;TR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A691;BASCHI;TR;35;22/11/2025;16/06/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.500,00;,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;8500
 A692;BASCIANO;TE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A694;BASELGA DI PINE';TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A696;BASELICE;BN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -4528,7 +4528,7 @@ F907;NOCARA;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F908;NOCCIANO;PE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F912;NOCERA INFERIORE;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F913;NOCERA SUPERIORE;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-F910;NOCERA TERINESE;CZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+F910;NOCERA TERINESE;CZ;5;31/03/2026;16/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F911;NOCERA UMBRA;PG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F914;NOCETO;PR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F915;NOCI;BA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -4760,7 +4760,7 @@ G194;OTTOBIANO;PV;11;22/12/2025;09/01/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;
 G195;OTTONE;PC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G196;OULX;TO;34;27/11/2025;07/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,65;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 G197;OVADA;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-G198;OVARO;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G198;OVARO;UD;49;11/12/2025;16/06/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,35;Applicabile a scaglione di reddito fino a euro 15.000,00;,4;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,45;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito OLTRE euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 10.000,00;;;;;;;;;;;;;;;0;0
 G199;OVIGLIO;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G200;OVINDOLI;AQ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G201;OVODDA;NU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7606,7 +7606,7 @@ L815;VETTO;RE;39;18/12/2025;10/04/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L
 L817;VEZZA D'ALBA;CN;83;04/12/2025;21/05/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L816;VEZZA D'OGLIO;BS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L819;VEZZANO LIGURE;SP;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-L820;VEZZANO SUL CROSTOLO;RE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L820;VEZZANO SUL CROSTOLO;RE;2;03/02/2026;16/06/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 L823;VEZZI PORTIO;SV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L826;VIADANA;MN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L827;VIADANICA;BG;2;27/02/2026;05/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
