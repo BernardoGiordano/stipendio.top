@@ -11409,7 +11409,6 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
       { l: 50_000, a: 0.007 },
       { l: Infinity, a: 0.008 },
     ],
-    e: 10_000,
   },
   G117: { n: 'Ornavasso', p: 'VB', r: 'PI', a: 0.005, e: 10_000 },
   G118: { n: 'Ornica', p: 'BG', r: 'LO', a: 0.0045 },
@@ -13032,7 +13031,6 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'PV',
     r: 'LO',
     s: [
-      { l: 15_000, a: 0.0062 },
       { l: 28_000, a: 0.0064 },
       { l: 50_000, a: 0.0067 },
       { l: Infinity, a: 0.007 },
