@@ -4926,8 +4926,8 @@ G408;PEDEROBBA;TV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G410;PEDESINA;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G411;PEDIVIGLIANO;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G412;PEDRENGO;BG;37;17/12/2025;02/03/2026;CONFERMA;SI;0,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,75;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
-G415;PEGLIO;CO;21;23/12/2025;20/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G416;PEGLIO;PU;32;29/12/2025;22/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
+G415;PEGLIO;CO;21;23/12/2025;20/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G417;PEGOGNAGA;MN;60;29/12/2025;28/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 G418;PEIA;BG;37;18/12/2025;12/01/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G419;PEIO;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5221,7 +5221,7 @@ G782;POLESELLA;RO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M367;POLESINE ZIBELLO;PR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G784;POLI;RM;39;20/12/2025;11/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G785;POLIA;VV;31;22/12/2025;12/01/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-G786;POLICORO;MT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G786;POLICORO;MT;43;05/12/2025;19/06/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8000
 G787;POLIGNANO A MARE;BA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G789;POLINAGO;MO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G790;POLINO;TR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5607,7 +5607,7 @@ H302;RIOLO TERME;RA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H303;RIOLUNATO;MO;26;29/12/2025;06/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 H304;RIOMAGGIORE;SP;40;27/12/2025;03/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H307;RIONERO IN VULTURE;PZ;57;30/12/2025;20/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8000
-H308;RIONERO SANNITICO;IS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H308;RIONERO SANNITICO;IS;33;04/12/2025;19/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H320;RIPA TEATINA;CH;51;29/12/2025;04/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H311;RIPABOTTONI;CB;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H312;RIPACANDIDA;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5802,7 +5802,7 @@ H542;RONCOFREDDO;FC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H544;RONCOLA;BG;40;24/12/2025;12/02/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,5;Applicabile a scaglione di reddito fino a euro 15.000,00 ;,6;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00 ;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00 ;,7;Applicabile a scaglione di reddito oltre euro 50.000,00 ;0;Esenzione per redditi imponibili fino a euro 9.000,00;;;;;;;;;;;;;;;0;0
 H546;RONDANINA;GE;8;21/03/2026;28/04/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H547;RONDISSONE;TO;7;13/01/2026;12/02/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-H549;RONSECCO;VC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H549;RONSECCO;VC;30;19/12/2025;19/06/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 6.000,00;,6;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;6000
 M303;RONZO-CHIENIS;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H552;RONZONE;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H553;ROPPOLO;BI;16;17/12/2025;12/03/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
