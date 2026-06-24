@@ -3357,7 +3357,7 @@ E470;LA THUILE;AO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E491;LA VALLE;BZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E490;LA VALLE AGORDINA;BL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M348;LA VALLETTA BRIANZA;LC;63;19/12/2025;23/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,6;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
-E392;LABICO;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+E392;LABICO;RM;33;29/12/2025;23/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 E393;LABRO;RI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E395;LACCHIARELLA;MI;44;18/12/2025;13/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,62;Applicabile a scaglione di reddito fino a euro 28.000,00;,72;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
 E396;LACCO AMENO;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -4926,8 +4926,8 @@ G408;PEDEROBBA;TV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G410;PEDESINA;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G411;PEDIVIGLIANO;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G412;PEDRENGO;BG;37;17/12/2025;02/03/2026;CONFERMA;SI;0,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,75;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
-G415;PEGLIO;CO;21;23/12/2025;20/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G416;PEGLIO;PU;32;29/12/2025;22/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
+G415;PEGLIO;CO;21;23/12/2025;20/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G417;PEGOGNAGA;MN;60;29/12/2025;28/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 G418;PEIA;BG;37;18/12/2025;12/01/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G419;PEIO;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7425,7 +7425,7 @@ L580;VALGRANA;CN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L581;VALGREGHENTINO;LC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L582;VALGRISENCHE;AO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L583;VALGUARNERA CAROPEPE;EN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-L584;VALLADA AGORDINA;BL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L584;VALLADA AGORDINA;BL;3;08/06/2026;23/06/2026;ATTO OLTRE TERMINE - ALIQUOTE APPLICABILI PER IL 2026 IN QUANTO CONFERMATE;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L586;VALLANZENGO;BI;17;11/12/2025;08/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L588;VALLARSA;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L589;VALLATA;AV;21;11/12/2025;11/03/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
