@@ -3529,8 +3529,8 @@ E617;LISSONE;MB;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E620;LIVERI;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E621;LIVIGNO;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E622;LIVINALLONGO DEL COL DI LANA;BL;50;12/12/2025;19/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
-E623;LIVO;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E624;LIVO;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+E623;LIVO;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E625;LIVORNO;LI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E626;LIVORNO FERRARIS;VC;36;15/12/2025;09/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 E627;LIVRAGA;LO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5128,7 +5128,7 @@ G664;PIGNONE;SP;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G665;PIGRA;CO;26;12/12/2025;23/01/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G666;PILA;VC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G669;PIMENTEL;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-G670;PIMONTE;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G670;PIMONTE;NA;73;30/10/2025;24/06/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 7.500,00;,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;7500
 G671;PINAROLO PO;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G672;PINASCA;TO;32;15/12/2025;09/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,75;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 G673;PINCARA;RO;48;30/12/2025;04/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 9.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;9000
