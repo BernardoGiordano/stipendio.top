@@ -1388,7 +1388,7 @@ B816;CARPEGNA;PU;49;29/12/2025;11/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;
 B817;CARPENEDOLO;BS;38;30/12/2025;14/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.000,00;,78;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8000
 B818;CARPENETO;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B819;CARPI;MO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B820;CARPIANO;MI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B820;CARPIANO;MI;57;22/12/2025;30/06/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B822;CARPIGNANO SALENTINO;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B823;CARPIGNANO SESIA;NO;48;29/12/2025;13/03/2026;CONFERMA;SI;0,72;Applicabile a scaglione di reddito fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 B825;CARPINETI;RE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -2468,7 +2468,7 @@ D229;CUSAGO;MI;50;17/12/2025;07/05/2026;CONFERMA;SI;0;Esenzione per redditi impo
 D231;CUSANO MILANINO;MI;65;26/11/2025;03/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D230;CUSANO MUTRI;BN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D232;CUSINO;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-D233;CUSIO;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+D233;CUSIO;BG;15;16/12/2025;30/06/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D234;CUSTONACI;TP;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D236;CUTRO;KR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D237;CUTROFIANO;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6256,7 +6256,7 @@ I148;SAN SALVO;CH;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I151;SAN SEBASTIANO AL VESUVIO;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I150;SAN SEBASTIANO CURONE;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I152;SAN SEBASTIANO DA PO;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-I154;SAN SECONDO DI PINEROLO;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I154;SAN SECONDO DI PINEROLO;TO;43;23/12/2025;30/06/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 12.000,00;,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;12000
 I153;SAN SECONDO PARMENSE;PR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I157;SAN SEVERINO LUCANO;PZ;2;25/02/2026;14/04/2026;MODIFICA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I156;SAN SEVERINO MARCHE;MC;60;29/12/2025;19/05/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,6;Applicabile a scaglione di reddito fino a euro 15.000,00;,75;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,78;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,79;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;0;0
@@ -6268,8 +6268,8 @@ I165;SAN SOSTI;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I166;SAN SPERATE;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I373;SAN STINO DI LIVENZA;VE;45;30/12/2025;24/04/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 5.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;5000
 I261;SAN TAMMARO;CE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-I328;SAN TEODORO;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I329;SAN TEODORO;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I328;SAN TEODORO;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I347;SAN TOMASO AGORDINO;BL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I376;SAN VALENTINO IN ABRUZZO CITERIORE;PE;16;30/12/2025;26/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I377;SAN VALENTINO TORIO;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
