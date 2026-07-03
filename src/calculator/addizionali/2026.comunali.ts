@@ -9486,7 +9486,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   F009: { n: 'Maser', p: 'TV', r: 'VE', a: 0.008 },
   F010: { n: 'Masera', p: 'VB', r: 'PI', a: 0.005, e: 15_000 },
   F011: { n: "Masera' Di Padova", p: 'PD', r: 'VE', a: 0.007, e: 10_000 },
-  F012: { n: 'Maserada Sul Piave', p: 'TV', r: 'VE', a: 0.008, e: 10_000 },
+  F012: { n: 'Maserada Sul Piave', p: 'TV', r: 'VE', a: 0.008, e: 12_500 },
   F013: { n: 'Masi', p: 'PD', r: 'VE', a: 0.008 },
   F015: {
     n: 'Masio',
@@ -15874,8 +15874,8 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     r: 'CM',
     s: [
       { l: 28_000, a: 0.0023 },
-      { l: 50_000, a: 0.0035 },
-      { l: Infinity, a: 0.005 },
+      { l: 50_000, a: 0.0033 },
+      { l: Infinity, a: 0.0043 },
     ],
   },
   I494: { n: 'Scandale', p: 'KR', r: 'CL', a: 0.008, e: 8_000 },
