@@ -1438,7 +1438,7 @@ B877;CASALE DI SCODOSIA;PD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B875;CASALE LITTA;VA;37;10/12/2025;13/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 13.500,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;13500
 B878;CASALE MARITTIMO;PI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B885;CASALE MONFERRATO;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B879;CASALE SUL SILE;TV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B879;CASALE SUL SILE;TV;45;20/12/2025;03/07/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,6;Applicabile a scaglione di reddito fino a euro 28.000,00;,77;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
 B880;CASALECCHIO DI RENO;BO;83;27/11/2025;09/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 12.000,00;,76;Applicabile a scaglione di reddito fino a euro 28.000,00;,78;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;12000
 B882;CASALEGGIO BOIRO;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B883;CASALEGGIO NOVARA;NO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -3914,7 +3914,7 @@ F109;MELISSANO;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F111;MELITO DI NAPOLI;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F112;MELITO DI PORTO SALVO;RC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F110;MELITO IRPINO;AV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-F113;MELIZZANO;BN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+F113;MELIZZANO;BN;39;22/12/2025;03/07/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,3;Applicabile a scaglione di reddito fino a euro 15.000,00;,39;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,4;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,5;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 10.000,00;;;;;;;;;;;;;;;0;0
 F114;MELLE;CN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F115;MELLO;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F117;MELPIGNANO;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
