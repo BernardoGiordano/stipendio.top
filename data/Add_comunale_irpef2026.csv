@@ -61,7 +61,7 @@ A072;AGLIANO TERME;AT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A074;AGLIE';TO;29;29/12/2025;06/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H848;AGLIENTU;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A075;AGNA;PD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-A076;AGNADELLO;CR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A076;AGNADELLO;CR;37;24/11/2025;07/07/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 13.499,99;,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;13499,99
 A077;AGNANA CALABRA;RC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A080;AGNONE;IS;31;10/11/2025;14/01/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A082;AGNOSINE;BS;38;19/12/2025;04/03/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -1039,7 +1039,7 @@ B367;CAIRANO;AV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B368;CAIRATE;VA;39;15/12/2025;25/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8000
 B369;CAIRO MONTENOTTE;SV;57;22/12/2025;09/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 B371;CAIVANO;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B374;CALABRITTO;AV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B374;CALABRITTO;AV;4;26/02/2026;07/07/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B375;CALALZO DI CADORE;BL;39;22/12/2025;15/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B376;CALAMANDRANA;AT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B377;CALAMONACI;AG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5204,7 +5204,7 @@ D566;POGGIO SAN VICINO;MC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B317;POGGIO SANNITA;IS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M324;POGGIO TORRIANA;RN;8;23/02/2026;27/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 G758;POGGIODOMO;PG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-G760;POGGIOFIORITO;CH;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G760;POGGIOFIORITO;CH;3;24/02/2026;07/07/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G762;POGGIOMARINO;NA;2;12/02/2026;04/03/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,5;Applicabile a scaglione di reddito fino a euro 15.000,00;,6;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;0;0
 G767;POGGIOREALE;TP;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G769;POGGIORSINI;BA;28;22/12/2025;15/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -7307,7 +7307,7 @@ A705;TRONZANO LAGO MAGGIORE;VA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L451;TRONZANO VERCELLESE;VC;32;23/12/2025;12/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 L452;TROPEA;VV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L453;TROVO;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-L454;TRUCCAZZANO;MI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L454;TRUCCAZZANO;MI;59;18/12/2025;07/07/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 L455;TUBRE;BZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L458;TUFARA;CB;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L459;TUFILLO;CH;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
