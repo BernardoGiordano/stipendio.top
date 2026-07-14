@@ -7820,7 +7820,6 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
       { l: Infinity, a: 0.002 },
       { l: Infinity, a: 0.007 },
     ],
-    e: 40_000,
   },
   E104: { n: 'Gornate-olona', p: 'VA', r: 'LO', a: 0.008, e: 10_500 },
   E106: { n: 'Gorno', p: 'BG', r: 'LO', a: 0.006 },
