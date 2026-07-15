@@ -1282,11 +1282,11 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'FI',
     r: 'TO',
     s: [
-      { l: 15_000, a: 0.005 },
-      { l: 28_000, a: 0.0065 },
-      { l: 50_000, a: 0.0078 },
+      { l: 28_000, a: 0.007 },
+      { l: 50_000, a: 0.0079 },
       { l: Infinity, a: 0.008 },
     ],
+    e: 15_000,
   },
   A633: {
     n: "Barberino Val D'Elsa",
@@ -6750,7 +6750,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     ],
     e: 15_000,
   },
-  D608: { n: 'Fiorano Canavese', p: 'TO', r: 'PI', a: 0.005 },
+  D608: { n: 'Fiorano Canavese', p: 'TO', r: 'PI', a: 0.007 },
   D609: { n: 'Fiordimonte', p: 'MC', r: 'MA', a: 0.005 },
   D611: { n: "Fiorenzuola D'Arda", p: 'PC', r: 'ER', a: 0.006, e: 10_000 },
   D612: { n: 'Firenze', p: 'FI', r: 'TO', a: 0.002, e: 25_000 },
