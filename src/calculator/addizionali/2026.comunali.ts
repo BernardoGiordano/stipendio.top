@@ -4331,7 +4331,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   C311: { n: 'Colledara', p: 'TE', r: 'AB', a: 0.006, e: 10_000 },
   C312: { n: 'Castiglione Delle Stiviere', p: 'MN', r: 'LO', a: 0.008, e: 14_000 },
   C313: { n: "Castiglione D'Orcia", p: 'SI', r: 'TO', a: 0.008, e: 10_000 },
-  C314: { n: 'Castiglione Falletto', p: 'CN', r: 'PI', a: 0.003 },
+  C314: { n: 'Castiglione Falletto', p: 'CN', r: 'PI', a: 0.005 },
   C315: {
     n: 'Castiglione In Teverina',
     p: 'VT',
