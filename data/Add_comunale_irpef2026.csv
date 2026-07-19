@@ -4168,7 +4168,7 @@ F517;MONTE GIBERTO;FM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F524;MONTE GRIMANO TERME;PU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F532;MONTE ISOLA;BS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F561;MONTE MARENZO;LC;3;24/02/2026;02/03/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-F589;MONTE PORZIO;PU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+F589;MONTE PORZIO;PU;19;28/11/2025;17/07/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F590;MONTE PORZIO CATONE;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F599;MONTE RINALDO;FM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F600;MONTE ROBERTO;AN;37;23/12/2025;07/05/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
@@ -5402,7 +5402,7 @@ H004;PRATO ALLO STELVIO;BZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H002;PRATO CARNICO;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H001;PRATO SESIA;NO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H007;PRATOLA PELIGNA;AQ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-H006;PRATOLA SERRA;AV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H006;PRATOLA SERRA;AV;33;23/12/2025;16/07/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 M329;PRATOVECCHIO STIA;AR;46;23/12/2025;15/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H010;PRAVISDOMINI;PN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G974;PRAY;BI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5958,7 +5958,7 @@ H755;SAMPEYRE;CN;24;19/12/2025;07/01/2026;CONFERMA;SI;0;Esenzione per redditi im
 H756;SAMUGHEO;OR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H763;SAN BARTOLOMEO AL MARE;IM;7;19/02/2026;10/03/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H764;SAN BARTOLOMEO IN GALDO;BN;24;29/12/2025;10/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-H760;SAN BARTOLOMEO VAL CAVARGNA;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H760;SAN BARTOLOMEO VAL CAVARGNA;CO;49;30/10/2025;16/07/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H765;SAN BASILE;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H766;SAN BASILIO;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H767;SAN BASSANO;CR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6229,7 +6229,7 @@ I116;SAN PIETRO MOSEZZO;NO;28;26/11/2025;08/01/2026;CONFERMA;SI;0;Esenzione per 
 I117;SAN PIETRO MUSSOLINO;VI;40;29/12/2025;13/03/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I090;SAN PIETRO VAL LEMINA;TO;34;23/12/2025;18/06/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I119;SAN PIETRO VERNOTICO;BR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-I120;SAN PIETRO VIMINARIO;PD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I120;SAN PIETRO VIMINARIO;PD;38;23/12/2025;16/07/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I121;SAN PIO DELLE CAMERE;AQ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I125;SAN POLO DEI CAVALIERI;RM;37;29/12/2025;10/03/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I123;SAN POLO D'ENZA;RE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7494,7 +7494,7 @@ L667;VAPRIO D'ADDA;MI;44;16/12/2025;12/01/2026;CONFERMA;SI;0;Esenzione per reddi
 L668;VAPRIO D'AGOGNA;NO;27;20/12/2025;12/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 L669;VARALLO;VC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L670;VARALLO POMBIA;NO;22;23/12/2025;16/01/2026;CONFERMA;SI;0,7;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
-L671;VARANO BORGHI;VA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L671;VARANO BORGHI;VA;19;13/12/2025;16/07/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 12.000,00;,61;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;12000
 L672;VARANO DE' MELEGARI;PR;38;28/11/2025;02/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 11.000,00;,75;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;11000
 L673;VARAPODIO;RC;40;27/11/2025;08/07/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L675;VARAZZE;SV;47;27/11/2025;30/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 9.999,99;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;9999,99
@@ -7696,7 +7696,7 @@ M021;VILLA SANTA LUCIA DEGLI ABRUZZI;AQ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M022;VILLA SANTA MARIA;CH;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M023;VILLA SANT'ANGELO;AQ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I298;VILLA SANT'ANTONIO;OR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-L909;VILLA SANTINA;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L909;VILLA SANTINA;UD;54;29/12/2025;17/07/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I364;VILLA SANTO STEFANO;FR;33;29/12/2025;27/05/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A609;VILLA VERDE;OR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L915;VILLABASSA;BZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
