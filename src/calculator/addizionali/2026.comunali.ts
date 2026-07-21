@@ -10339,7 +10339,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   F499: { n: 'Montefiascone', p: 'VT', r: 'LA', a: 0.007 },
   F500: { n: 'Montefino', p: 'TE', r: 'AB', a: 0.008, e: 10_000 },
   F501: { n: "Montefiore Dell'Aso", p: 'AP', r: 'MA', a: 0.008, e: 7_999.99 },
-  F502: { n: 'Montefiore Conca', p: 'RN', r: 'ER', a: 0.004 },
+  F502: { n: 'Montefiore Conca', p: 'RN', r: 'ER', a: 0.008 },
   F503: { n: 'Montefiorino', p: 'MO', r: 'ER', a: 0.008 },
   F504: { n: 'Monteflavio', p: 'RM', r: 'LA', a: 0.008 },
   F506: { n: 'Monteforte Irpino', p: 'AV', r: 'CM', a: 0.008 },
