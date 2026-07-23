@@ -11727,7 +11727,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   },
   G270: { n: 'Palazzuolo Sul Senio', p: 'FI', r: 'TO', a: 0.008 },
   G271: { n: 'Palena', p: 'CH', r: 'AB', a: 0.006 },
-  G273: { n: 'Palermo', p: 'PA', r: 'SI', a: 0.01014 },
+  G273: { n: 'Palermo', p: 'PA', r: 'SI', a: 0.0103 },
   G274: { n: 'Palestrina', p: 'RM', r: 'LA', a: 0.008 },
   G275: { n: 'Palestro', p: 'PV', r: 'LO', a: 0.005 },
   G276: { n: 'Paliano', p: 'FR', r: 'LA', a: 0.008, e: 12_000 },
