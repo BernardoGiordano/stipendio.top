@@ -1217,7 +1217,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     r: 'PI',
     s: [
       { l: 15_000, a: 0.005 },
-      { l: 50_000, a: 0.006 },
+      { l: 28_000, a: 0.006 },
       { l: 50_000, a: 0.0075 },
       { l: Infinity, a: 0.008 },
     ],
