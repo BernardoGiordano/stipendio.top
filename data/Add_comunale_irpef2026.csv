@@ -768,7 +768,7 @@ A978;BONORVA;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A979;BONVICINO;CN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A981;BORBONA;RI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A982;BORCA DI CADORE;BL;23;29/12/2025;23/04/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-A983;BORDANO;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A983;BORDANO;UD;38;22/12/2025;27/07/2026;CONFERMA;NO;0,1;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A984;BORDIGHERA;IM;5;29/01/2026;30/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 7.499,99;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;7499,99
 A986;BORDOLANO;CR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A987;BORE;PR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -798,7 +798,7 @@ B033;BORGO SAN DALMAZZO;CN;66;16/12/2025;09/01/2026;CONFERMA;SI;0;Esenzione per 
 B035;BORGO SAN GIACOMO;BS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B017;BORGO SAN GIOVANNI;LO;25;22/12/2025;04/03/2026;CONFERMA;NO;0,55;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B036;BORGO SAN LORENZO;FI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B037;BORGO SAN MARTINO;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B037;BORGO SAN MARTINO;AL;37;29/12/2025;27/07/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B038;BORGO SAN SIRO;PV;23;18/12/2025;19/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B043;BORGO TICINO;NO;44;16/12/2025;26/05/2026;CONFERMA;SI;0,56;Applicabile a scaglione di reddito fino a euro 28.000,00;,71;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,79;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 B044;BORGO TOSSIGNANO;BO;52;23/12/2025;09/04/2026;MODIFICA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -2283,7 +2283,7 @@ C974;CONTURSI TERME;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C975;CONVERSANO;BA;8;05/03/2026;18/05/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C976;CONZA DELLA CAMPANIA;AV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C977;CONZANO;AL;24;03/12/2025;09/02/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-C978;COPERTINO;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+C978;COPERTINO;LE;7;26/02/2026;27/07/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,68;Applicabile a scaglione di reddito fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;10000
 C979;COPIANO;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C980;COPPARO;FE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C982;CORANA;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7254,7 +7254,7 @@ L386;TRESANA;MS;6;25/02/2026;02/03/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;
 L388;TRESCORE BALNEARIO;BG;31;16/12/2025;03/04/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L389;TRESCORE CREMASCO;CR;33;28/11/2025;10/02/2026;MODIFICA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 M409;TRESIGNANA;FE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-L392;TRESIVIO;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L392;TRESIVIO;SO;24;17/12/2025;27/07/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L393;TRESNURAGHES;OR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L396;TREVENZUOLO;VR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L397;TREVI;PG;32;23/12/2025;24/04/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 9.000,00;,79;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;9000
