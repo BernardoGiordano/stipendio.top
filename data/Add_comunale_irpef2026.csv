@@ -1939,7 +1939,7 @@ C524;CERRETO D'ESI;AN;34;25/11/2025;19/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;
 C527;CERRETO DI SPOLETO;PG;40;26/11/2025;29/01/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
 C507;CERRETO GRUE;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C529;CERRETO GUIDI;FI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-C518;CERRETO LAZIALE;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+C518;CERRETO LAZIALE;RM;24;17/12/2025;28/07/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C525;CERRETO SANNITA;BN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C530;CERRETTO LANGHE;CN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C531;CERRINA MONFERRATO;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -2378,7 +2378,7 @@ D105;COSTA DI ROVIGO;RO;51;22/10/2025;20/01/2026;CONFERMA;SI;0;Esenzione per red
 D112;COSTA MASNAGA;LC;36;29/12/2025;09/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 9.999,99;,7;Applicabile a scaglione di reddito fino a euro 28.000,00;,78;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;9999,99
 D111;COSTA SERINA;BG;33;27/12/2025;05/02/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,7;Applicabile a scaglione di reddito fino a euro 15.000,00;,78;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,79;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;0;0
 D103;COSTA VALLE IMAGNA;BG;38;15/12/2025;02/01/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-D102;COSTA VESCOVATO;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+D102;COSTA VESCOVATO;AL;27;15/12/2025;28/07/2026;CONFERMA;NO;0,3;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D117;COSTA VOLPINO;BG;50;16/12/2025;25/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D107;COSTABISSARA;VI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D108;COSTACCIARO;PG;43;11/12/2025;14/04/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -3395,7 +3395,7 @@ E434;LANA;BZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E435;LANCIANO;CH;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E436;LANDIONA;NO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E437;LANDRIANO;PV;7;25/02/2026;30/03/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-E438;LANGHIRANO;PR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+E438;LANGHIRANO;PR;55;18/12/2025;28/07/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 E439;LANGOSCO;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E441;LANUSEI;NU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C767;LANUVIO;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6062,7 +6062,7 @@ H894;SAN GIORGIO DEL SANNIO;BN;5;17/02/2026;26/03/2026;CONFERMA;NO;0,8;Aliquota 
 H891;SAN GIORGIO DELLA RICHINVELDA;PN;43;26/11/2025;22/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 H893;SAN GIORGIO DELLE PERTICHE;PD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H885;SAN GIORGIO DI LOMELLINA;PV;19;16/12/2025;18/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 5.000,00;,3;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;5000
-H895;SAN GIORGIO DI NOGARO;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H895;SAN GIORGIO DI NOGARO;UD;56;29/12/2025;28/07/2026;CONFERMA;SI;0,1;Applicabile a scaglione di reddito fino a € 15.000,00;,25;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,5;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,7;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 20.000,00;;;;;;;;;;;;;;;0;0
 H896;SAN GIORGIO DI PIANO;BO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H897;SAN GIORGIO IN BOSCO;PD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H882;SAN GIORGIO IONICO;TA;40;27/11/2025;14/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 7.500,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;7500
@@ -6398,7 +6398,7 @@ I263;SANT'ANATOLIA DI NARCO;PG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I266;SANT'ANDREA APOSTOLO DELLO IONIO;CZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I265;SANT'ANDREA DEL GARIGLIANO;FR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I264;SANT'ANDREA DI CONZA;AV;26;10/12/2025;09/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-I271;SANT'ANDREA FRIUS;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I271;SANT'ANDREA FRIUS;SU;42;25/11/2025;28/07/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I277;SANT'ANGELO A CUPOLO;BN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I278;SANT'ANGELO A FASANELLA;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I280;SANT'ANGELO A SCALA;AV;27;29/12/2025;12/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -7645,7 +7645,7 @@ L872;VIGEVANO;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L873;VIGGIANELLO;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L874;VIGGIANO;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L876;VIGGIU';VA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-L880;VIGLIANO BIELLESE;BI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L880;VIGLIANO BIELLESE;BI;41;10/12/2025;28/07/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 L879;VIGLIANO D'ASTI;AT;16;16/12/2025;03/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L881;VIGNALE MONFERRATO;AL;25;11/12/2025;13/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L882;VIGNANELLO;VT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0

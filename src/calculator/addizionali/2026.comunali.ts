@@ -5908,7 +5908,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   D096: { n: 'Cossignano', p: 'AP', r: 'MA', a: 0.008 },
   D099: { n: 'Cossogno', p: 'VB', r: 'PI', a: 0.007, e: 7_000 },
   D101: { n: 'Cossombrato', p: 'AT', r: 'PI', a: 0.007 },
-  D102: { n: 'Costa Vescovato', p: 'AL', r: 'PI', a: 0.003, e: 10_000 },
+  D102: { n: 'Costa Vescovato', p: 'AL', r: 'PI', a: 0.003 },
   D103: { n: 'Costa Valle Imagna', p: 'BG', r: 'LO', a: 0.006 },
   D105: { n: 'Costa Di Rovigo', p: 'RO', r: 'VE', a: 0.008, e: 10_000 },
   D107: { n: 'Costabissara', p: 'VI', r: 'VE', a: 0.007 },
