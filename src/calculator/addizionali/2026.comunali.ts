@@ -5433,7 +5433,17 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   C844: { n: 'Collarmele', p: 'AQ', r: 'AB', a: 0.004 },
   C845: { n: 'Collazzone', p: 'PG', r: 'UM', a: 0.008 },
   C846: { n: 'Colle Sannita', p: 'BN', r: 'CM', a: 0.006 },
-  C847: { n: "Colle Di Val D'Elsa", p: 'SI', r: 'TO', a: 0.006 },
+  C847: {
+    n: "Colle Di Val D'Elsa",
+    p: 'SI',
+    r: 'TO',
+    s: [
+      { l: 28_000, a: 0.0064 },
+      { l: 50_000, a: 0.0074 },
+      { l: Infinity, a: 0.008 },
+    ],
+    e: 8_500,
+  },
   C848: { n: 'Colle Umberto', p: 'TV', r: 'VE', a: 0.007 },
   C850: {
     n: 'Collebeato',
@@ -7879,7 +7889,6 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'BO',
     r: 'ER',
     s: [
-      { l: 15_000, a: 0.0065 },
       { l: 28_000, a: 0.007 },
       { l: 50_000, a: 0.0078 },
       { l: Infinity, a: 0.008 },
@@ -7900,8 +7909,8 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'BG',
     r: 'LO',
     s: [
-      { l: 28_000, a: 0.0067 },
-      { l: 50_000, a: 0.0075 },
+      { l: 28_000, a: 0.0073 },
+      { l: 50_000, a: 0.008 },
       { l: Infinity, a: 0.008 },
     ],
     e: 12_000,
