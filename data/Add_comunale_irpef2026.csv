@@ -4174,7 +4174,7 @@ F599;MONTE RINALDO;FM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F600;MONTE ROBERTO;AN;37;23/12/2025;07/05/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 F603;MONTE ROMANO;VT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F616;MONTE SAN BIAGIO;LT;65;29/12/2025;11/03/2026;CONFERMA;SI;0,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,75;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
-F618;MONTE SAN GIACOMO;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+F618;MONTE SAN GIACOMO;SA;30;22/12/2025;03/08/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F620;MONTE SAN GIOVANNI CAMPANO;FR;3;20/03/2026;22/04/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F619;MONTE SAN GIOVANNI IN SABINA;RI;07;26/02/2026;05/03/2026;MODIFICA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F621;MONTE SAN GIUSTO;MC;33;29/12/2025;22/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
@@ -4813,7 +4813,7 @@ G258;PALAU;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G259;PALAZZAGO;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G263;PALAZZO ADRIANO;PA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G262;PALAZZO CANAVESE;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-G260;PALAZZO PIGNANO;CR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G260;PALAZZO PIGNANO;CR;58;20/12/2025;03/08/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 G261;PALAZZO SAN GERVASIO;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G267;PALAZZOLO ACREIDE;SR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G268;PALAZZOLO DELLO STELLA;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -4926,8 +4926,8 @@ G408;PEDEROBBA;TV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G410;PEDESINA;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G411;PEDIVIGLIANO;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G412;PEDRENGO;BG;37;17/12/2025;02/03/2026;CONFERMA;SI;0,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,75;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
-G416;PEGLIO;PU;32;29/12/2025;22/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G415;PEGLIO;CO;21;23/12/2025;20/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
+G416;PEGLIO;PU;32;29/12/2025;22/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G417;PEGOGNAGA;MN;60;29/12/2025;28/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 G418;PEIA;BG;37;18/12/2025;12/01/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G419;PEIO;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7376,7 +7376,7 @@ L531;VAGLIO SERRA;AT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L537;VAIANO;PO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L535;VAIANO CREMASCO;CR;50;19/12/2025;15/05/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8000
 L538;VAIE;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-L539;VAILATE;CR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L539;VAILATE;CR;53;16/12/2025;03/08/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,43;Applicabile a scaglione di reddito fino a euro 28.000,00;,46;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,48;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
 L540;VAIRANO PATENORA;CE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M265;VAJONT;PN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M334;VAL BREMBILLA;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
