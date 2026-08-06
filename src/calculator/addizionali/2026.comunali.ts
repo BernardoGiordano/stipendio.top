@@ -15161,7 +15161,17 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   I088: { n: 'San Pietro Di Cadore', p: 'BL', r: 'VE', a: 0.008, e: 10_000 },
   I089: { n: 'San Pietro Al Tanagro', p: 'SA', r: 'CM', a: 0.008, e: 12_000 },
   I090: { n: 'San Pietro Val Lemina', p: 'TO', r: 'PI', a: 0.006 },
-  I092: { n: 'San Pietro Al Natisone', p: 'UD', r: 'FV', a: 0.002 },
+  I092: {
+    n: 'San Pietro Al Natisone',
+    p: 'UD',
+    r: 'FV',
+    s: [
+      { l: 28_000, a: 0.004 },
+      { l: 50_000, a: 0.005 },
+      { l: Infinity, a: 0.006 },
+    ],
+    e: 10_000,
+  },
   I093: { n: 'San Pietro A Maida', p: 'CZ', r: 'CL', a: 0.008, e: 7_499.99 },
   I095: { n: 'San Pietro Apostolo', p: 'CZ', r: 'CL', a: 0.008 },
   I096: { n: 'San Pietro Avellana', p: 'IS', r: 'MO', a: 0.004 },

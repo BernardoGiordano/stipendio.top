@@ -2301,7 +2301,7 @@ C995;COREGLIA LIGURE;GE;31;22/12/2025;07/01/2026;CONFERMA;NO;0,8;Aliquota unica;
 C998;CORENO AUSONIO;FR;36;23/12/2025;10/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C999;CORFINIO;AQ;28;30/12/2025;27/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,5;Applicabile a scaglione di reddito fino a euro 28.000,00;,76;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
 D003;CORI;LT;13;26/03/2026;11/06/2026;MODIFICA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-D004;CORIANO;RN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+D004;CORIANO;RN;49;26/11/2025;05/08/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,65;Applicabile a scaglione di reddito fino a euro 15.000,00;,75;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,78;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,79;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 10.000,00;;;;;;;;;;;;;;;0;0
 D006;CORIGLIANO D'OTRANTO;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M403;CORIGLIANO-ROSSANO;CS;71;29/12/2025;18/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D007;CORINALDO;AN;52;29/12/2025;23/01/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 8.500,00;,56;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,78;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;8500
@@ -2664,7 +2664,7 @@ D501;FARINDOLA;PE;2;15/01/2026;03/03/2026;MODIFICA;NO;0,8;Aliquota unica;;;;;;;;
 D502;FARINI;PC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D503;FARNESE;VT;48;29/12/2025;08/07/2026;MODIFICA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D505;FARRA DI SOLIGO;TV;43;30/12/2025;30/07/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-D504;FARRA D'ISONZO;GO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+D504;FARRA D'ISONZO;GO;31;29/12/2025;05/08/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,7;Applicabile a scaglione di reddito fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
 D508;FASANO;BR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D509;FASCIA;GE;14;12/12/2025;19/01/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D510;FAUGLIA;PI;52;31/12/2025;22/01/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,53;Applicabile a redditi fino a 15.000,00;,77;Applicabile a redditi tra 15.000,01 e 28.000,00;,78;Applicabile a redditi tra 28.000,01 e 50.000,00;,8;Applicabile a redditi oltre 50.000,00;0;Esenzione per redditi imponibili fino a euro 7.500,00;;;;;;;;;;;;;;;0;0
@@ -4463,7 +4463,7 @@ F818;MUROS;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F820;MUSCOLINE;BS;27;17/12/2025;13/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 F822;MUSEI;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F826;MUSILE DI PIAVE;VE;54;30/12/2025;25/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
-F828;MUSSO;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+F828;MUSSO;CO;33;22/12/2025;05/08/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F829;MUSSOLENTE;VI;48;17/12/2025;12/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 11.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;11000
 F830;MUSSOMELI;CL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F832;MUZZANA DEL TURGNANO;UD;55;18/12/2025;31/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
@@ -4926,8 +4926,8 @@ G408;PEDEROBBA;TV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G410;PEDESINA;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G411;PEDIVIGLIANO;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G412;PEDRENGO;BG;37;17/12/2025;02/03/2026;CONFERMA;SI;0,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,75;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
-G416;PEGLIO;PU;32;29/12/2025;22/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G415;PEGLIO;CO;21;23/12/2025;20/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
+G416;PEGLIO;PU;32;29/12/2025;22/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G417;PEGOGNAGA;MN;60;29/12/2025;28/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 G418;PEIA;BG;37;18/12/2025;12/01/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G419;PEIO;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5013,7 +5013,7 @@ G517;PETRIZZI;CZ;17;03/12/2025;06/03/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;
 G518;PETRONA';CZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M281;PETROSINO;TP;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G519;PETRURO IRPINO;AV;3;20/03/2026;08/06/2026;MODIFICA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-G520;PETTENASCO;NO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G520;PETTENASCO;NO;35;23/12/2025;05/08/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,45;Applicabile a scaglione di reddito fino a euro 15.000,00;,55;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,6;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 15.000,00;;;;;;;;;;;;;;;0;0
 G521;PETTINENGO;BI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G522;PETTINEO;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G523;PETTORANELLO DEL MOLISE;IS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5438,7 +5438,7 @@ H055;PREVALLE;BS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H056;PREZZA;AQ;19;22/12/2025;02/03/2026;MODIFICA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H059;PRIERO;CN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H062;PRIGNANO CILENTO;SA;3;13/03/2026;03/06/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-H061;PRIGNANO SULLA SECCHIA;MO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H061;PRIGNANO SULLA SECCHIA;MO;41;29/12/2025;05/08/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 H063;PRIMALUNA;LC;126;17/11/2025;06/02/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 M359;PRIMIERO SAN MARTINO DI CASTROZZA;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H068;PRIOCCA;CN;29;23/12/2025;10/04/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -5831,7 +5831,7 @@ H581;ROSSIGLIONE;GE;6;05/02/2026;12/03/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;
 H583;ROSTA;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H584;ROTA D'IMAGNA;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H585;ROTA GRECA;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-H588;ROTELLA;AP;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H588;ROTELLA;AP;27;30/12/2025;05/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H589;ROTELLO;CB;40;22/12/2025;09/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H590;ROTONDA;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H591;ROTONDELLA;MT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6208,7 +6208,7 @@ I082;SAN PIER D'ISONZO;GO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I084;SAN PIER NICETO;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I086;SAN PIERO PATTI;ME;316;12/12/2025;07/01/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I093;SAN PIETRO A MAIDA;CZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-I092;SAN PIETRO AL NATISONE;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I092;SAN PIETRO AL NATISONE;UD;7;12/02/2026;05/08/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,4;Applicabile a scaglione di reddito fino a euro 28.000,00;,5;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,6;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;10000
 I089;SAN PIETRO AL TANAGRO;SA;42;29/12/2025;13/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 12.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;12000
 I095;SAN PIETRO APOSTOLO;CZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I096;SAN PIETRO AVELLANA;IS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6268,8 +6268,8 @@ I165;SAN SOSTI;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I166;SAN SPERATE;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I373;SAN STINO DI LIVENZA;VE;45;30/12/2025;24/04/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 5.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;5000
 I261;SAN TAMMARO;CE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-I328;SAN TEODORO;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I329;SAN TEODORO;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I328;SAN TEODORO;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I347;SAN TOMASO AGORDINO;BL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I376;SAN VALENTINO IN ABRUZZO CITERIORE;PE;16;30/12/2025;26/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I377;SAN VALENTINO TORIO;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7385,7 +7385,7 @@ M405;VAL DI CHY;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L562;VAL DI NIZZA;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L564;VAL DI VIZZE;BZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M374;VAL DI ZOLDO;BL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-M384;VAL LIONA;VI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+M384;VAL LIONA;VI;45;18/12/2025;05/08/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L638;VAL MASINO;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H259;VAL REZZO;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L544;VALBONDIONE;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
