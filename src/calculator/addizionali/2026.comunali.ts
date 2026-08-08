@@ -7452,7 +7452,17 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   D952: { n: 'Gazzaniga', p: 'BG', r: 'LO', a: 0.0075 },
   D956: { n: 'Gazzo', p: 'PD', r: 'VE', a: 0.006, e: 12_000 },
   D957: { n: 'Gazzo Veronese', p: 'VR', r: 'VE', a: 0.008 },
-  D958: { n: 'Gazzola', p: 'PC', r: 'ER', a: 0.006 },
+  D958: {
+    n: 'Gazzola',
+    p: 'PC',
+    r: 'ER',
+    s: [
+      { l: 28_000, a: 0.0068 },
+      { l: 50_000, a: 0.007 },
+      { l: Infinity, a: 0.008 },
+    ],
+    e: 8_000,
+  },
   D959: {
     n: 'Gazzuolo',
     p: 'MN',
@@ -9703,7 +9713,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     ],
     e: 10_000,
   },
-  F114: { n: 'Melle', p: 'CN', r: 'PI', a: 0.007 },
+  F114: { n: 'Melle', p: 'CN', r: 'PI', a: 0.008 },
   F116: { n: 'Silea', p: 'TV', r: 'VE', a: 0.008, e: 15_000 },
   F119: { n: 'Melzo', p: 'MI', r: 'LO', a: 0.008, e: 10_999.99 },
   F120: { n: 'Menaggio', p: 'CO', r: 'LO', a: 0.007, e: 15_000 },
