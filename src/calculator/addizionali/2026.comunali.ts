@@ -13030,18 +13030,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   G887: { n: 'Stella Cilento', p: 'SA', r: 'CM', a: 0.004 },
   G888: { n: 'Pordenone', p: 'PN', r: 'FV', a: 0.006, e: 20_000 },
   G889: { n: 'Porlezza', p: 'CO', r: 'LO', a: 0.005 },
-  G890: {
-    n: 'Pornassio',
-    p: 'IM',
-    r: 'LI',
-    s: [
-      { l: 15_000, a: 0.005 },
-      { l: 28_000, a: 0.006 },
-      { l: 50_000, a: 0.007 },
-      { l: Infinity, a: 0.0075 },
-    ],
-    e: 15_000,
-  },
+  G890: { n: 'Pornassio', p: 'IM', r: 'LI', a: 0.008 },
   G891: { n: 'Porpetto', p: 'UD', r: 'FV', a: 0.006 },
   G894: { n: 'Portacomaro', p: 'AT', r: 'PI', a: 0.008, e: 5_000 },
   G895: {

@@ -3486,7 +3486,7 @@ E553;LESTIZZA;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E554;LETINO;CE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E555;LETOJANNI;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E557;LETTERE;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-E558;LETTOMANOPPELLO;PE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+E558;LETTOMANOPPELLO;PE;37;24/11/2025;10/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 E559;LETTOPALENA;CH;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E560;LEVANTO;SP;4;28/01/2026;06/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 E562;LEVATE;BG;35;30/12/2025;26/01/2026;CONFERMA;SI;0,7;Aliquota unica;0;Esenzione per reddito complessivo da lavoro dipendente e/o assimilato a quello di lavoro dipendente, ai sensi rispettivamente degli articoli 49 e 50 del testo unico delle imposte sui redditi (DPR 22/12/86 n. 917) e successive modifiche ed integrazioni non superiore a 8.500 euro;;;;;;;;;;;;;;;;;;;;;5;0
@@ -5311,7 +5311,7 @@ G882;PORCARI;LU;100;29/12/2025;13/04/2026;MODIFICA;SI;0;Esenzione per redditi im
 G886;PORCIA;PN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G888;PORDENONE;PN;78;22/12/2025;14/01/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 20.000,00;,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;20000
 G889;PORLEZZA;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-G890;PORNASSIO;IM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G890;PORNASSIO;IM;3;02/02/2026;10/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G891;PORPETTO;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G894;PORTACOMARO;AT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G895;PORTALBERA;PV;29;25/11/2025;17/06/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 6.799,99;,64;Applicabile a scaglione di reddito fino a euro 28.000,00;,67;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,7;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;6799,99
@@ -5537,7 +5537,7 @@ H204;REA;PV;24;19/12/2025;26/01/2026;CONFERMA;SI;0;Esenzione per redditi imponib
 H205;REALMONTE;AG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H206;REANA DEL ROJALE;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H207;REANO;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-H210;RECALE;CE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H210;RECALE;CE;32;01/12/2025;10/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H211;RECANATI;MC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H212;RECCO;GE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H213;RECETTO;NO;26;23/12/2025;13/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
