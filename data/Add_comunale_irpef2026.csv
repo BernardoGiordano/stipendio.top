@@ -2430,7 +2430,7 @@ D180;CROPALATI;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D181;CROPANI;CZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D184;CROSIA;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D185;CROSIO DELLA VALLE;VA;29;17/12/2025;15/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 13.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;13000
-D122;CROTONE;KR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+D122;CROTONE;KR;12;19/03/2026;11/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D186;CROTTA D'ADDA;CR;23;23/12/2025;12/01/2026;MODIFICA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D187;CROVA;VC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D188;CROVIANA;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -3885,7 +3885,7 @@ F068;MAZZIN;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F070;MAZZO DI VALTELLINA;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F074;MEANA DI SUSA;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F073;MEANA SARDO;NU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-F078;MEDA;MB;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+F078;MEDA;MB;44;18/12/2025;11/08/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 17.500,00;,68;Applicabile a scaglione di reddito fino a euro 28.000,00;,76;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;17500
 F080;MEDE;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F081;MEDEA;GO;5;04/02/2026;27/02/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F082;MEDESANO;PR;74;22/12/2025;08/04/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
@@ -5010,7 +5010,7 @@ G514;PETRIANO;PU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G515;PETRIOLO;MC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G516;PETRITOLI;FM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G517;PETRIZZI;CZ;17;03/12/2025;06/03/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-G518;PETRONA';CZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G518;PETRONA';CZ;35;28/11/2025;11/08/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 6.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;6000
 M281;PETROSINO;TP;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G519;PETRURO IRPINO;AV;3;20/03/2026;08/06/2026;MODIFICA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G520;PETTENASCO;NO;35;23/12/2025;05/08/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,45;Applicabile a scaglione di reddito fino a euro 15.000,00;,55;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,6;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 15.000,00;;;;;;;;;;;;;;;0;0
@@ -5717,7 +5717,7 @@ H426;ROCCANOVA;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H427;ROCCANTICA;RI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H428;ROCCAPALUMBA;PA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H431;ROCCAPIEMONTE;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-H433;ROCCARAINOLA;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H433;ROCCARAINOLA;NA;2;05/03/2026;11/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H434;ROCCARASO;AQ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H436;ROCCAROMANA;CE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H442;ROCCASCALEGNA;CH;27;28/11/2025;27/01/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 7.999,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;7999
@@ -7389,7 +7389,7 @@ M384;VAL LIONA;VI;45;18/12/2025;05/08/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;
 L638;VAL MASINO;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H259;VAL REZZO;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L544;VALBONDIONE;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-L545;VALBREMBO;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L545;VALBREMBO;BG;50;11/12/2025;11/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 M423;VALBRENTA;VI;46;22/12/2025;07/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 L546;VALBREVENNA;GE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L547;VALBRONA;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7626,7 +7626,7 @@ L842;VICO DEL GARGANO;FG;40;30/09/2025;02/01/2026;CONFERMA;SI;0;Esenzione per re
 L845;VICO EQUENSE;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L843;VICO NEL LAZIO;FR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L841;VICOFORTE;CN;42;23/12/2025;18/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.499,99;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8499,99
-L846;VICOLI;PE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L846;VICOLI;PE;20;30/12/2025;11/08/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 3.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;3000
 L847;VICOLUNGO;NO;25;17/12/2025;12/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,45;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 L850;VICOPISANO;PI;79;29/12/2025;26/01/2026;CONFERMA;SI;0,8;Aliquota unica;0;Esenzione per contribuenti con reddito annuo imponibile ai fini Irpef, derivante da lavoro dipendente e/o da pensione e/o da redditi assimilati a quelli di lavoro dipendente, di cui agli artt. 49 e 50 Tuir D.P.R. n.917/1986, non superiore a euro 13.000,00;;;;;;;;;;;;;;;;;;;;;5;0
 L851;VICOVARO;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7798,7 +7798,7 @@ M069;VIRLE PIEMONTE;TO;18;19/12/2025;08/01/2026;CONFERMA;NO;0,6;Aliquota unica;;
 M070;VISANO;BS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M071;VISCHE;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M072;VISCIANO;NA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-M073;VISCO;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+M073;VISCO;UD;5;25/02/2026;11/08/2026;CONFERMA;SI;0,45;Applicabile a scaglione di reddito fino a euro 28.000,00;,55;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,75;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 M077;VISONE;AL;37;19/12/2025;07/01/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 M078;VISSO;MC;32;16/12/2025;13/01/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 M079;VISTARINO;PV;25;15/12/2025;21/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 12.500,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;12500

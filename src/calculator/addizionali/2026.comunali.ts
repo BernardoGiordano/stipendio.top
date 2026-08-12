@@ -9606,8 +9606,8 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'MB',
     r: 'LO',
     s: [
-      { l: 28_000, a: 0.0057 },
-      { l: 50_000, a: 0.007 },
+      { l: 28_000, a: 0.0068 },
+      { l: 50_000, a: 0.0076 },
       { l: Infinity, a: 0.008 },
     ],
     e: 17_500,
@@ -18642,10 +18642,9 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'UD',
     r: 'FV',
     s: [
-      { l: 15_000, a: 0.0035 },
       { l: 28_000, a: 0.0045 },
-      { l: 50_000, a: 0.0045 },
-      { l: Infinity, a: 0.007 },
+      { l: 50_000, a: 0.0055 },
+      { l: Infinity, a: 0.0075 },
     ],
   },
   M077: { n: 'Visone', p: 'AL', r: 'PI', a: 0.004 },
