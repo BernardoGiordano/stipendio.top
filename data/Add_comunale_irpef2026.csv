@@ -1415,7 +1415,7 @@ B851;CARUGO;CO;50;18/12/2025;12/01/2026;CONFERMA;SI;0;Esenzione per redditi impo
 B853;CARUNCHIO;CH;26;20/12/2025;07/01/2026;CONFERMA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B854;CARVICO;BG;29;15/12/2025;29/07/2026;CONFERMA;NO;0,55;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B856;CARZANO;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B857;CASABONA;KR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B857;CASABONA;KR;9;30/12/2025;13/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B858;CASACALENDA;CB;6;29/01/2026;10/06/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B859;CASACANDITELLA;CH;19;23/12/2025;09/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B860;CASAGIOVE;CE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5600,7 +5600,7 @@ H293;RIMELLA;VC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H294;RIMINI;RN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 M391;RIO;LI;5;26/02/2026;27/05/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H299;RIO DI PUSTERIA;BZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-H298;RIO SALICETO;RE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H298;RIO SALICETO;RE;4;23/02/2026;13/08/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.500,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8500
 H300;RIOFREDDO;RM;24;03/12/2025;15/01/2026;CONFERMA;SI;0,6;Applicabile a scaglione di reddito fino a euro 28.000,00;,8;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 H301;RIOLA SARDO;OR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H302;RIOLO TERME;RA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5759,7 +5759,7 @@ H486;ROGENO;LC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H488;ROGGIANO GRAVINA;CS;45;30/12/2025;14/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 7.500,00;,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;7500
 H489;ROGHUDI;RC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H490;ROGLIANO;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-H491;ROGNANO;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+H491;ROGNANO;PV;25;11/12/2025;13/08/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 H492;ROGNO;BG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H493;ROGOLO;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 H494;ROIATE;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6268,8 +6268,8 @@ I165;SAN SOSTI;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I166;SAN SPERATE;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I373;SAN STINO DI LIVENZA;VE;45;30/12/2025;24/04/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 5.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;5000
 I261;SAN TAMMARO;CE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-I328;SAN TEODORO;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I329;SAN TEODORO;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I328;SAN TEODORO;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I347;SAN TOMASO AGORDINO;BL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I376;SAN VALENTINO IN ABRUZZO CITERIORE;PE;16;30/12/2025;26/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I377;SAN VALENTINO TORIO;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6862,7 +6862,7 @@ I891;SPERLINGA;EN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I892;SPERLONGA;LT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I893;SPERONE;AV;2;20/03/2026;21/04/2026;OSSERVAZIONE;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I894;SPESSA;PV;5;23/02/2026;03/03/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
-I895;SPEZZANO ALBANESE;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I895;SPEZZANO ALBANESE;CS;3;28/02/2026;13/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I896;SPEZZANO DELLA SILA;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I899;SPIAZZO;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I901;SPIGNO MONFERRATO;AL;18;30/12/2025;24/02/2026;MODIFICA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
