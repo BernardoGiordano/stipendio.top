@@ -7226,17 +7226,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     ],
   },
   D853: { n: 'Gagliole', p: 'MC', r: 'MA', a: 0.008 },
-  D854: {
-    n: 'Gaiarine',
-    p: 'TV',
-    r: 'VE',
-    s: [
-      { l: 15_000, a: 0.006 },
-      { l: 28_000, a: 0.006 },
-      { l: 50_000, a: 0.006 },
-      { l: Infinity, a: 0.008 },
-    ],
-  },
+  D854: { n: 'Gaiarine', p: 'TV', r: 'VE', a: 0.008, e: 12_000 },
   D855: { n: 'Gaiba', p: 'RO', r: 'VE', a: 0.008, e: 12_500 },
   D856: { n: 'Gaiola', p: 'CN', r: 'PI', a: 0.008 },
   D858: {
