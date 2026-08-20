@@ -5744,11 +5744,11 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'PN',
     r: 'FV',
     s: [
-      { l: 28_000, a: 0.0027 },
-      { l: 50_000, a: 0.005 },
+      { l: 28_000, a: 0.006 },
+      { l: 50_000, a: 0.007 },
       { l: Infinity, a: 0.008 },
     ],
-    e: 13_000,
+    e: 15_000,
   },
   C995: { n: 'Coreglia Ligure', p: 'GE', r: 'LI', a: 0.008 },
   C996: { n: 'Coreglia Antelminelli', p: 'LU', r: 'TO', a: 0.008 },
@@ -8638,7 +8638,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   E539: { n: 'Lequio Tanaro', p: 'CN', r: 'PI', a: 0.005 },
   E540: { n: 'Lequio Berria', p: 'CN', r: 'PI', a: 0.0055, e: 8_000 },
   E541: { n: 'Lercara Friddi', p: 'PA', r: 'SI', a: 0.008 },
-  E542: { n: 'Lerici', p: 'SP', r: 'LI', a: 0.008, e: 28_000 },
+  E542: { n: 'Lerici', p: 'SP', r: 'LI', a: 0.008, e: 27_999.99 },
   E543: { n: 'Lerma', p: 'AL', r: 'PI', a: 0.008 },
   E544: {
     n: 'Lesa',
