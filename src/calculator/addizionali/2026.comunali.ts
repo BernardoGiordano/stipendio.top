@@ -324,7 +324,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   },
   A159: { n: 'Albiate', p: 'MB', r: 'LO', a: 0.008 },
   A160: { n: 'Albidona', p: 'CS', r: 'CL', a: 0.002 },
-  A161: { n: 'Albignasego', p: 'PD', r: 'VE', a: 0.008, e: 12_873 },
+  A161: { n: 'Albignasego', p: 'PD', r: 'VE', a: 0.008, e: 12_976 },
   A162: {
     n: 'Albinea',
     p: 'RE',
