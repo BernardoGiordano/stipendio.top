@@ -18107,7 +18107,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     ],
     e: 10_000,
   },
-  L738: { n: 'Venosa', p: 'PZ', r: 'BA', a: 0.007 },
+  L738: { n: 'Venosa', p: 'PZ', r: 'BA', a: 0.0065 },
   L739: { n: 'Venticano', p: 'AV', r: 'CM', a: 0.008 },
   L740: { n: 'Ventimiglia Di Sicilia', p: 'PA', r: 'SI', a: 0.008 },
   L741: { n: 'Ventimiglia', p: 'IM', r: 'LI', a: 0.008 },
