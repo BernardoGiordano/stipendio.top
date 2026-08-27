@@ -909,7 +909,7 @@ B167;BRIAGLIA;CN;26;18/12/2025;15/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;
 B169;BRIATICO;VV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B171;BRICHERASIO;TO;46;18/12/2025;20/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 7.499,99;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;7499,99
 B172;BRIENNO;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B173;BRIENZA;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B173;BRIENZA;PZ;45;29/12/2025;26/08/2026;CONFERMA;SI;0,5;Applicabile a scaglione di reddito fino a euro 28.000,00;,6;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 B175;BRIGA ALTA;CN;28;20/12/2025;12/01/2026;CONFERMA;NO;0,3;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B176;BRIGA NOVARESE;NO;24;15/12/2025;20/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B178;BRIGNANO GERA D'ADDA;BG;58;22/12/2025;14/01/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 12.000,00;,77;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;12000
@@ -934,7 +934,7 @@ B201;BRONI;PV;59;29/12/2025;08/01/2026;CONFERMA;SI;0;Esenzione per redditi impon
 B202;BRONTE;CT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B203;BRONZOLO;BZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B204;BROSSASCO;CN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B205;BROSSO;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B205;BROSSO;TO;40;30/12/2025;26/08/2026;MODIFICA;NO;0,6;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B207;BROVELLO-CARPUGNINO;VB;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B209;BROZOLO;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B212;BRUGHERIO;MB;84;19/12/2025;20/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -2541,7 +2541,7 @@ D334;DOMUSNOVAS;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D339;DONATO;BI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D341;DONGO;CO;35;22/12/2025;05/03/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D338;DONNAS;AO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-D344;DONORI;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+D344;DONORI;SU;29;24/11/2025;26/08/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D345;DORGALI;NU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D346;DORIO;LC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 D347;DORMELLETTO;NO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -4420,7 +4420,7 @@ F758;MORTERONE;LC;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F760;MORUZZO;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F761;MOSCAZZANO;CR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F762;MOSCHIANO;AV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-F764;MOSCIANO SANT'ANGELO;TE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+F764;MOSCIANO SANT'ANGELO;TE;1;15/01/2026;26/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F765;MOSCUFO;PE;17;28/11/2025;05/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8000
 F766;MOSO IN PASSIRIA;BZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F767;MOSSA;GO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6740,7 +6740,7 @@ I735;SILIUS;SU;10;09/02/2026;09/03/2026;NON APPLICA;NO;0;Aliquota unica;;;;;;;;;
 M347;SILLANO GIUNCUGNANO;LU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I736;SILLAVENGO;NO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I738;SILVANO D'ORBA;AL;42;30/12/2025;07/04/2026;MODIFICA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-I739;SILVANO PIETRA;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I739;SILVANO PIETRA;PV;14;16/12/2025;26/08/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I741;SILVI;TE;245;18/11/2025;10/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 9.999,99;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;9999,99
 I742;SIMALA;OR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I743;SIMAXIS;OR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0

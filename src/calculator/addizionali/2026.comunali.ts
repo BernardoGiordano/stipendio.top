@@ -2203,7 +2203,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     e: 19_000,
   },
   B204: { n: 'Brossasco', p: 'CN', r: 'PI', a: 0.006 },
-  B205: { n: 'Brosso', p: 'TO', r: 'PI', a: 0.005 },
+  B205: { n: 'Brosso', p: 'TO', r: 'PI', a: 0.006 },
   B209: { n: 'Brozolo', p: 'TO', r: 'PI', a: 0.008 },
   B212: { n: 'Brugherio', p: 'MB', r: 'LO', a: 0.008 },
   B213: { n: 'Brugine', p: 'PD', r: 'VE', a: 0.008, e: 10_000 },
