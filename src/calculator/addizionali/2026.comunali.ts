@@ -12773,7 +12773,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   G799: { n: 'Pollutri', p: 'CH', r: 'AB', a: 0.008 },
   G800: { n: 'Polonghera', p: 'CN', r: 'PI', a: 0.007 },
   G802: { n: 'Polverara', p: 'PD', r: 'VE', a: 0.008, e: 10_000 },
-  G803: { n: 'Polverigi', p: 'AN', r: 'MA', a: 0.0075, e: 7_500 },
+  G803: { n: 'Polverigi', p: 'AN', r: 'MA', a: 0.0075, e: 7_499.99 },
   G804: {
     n: 'Pomarance',
     p: 'PI',
