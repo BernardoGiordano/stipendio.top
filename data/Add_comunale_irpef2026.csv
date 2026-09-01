@@ -131,7 +131,7 @@ A165;ALBISSOLA MARINA;SV;34;29/12/2025;06/02/2026;CONFERMA;SI;0;Esenzione per re
 A167;ALBIZZATE;VA;39;17/12/2025;05/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A171;ALBONESE;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A172;ALBOSAGGIA;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-A173;ALBUGNANO;AT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A173;ALBUGNANO;AT;33;20/12/2025;31/08/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A175;ALBUZZANO;PV;40;22/12/2025;20/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.999,99;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10999,99
 A176;ALCAMO;TP;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A177;ALCARA LI FUSI;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -1010,7 +1010,7 @@ B304;BUTTAPIETRA;VR;4;27/02/2026;20/03/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 7
 B305;BUTTIGLIERA ALTA;TO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B306;BUTTIGLIERA D'ASTI;AT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B309;BUTTRIO;UD;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B311;CABELLA LIGURE;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B311;CABELLA LIGURE;AL;16;30/12/2025;31/08/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B313;CABIATE;CO;5;26/02/2026;08/04/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 18.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;18000
 B314;CABRAS;OR;45;30/12/2025;15/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 8.500,00;,55;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;8500
 B315;CACCAMO;PA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -1789,8 +1789,8 @@ C332;CASTREZZATO;BS;57;30/12/2025;22/01/2026;CONFERMA;SI;0;Esenzione per redditi
 C334;CASTRI DI LECCE;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C335;CASTRIGNANO DE' GRECI;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C336;CASTRIGNANO DEL CAPO;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-M261;CASTRO;LE;1;25/02/2026;06/03/2026;ISTITUISCE;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C337;CASTRO;BG;20;29/12/2025;04/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
+M261;CASTRO;LE;1;25/02/2026;06/03/2026;ISTITUISCE;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 C338;CASTRO DEI VOLSCI;FR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 C339;CASTROCARO TERME E TERRA DEL SOLE;FC;65;29/12/2025;22/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,3;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 C340;CASTROCIELO;FR;18;29/12/2025;22/01/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -3307,7 +3307,7 @@ E341;ISOLA DEL CANTONE;GE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E348;ISOLA DEL GIGLIO;GR;7;26/06/2026;02/07/2026;ATTO OLTRE TERMINE - ALIQUOTE APPLICABILI PER IL 2026 IN QUANTO CONFERMATE;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,3;Applicabile a scaglione di reddito fino a euro 28.000,00;,5;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
 E343;ISOLA DEL GRAN SASSO D'ITALIA;TE;36;22/12/2025;11/06/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,7;Applicabile a  scaglione di reddito fino a euro 15.000,00;,75;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,78;Applicabile a scaglione di reddito oltre euro 28.000,00 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 15.000,00;;;;;;;;;;;;;;;0;0
 E340;ISOLA DEL LIRI;FR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-E351;ISOLA DEL PIANO;PU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+E351;ISOLA DEL PIANO;PU;37;22/12/2025;31/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 E349;ISOLA DELLA SCALA;VR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E350;ISOLA DELLE FEMMINE;PA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E339;ISOLA DI CAPO RIZZUTO;KR;2;24/03/2026;15/04/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
@@ -4770,7 +4770,7 @@ G203;OZIERI;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G205;OZZANO DELL'EMILIA;BO;115;27/11/2025;16/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 G204;OZZANO MONFERRATO;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G206;OZZERO;MI;41;23/12/2025;20/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 7.500,00;,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;7500
-G207;PABILLONIS;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G207;PABILLONIS;SU;37;21/11/2025;31/08/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G209;PACE DEL MELA;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G208;PACECO;TP;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G210;PACENTRO;AQ;55;30/12/2025;07/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -7011,7 +7011,7 @@ L082;TEANA;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L083;TEANO;CE;8;26/02/2026;26/03/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 D292;TEGGIANO;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L084;TEGLIO;SO;28;22/12/2025;09/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-L085;TEGLIO VENETO;VE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L085;TEGLIO VENETO;VE;39;18/12/2025;31/08/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L086;TELESE TERME;BN;35;30/12/2025;03/03/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L087;TELGATE;BG;22;23/12/2025;01/04/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L088;TELTI;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7077,7 +7077,7 @@ L164;TICENGO;CR;19;17/12/2025;09/01/2026;MODIFICA;SI;0,8;Aliquota unica;0;Esenzi
 L165;TICINETO;AL;22;22/12/2025;08/06/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L166;TIGGIANO;LE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L167;TIGLIETO;GE;35;29/12/2025;09/02/2026;CONFERMA;NO;0,75;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-L168;TIGLIOLE;AT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L168;TIGLIOLE;AT;33;13/12/2025;31/08/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L169;TIGNALE;BS;34;30/12/2025;11/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,4;Applicabile a scaglione di reddito fino a euro 28.000,00;,6;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;10000
 L172;TINNURA;OR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L173;TIONE DEGLI ABRUZZI;AQ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7090,7 +7090,7 @@ L180;TISSI;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L181;TITO;PZ;3;24/01/2026;12/03/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L182;TIVOLI;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L183;TIZZANO VAL PARMA;PR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-L184;TOANO;RE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L184;TOANO;RE;51;17/12/2025;31/08/2026;CONFERMA;NO;0,76;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L185;TOCCO CAUDIO;BN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L186;TOCCO DA CASAURIA;PE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L187;TOCENO;VB;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
