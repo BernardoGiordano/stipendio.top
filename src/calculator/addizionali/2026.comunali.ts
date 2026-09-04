@@ -4159,7 +4159,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   },
   C191: { n: 'Castello Di Serravalle', p: 'BO', r: 'ER', a: 0.008, e: 10_000 },
   C195: { n: 'Castellucchio', p: 'MN', r: 'LO', a: 0.007, e: 15_000 },
-  C197: { n: 'Castelmauro', p: 'CB', r: 'MO', a: 0.004, e: 4_800 },
+  C197: { n: 'Castelmauro', p: 'CB', r: 'MO', a: 0.004 },
   C198: { n: 'Castelluccio Dei Sauri', p: 'FG', r: 'PU', a: 0.008 },
   C199: { n: 'Castelluccio Inferiore', p: 'PZ', r: 'BA', a: 0.006 },
   C200: { n: 'Castelverrino', p: 'IS', r: 'MO', a: 0.008 },
@@ -7835,7 +7835,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   E106: { n: 'Gorno', p: 'BG', r: 'LO', a: 0.006 },
   E107: { n: 'Goro', p: 'FE', r: 'ER', a: 0.008 },
   E109: { n: 'Gorreto', p: 'GE', r: 'LI', a: 0.005 },
-  E111: { n: 'Gorzegno', p: 'CN', r: 'PI', a: 0.006 },
+  E111: { n: 'Gorzegno', p: 'CN', r: 'PI', a: 0.008 },
   E113: { n: 'Gosaldo', p: 'BL', r: 'VE', a: 0.006 },
   E114: {
     n: 'Gossolengo',
