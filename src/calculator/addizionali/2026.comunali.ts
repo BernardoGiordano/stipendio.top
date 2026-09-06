@@ -13302,6 +13302,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
       { l: 50_000, a: 0.007 },
       { l: Infinity, a: 0.008 },
     ],
+    e: 12_000,
   },
   H043: { n: 'Preseglie', p: 'BS', r: 'LO', a: 0.005 },
   H046: { n: 'Presezzo', p: 'BG', r: 'LO', a: 0.008 },
