@@ -12237,7 +12237,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   G542: { n: 'Piana Crixia', p: 'SV', r: 'LI', a: 0.008, e: 10_000 },
   G543: { n: 'Piana Degli Albanesi', p: 'PA', r: 'SI', a: 0.008 },
   G546: { n: 'Pian Camuno', p: 'BS', r: 'LO', a: 0.007 },
-  G547: { n: 'Piancastagnaio', p: 'SI', r: 'TO', a: 0.006 },
+  G547: { n: 'Piancastagnaio', p: 'SI', r: 'TO', a: 0.007 },
   G549: { n: 'Piancogno', p: 'BS', r: 'LO', a: 0.008, e: 15_000 },
   G551: { n: 'Piandimeleto', p: 'PU', r: 'MA', a: 0.0065 },
   G552: { n: 'Pian Di Sco', p: 'AR', r: 'TO', a: 0.008 },
@@ -14767,7 +14767,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   H850: { n: 'San Fratello', p: 'ME', r: 'SI', a: 0.008 },
   H851: { n: "Sanfre'", p: 'CN', r: 'PI', a: 0.0075 },
   H852: { n: 'Sanfront', p: 'CN', r: 'PI', a: 0.0035 },
-  H855: { n: 'Sangano', p: 'TO', r: 'PI', a: 0.007, e: 11_000 },
+  H855: { n: 'Sangano', p: 'TO', r: 'PI', a: 0.008, e: 11_000 },
   H856: { n: 'San Gavino Monreale', p: 'SU', r: 'SA', a: 0.0068 },
   H857: { n: 'San Gemini', p: 'TR', r: 'UM', a: 0.008, e: 10_000 },
   H858: {
@@ -17520,7 +17520,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   L416: { n: 'Tribogna', p: 'GE', r: 'LI', a: 0.005 },
   L418: { n: 'Tricarico', p: 'MT', r: 'BA', a: 0.008 },
   L419: { n: 'Tricase', p: 'LE', r: 'PU', a: 0.008 },
-  L420: { n: 'Tricerro', p: 'VC', r: 'PI', a: 0.007 },
+  L420: { n: 'Tricerro', p: 'VC', r: 'PI', a: 0.008 },
   L421: {
     n: 'Tricesimo',
     p: 'UD',
