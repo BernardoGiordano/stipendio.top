@@ -13890,7 +13890,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   H390: { n: 'Roccafluvione', p: 'AP', r: 'MA', a: 0.008 },
   H391: { n: "Rocca Ciglie'", p: 'CN', r: 'PI', a: 0.007 },
   H392: { n: "Rocca D'Arazzo", p: 'AT', r: 'PI', a: 0.005 },
-  H393: { n: "Rocca D'Arce", p: 'FR', r: 'LA', a: 0.008 },
+  H393: { n: "Rocca D'Arce", p: 'FR', r: 'LA', a: 0.009 },
   H394: { n: 'Roccadaspide', p: 'SA', r: 'CM', a: 0.006 },
   H395: { n: "Rocca De' Baldi", p: 'CN', r: 'PI', a: 0.007 },
   H396: { n: "Rocca De' Giorgi", p: 'PV', r: 'LO', a: 0.008, e: 10_000 },
