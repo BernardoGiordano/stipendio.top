@@ -11042,7 +11042,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   F893: { n: 'Nicotera', p: 'VV', r: 'CL', a: 0.008 },
   F894: { n: 'Niella Belbo', p: 'CN', r: 'PI', a: 0.006 },
   F895: { n: 'Niella Tanaro', p: 'CN', r: 'PI', a: 0.0075 },
-  F898: { n: 'Nimis', p: 'UD', r: 'FV', a: 0.004 },
+  F898: { n: 'Nimis', p: 'UD', r: 'FV', a: 0.0055, e: 12_500 },
   F899: { n: 'Niscemi', p: 'CL', r: 'SI', a: 0.008 },
   F900: { n: 'Nissoria', p: 'EN', r: 'SI', a: 0.005, e: 10_000 },
   F901: { n: 'Nizza Di Sicilia', p: 'ME', r: 'SI', a: 0.008, e: 8_000 },
@@ -16523,8 +16523,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'CN',
     r: 'PI',
     s: [
-      { l: 15_000, a: 0.006 },
-      { l: 28_000, a: 0.0065 },
+      { l: 28_000, a: 0.006 },
       { l: 50_000, a: 0.007 },
       { l: Infinity, a: 0.008 },
     ],
