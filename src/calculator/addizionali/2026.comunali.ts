@@ -17070,7 +17070,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     e: 10_000,
   },
   L139: { n: 'Terruggia', p: 'AL', r: 'PI', a: 0.008 },
-  L142: { n: 'Terzigno', p: 'NA', r: 'CM', a: 0.008, e: 7_500 },
+  L142: { n: 'Terzigno', p: 'NA', r: 'CM', a: 0.008, e: 10_000 },
   L143: { n: 'Terzo', p: 'AL', r: 'PI', a: 0.008 },
   L144: {
     n: 'Terzo Di Aquileia',
@@ -17424,18 +17424,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     ],
   },
   L340: { n: 'Traves', p: 'TO', r: 'PI', a: 0.008 },
-  L342: {
-    n: 'Travedona-monate',
-    p: 'VA',
-    r: 'LO',
-    s: [
-      { l: 15_000, a: 0.0065 },
-      { l: 28_000, a: 0.0077 },
-      { l: 50_000, a: 0.0079 },
-      { l: Infinity, a: 0.008 },
-    ],
-    e: 7_999.99,
-  },
+  L342: { n: 'Travedona-monate', p: 'VA', r: 'LO', a: 0.008, e: 12_000 },
   L345: { n: 'Traversella', p: 'TO', r: 'PI', a: 0.005 },
   L346: { n: 'Traversetolo', p: 'PR', r: 'ER', a: 0.008, e: 12_000 },
   L347: {
