@@ -18987,12 +18987,10 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'PI',
     r: 'TO',
     s: [
-      { l: 15_000, a: 0.005 },
       { l: 28_000, a: 0.005 },
       { l: 50_000, a: 0.0072 },
       { l: Infinity, a: 0.008 },
     ],
-    e: 15_000,
   },
   M328: {
     n: 'Crespina Lorenzana',
