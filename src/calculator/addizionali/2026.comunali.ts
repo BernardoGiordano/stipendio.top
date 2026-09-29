@@ -16235,7 +16235,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     ],
   },
   I668: { n: 'Serri', p: 'SU', r: 'SA', a: 0.002 },
-  I669: { n: 'Serrone', p: 'FR', r: 'LA', a: 0.008, e: 8_000 },
+  I669: { n: 'Serrone', p: 'FR', r: 'LA', a: 0.008, e: 10_000 },
   I670: { n: 'Serrungarina', p: 'PU', r: 'MA', a: 0.008 },
   I671: { n: 'Sersale', p: 'CZ', r: 'CL', a: 0.008, e: 10_000 },
   I673: { n: 'Sovramonte', p: 'BL', r: 'VE', a: 0.007, e: 8_500 },
