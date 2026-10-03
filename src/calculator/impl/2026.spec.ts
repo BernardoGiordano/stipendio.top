@@ -2267,6 +2267,56 @@ describe('Trattamento integrativo', () => {
 // ============================================================================
 
 describe('Addizionali', () => {
+  describe('Friuli Venezia Giulia', () => {
+    it.each([
+      [14_999.99, 0.007],
+      [15_000, 0.007],
+      [15_000.01, 0.0123],
+      [28_000, 0.0123],
+      [50_000, 0.0123],
+      [60_000, 0.0123],
+    ])("aliquota sull'intero imponibile %d", (imponibile, aliquota) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 15_000,
+        regione: 'FV',
+        comune: 'DEFAULT',
+        altriRedditi: imponibile - 13_621.5,
+      });
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(imponibile, 2);
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(imponibile * aliquota, 6);
+      expect(result.addizionali.aliquotaRegionale).toBeCloseTo(aliquota, 6);
+      expect(result.addizionali.addizionaleComunale).toBeCloseTo(imponibile * 0.008, 6);
+      expect(result.addizionali.totaleAddizionali).toBeCloseTo(
+        imponibile * (aliquota + 0.008),
+        6,
+      );
+    });
+
+    it("IRPEF zero: anche l'addizionale regionale ridotta è zero", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 8_000,
+        regione: 'FV',
+      });
+      expect(result.irpefFinale).toBe(0);
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+      expect(result.addizionali.aliquotaRegionale).toBe(0);
+    });
+
+    it('RAL 25k: aliquota ordinaria anche sui primi 15k', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        regione: 'fv',
+        comune: 'DEFAULT',
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(279.24075, 6);
+      expect(result.addizionali.addizionaleComunale).toBeCloseTo(181.62, 4);
+      expect(result.nettoAnnuo).toBeCloseTo(20_414.98925, 4);
+    });
+  });
+
   describe('Bolzano', () => {
     const inputBolzano: InputCalcoloStipendio = {
       ...baseInput,
