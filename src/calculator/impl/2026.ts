@@ -1454,17 +1454,30 @@ export class Calculator2026 implements StipendioCalculator {
       totaleDetrazioniPreTI,
     );
 
+    // IRPEF netta
+    const irpefNetta = Math.max(
+      0,
+      irpef.irpefLorda -
+        detrazioniLavoro.detrazioneEffettiva -
+        detrazioniFamiliari.totaleDetrazioniFamiliari -
+        altreDetrazioni,
+    );
+
+    // IRPEF finale
+    const irpefFinale = Math.max(0, irpefNetta - cuneoFiscale.detrazioneAggiuntiva);
+
     // 14. CALCOLO ADDIZIONALI
     const addRegionale = calcolaAddizionaleRegionale(redditoComplessivo, regione);
     const addComunale = calcolaAddizionaleComunale(redditoComplessivo, comune);
 
     const addizionali: DettaglioAddizionali = {
-      addizionaleRegionale: addRegionale.addizionale,
-      aliquotaRegionale: addRegionale.aliquotaMedia,
-      addizionaleComunale: addComunale.addizionale,
+      // Le addizionali sono dovute solo se risulta dovuta l'IRPEF dopo le detrazioni.
+      addizionaleRegionale: irpefFinale > 0 ? addRegionale.addizionale : 0,
+      aliquotaRegionale: irpefFinale > 0 ? addRegionale.aliquotaMedia : 0,
+      addizionaleComunale: irpefFinale > 0 ? addComunale.addizionale : 0,
       aliquotaComunale: addComunale.aliquota,
       esenzioneComunaleApplicata: addComunale.esenzioneApplicata,
-      totaleAddizionali: addRegionale.addizionale + addComunale.addizionale,
+      totaleAddizionali: irpefFinale > 0 ? addRegionale.addizionale + addComunale.addizionale : 0,
     };
 
     // Riepilogo detrazioni
@@ -1479,18 +1492,6 @@ export class Calculator2026 implements StipendioCalculator {
         cuneoFiscale.detrazioneAggiuntiva +
         altreDetrazioni,
     };
-
-    // IRPEF netta
-    const irpefNetta = Math.max(
-      0,
-      irpef.irpefLorda -
-        detrazioniLavoro.detrazioneEffettiva -
-        detrazioniFamiliari.totaleDetrazioniFamiliari -
-        altreDetrazioni,
-    );
-
-    // IRPEF finale
-    const irpefFinale = Math.max(0, irpefNetta - cuneoFiscale.detrazioneAggiuntiva);
 
     // 15. CALCOLO DETTAGLIO FONDO MARIO NEGRI
     // Determina l'aliquota marginale IRPEF per stimare il risparmio fiscale

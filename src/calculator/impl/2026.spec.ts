@@ -2245,6 +2245,69 @@ describe('Trattamento integrativo', () => {
 // ============================================================================
 
 describe('Addizionali', () => {
+  it('IRPEF azzerata dalle detrazioni lavoro: entrambe le addizionali sono zero', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 8_000,
+      regione: 'AB',
+      comune: 'A008',
+    });
+    expect(result.irpefFinale).toBe(0);
+    expect(result.addizionali.addizionaleRegionale).toBe(0);
+    expect(result.addizionali.addizionaleComunale).toBe(0);
+    expect(result.addizionali.totaleAddizionali).toBe(0);
+    expect(result.addizionali.esenzioneComunaleApplicata).toBe(false);
+    expect(result.totaleTrattenute).toBeCloseTo(735.2, 2);
+  });
+
+  it('IRPEF azzerata dal cuneo: entrambe le addizionali sono zero', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      comune: 'A004',
+      altreDetrazioni: 2_500,
+    });
+    expect(result.irpefNetta).toBeCloseTo(326.65, 2);
+    expect(result.irpefFinale).toBe(0);
+    expect(result.addizionali.addizionaleRegionale).toBe(0);
+    expect(result.addizionali.addizionaleComunale).toBe(0);
+    expect(result.addizionali.totaleAddizionali).toBe(0);
+    expect(result.nettoAnnuo).toBeCloseTo(22_702.5, 2);
+  });
+
+  it('IRPEF appena positiva dopo il cuneo: le addizionali restano dovute', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      comune: 'A004',
+      altreDetrazioni: 1_826.64,
+    });
+    expect(result.irpefFinale).toBeCloseTo(0.01, 2);
+    expect(result.addizionali.addizionaleRegionale).toBeCloseTo(306.1995, 4);
+    expect(result.addizionali.addizionaleComunale).toBeCloseTo(158.9175, 4);
+  });
+
+  it('comune sconosciuto con IRPEF zero: nessuna addizionale di default', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 8_000,
+      comune: 'ZZZZ',
+    });
+    expect(result.irpefFinale).toBe(0);
+    expect(result.addizionali.totaleAddizionali).toBe(0);
+  });
+
+  it('trattamento integrativo con IRPEF positiva: le addizionali restano dovute', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 15_000,
+      regione: 'AB',
+      comune: 'A008',
+    });
+    expect(result.trattamentoIntegrativo.importo).toBeGreaterThan(0);
+    expect(result.irpefFinale).toBeGreaterThan(0);
+    expect(result.addizionali.addizionaleRegionale).toBeCloseTo(227.47905, 4);
+    expect(result.addizionali.addizionaleComunale).toBeCloseTo(68.1075, 4);
+  });
+
   it('addizionale regionale Lombardia: calcolo per scaglioni progressivi', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
