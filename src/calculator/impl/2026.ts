@@ -95,8 +95,9 @@ const ALIQUOTE_INPS = {
   conCigs: 0.0949,
   apprendista: 0.0584,
   aggiuntivo: 0.01,
-  sogliaAggiuntivo: 55_448,
-  massimale: 120_607,
+  // Soglie 2026 (circolare INPS n. 6 del 30 gennaio 2026)
+  sogliaAggiuntivo: 56_224,
+  massimale: 122_295,
 } as const;
 
 /** Parametri detrazioni lavoro dipendente */
