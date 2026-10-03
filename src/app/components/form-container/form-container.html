@@ -1696,7 +1696,7 @@
         <label for="buoniPasto" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
           >Buoni pasto (€/anno)<app-info-tooltip
             tooltipId="buoniPasto-info"
-            text="Esenti fino a 4 euro/giorno (cartacei) o 10 euro/giorno (elettronici, dal 2026). L'eccedenza è imponibile."
+            text="Esenti fino a 4 euro/giorno (cartacei) o 10 euro/giorno (elettronici, dal 2026). Il calcolo assume buoni di pari importo giornaliero, per i giorni di erogazione indicati. L'eccedenza è imponibile."
           />
         </label>
         <input
@@ -1713,6 +1713,37 @@
           @for (error of form.benefitNonTassati.buoniPasto().errors(); track error.kind) {
             <span
               id="buoniPasto-error"
+              class="text-xs text-red-600 mt-1 dark:text-red-400"
+              role="alert"
+              >{{ error.message }}</span
+            >
+          }
+        }
+      </div>
+
+      <div class="flex flex-col gap-1 mb-4">
+        <label
+          for="giorniBuoniPasto"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Giorni di erogazione buoni pasto<app-info-tooltip
+            tooltipId="giorniBuoniPasto-info"
+            text="Numero effettivo di giorni coperti dai buoni pasto nell'anno. Il valore predefinito di 220 giorni è una stima: modificarlo in base ai buoni ricevuti."
+          />
+        </label>
+        <input
+          id="giorniBuoniPasto"
+          type="number"
+          [formField]="form.benefitNonTassati.giorniBuoniPasto"
+          [attr.aria-invalid]="form.benefitNonTassati.giorniBuoniPasto().invalid()"
+          [attr.aria-describedby]="
+            form.benefitNonTassati.giorniBuoniPasto().invalid() ? 'giorniBuoniPasto-error' : null
+          "
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+        />
+        @if (form.benefitNonTassati.giorniBuoniPasto().invalid()) {
+          @for (error of form.benefitNonTassati.giorniBuoniPasto().errors(); track error.kind) {
+            <span
+              id="giorniBuoniPasto-error"
               class="text-xs text-red-600 mt-1 dark:text-red-400"
               role="alert"
               >{{ error.message }}</span
