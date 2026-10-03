@@ -97,6 +97,7 @@ export interface FiglioACaricoFormModel {
   eta: number;
   disabile: boolean;
   percentualeCarico: number;
+  mesiCarico: number;
 }
 
 export interface AscendenteACaricoFormModel {
@@ -118,6 +119,7 @@ export interface StipendioFormModel {
   aziendaConCigs: boolean;
   iscrittoPost1996: boolean;
   altriRedditi: number;
+  altriRedditiSogliaAddizionale: number;
   altreDetrazioni: number;
   haFigliACarico: boolean;
   fondoMarioNegri: boolean;
@@ -227,6 +229,7 @@ export function createDefaultFiglio(): FiglioACaricoFormModel {
     eta: 0,
     disabile: false,
     percentualeCarico: 100,
+    mesiCarico: 12,
   };
 }
 
@@ -251,6 +254,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     aziendaConCigs: false,
     iscrittoPost1996: true,
     altriRedditi: 0,
+    altriRedditiSogliaAddizionale: 0,
     altreDetrazioni: 0,
     haFigliACarico: false,
     fondoMarioNegri: false,
@@ -369,6 +373,13 @@ const figlioSchema = schema<FiglioACaricoFormModel>((path) => {
 
   min(path.percentualeCarico, 0, { message: 'La percentuale deve essere tra 0 e 100' });
   max(path.percentualeCarico, 100, { message: 'La percentuale deve essere tra 0 e 100' });
+  validate(path.mesiCarico, ({ value }) => {
+    const v = value() ?? 12;
+    if (!Number.isInteger(v) || v < 0 || v > 12) {
+      return { kind: 'invalid', message: 'I mesi devono essere un intero tra 0 e 12' };
+    }
+    return null;
+  });
 });
 
 const ascendenteSchema = schema<AscendenteACaricoFormModel>((path) => {
@@ -405,6 +416,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   });
 
   min(path.altriRedditi, 0, { message: 'Valore non valido' });
+  min(path.altriRedditiSogliaAddizionale, 0, { message: 'Valore non valido' });
   min(path.altreDetrazioni, 0, { message: 'Valore non valido' });
 
   // Nested objects
@@ -551,6 +563,7 @@ function toFigli(models: FiglioACaricoFormModel[]): FiglioACarico[] | undefined 
     eta: m.eta,
     disabile: m.disabile,
     ...((m.percentualeCarico ?? 0) !== 100 && { percentualeCarico: m.percentualeCarico ?? 0 }),
+    ...((m.mesiCarico ?? 12) !== 12 && { mesiCarico: m.mesiCarico ?? 12 }),
   }));
 }
 
@@ -602,6 +615,10 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
     ...(model.aziendaConCigs && { aziendaConCigs: true }),
     ...(!model.iscrittoPost1996 && { iscrittoPost1996: false }),
     ...(model.altriRedditi > 0 && { altriRedditi: model.altriRedditi }),
+    ...(model.regione.toUpperCase() === 'BZ' &&
+      model.altriRedditiSogliaAddizionale > 0 && {
+        altriRedditiSogliaAddizionale: model.altriRedditiSogliaAddizionale,
+      }),
     ...(model.altreDetrazioni > 0 && { altreDetrazioni: model.altreDetrazioni }),
     ...(model.haFigliACarico && { haFigliACarico: true }),
     ...(model.fondoMarioNegri && { fondoMarioNegri: true }),

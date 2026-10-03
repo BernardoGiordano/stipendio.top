@@ -314,6 +314,41 @@
         }
       </div>
 
+      @if (formModel()().regione === 'BZ') {
+        <div class="flex flex-col gap-1">
+          <label
+            for="altriRedditiSogliaAddizionale"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Redditi con imposta sostitutiva (€/anno)<app-info-tooltip
+              tooltipId="altriRedditiSogliaAddizionale-info"
+              text="Redditi da cedolare secca, mance con imposta sostitutiva e regime forfettario. Rilevano per il limite di 90.000 euro delle detrazioni regionali di Bolzano. Non inserirli anche in Altri Redditi."
+            />
+          </label>
+          <input
+            id="altriRedditiSogliaAddizionale"
+            type="number"
+            [formField]="form.altriRedditiSogliaAddizionale"
+            [attr.aria-invalid]="form.altriRedditiSogliaAddizionale().invalid()"
+            [attr.aria-describedby]="
+              form.altriRedditiSogliaAddizionale().invalid()
+                ? 'altriRedditiSogliaAddizionale-error'
+                : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+          />
+          @if (form.altriRedditiSogliaAddizionale().invalid()) {
+            @for (error of form.altriRedditiSogliaAddizionale().errors(); track error.kind) {
+              <span
+                id="altriRedditiSogliaAddizionale-error"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
+          }
+        </div>
+      }
+
       <div class="flex flex-col gap-1">
         <label
           for="altreDetrazioni"
@@ -841,6 +876,37 @@
             }
           </div>
         </div>
+
+        @if (formModel()().regione === 'TN' || formModel()().regione === 'BZ') {
+          <div class="flex flex-col gap-1 mb-3">
+            <label [for]="'figlioMesi' + $index" class="text-sm text-stone-600 dark:text-stone-400"
+              >Mesi a carico (addizionale regionale)</label
+            >
+            <input
+              [id]="'figlioMesi' + $index"
+              type="number"
+              min="0"
+              max="12"
+              step="1"
+              [formField]="form.figli[$index].mesiCarico"
+              [attr.aria-invalid]="form.figli[$index].mesiCarico().invalid()"
+              [attr.aria-describedby]="
+                form.figli[$index].mesiCarico().invalid() ? 'figlioMesi' + $index + '-error' : null
+              "
+              class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+            />
+            @if (form.figli[$index].mesiCarico().invalid()) {
+              @for (error of form.figli[$index].mesiCarico().errors(); track error.kind) {
+                <span
+                  [id]="'figlioMesi' + $index + '-error'"
+                  class="text-xs text-red-600 mt-1 dark:text-red-400"
+                  role="alert"
+                  >{{ error.message }}</span
+                >
+              }
+            }
+          </div>
+        }
 
         <div class="flex items-center gap-2">
           <input

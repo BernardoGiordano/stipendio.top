@@ -24,7 +24,15 @@ export const REGIONE_LABELS: Record<string, string> = {
 
 export const ADDIZIONALI_REGIONALI: Record<
   string,
-  { scaglioni: Array<{ limite: number; aliquota: number }>; esenzione?: number; note?: string }
+  {
+    scaglioni: Array<{ limite: number; aliquota: number }>;
+    esenzione?: number;
+    aliquotaRidotta?: { limiteReddito: number; aliquota: number };
+    detrazioneBase?: { redditoMinimo?: number; limiteReddito: number; importo: number };
+    detrazioneSupplementare?: { sogliaReddito: number; intervalloReddito: number; importo: number };
+    detrazioneFigli?: { limiteReddito: number; importo: number };
+    note?: string;
+  }
 > = {
   AB: {
     scaglioni: [
@@ -57,18 +65,17 @@ export const ADDIZIONALI_REGIONALI: Record<
     ],
   },
   FV: {
-    scaglioni: [
-      { limite: 15_000, aliquota: 0.007 },
-      { limite: Infinity, aliquota: 0.0123 },
-    ],
+    scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
+    aliquotaRidotta: { limiteReddito: 15_000, aliquota: 0.007 },
   },
   LA: {
     scaglioni: [
-      { limite: 28_000, aliquota: 0.0173 },
+      { limite: 15_000, aliquota: 0.0173 },
       { limite: 50_000, aliquota: 0.0333 },
       { limite: Infinity, aliquota: 0.0333 },
     ],
-    // note: 'Detrazione €60 per redditi €28.001-€35.000',
+    aliquotaRidotta: { limiteReddito: 28_000, aliquota: 0.0173 },
+    detrazioneBase: { redditoMinimo: 28_001, limiteReddito: 30_000, importo: 60 },
   },
   LI: {
     scaglioni: [
@@ -141,14 +148,17 @@ export const ADDIZIONALI_REGIONALI: Record<
       { limite: 50_000, aliquota: 0.0123 },
       { limite: Infinity, aliquota: 0.0173 },
     ],
-    // note: 'Deduzione €30.000 per redditi ≤€30.000; detrazione €246/figlio per redditi ≤€50.000',
+    esenzione: 30_000,
+    detrazioneFigli: { limiteReddito: 50_000, importo: 246 },
   },
   BZ: {
     scaglioni: [
       { limite: 50_000, aliquota: 0.0123 },
       { limite: Infinity, aliquota: 0.0173 },
     ],
-    // note: 'Detrazione base €430,50 per redditi ≤€90.000; €340/figlio a carico',
+    detrazioneBase: { limiteReddito: 90_000, importo: 430.5 },
+    detrazioneSupplementare: { sogliaReddito: 50_000, intervalloReddito: 25_000, importo: 125 },
+    detrazioneFigli: { limiteReddito: 90_000, importo: 340 },
   },
   UM: {
     scaglioni: [

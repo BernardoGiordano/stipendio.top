@@ -794,14 +794,25 @@ function calcolaTrattamentoIntegrativo(
 function calcolaAddizionaleRegionale(
   imponibile: number,
   regione: string,
+  figli?: FiglioACarico[],
+  altriRedditiSogliaAddizionale = 0,
 ): { addizionale: number; aliquotaMedia: number } {
   const config = ADDIZIONALI_REGIONALI[regione.toUpperCase()] ?? ADDIZIONALI_REGIONALI['DEFAULT'];
+
+  if (config.esenzione !== undefined && imponibile <= config.esenzione) {
+    return { addizionale: 0, aliquotaMedia: 0 };
+  }
 
   let addizionaleTotale = 0;
   let imponibileResiduo = imponibile;
   let limiteInferiore = 0;
 
-  for (const scaglione of config.scaglioni) {
+  const scaglioni =
+    config.aliquotaRidotta && imponibile <= config.aliquotaRidotta.limiteReddito
+      ? [{ limite: Infinity, aliquota: config.aliquotaRidotta.aliquota }]
+      : config.scaglioni;
+
+  for (const scaglione of scaglioni) {
     if (imponibileResiduo <= 0) break;
 
     const ampiezzaScaglione = scaglione.limite - limiteInferiore;
@@ -812,6 +823,42 @@ function calcolaAddizionaleRegionale(
     limiteInferiore = scaglione.limite;
   }
 
+  const redditoSoglia =
+    imponibile + (regione.toUpperCase() === 'BZ' ? altriRedditiSogliaAddizionale : 0);
+
+  if (
+    config.detrazioneBase &&
+    redditoSoglia >= (config.detrazioneBase.redditoMinimo ?? 0) &&
+    redditoSoglia <= config.detrazioneBase.limiteReddito
+  ) {
+    addizionaleTotale -= config.detrazioneBase.importo;
+  }
+
+  if (config.detrazioneSupplementare && imponibile > config.detrazioneSupplementare.sogliaReddito) {
+    const rapporto = Math.min(
+      1,
+      (imponibile - config.detrazioneSupplementare.sogliaReddito) /
+        config.detrazioneSupplementare.intervalloReddito,
+    );
+    addizionaleTotale -= config.detrazioneSupplementare.importo * rapporto;
+  }
+
+  if (config.detrazioneFigli && redditoSoglia <= config.detrazioneFigli.limiteReddito) {
+    // I requisiti regionali richiamano l'art. 12, comma 2, senza i limiti di età delle detrazioni IRPEF.
+    for (const figlio of figli ?? []) {
+      const limiteReddito =
+        figlio.eta <= 24
+          ? DETRAZIONI_FAMILIARI.limiteRedditoFigliGiovani
+          : DETRAZIONI_FAMILIARI.limiteRedditoCarico;
+      if ((figlio.redditoAnnuo ?? 0) > limiteReddito) continue;
+
+      const percentuale = (figlio.percentualeCarico ?? 100) / 100;
+      const mesi = Math.min(12, Math.max(0, figlio.mesiCarico ?? 12));
+      addizionaleTotale -= config.detrazioneFigli.importo * percentuale * (mesi / 12);
+    }
+  }
+
+  addizionaleTotale = Math.max(0, addizionaleTotale);
   const aliquotaMedia = imponibile > 0 ? addizionaleTotale / imponibile : 0;
 
   return { addizionale: addizionaleTotale, aliquotaMedia };
@@ -1268,6 +1315,7 @@ export class Calculator2026 implements StipendioCalculator {
       figli,
       ascendenti,
       altriRedditi = 0,
+      altriRedditiSogliaAddizionale = 0,
       altreDetrazioni = 0,
       fringeBenefit: fringeBenefitInput,
       haFigliACarico = false,
@@ -1454,17 +1502,35 @@ export class Calculator2026 implements StipendioCalculator {
       totaleDetrazioniPreTI,
     );
 
+    // IRPEF netta
+    const irpefNetta = Math.max(
+      0,
+      irpef.irpefLorda -
+        detrazioniLavoro.detrazioneEffettiva -
+        detrazioniFamiliari.totaleDetrazioniFamiliari -
+        altreDetrazioni,
+    );
+
+    // IRPEF finale
+    const irpefFinale = Math.max(0, irpefNetta - cuneoFiscale.detrazioneAggiuntiva);
+
     // 14. CALCOLO ADDIZIONALI
-    const addRegionale = calcolaAddizionaleRegionale(redditoComplessivo, regione);
+    const addRegionale = calcolaAddizionaleRegionale(
+      redditoComplessivo,
+      regione,
+      figli,
+      altriRedditiSogliaAddizionale,
+    );
     const addComunale = calcolaAddizionaleComunale(redditoComplessivo, comune);
 
     const addizionali: DettaglioAddizionali = {
-      addizionaleRegionale: addRegionale.addizionale,
-      aliquotaRegionale: addRegionale.aliquotaMedia,
-      addizionaleComunale: addComunale.addizionale,
+      // Le addizionali sono dovute solo se risulta dovuta l'IRPEF dopo le detrazioni.
+      addizionaleRegionale: irpefFinale > 0 ? addRegionale.addizionale : 0,
+      aliquotaRegionale: irpefFinale > 0 ? addRegionale.aliquotaMedia : 0,
+      addizionaleComunale: irpefFinale > 0 ? addComunale.addizionale : 0,
       aliquotaComunale: addComunale.aliquota,
       esenzioneComunaleApplicata: addComunale.esenzioneApplicata,
-      totaleAddizionali: addRegionale.addizionale + addComunale.addizionale,
+      totaleAddizionali: irpefFinale > 0 ? addRegionale.addizionale + addComunale.addizionale : 0,
     };
 
     // Riepilogo detrazioni
@@ -1479,18 +1545,6 @@ export class Calculator2026 implements StipendioCalculator {
         cuneoFiscale.detrazioneAggiuntiva +
         altreDetrazioni,
     };
-
-    // IRPEF netta
-    const irpefNetta = Math.max(
-      0,
-      irpef.irpefLorda -
-        detrazioniLavoro.detrazioneEffettiva -
-        detrazioniFamiliari.totaleDetrazioniFamiliari -
-        altreDetrazioni,
-    );
-
-    // IRPEF finale
-    const irpefFinale = Math.max(0, irpefNetta - cuneoFiscale.detrazioneAggiuntiva);
 
     // 15. CALCOLO DETTAGLIO FONDO MARIO NEGRI
     // Determina l'aliquota marginale IRPEF per stimare il risparmio fiscale

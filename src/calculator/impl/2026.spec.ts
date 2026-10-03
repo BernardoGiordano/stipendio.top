@@ -2245,6 +2245,453 @@ describe('Trattamento integrativo', () => {
 // ============================================================================
 
 describe('Addizionali', () => {
+  describe('Lazio', () => {
+    it.each([
+      [15_000, 259.5],
+      [27_999.99, 484.399827],
+      [28_000, 484.4],
+      [28_000.01, 692.400333],
+      [28_000.99, 692.432967],
+      [28_001, 632.4333],
+      [29_000, 665.7],
+      [30_000, 699],
+      [30_000.01, 759.000333],
+      [35_000, 925.5],
+      [50_000, 1425],
+      [60_000, 1758],
+    ])('aliquote e detrazione regionale: imponibile %d', (imponibile, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 15_000,
+        regione: 'LA',
+        comune: 'DEFAULT',
+        altriRedditi: imponibile - 13_621.5,
+      });
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(imponibile, 2);
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 6);
+      expect(result.addizionali.aliquotaRegionale).toBeCloseTo(attesa / imponibile, 8);
+      expect(result.addizionali.addizionaleComunale).toBeCloseTo(imponibile * 0.008, 6);
+      expect(result.addizionali.totaleAddizionali).toBeCloseTo(attesa + imponibile * 0.008, 6);
+    });
+
+    it('IRPEF zero: la correzione degli scaglioni non genera addizionali', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        regione: 'LA',
+        altreDetrazioni: 20_000,
+      });
+      expect(result.irpefFinale).toBe(0);
+      expect(result.addizionali.totaleAddizionali).toBe(0);
+    });
+
+    it("la detrazione regionale non riduce l'IRPEF o l'imponibile comunale", () => {
+      const input = {
+        ...baseInput,
+        ral: 30_000,
+        comune: 'DEFAULT',
+        altriRedditi: 29_000 - 27_243,
+      };
+      const lazio = calc.calcolaStipendioNetto({ ...input, regione: 'la' });
+      const friuli = calc.calcolaStipendioNetto({ ...input, regione: 'FV' });
+      expect(lazio.irpefFinale).toBe(friuli.irpefFinale);
+      expect(lazio.addizionali.addizionaleComunale).toBe(friuli.addizionali.addizionaleComunale);
+      expect(lazio.addizionali.addizionaleRegionale).toBeCloseTo(665.7, 4);
+      expect(friuli.nettoAnnuo - lazio.nettoAnnuo).toBeCloseTo(665.7 - 356.7, 4);
+    });
+  });
+
+  describe('Friuli Venezia Giulia', () => {
+    it.each([
+      [14_999.99, 0.007],
+      [15_000, 0.007],
+      [15_000.01, 0.0123],
+      [28_000, 0.0123],
+      [50_000, 0.0123],
+      [60_000, 0.0123],
+    ])("aliquota sull'intero imponibile %d", (imponibile, aliquota) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 15_000,
+        regione: 'FV',
+        comune: 'DEFAULT',
+        altriRedditi: imponibile - 13_621.5,
+      });
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(imponibile, 2);
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(imponibile * aliquota, 6);
+      expect(result.addizionali.aliquotaRegionale).toBeCloseTo(aliquota, 6);
+      expect(result.addizionali.addizionaleComunale).toBeCloseTo(imponibile * 0.008, 6);
+      expect(result.addizionali.totaleAddizionali).toBeCloseTo(
+        imponibile * (aliquota + 0.008),
+        6,
+      );
+    });
+
+    it("IRPEF zero: anche l'addizionale regionale ridotta è zero", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 8_000,
+        regione: 'FV',
+      });
+      expect(result.irpefFinale).toBe(0);
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+      expect(result.addizionali.aliquotaRegionale).toBe(0);
+    });
+
+    it('RAL 25k: aliquota ordinaria anche sui primi 15k', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        regione: 'fv',
+        comune: 'DEFAULT',
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(279.24075, 6);
+      expect(result.addizionali.addizionaleComunale).toBeCloseTo(181.62, 4);
+      expect(result.nettoAnnuo).toBeCloseTo(20_414.98925, 4);
+    });
+  });
+
+  describe('Bolzano', () => {
+    const inputBolzano: InputCalcoloStipendio = {
+      ...baseInput,
+      ral: 30_000,
+      regione: 'BZ',
+      comune: 'A952',
+    };
+
+    it.each([
+      [27_243, 0],
+      [35_000, 0],
+      [35_000.01, 0.000123],
+      [50_000, 184.5],
+      [50_000.01, 184.500123],
+      [62_500, 338.25],
+      [75_000, 492],
+      [90_000, 751.5],
+      [90_000.01, 1182.000173],
+      [100_000, 1355],
+    ])('detrazione base e supplementare: imponibile %d', (imponibile, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: imponibile - 27_243,
+      });
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 6);
+      expect(result.addizionali.aliquotaRegionale).toBeCloseTo(attesa / imponibile, 8);
+    });
+
+    it.each([10, 24, 30, 40])('detrazione regionale per figlio di %d anni', (eta) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: 70_000 - 27_243,
+        figli: [{ eta, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(90.5, 4);
+    });
+
+    it('detrazione figli ripartita per percentuale e mesi', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: 70_000 - 27_243,
+        figli: [{ eta: 10, disabile: false, percentualeCarico: 50, mesiCarico: 6 }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(345.5, 4);
+    });
+
+    it('le detrazioni cumulabili non generano un credito', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: 40_000 - 27_243,
+        figli: [{ eta: 10, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+      expect(result.addizionali.aliquotaRegionale).toBe(0);
+    });
+
+    it.each([
+      [24, 4_000, 90.5],
+      [24, 4_000.01, 430.5],
+      [25, 2_840.51, 90.5],
+      [25, 2_840.52, 430.5],
+    ])('limite reddito figlio: età %d, reddito %d', (eta, redditoAnnuo, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: 70_000 - 27_243,
+        figli: [{ eta, redditoAnnuo, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 4);
+    });
+
+    it.each([
+      [90_000, 71.5],
+      [90_000.01, 1182.000173],
+    ])('limite 90k per detrazioni base e figli: %d', (imponibile, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: imponibile - 27_243,
+        figli: [
+          { eta: 10, disabile: false },
+          { eta: 12, disabile: false },
+        ],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 6);
+    });
+
+    it.each([
+      [10_000, 238.5],
+      [10_000.01, 1009],
+    ])('redditi sostitutivi inclusi nella soglia 90k: %d', (redditiSostitutivi, attesa) => {
+      const input = {
+        ...inputBolzano,
+        altriRedditi: 80_000 - 27_243,
+        figli: [{ eta: 10, disabile: false }],
+      };
+      const senzaRedditiSostitutivi = calc.calcolaStipendioNetto(input);
+      const result = calc.calcolaStipendioNetto({
+        ...input,
+        altriRedditiSogliaAddizionale: redditiSostitutivi,
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 4);
+      expect(result.irpef.imponibileIrpef).toBe(80_000);
+      expect(result.irpefFinale).toBe(senzaRedditiSostitutivi.irpefFinale);
+      expect(result.addizionali.addizionaleComunale).toBe(
+        senzaRedditiSostitutivi.addizionali.addizionaleComunale,
+      );
+    });
+
+    it('redditi sostitutivi non cambiano le detrazioni di Trento', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        regione: 'TN',
+        altriRedditi: 40_000 - 27_243,
+        altriRedditiSogliaAddizionale: 100_000,
+        figli: [{ eta: 10, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(246, 4);
+    });
+  });
+
+  describe('Trento', () => {
+    const inputTrento: InputCalcoloStipendio = {
+      ...baseInput,
+      ral: 30_000,
+      regione: 'TN',
+      comune: 'L378',
+    };
+
+    it.each([29_999.99, 30_000])('deduzione fino a 30k: imponibile %d', (imponibile) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: imponibile - 27_243,
+      });
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+      expect(result.addizionali.aliquotaRegionale).toBe(0);
+    });
+
+    it("oltre 30k la deduzione non spetta e si tassa tutto l'imponibile", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 30_000.01 - 27_243,
+      });
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(30_000.01, 2);
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(30_000.01 * 0.0123, 4);
+    });
+
+    it.each([0, 20, 24, 25, 30, 40])('detrazione regionale per figlio di %d anni', (eta) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 40_000 - 27_243,
+        figli: [{ eta, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(492 - 246, 4);
+    });
+
+    it('detrazione ripartita per percentuale e mesi a carico', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 40_000 - 27_243,
+        figli: [{ eta: 10, disabile: false, percentualeCarico: 50, mesiCarico: 6 }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(492 - 61.5, 4);
+      expect(result.addizionali.aliquotaRegionale).toBeCloseTo(430.5 / 40_000, 6);
+    });
+
+    it("più figli possono azzerare l'addizionale senza generare credito", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 40_000 - 27_243,
+        figli: [
+          { eta: 10, disabile: false },
+          { eta: 12, disabile: false },
+          { eta: 15, disabile: false },
+        ],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+      expect(result.addizionali.aliquotaRegionale).toBe(0);
+    });
+
+    it.each([
+      [24, 4_000, 246],
+      [24, 4_000.01, 492],
+      [25, 2_840.51, 246],
+      [25, 2_840.52, 492],
+    ])('limite reddito figlio: età %d, reddito %d', (eta, redditoAnnuo, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 40_000 - 27_243,
+        figli: [{ eta, redditoAnnuo, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 4);
+    });
+
+    it.each([
+      [50_000, 369],
+      [50_000.01, 615.000173],
+    ])('limite reddito contribuente per detrazione figli: %d', (imponibile, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: imponibile - 27_243,
+        figli: [{ eta: 10, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 4);
+    });
+
+    it('mesi a carico zero: nessuna detrazione regionale', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 40_000 - 27_243,
+        figli: [{ eta: 10, disabile: false, mesiCarico: 0 }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(492, 4);
+    });
+
+    it("la detrazione regionale aumenta il netto senza cambiare l'addizionale comunale", () => {
+      const input = { ...inputTrento, altriRedditi: 40_000 - 27_243 };
+      const senzaFigli = calc.calcolaStipendioNetto(input);
+      const conFiglio = calc.calcolaStipendioNetto({
+        ...input,
+        figli: [{ eta: 10, disabile: false }],
+      });
+      expect(conFiglio.nettoAnnuo - senzaFigli.nettoAnnuo).toBeCloseTo(246, 4);
+      expect(conFiglio.addizionali.addizionaleComunale).toBe(
+        senzaFigli.addizionali.addizionaleComunale,
+      );
+    });
+  });
+
+  it.each([1_378.49, 1_378.5])(
+    "Valle d'Aosta: esenzione fino a 15k con altri redditi pari a %d",
+    (altriRedditi) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 15_000,
+        regione: 'VA',
+        comune: 'A326',
+        altriRedditi,
+      });
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(13_621.5 + altriRedditi, 2);
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+      expect(result.addizionali.aliquotaRegionale).toBe(0);
+      expect(result.addizionali.addizionaleComunale).toBeCloseTo(
+        (13_621.5 + altriRedditi) * 0.005,
+        4,
+      );
+      expect(result.addizionali.totaleAddizionali).toBe(result.addizionali.addizionaleComunale);
+    },
+  );
+
+  it("Valle d'Aosta: oltre 15k si tassa l'intero imponibile", () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 15_000,
+      regione: 'va',
+      comune: 'A326',
+      altriRedditi: 1_378.51,
+    });
+    expect(result.irpef.imponibileIrpef).toBeCloseTo(15_000.01, 2);
+    expect(result.irpefFinale).toBeGreaterThan(0);
+    expect(result.addizionali.addizionaleRegionale).toBeCloseTo(15_000.01 * 0.0123, 4);
+    expect(result.addizionali.aliquotaRegionale).toBeCloseTo(0.0123, 4);
+  });
+
+  it("Valle d'Aosta: RAL 15k con IRPEF positiva e addizionale regionale zero", () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 15_000,
+      regione: 'VA',
+      comune: 'A326',
+    });
+    expect(result.irpefFinale).toBeGreaterThan(0);
+    expect(result.addizionali.addizionaleRegionale).toBe(0);
+    expect(result.addizionali.addizionaleComunale).toBeCloseTo(68.1075, 4);
+  });
+
+  it('IRPEF azzerata dalle detrazioni lavoro: entrambe le addizionali sono zero', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 8_000,
+      regione: 'AB',
+      comune: 'A008',
+    });
+    expect(result.irpefFinale).toBe(0);
+    expect(result.addizionali.addizionaleRegionale).toBe(0);
+    expect(result.addizionali.addizionaleComunale).toBe(0);
+    expect(result.addizionali.totaleAddizionali).toBe(0);
+    expect(result.addizionali.esenzioneComunaleApplicata).toBe(false);
+    expect(result.totaleTrattenute).toBeCloseTo(735.2, 2);
+  });
+
+  it('IRPEF azzerata dal cuneo: entrambe le addizionali sono zero', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      comune: 'A004',
+      altreDetrazioni: 2_500,
+    });
+    expect(result.irpefNetta).toBeCloseTo(326.65, 2);
+    expect(result.irpefFinale).toBe(0);
+    expect(result.addizionali.addizionaleRegionale).toBe(0);
+    expect(result.addizionali.addizionaleComunale).toBe(0);
+    expect(result.addizionali.totaleAddizionali).toBe(0);
+    expect(result.nettoAnnuo).toBeCloseTo(22_702.5, 2);
+  });
+
+  it('IRPEF appena positiva dopo il cuneo: le addizionali restano dovute', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      comune: 'A004',
+      altreDetrazioni: 1_826.64,
+    });
+    expect(result.irpefFinale).toBeCloseTo(0.01, 2);
+    expect(result.addizionali.addizionaleRegionale).toBeCloseTo(306.1995, 4);
+    expect(result.addizionali.addizionaleComunale).toBeCloseTo(158.9175, 4);
+  });
+
+  it('comune sconosciuto con IRPEF zero: nessuna addizionale di default', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 8_000,
+      comune: 'ZZZZ',
+    });
+    expect(result.irpefFinale).toBe(0);
+    expect(result.addizionali.totaleAddizionali).toBe(0);
+  });
+
+  it('trattamento integrativo con IRPEF positiva: le addizionali restano dovute', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 15_000,
+      regione: 'AB',
+      comune: 'A008',
+    });
+    expect(result.trattamentoIntegrativo.importo).toBeGreaterThan(0);
+    expect(result.irpefFinale).toBeGreaterThan(0);
+    expect(result.addizionali.addizionaleRegionale).toBeCloseTo(227.47905, 4);
+    expect(result.addizionali.addizionaleComunale).toBeCloseTo(68.1075, 4);
+  });
+
   it('addizionale regionale Lombardia: calcolo per scaglioni progressivi', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
