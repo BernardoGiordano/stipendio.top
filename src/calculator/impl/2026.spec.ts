@@ -2267,6 +2267,126 @@ describe('Trattamento integrativo', () => {
 // ============================================================================
 
 describe('Addizionali', () => {
+  describe('Bolzano', () => {
+    const inputBolzano: InputCalcoloStipendio = {
+      ...baseInput,
+      ral: 30_000,
+      regione: 'BZ',
+      comune: 'A952',
+    };
+
+    it.each([
+      [27_243, 0],
+      [35_000, 0],
+      [35_000.01, 0.000123],
+      [50_000, 184.5],
+      [50_000.01, 184.500123],
+      [62_500, 338.25],
+      [75_000, 492],
+      [90_000, 751.5],
+      [90_000.01, 1182.000173],
+      [100_000, 1355],
+    ])('detrazione base e supplementare: imponibile %d', (imponibile, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: imponibile - 27_243,
+      });
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 6);
+      expect(result.addizionali.aliquotaRegionale).toBeCloseTo(attesa / imponibile, 8);
+    });
+
+    it.each([10, 24, 30, 40])('detrazione regionale per figlio di %d anni', (eta) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: 70_000 - 27_243,
+        figli: [{ eta, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(90.5, 4);
+    });
+
+    it('detrazione figli ripartita per percentuale e mesi', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: 70_000 - 27_243,
+        figli: [{ eta: 10, disabile: false, percentualeCarico: 50, mesiCarico: 6 }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(345.5, 4);
+    });
+
+    it('le detrazioni cumulabili non generano un credito', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: 40_000 - 27_243,
+        figli: [{ eta: 10, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+      expect(result.addizionali.aliquotaRegionale).toBe(0);
+    });
+
+    it.each([
+      [24, 4_000, 90.5],
+      [24, 4_000.01, 430.5],
+      [25, 2_840.51, 90.5],
+      [25, 2_840.52, 430.5],
+    ])('limite reddito figlio: età %d, reddito %d', (eta, redditoAnnuo, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: 70_000 - 27_243,
+        figli: [{ eta, redditoAnnuo, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 4);
+    });
+
+    it.each([
+      [90_000, 71.5],
+      [90_000.01, 1182.000173],
+    ])('limite 90k per detrazioni base e figli: %d', (imponibile, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        altriRedditi: imponibile - 27_243,
+        figli: [
+          { eta: 10, disabile: false },
+          { eta: 12, disabile: false },
+        ],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 6);
+    });
+
+    it.each([
+      [10_000, 238.5],
+      [10_000.01, 1009],
+    ])('redditi sostitutivi inclusi nella soglia 90k: %d', (redditiSostitutivi, attesa) => {
+      const input = {
+        ...inputBolzano,
+        altriRedditi: 80_000 - 27_243,
+        figli: [{ eta: 10, disabile: false }],
+      };
+      const senzaRedditiSostitutivi = calc.calcolaStipendioNetto(input);
+      const result = calc.calcolaStipendioNetto({
+        ...input,
+        altriRedditiSogliaAddizionale: redditiSostitutivi,
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 4);
+      expect(result.irpef.imponibileIrpef).toBe(80_000);
+      expect(result.irpefFinale).toBe(senzaRedditiSostitutivi.irpefFinale);
+      expect(result.addizionali.addizionaleComunale).toBe(
+        senzaRedditiSostitutivi.addizionali.addizionaleComunale,
+      );
+    });
+
+    it('redditi sostitutivi non cambiano le detrazioni di Trento', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputBolzano,
+        regione: 'TN',
+        altriRedditi: 40_000 - 27_243,
+        altriRedditiSogliaAddizionale: 100_000,
+        figli: [{ eta: 10, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(246, 4);
+    });
+  });
+
   describe('Trento', () => {
     const inputTrento: InputCalcoloStipendio = {
       ...baseInput,

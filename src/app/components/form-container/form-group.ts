@@ -120,6 +120,7 @@ export interface StipendioFormModel {
   aziendaConCigs: boolean;
   iscrittoPost1996: boolean;
   altriRedditi: number;
+  altriRedditiSogliaAddizionale: number;
   altreDetrazioni: number;
   haFigliACarico: boolean;
   fondoMarioNegri: boolean;
@@ -255,6 +256,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     aziendaConCigs: false,
     iscrittoPost1996: true,
     altriRedditi: 0,
+    altriRedditiSogliaAddizionale: 0,
     altreDetrazioni: 0,
     haFigliACarico: false,
     fondoMarioNegri: false,
@@ -425,6 +427,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   });
 
   min(path.altriRedditi, 0, { message: 'Valore non valido' });
+  min(path.altriRedditiSogliaAddizionale, 0, { message: 'Valore non valido' });
   min(path.altreDetrazioni, 0, { message: 'Valore non valido' });
 
   // Nested objects
@@ -624,6 +627,10 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
     ...(model.aziendaConCigs && { aziendaConCigs: true }),
     ...(!model.iscrittoPost1996 && { iscrittoPost1996: false }),
     ...(model.altriRedditi > 0 && { altriRedditi: model.altriRedditi }),
+    ...(model.regione.toUpperCase() === 'BZ' &&
+      model.altriRedditiSogliaAddizionale > 0 && {
+        altriRedditiSogliaAddizionale: model.altriRedditiSogliaAddizionale,
+      }),
     ...(model.altreDetrazioni > 0 && { altreDetrazioni: model.altreDetrazioni }),
     ...(model.haFigliACarico && { haFigliACarico: true }),
     ...(model.fondoMarioNegri && { fondoMarioNegri: true }),

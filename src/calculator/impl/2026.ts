@@ -799,6 +799,7 @@ function calcolaAddizionaleRegionale(
   imponibile: number,
   regione: string,
   figli?: FiglioACarico[],
+  altriRedditiSogliaAddizionale = 0,
 ): { addizionale: number; aliquotaMedia: number } {
   const config = ADDIZIONALI_REGIONALI[regione.toUpperCase()] ?? ADDIZIONALI_REGIONALI['DEFAULT'];
 
@@ -821,7 +822,23 @@ function calcolaAddizionaleRegionale(
     limiteInferiore = scaglione.limite;
   }
 
-  if (config.detrazioneFigli && imponibile <= config.detrazioneFigli.limiteReddito) {
+  const redditoSoglia =
+    imponibile + (regione.toUpperCase() === 'BZ' ? altriRedditiSogliaAddizionale : 0);
+
+  if (config.detrazioneBase && redditoSoglia <= config.detrazioneBase.limiteReddito) {
+    addizionaleTotale -= config.detrazioneBase.importo;
+  }
+
+  if (config.detrazioneSupplementare && imponibile > config.detrazioneSupplementare.sogliaReddito) {
+    const rapporto = Math.min(
+      1,
+      (imponibile - config.detrazioneSupplementare.sogliaReddito) /
+        config.detrazioneSupplementare.intervalloReddito,
+    );
+    addizionaleTotale -= config.detrazioneSupplementare.importo * rapporto;
+  }
+
+  if (config.detrazioneFigli && redditoSoglia <= config.detrazioneFigli.limiteReddito) {
     // I requisiti regionali richiamano l'art. 12, comma 2, senza i limiti di età delle detrazioni IRPEF.
     for (const figlio of figli ?? []) {
       const limiteReddito =
@@ -834,9 +851,9 @@ function calcolaAddizionaleRegionale(
       const mesi = Math.min(12, Math.max(0, figlio.mesiCarico ?? 12));
       addizionaleTotale -= config.detrazioneFigli.importo * percentuale * (mesi / 12);
     }
-    addizionaleTotale = Math.max(0, addizionaleTotale);
   }
 
+  addizionaleTotale = Math.max(0, addizionaleTotale);
   const aliquotaMedia = imponibile > 0 ? addizionaleTotale / imponibile : 0;
 
   return { addizionale: addizionaleTotale, aliquotaMedia };
@@ -1293,6 +1310,7 @@ export class Calculator2026 implements StipendioCalculator {
       figli,
       ascendenti,
       altriRedditi = 0,
+      altriRedditiSogliaAddizionale = 0,
       altreDetrazioni = 0,
       fringeBenefit: fringeBenefitInput,
       haFigliACarico = false,
@@ -1492,7 +1510,12 @@ export class Calculator2026 implements StipendioCalculator {
     const irpefFinale = Math.max(0, irpefNetta - cuneoFiscale.detrazioneAggiuntiva);
 
     // 14. CALCOLO ADDIZIONALI
-    const addRegionale = calcolaAddizionaleRegionale(redditoComplessivo, regione, figli);
+    const addRegionale = calcolaAddizionaleRegionale(
+      redditoComplessivo,
+      regione,
+      figli,
+      altriRedditiSogliaAddizionale,
+    );
     const addComunale = calcolaAddizionaleComunale(redditoComplessivo, comune);
 
     const addizionali: DettaglioAddizionali = {

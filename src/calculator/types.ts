@@ -214,6 +214,8 @@ export interface InputCalcoloStipendio {
 
   /** Altri redditi concorrenti al reddito complessivo (es. redditi fondiari) */
   altriRedditi?: number;
+  /** Redditi sostitutivi rilevanti solo per la soglia delle detrazioni regionali di Bolzano */
+  altriRedditiSogliaAddizionale?: number;
 
   /** Altre detrazioni spettanti (es. interessi mutuo, spese mediche) */
   altreDetrazioni?: number;

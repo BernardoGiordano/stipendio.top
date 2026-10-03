@@ -27,6 +27,8 @@ export const ADDIZIONALI_REGIONALI: Record<
   {
     scaglioni: Array<{ limite: number; aliquota: number }>;
     esenzione?: number;
+    detrazioneBase?: { limiteReddito: number; importo: number };
+    detrazioneSupplementare?: { sogliaReddito: number; intervalloReddito: number; importo: number };
     detrazioneFigli?: { limiteReddito: number; importo: number };
     note?: string;
   }
@@ -154,7 +156,9 @@ export const ADDIZIONALI_REGIONALI: Record<
       { limite: 50_000, aliquota: 0.0123 },
       { limite: Infinity, aliquota: 0.0173 },
     ],
-    // note: 'Detrazione base €430,50 per redditi ≤€90.000; €340/figlio a carico',
+    detrazioneBase: { limiteReddito: 90_000, importo: 430.5 },
+    detrazioneSupplementare: { sogliaReddito: 50_000, intervalloReddito: 25_000, importo: 125 },
+    detrazioneFigli: { limiteReddito: 90_000, importo: 340 },
   },
   UM: {
     scaglioni: [
