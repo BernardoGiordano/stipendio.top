@@ -24,7 +24,12 @@ export const REGIONE_LABELS: Record<string, string> = {
 
 export const ADDIZIONALI_REGIONALI: Record<
   string,
-  { scaglioni: Array<{ limite: number; aliquota: number }>; esenzione?: number; note?: string }
+  {
+    scaglioni: Array<{ limite: number; aliquota: number }>;
+    esenzione?: number;
+    detrazioneFigli?: { limiteReddito: number; importo: number };
+    note?: string;
+  }
 > = {
   AB: {
     scaglioni: [
@@ -141,7 +146,8 @@ export const ADDIZIONALI_REGIONALI: Record<
       { limite: 50_000, aliquota: 0.0123 },
       { limite: Infinity, aliquota: 0.0173 },
     ],
-    // note: 'Deduzione €30.000 per redditi ≤€30.000; detrazione €246/figlio per redditi ≤€50.000',
+    esenzione: 30_000,
+    detrazioneFigli: { limiteReddito: 50_000, importo: 246 },
   },
   BZ: {
     scaglioni: [

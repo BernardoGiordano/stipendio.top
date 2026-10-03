@@ -98,6 +98,7 @@ export interface FiglioACaricoFormModel {
   eta: number;
   disabile: boolean;
   percentualeCarico: number;
+  mesiCarico: number;
 }
 
 export interface AscendenteACaricoFormModel {
@@ -229,6 +230,7 @@ export function createDefaultFiglio(): FiglioACaricoFormModel {
     eta: 0,
     disabile: false,
     percentualeCarico: 100,
+    mesiCarico: 12,
   };
 }
 
@@ -380,6 +382,13 @@ const figlioSchema = schema<FiglioACaricoFormModel>((path) => {
 
   min(path.percentualeCarico, 0, { message: 'La percentuale deve essere tra 0 e 100' });
   max(path.percentualeCarico, 100, { message: 'La percentuale deve essere tra 0 e 100' });
+  validate(path.mesiCarico, ({ value }) => {
+    const v = value() ?? 12;
+    if (!Number.isInteger(v) || v < 0 || v > 12) {
+      return { kind: 'invalid', message: 'I mesi devono essere un intero tra 0 e 12' };
+    }
+    return null;
+  });
 });
 
 const ascendenteSchema = schema<AscendenteACaricoFormModel>((path) => {
@@ -563,6 +572,7 @@ function toFigli(models: FiglioACaricoFormModel[]): FiglioACarico[] | undefined 
     eta: m.eta,
     disabile: m.disabile,
     ...((m.percentualeCarico ?? 0) !== 100 && { percentualeCarico: m.percentualeCarico ?? 0 }),
+    ...((m.mesiCarico ?? 12) !== 12 && { mesiCarico: m.mesiCarico ?? 12 }),
   }));
 }
 
