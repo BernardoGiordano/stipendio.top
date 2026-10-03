@@ -2245,6 +2245,54 @@ describe('Trattamento integrativo', () => {
 // ============================================================================
 
 describe('Addizionali', () => {
+  it.each([1_378.49, 1_378.5])(
+    "Valle d'Aosta: esenzione fino a 15k con altri redditi pari a %d",
+    (altriRedditi) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 15_000,
+        regione: 'VA',
+        comune: 'A326',
+        altriRedditi,
+      });
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(13_621.5 + altriRedditi, 2);
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+      expect(result.addizionali.aliquotaRegionale).toBe(0);
+      expect(result.addizionali.addizionaleComunale).toBeCloseTo(
+        (13_621.5 + altriRedditi) * 0.005,
+        4,
+      );
+      expect(result.addizionali.totaleAddizionali).toBe(result.addizionali.addizionaleComunale);
+    },
+  );
+
+  it("Valle d'Aosta: oltre 15k si tassa l'intero imponibile", () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 15_000,
+      regione: 'va',
+      comune: 'A326',
+      altriRedditi: 1_378.51,
+    });
+    expect(result.irpef.imponibileIrpef).toBeCloseTo(15_000.01, 2);
+    expect(result.irpefFinale).toBeGreaterThan(0);
+    expect(result.addizionali.addizionaleRegionale).toBeCloseTo(15_000.01 * 0.0123, 4);
+    expect(result.addizionali.aliquotaRegionale).toBeCloseTo(0.0123, 4);
+  });
+
+  it("Valle d'Aosta: RAL 15k con IRPEF positiva e addizionale regionale zero", () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 15_000,
+      regione: 'VA',
+      comune: 'A326',
+    });
+    expect(result.irpefFinale).toBeGreaterThan(0);
+    expect(result.addizionali.addizionaleRegionale).toBe(0);
+    expect(result.addizionali.addizionaleComunale).toBeCloseTo(68.1075, 4);
+  });
+
   it('IRPEF azzerata dalle detrazioni lavoro: entrambe le addizionali sono zero', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,

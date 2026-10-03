@@ -797,6 +797,10 @@ function calcolaAddizionaleRegionale(
 ): { addizionale: number; aliquotaMedia: number } {
   const config = ADDIZIONALI_REGIONALI[regione.toUpperCase()] ?? ADDIZIONALI_REGIONALI['DEFAULT'];
 
+  if (config.esenzione !== undefined && imponibile <= config.esenzione) {
+    return { addizionale: 0, aliquotaMedia: 0 };
+  }
+
   let addizionaleTotale = 0;
   let imponibileResiduo = imponibile;
   let limiteInferiore = 0;
