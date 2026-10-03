@@ -807,7 +807,12 @@ function calcolaAddizionaleRegionale(
   let imponibileResiduo = imponibile;
   let limiteInferiore = 0;
 
-  for (const scaglione of config.scaglioni) {
+  const scaglioni =
+    config.aliquotaRidotta && imponibile <= config.aliquotaRidotta.limiteReddito
+      ? [{ limite: Infinity, aliquota: config.aliquotaRidotta.aliquota }]
+      : config.scaglioni;
+
+  for (const scaglione of scaglioni) {
     if (imponibileResiduo <= 0) break;
 
     const ampiezzaScaglione = scaglione.limite - limiteInferiore;

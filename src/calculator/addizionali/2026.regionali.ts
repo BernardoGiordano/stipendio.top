@@ -27,6 +27,7 @@ export const ADDIZIONALI_REGIONALI: Record<
   {
     scaglioni: Array<{ limite: number; aliquota: number }>;
     esenzione?: number;
+    aliquotaRidotta?: { limiteReddito: number; aliquota: number };
     detrazioneBase?: { limiteReddito: number; importo: number };
     detrazioneSupplementare?: { sogliaReddito: number; intervalloReddito: number; importo: number };
     detrazioneFigli?: { limiteReddito: number; importo: number };
@@ -64,10 +65,8 @@ export const ADDIZIONALI_REGIONALI: Record<
     ],
   },
   FV: {
-    scaglioni: [
-      { limite: 15_000, aliquota: 0.007 },
-      { limite: Infinity, aliquota: 0.0123 },
-    ],
+    scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
+    aliquotaRidotta: { limiteReddito: 15_000, aliquota: 0.007 },
   },
   LA: {
     scaglioni: [
