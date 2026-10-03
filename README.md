@@ -238,6 +238,8 @@ Ex "Bonus Renzi" - Importo massimo: **€1.200/anno** (€100/mese)
 
 #### 6. Addizionali Regionali e Comunali
 
+Le addizionali regionale e comunale sono dovute solo se l'IRPEF annuale, al netto delle detrazioni, risulta dovuta (art. 50, comma 2, D.Lgs. 446/1997; art. 1, comma 4, D.Lgs. 360/1998). Nel calcolo si considera l'IRPEF finale, dopo anche la detrazione aggiuntiva del cuneo fiscale: se è pari a zero, entrambe le addizionali sono pari a zero.
+
 ##### Addizionale Regionale
 
 Calcolata sull'imponibile IRPEF con aliquote variabili per regione.
