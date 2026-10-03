@@ -65,6 +65,7 @@ export interface BenefitNonTassatiFormModel {
   previdenzaComplementare: number;
   assistenzaSanitaria: number;
   buoniPasto: number;
+  giorniBuoniPasto: number;
   buoniPastoElettronici: boolean;
   abbonamentoTrasporto: number;
   serviziWelfare: number;
@@ -187,6 +188,7 @@ function createDefaultBenefitNonTassati(): BenefitNonTassatiFormModel {
     previdenzaComplementare: 0,
     assistenzaSanitaria: 0,
     buoniPasto: 0,
+    giorniBuoniPasto: 220,
     buoniPastoElettronici: true,
     abbonamentoTrasporto: 0,
     serviziWelfare: 0,
@@ -331,6 +333,14 @@ const benefitNonTassatiSchema = schema<BenefitNonTassatiFormModel>((path) => {
   min(path.previdenzaComplementare, 0, { message: 'Valore non valido' });
   min(path.assistenzaSanitaria, 0, { message: 'Valore non valido' });
   min(path.buoniPasto, 0, { message: 'Valore non valido' });
+  min(path.giorniBuoniPasto, 1, { message: 'Valore intero tra 1 e 365' });
+  max(path.giorniBuoniPasto, 365, { message: 'Valore intero tra 1 e 365' });
+  validate(path.giorniBuoniPasto, ({ value }) => {
+    if (!Number.isInteger(value())) {
+      return { kind: 'integer', message: 'Valore intero tra 1 e 365' };
+    }
+    return null;
+  });
   min(path.abbonamentoTrasporto, 0, { message: 'Valore non valido' });
   min(path.serviziWelfare, 0, { message: 'Valore non valido' });
   min(path.altri, 0, { message: 'Valore non valido' });
@@ -498,6 +508,7 @@ function toBenefitNonTassati(model: BenefitNonTassatiFormModel): BenefitNonTassa
   if (model.assistenzaSanitaria > 0) result.assistenzaSanitaria = model.assistenzaSanitaria;
   if (model.buoniPasto > 0) {
     result.buoniPasto = model.buoniPasto;
+    result.giorniBuoniPasto = model.giorniBuoniPasto;
     result.buoniPastoElettronici = model.buoniPastoElettronici;
   }
   if (model.abbonamentoTrasporto > 0) result.abbonamentoTrasporto = model.abbonamentoTrasporto;

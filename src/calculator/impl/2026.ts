@@ -457,8 +457,9 @@ function calcolaBenefitNonTassati(
     ? BUONI_PASTO_ELETTRONICI
     : BENEFIT_ESENTI.buoniPastoCartacei;
 
-  const giorniLavorativi = 220;
-  const sogliaAnnuaBuoniPasto = sogliaGiornaliera * giorniLavorativi;
+  // Il limite è giornaliero (art. 51, c.2, lett. c, TUIR), per buoni di pari importo.
+  const giorniBuoniPasto = benefit.giorniBuoniPasto ?? 220;
+  const sogliaAnnuaBuoniPasto = sogliaGiornaliera * giorniBuoniPasto;
   const buoniPastoEsenti = Math.min(buoniPastoTotale, sogliaAnnuaBuoniPasto);
   const buoniPastoTassati = Math.max(0, buoniPastoTotale - sogliaAnnuaBuoniPasto);
 
