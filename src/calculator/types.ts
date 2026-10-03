@@ -131,6 +131,8 @@ export interface FiglioACarico {
   redditoAnnuo?: number;
   /** Percentuale di carico (default 100%, 50% se ripartito) */
   percentualeCarico?: number;
+  /** Mesi a carico per le detrazioni regionali (default 12) */
+  mesiCarico?: number;
 }
 
 /** Dati del coniuge a carico */

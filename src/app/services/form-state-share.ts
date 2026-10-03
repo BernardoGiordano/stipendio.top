@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import {
+  createDefaultFiglio,
   createDefaultFormModel,
   StipendioFormModel,
 } from '../components/form-container/form-group';
@@ -74,7 +75,9 @@ export class FormStateShare {
    */
   mergeWithDefaults(partial: DeepPartial<StipendioFormModel>): StipendioFormModel {
     const defaults = createDefaultFormModel();
-    return this.deepMerge(defaults, partial) as StipendioFormModel;
+    const model = this.deepMerge(defaults, partial) as StipendioFormModel;
+    model.figli = model.figli.map((figlio) => ({ ...createDefaultFiglio(), ...figlio }));
+    return model;
   }
 
   /**

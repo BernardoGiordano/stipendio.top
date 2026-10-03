@@ -2245,6 +2245,115 @@ describe('Trattamento integrativo', () => {
 // ============================================================================
 
 describe('Addizionali', () => {
+  describe('Trento', () => {
+    const inputTrento: InputCalcoloStipendio = {
+      ...baseInput,
+      ral: 30_000,
+      regione: 'TN',
+      comune: 'L378',
+    };
+
+    it.each([29_999.99, 30_000])('deduzione fino a 30k: imponibile %d', (imponibile) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: imponibile - 27_243,
+      });
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+      expect(result.addizionali.aliquotaRegionale).toBe(0);
+    });
+
+    it("oltre 30k la deduzione non spetta e si tassa tutto l'imponibile", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 30_000.01 - 27_243,
+      });
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(30_000.01, 2);
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(30_000.01 * 0.0123, 4);
+    });
+
+    it.each([0, 20, 24, 25, 30, 40])('detrazione regionale per figlio di %d anni', (eta) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 40_000 - 27_243,
+        figli: [{ eta, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(492 - 246, 4);
+    });
+
+    it('detrazione ripartita per percentuale e mesi a carico', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 40_000 - 27_243,
+        figli: [{ eta: 10, disabile: false, percentualeCarico: 50, mesiCarico: 6 }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(492 - 61.5, 4);
+      expect(result.addizionali.aliquotaRegionale).toBeCloseTo(430.5 / 40_000, 6);
+    });
+
+    it("più figli possono azzerare l'addizionale senza generare credito", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 40_000 - 27_243,
+        figli: [
+          { eta: 10, disabile: false },
+          { eta: 12, disabile: false },
+          { eta: 15, disabile: false },
+        ],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBe(0);
+      expect(result.addizionali.aliquotaRegionale).toBe(0);
+    });
+
+    it.each([
+      [24, 4_000, 246],
+      [24, 4_000.01, 492],
+      [25, 2_840.51, 246],
+      [25, 2_840.52, 492],
+    ])('limite reddito figlio: età %d, reddito %d', (eta, redditoAnnuo, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 40_000 - 27_243,
+        figli: [{ eta, redditoAnnuo, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 4);
+    });
+
+    it.each([
+      [50_000, 369],
+      [50_000.01, 615.000173],
+    ])('limite reddito contribuente per detrazione figli: %d', (imponibile, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: imponibile - 27_243,
+        figli: [{ eta: 10, disabile: false }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 4);
+    });
+
+    it('mesi a carico zero: nessuna detrazione regionale', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...inputTrento,
+        altriRedditi: 40_000 - 27_243,
+        figli: [{ eta: 10, disabile: false, mesiCarico: 0 }],
+      });
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(492, 4);
+    });
+
+    it("la detrazione regionale aumenta il netto senza cambiare l'addizionale comunale", () => {
+      const input = { ...inputTrento, altriRedditi: 40_000 - 27_243 };
+      const senzaFigli = calc.calcolaStipendioNetto(input);
+      const conFiglio = calc.calcolaStipendioNetto({
+        ...input,
+        figli: [{ eta: 10, disabile: false }],
+      });
+      expect(conFiglio.nettoAnnuo - senzaFigli.nettoAnnuo).toBeCloseTo(246, 4);
+      expect(conFiglio.addizionali.addizionaleComunale).toBe(
+        senzaFigli.addizionali.addizionaleComunale,
+      );
+    });
+  });
+
   it.each([1_378.49, 1_378.5])(
     "Valle d'Aosta: esenzione fino a 15k con altri redditi pari a %d",
     (altriRedditi) => {
