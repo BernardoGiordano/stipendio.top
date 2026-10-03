@@ -1174,6 +1174,74 @@ describe('Regime Impatriati (Rientro Cervelli)', () => {
   });
 });
 
+describe('Cuneo fiscale con regime impatriati', () => {
+  it.each([false, true])(
+    'RAL 50k: nessun cuneo fiscale anche con esenzione impatriati (minorenni: %s)',
+    (regimeImpatriatiMinorenni) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 50_000,
+        regimeImpatriati: true,
+        regimeImpatriatiMinorenni,
+      });
+
+      expect(result.cuneoFiscale.spettaIndennita).toBe(false);
+      expect(result.cuneoFiscale.spettaDetrazione).toBe(false);
+      expect(result.cuneoFiscale.indennitaEsente).toBe(0);
+      expect(result.cuneoFiscale.detrazioneAggiuntiva).toBe(0);
+    },
+  );
+
+  it.each([false, true])(
+    'RAL 38k: detrazione in decalage sul reddito comprensivo della quota esente (minorenni: %s)',
+    (regimeImpatriatiMinorenni) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 38_000,
+        regimeImpatriati: true,
+        regimeImpatriatiMinorenni,
+      });
+
+      // Reddito prima dell'esenzione: €38.000 - €3.492,20 = €34.507,80.
+      expect(result.cuneoFiscale.spettaIndennita).toBe(false);
+      expect(result.cuneoFiscale.spettaDetrazione).toBe(true);
+      expect(result.cuneoFiscale.detrazioneAggiuntiva).toBeCloseTo(686.525, 2);
+    },
+  );
+
+  it.each([false, true])(
+    "RAL 12k: percentuale e importo dell'indennità includono la quota esente (minorenni: %s)",
+    (regimeImpatriatiMinorenni) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 12_000,
+        regimeImpatriati: true,
+        regimeImpatriatiMinorenni,
+      });
+
+      // Reddito prima dell'esenzione: €12.000 - €1.102,80 = €10.897,20.
+      expect(result.cuneoFiscale.spettaIndennita).toBe(true);
+      expect(result.cuneoFiscale.spettaDetrazione).toBe(false);
+      expect(result.cuneoFiscale.percentualeIndennita).toBe(0.053);
+      expect(result.cuneoFiscale.indennitaEsente).toBeCloseTo(577.5516, 2);
+    },
+  );
+
+  it('gli altri redditi concorrono alla soglia insieme alla quota esente impatriati', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      altriRedditi: 14_000,
+      regimeImpatriati: true,
+    });
+
+    // Reddito complessivo per il cuneo: €27.243 + €14.000 = €41.243.
+    expect(result.cuneoFiscale.spettaIndennita).toBe(false);
+    expect(result.cuneoFiscale.spettaDetrazione).toBe(false);
+    expect(result.cuneoFiscale.detrazioneAggiuntiva).toBe(0);
+  });
+});
+
 describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
   const LIMITE_DEDUCIBILITA = 5_300;
 

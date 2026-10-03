@@ -569,7 +569,7 @@ Agevolazione fiscale per i lavoratori che trasferiscono la residenza fiscale in 
 - **IRPEF:** La base imponibile viene ridotta della percentuale di esenzione (50% o 60%)
 - **Addizionali regionali e comunali:** Calcolate sulla base imponibile ridotta
 - **Contributi INPS:** Calcolati sull'imponibile previdenziale **pieno** (nessuna riduzione)
-- **Detrazioni e bonus:** Calcolati sul reddito complessivo ridotto
+- **Detrazioni e bonus:** Calcolati sul reddito complessivo ridotto, salvo il cuneo fiscale: per il reddito complessivo e il reddito di lavoro dipendente rileva anche la quota esente impatriati (L. 207/2024, art. 1, c. 9)
 
 ##### Formula
 

@@ -1490,7 +1490,11 @@ export class Calculator2026 implements StipendioCalculator {
     };
 
     // 11. CALCOLO CUNEO FISCALE
-    const cuneoFiscale = calcolaCuneoFiscale(redditoComplessivo, redditoLavoroDipendente);
+    // Per il cuneo fiscale rileva anche la quota esente impatriati (L. 207/2024, art. 1, c. 9).
+    const cuneoFiscale = calcolaCuneoFiscale(
+      redditoComplessivo + importoEsenteImpatriati,
+      redditoLavoroDipendente + importoEsenteImpatriati,
+    );
 
     // 12. CALCOLO TOTALE DETRAZIONI
     const totaleDetrazioniPreTI =
