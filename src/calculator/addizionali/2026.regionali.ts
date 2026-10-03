@@ -28,7 +28,7 @@ export const ADDIZIONALI_REGIONALI: Record<
     scaglioni: Array<{ limite: number; aliquota: number }>;
     esenzione?: number;
     aliquotaRidotta?: { limiteReddito: number; aliquota: number };
-    detrazioneBase?: { limiteReddito: number; importo: number };
+    detrazioneBase?: { redditoMinimo?: number; limiteReddito: number; importo: number };
     detrazioneSupplementare?: { sogliaReddito: number; intervalloReddito: number; importo: number };
     detrazioneFigli?: { limiteReddito: number; importo: number };
     note?: string;
@@ -70,11 +70,12 @@ export const ADDIZIONALI_REGIONALI: Record<
   },
   LA: {
     scaglioni: [
-      { limite: 28_000, aliquota: 0.0173 },
+      { limite: 15_000, aliquota: 0.0173 },
       { limite: 50_000, aliquota: 0.0333 },
       { limite: Infinity, aliquota: 0.0333 },
     ],
-    // note: 'Detrazione €60 per redditi €28.001-€35.000',
+    aliquotaRidotta: { limiteReddito: 28_000, aliquota: 0.0173 },
+    detrazioneBase: { redditoMinimo: 28_001, limiteReddito: 30_000, importo: 60 },
   },
   LI: {
     scaglioni: [

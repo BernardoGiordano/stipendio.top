@@ -2267,6 +2267,63 @@ describe('Trattamento integrativo', () => {
 // ============================================================================
 
 describe('Addizionali', () => {
+  describe('Lazio', () => {
+    it.each([
+      [15_000, 259.5],
+      [27_999.99, 484.399827],
+      [28_000, 484.4],
+      [28_000.01, 692.400333],
+      [28_000.99, 692.432967],
+      [28_001, 632.4333],
+      [29_000, 665.7],
+      [30_000, 699],
+      [30_000.01, 759.000333],
+      [35_000, 925.5],
+      [50_000, 1425],
+      [60_000, 1758],
+    ])('aliquote e detrazione regionale: imponibile %d', (imponibile, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 15_000,
+        regione: 'LA',
+        comune: 'DEFAULT',
+        altriRedditi: imponibile - 13_621.5,
+      });
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(imponibile, 2);
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 6);
+      expect(result.addizionali.aliquotaRegionale).toBeCloseTo(attesa / imponibile, 8);
+      expect(result.addizionali.addizionaleComunale).toBeCloseTo(imponibile * 0.008, 6);
+      expect(result.addizionali.totaleAddizionali).toBeCloseTo(attesa + imponibile * 0.008, 6);
+    });
+
+    it('IRPEF zero: la correzione degli scaglioni non genera addizionali', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        regione: 'LA',
+        altreDetrazioni: 20_000,
+      });
+      expect(result.irpefFinale).toBe(0);
+      expect(result.addizionali.totaleAddizionali).toBe(0);
+    });
+
+    it("la detrazione regionale non riduce l'IRPEF o l'imponibile comunale", () => {
+      const input = {
+        ...baseInput,
+        ral: 30_000,
+        comune: 'DEFAULT',
+        altriRedditi: 29_000 - 27_243,
+      };
+      const lazio = calc.calcolaStipendioNetto({ ...input, regione: 'la' });
+      const friuli = calc.calcolaStipendioNetto({ ...input, regione: 'FV' });
+      expect(lazio.irpefFinale).toBe(friuli.irpefFinale);
+      expect(lazio.addizionali.addizionaleComunale).toBe(friuli.addizionali.addizionaleComunale);
+      expect(lazio.addizionali.addizionaleRegionale).toBeCloseTo(665.7, 4);
+      expect(friuli.nettoAnnuo - lazio.nettoAnnuo).toBeCloseTo(665.7 - 356.7, 4);
+    });
+  });
+
   describe('Friuli Venezia Giulia', () => {
     it.each([
       [14_999.99, 0.007],
