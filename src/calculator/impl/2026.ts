@@ -826,7 +826,11 @@ function calcolaAddizionaleRegionale(
   const redditoSoglia =
     imponibile + (regione.toUpperCase() === 'BZ' ? altriRedditiSogliaAddizionale : 0);
 
-  if (config.detrazioneBase && redditoSoglia <= config.detrazioneBase.limiteReddito) {
+  if (
+    config.detrazioneBase &&
+    redditoSoglia >= (config.detrazioneBase.redditoMinimo ?? 0) &&
+    redditoSoglia <= config.detrazioneBase.limiteReddito
+  ) {
     addizionaleTotale -= config.detrazioneBase.importo;
   }
 
