@@ -66,6 +66,8 @@ export interface BenefitNonTassati {
   assistenzaSanitaria?: number;
   /** Valore buoni pasto annuo */
   buoniPasto?: number;
+  /** Giorni di erogazione dei buoni pasto, di pari importo giornaliero (default 220) */
+  giorniBuoniPasto?: number;
   /** Indica se buoni pasto elettronici (soglia diversa) */
   buoniPastoElettronici?: boolean;
   /** Abbonamento trasporto pubblico */

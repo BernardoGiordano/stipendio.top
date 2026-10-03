@@ -2471,6 +2471,27 @@ describe('Benefit non tassati', () => {
     expect(result.benefitNonTassati.buoniPastoTassati).toBe(120);
   });
 
+  it.each([
+    { totale: 1_500, giorni: 100, elettronici: true, esente: 1_000, tassato: 500 },
+    { totale: 2_400, giorni: 240, elettronici: true, esente: 2_400, tassato: 0 },
+    { totale: 600, giorni: 100, elettronici: false, esente: 400, tassato: 200 },
+    { totale: 960, giorni: 240, elettronici: false, esente: 960, tassato: 0 },
+    { totale: 1_500, giorni: 0, elettronici: true, esente: 0, tassato: 1_500 },
+  ])('buoni pasto: €$totale per $giorni giorni (elettronici: $elettronici)', (caso) => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      benefitNonTassati: {
+        buoniPasto: caso.totale,
+        giorniBuoniPasto: caso.giorni,
+        buoniPastoElettronici: caso.elettronici,
+      },
+    });
+
+    expect(result.benefitNonTassati.buoniPastoEsenti).toBe(caso.esente);
+    expect(result.benefitNonTassati.buoniPastoTassati).toBe(caso.tassato);
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(baseInput.ral + caso.tassato);
+  });
+
   it('welfare (abbonamento + servizi): tutto esente', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
