@@ -88,11 +88,13 @@ I contributi previdenziali a carico del lavoratore dipendente.
 
 ##### Soglie e Massimali
 
-| Parametro                                   | Valore 2025 |
+| Parametro                                   | Valore 2026 |
 | ------------------------------------------- | ----------- |
-| Soglia contributo aggiuntivo 1%             | €55.448     |
-| Massimale contributivo (iscritti post-1996) | €120.607    |
-| Minimale giornaliero                        | €57,32      |
+| Soglia contributo aggiuntivo 1%             | €56.224     |
+| Massimale contributivo (iscritti post-1996) | €122.295    |
+| Minimale giornaliero                        | €58,13      |
+
+> Fonte: [Circolare INPS n. 6 del 30 gennaio 2026](https://www.inps.it/it/it/inps-comunica/notizie/dettaglio-news-page.news.2026.02.lavoratori-dipendenti-limite-minimo-di-retribuzione-giornaliera-2026.html), valori in vigore dal 1° gennaio 2026.
 
 ##### Formula
 
