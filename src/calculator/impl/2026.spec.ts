@@ -1687,35 +1687,57 @@ describe('Contributi INPS', () => {
     expect(result.contributiInps.contributiBase).toBeCloseTo(25_000 * 0.0949, 2);
   });
 
-  it('contributo aggiuntivo 1% per imponibile > €55.448', () => {
+  it('contributo aggiuntivo 1% per imponibile > €56.224', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
       ral: 60_000,
     });
-    expect(result.contributiInps.contributoAggiuntivo).toBeCloseTo((60_000 - 55_448) * 0.01, 2);
+    expect(result.contributiInps.contributoAggiuntivo).toBeCloseTo((60_000 - 56_224) * 0.01, 2);
     expect(result.contributiInps.totaleContributi).toBeCloseTo(
-      60_000 * 0.0919 + (60_000 - 55_448) * 0.01,
+      60_000 * 0.0919 + (60_000 - 56_224) * 0.01,
       2,
     );
   });
 
-  it('nessun contributo aggiuntivo per imponibile ≤ €55.448', () => {
+  it.each([55_000, 56_000, 56_224])('nessun contributo aggiuntivo per imponibile €%d', (ral) => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
-      ral: 55_000,
+      ral,
     });
     expect(result.contributiInps.contributoAggiuntivo).toBe(0);
   });
 
-  it('massimale INPS post-1996: imponibile capped a €120.607', () => {
+  it('contributo aggiuntivo solo sulla quota oltre la soglia 2026', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
-      ral: 150_000,
+      ral: 56_225,
+    });
+    expect(result.contributiInps.contributoAggiuntivo).toBeCloseTo(0.01, 2);
+  });
+
+  it.each([121_000, 122_295])('post-1996: imponibile €%d entro il massimale 2026', (ral) => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral,
       iscrittoPost1996: true,
     });
-    expect(result.contributiInps.imponibilePrevidenziale).toBe(120_607);
-    expect(result.contributiInps.contributiBase).toBeCloseTo(120_607 * 0.0919, 2);
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(ral);
+    expect(result.contributiInps.contributiBase).toBeCloseTo(ral * 0.0919, 2);
   });
+
+  it.each([122_296, 150_000])(
+    'massimale INPS post-1996: imponibile capped a €122.295 (RAL %d)',
+    (ral) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral,
+        iscrittoPost1996: true,
+      });
+      expect(result.contributiInps.imponibilePrevidenziale).toBe(122_295);
+      expect(result.contributiInps.contributiBase).toBeCloseTo(122_295 * 0.0919, 2);
+      expect(result.contributiInps.contributoAggiuntivo).toBeCloseTo(660.71, 2);
+    },
+  );
 
   it('pre-1996: nessun massimale', () => {
     const result = calc.calcolaStipendioNetto({
