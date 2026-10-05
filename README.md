@@ -254,6 +254,16 @@ Calcolata sull'imponibile IRPEF con aliquote variabili per regione.
 | Emilia-Romagna | 1,33%        | 2,23%        |
 | Toscana        | 1,42%        | 2,33%        |
 
+Agevolazioni regionali applicate:
+
+- **Valle d'Aosta:** esenzione fino a €15.000 di imponibile
+- **Friuli Venezia Giulia:** 0,70% sull'intero imponibile fino a €15.000, oltre 1,23% sull'intero imponibile
+- **Lazio:** 1,73% sull'intero imponibile fino a €28.000, detrazione di €60 tra €28.001 e €30.000
+- **Trento:** deduzione di €30.000 fino a €30.000 di imponibile, detrazione di €246 per figlio a carico fino a €50.000
+- **Bolzano:** detrazione base di €430,50 e di €340 per figlio a carico fino a €90.000, detrazione supplementare fino a €125 oltre €50.000. Il limite di €90.000 include cedolare secca, mance con imposta sostitutiva e regime forfettario
+
+Le detrazioni per figli sono proporzionate alla percentuale e ai mesi di carico.
+
 > Trattenuta in 11 rate mensili (gennaio-novembre dell'anno successivo)
 
 ##### Addizionale Comunale

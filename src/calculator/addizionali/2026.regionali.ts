@@ -28,9 +28,11 @@ export const ADDIZIONALI_REGIONALI: Record<
     scaglioni: Array<{ limite: number; aliquota: number }>;
     esenzione?: number;
     aliquotaRidotta?: { limiteReddito: number; aliquota: number };
-    detrazioneBase?: { redditoMinimo?: number; limiteReddito: number; importo: number };
+    detrazioneBase?: { sogliaReddito?: number; limiteReddito: number; importo: number };
     detrazioneSupplementare?: { sogliaReddito: number; intervalloReddito: number; importo: number };
     detrazioneFigli?: { limiteReddito: number; importo: number };
+    // I redditi con imposta sostitutiva concorrono ai limiti di reddito delle detrazioni
+    redditiSostitutiviInSoglia?: boolean;
     note?: string;
   }
 > = {
@@ -75,7 +77,8 @@ export const ADDIZIONALI_REGIONALI: Record<
       { limite: Infinity, aliquota: 0.0333 },
     ],
     aliquotaRidotta: { limiteReddito: 28_000, aliquota: 0.0173 },
-    detrazioneBase: { redditoMinimo: 28_001, limiteReddito: 30_000, importo: 60 },
+    // "Tra 28.001 e 30.000 euro": l'imponibile dichiarato è arrotondato all'unità di euro
+    detrazioneBase: { sogliaReddito: 28_000, limiteReddito: 30_000, importo: 60 },
   },
   LI: {
     scaglioni: [
@@ -159,6 +162,7 @@ export const ADDIZIONALI_REGIONALI: Record<
     detrazioneBase: { limiteReddito: 90_000, importo: 430.5 },
     detrazioneSupplementare: { sogliaReddito: 50_000, intervalloReddito: 25_000, importo: 125 },
     detrazioneFigli: { limiteReddito: 90_000, importo: 340 },
+    redditiSostitutiviInSoglia: true,
   },
   UM: {
     scaglioni: [

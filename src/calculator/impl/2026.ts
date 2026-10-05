@@ -828,11 +828,11 @@ function calcolaAddizionaleRegionale(
   }
 
   const redditoSoglia =
-    imponibile + (regione.toUpperCase() === 'BZ' ? altriRedditiSogliaAddizionale : 0);
+    imponibile + (config.redditiSostitutiviInSoglia ? altriRedditiSogliaAddizionale : 0);
 
   if (
     config.detrazioneBase &&
-    redditoSoglia >= (config.detrazioneBase.redditoMinimo ?? 0) &&
+    redditoSoglia > (config.detrazioneBase.sogliaReddito ?? 0) &&
     redditoSoglia <= config.detrazioneBase.limiteReddito
   ) {
     addizionaleTotale -= config.detrazioneBase.importo;
@@ -1527,14 +1527,16 @@ export class Calculator2026 implements StipendioCalculator {
     );
     const addComunale = calcolaAddizionaleComunale(redditoComplessivo, comune);
 
+    // Le addizionali sono dovute solo se risulta dovuta l'IRPEF dopo le detrazioni
+    const addizionaliDovute = irpefFinale > 0;
+
     const addizionali: DettaglioAddizionali = {
-      // Le addizionali sono dovute solo se risulta dovuta l'IRPEF dopo le detrazioni.
-      addizionaleRegionale: irpefFinale > 0 ? addRegionale.addizionale : 0,
-      aliquotaRegionale: irpefFinale > 0 ? addRegionale.aliquotaMedia : 0,
-      addizionaleComunale: irpefFinale > 0 ? addComunale.addizionale : 0,
-      aliquotaComunale: addComunale.aliquota,
+      addizionaleRegionale: addizionaliDovute ? addRegionale.addizionale : 0,
+      aliquotaRegionale: addizionaliDovute ? addRegionale.aliquotaMedia : 0,
+      addizionaleComunale: addizionaliDovute ? addComunale.addizionale : 0,
+      aliquotaComunale: addizionaliDovute ? addComunale.aliquota : 0,
       esenzioneComunaleApplicata: addComunale.esenzioneApplicata,
-      totaleAddizionali: irpefFinale > 0 ? addRegionale.addizionale + addComunale.addizionale : 0,
+      totaleAddizionali: addizionaliDovute ? addRegionale.addizionale + addComunale.addizionale : 0,
     };
 
     // Riepilogo detrazioni
