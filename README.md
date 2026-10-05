@@ -361,6 +361,8 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 | Abbonamento trasporto pubblico              | 100% esente   |
 | Servizi welfare (asili, borse studio, ecc.) | 100% esenti   |
 
+> Per i buoni pasto il limite annuo è la soglia giornaliera moltiplicata per i giorni di erogazione (default 220, modificabile nella form), assumendo buoni di pari importo giornaliero.
+
 ---
 
 #### 10. Dirigenti CCNL Terziario
