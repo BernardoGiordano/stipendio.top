@@ -689,10 +689,15 @@ function calcolaDetrazioneAscendenti(
 }
 
 function calcolaCuneoFiscale(
-  redditoComplessivo: number,
-  redditoLavoroDipendente: number,
+  redditoComplessivoImponibile: number,
+  redditoLavoroDipendenteImponibile: number,
+  quotaEsenteImpatriati = 0,
 ): DettaglioCuneoFiscale {
   const params = CUNEO_FISCALE;
+
+  // Soglie e fascia percentuale includono la quota esente impatriati (L. 207/2024, art. 1, c. 9)
+  const redditoComplessivo = redditoComplessivoImponibile + quotaEsenteImpatriati;
+  const redditoLavoroDipendente = redditoLavoroDipendenteImponibile + quotaEsenteImpatriati;
 
   if (redditoComplessivo <= params.sogliaIndennita) {
     let percentuale = 0;
@@ -703,7 +708,8 @@ function calcolaCuneoFiscale(
       }
     }
 
-    const indennita = redditoLavoroDipendente * percentuale;
+    // La percentuale si applica alla sola quota imponibile (Circ. AdE 4/E/2025, par. 1.2, esempio 3)
+    const indennita = redditoLavoroDipendenteImponibile * percentuale;
 
     return {
       spettaIndennita: true,
@@ -1490,10 +1496,10 @@ export class Calculator2026 implements StipendioCalculator {
     };
 
     // 11. CALCOLO CUNEO FISCALE
-    // Per il cuneo fiscale rileva anche la quota esente impatriati (L. 207/2024, art. 1, c. 9).
     const cuneoFiscale = calcolaCuneoFiscale(
-      redditoComplessivo + importoEsenteImpatriati,
-      redditoLavoroDipendente + importoEsenteImpatriati,
+      redditoComplessivo,
+      redditoLavoroDipendente,
+      importoEsenteImpatriati,
     );
 
     // 12. CALCOLO TOTALE DETRAZIONI
