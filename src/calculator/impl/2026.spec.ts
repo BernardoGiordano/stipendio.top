@@ -1209,9 +1209,12 @@ describe('Cuneo fiscale con regime impatriati', () => {
     },
   );
 
-  it.each([false, true])(
-    "RAL 12k: percentuale e importo dell'indennità includono la quota esente (minorenni: %s)",
-    (regimeImpatriatiMinorenni) => {
+  it.each([
+    { regimeImpatriatiMinorenni: false, quotaImponibile: 5_448.6 },
+    { regimeImpatriatiMinorenni: true, quotaImponibile: 4_358.88 },
+  ])(
+    "RAL 12k: fascia dell'indennità sul reddito comprensivo della quota esente, importo sulla quota imponibile (minorenni: $regimeImpatriatiMinorenni)",
+    ({ regimeImpatriatiMinorenni, quotaImponibile }) => {
       const result = calc.calcolaStipendioNetto({
         ...baseInput,
         ral: 12_000,
@@ -1219,11 +1222,13 @@ describe('Cuneo fiscale con regime impatriati', () => {
         regimeImpatriatiMinorenni,
       });
 
-      // Reddito prima dell'esenzione: €12.000 - €1.102,80 = €10.897,20.
+      // Reddito prima dell'esenzione: €12.000 - €1.102,80 = €10.897,20, fascia 5,3%.
+      // Sulla sola quota imponibile la fascia sarebbe 7,1%.
+      // Circ. AdE 4/E/2025, esempio 3: la percentuale si applica alla sola quota imponibile.
       expect(result.cuneoFiscale.spettaIndennita).toBe(true);
       expect(result.cuneoFiscale.spettaDetrazione).toBe(false);
       expect(result.cuneoFiscale.percentualeIndennita).toBe(0.053);
-      expect(result.cuneoFiscale.indennitaEsente).toBeCloseTo(577.5516, 2);
+      expect(result.cuneoFiscale.indennitaEsente).toBeCloseTo(quotaImponibile * 0.053, 2);
     },
   );
 
