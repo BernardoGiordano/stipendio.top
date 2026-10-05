@@ -2250,8 +2250,8 @@ describe('Addizionali', () => {
       [15_000, 259.5],
       [27_999.99, 484.399827],
       [28_000, 484.4],
-      [28_000.01, 692.400333],
-      [28_000.99, 692.432967],
+      [28_000.01, 632.400333],
+      [28_000.99, 632.432967],
       [28_001, 632.4333],
       [29_000, 665.7],
       [30_000, 699],
@@ -2323,10 +2323,7 @@ describe('Addizionali', () => {
       expect(result.addizionali.addizionaleRegionale).toBeCloseTo(imponibile * aliquota, 6);
       expect(result.addizionali.aliquotaRegionale).toBeCloseTo(aliquota, 6);
       expect(result.addizionali.addizionaleComunale).toBeCloseTo(imponibile * 0.008, 6);
-      expect(result.addizionali.totaleAddizionali).toBeCloseTo(
-        imponibile * (aliquota + 0.008),
-        6,
-      );
+      expect(result.addizionali.totaleAddizionali).toBeCloseTo(imponibile * (aliquota + 0.008), 6);
     });
 
     it("IRPEF zero: anche l'addizionale regionale ridotta è zero", () => {
@@ -2639,6 +2636,8 @@ describe('Addizionali', () => {
     expect(result.irpefFinale).toBe(0);
     expect(result.addizionali.addizionaleRegionale).toBe(0);
     expect(result.addizionali.addizionaleComunale).toBe(0);
+    expect(result.addizionali.aliquotaRegionale).toBe(0);
+    expect(result.addizionali.aliquotaComunale).toBe(0);
     expect(result.addizionali.totaleAddizionali).toBe(0);
     expect(result.addizionali.esenzioneComunaleApplicata).toBe(false);
     expect(result.totaleTrattenute).toBeCloseTo(735.2, 2);

@@ -5,6 +5,8 @@ import { NgSelectComponent } from '@ng-select/ng-select';
 import {
   createDefaultAscendente,
   createDefaultFiglio,
+  haDetrazioneFigliRegionale,
+  haRedditiSostitutiviInSoglia,
   StipendioFieldTree,
   StipendioFormModel,
 } from './form-group';
@@ -52,6 +54,12 @@ export class FormContainer {
   readonly comuniFiltrati = computed(() => {
     return COMUNI_PER_REGIONE[this.selectedRegione()] ?? FALLBACK_COMUNI;
   });
+
+  readonly mostraMesiCarico = computed(() => haDetrazioneFigliRegionale(this.selectedRegione()));
+
+  readonly mostraRedditiSostitutivi = computed(() =>
+    haRedditiSostitutiviInSoglia(this.selectedRegione()),
+  );
 
   readonly tipiContratto: { value: TipoContratto; label: string }[] = [
     { value: 'indeterminato', label: 'Tempo indeterminato' },

@@ -314,7 +314,7 @@
         }
       </div>
 
-      @if (formModel()().regione === 'BZ') {
+      @if (mostraRedditiSostitutivi()) {
         <div class="flex flex-col gap-1">
           <label
             for="altriRedditiSogliaAddizionale"
@@ -877,7 +877,7 @@
           </div>
         </div>
 
-        @if (formModel()().regione === 'TN' || formModel()().regione === 'BZ') {
+        @if (mostraMesiCarico()) {
           <div class="flex flex-col gap-1 mb-3">
             <label [for]="'figlioMesi' + $index" class="text-sm text-stone-600 dark:text-stone-400"
               >Mesi a carico (addizionale regionale)</label
@@ -885,8 +885,6 @@
             <input
               [id]="'figlioMesi' + $index"
               type="number"
-              min="0"
-              max="12"
               step="1"
               [formField]="form.figli[$index].mesiCarico"
               [attr.aria-invalid]="form.figli[$index].mesiCarico().invalid()"
