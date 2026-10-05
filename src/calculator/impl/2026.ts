@@ -151,6 +151,8 @@ const RIMBORSI_TRASFERTA = {
 const BENEFIT_ESENTI = {
   assistenzaSanitaria: 3_615.2,
   buoniPastoCartacei: 4.0,
+  /** Giorni di erogazione buoni pasto se non indicati */
+  giorniBuoniPastoDefault: 220,
 } as const;
 
 /** Parametri Fondo Mario Negri (previdenza dirigenti CCNL Terziario) */
@@ -458,7 +460,7 @@ function calcolaBenefitNonTassati(
     : BENEFIT_ESENTI.buoniPastoCartacei;
 
   // Il limite è giornaliero (art. 51, c.2, lett. c, TUIR), per buoni di pari importo.
-  const giorniBuoniPasto = benefit.giorniBuoniPasto ?? 220;
+  const giorniBuoniPasto = benefit.giorniBuoniPasto ?? BENEFIT_ESENTI.giorniBuoniPastoDefault;
   const sogliaAnnuaBuoniPasto = sogliaGiornaliera * giorniBuoniPasto;
   const buoniPastoEsenti = Math.min(buoniPastoTotale, sogliaAnnuaBuoniPasto);
   const buoniPastoTassati = Math.max(0, buoniPastoTotale - sogliaAnnuaBuoniPasto);

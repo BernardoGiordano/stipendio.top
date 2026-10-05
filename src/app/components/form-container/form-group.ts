@@ -333,11 +333,12 @@ const benefitNonTassatiSchema = schema<BenefitNonTassatiFormModel>((path) => {
   min(path.previdenzaComplementare, 0, { message: 'Valore non valido' });
   min(path.assistenzaSanitaria, 0, { message: 'Valore non valido' });
   min(path.buoniPasto, 0, { message: 'Valore non valido' });
-  min(path.giorniBuoniPasto, 1, { message: 'Valore intero tra 1 e 365' });
-  max(path.giorniBuoniPasto, 365, { message: 'Valore intero tra 1 e 365' });
-  validate(path.giorniBuoniPasto, ({ value }) => {
-    if (!Number.isInteger(value())) {
-      return { kind: 'integer', message: 'Valore intero tra 1 e 365' };
+  validate(path.giorniBuoniPasto, ({ value, valueOf }) => {
+    const benefit = valueOf(path);
+    if (!benefit.enabled || benefit.buoniPasto <= 0) return null;
+    const v = value();
+    if (!Number.isInteger(v) || v < 1 || v > 365) {
+      return { kind: 'range', message: 'Valore intero tra 1 e 365' };
     }
     return null;
   });
