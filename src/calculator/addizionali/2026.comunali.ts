@@ -15064,17 +15064,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   I018: { n: 'San Marzano Di San Giuseppe', p: 'TA', r: 'PU', a: 0.008 },
   I019: { n: 'San Marzano Sul Sarno', p: 'SA', r: 'CM', a: 0.008 },
   I023: { n: 'San Massimo', p: 'CB', r: 'MO', a: 0.005 },
-  I024: {
-    n: 'San Maurizio Canavese',
-    p: 'TO',
-    r: 'PI',
-    s: [
-      { l: 28_000, a: 0.006 },
-      { l: 50_000, a: 0.007 },
-      { l: Infinity, a: 0.008 },
-    ],
-    e: 15_000,
-  },
+  I024: { n: 'San Maurizio Canavese', p: 'TO', r: 'PI', a: 0.008, e: 15_000 },
   I025: {
     n: "San Maurizio D'Opaglio",
     p: 'NO',
@@ -16115,7 +16105,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   },
   I608: { n: 'Senigallia', p: 'AN', r: 'MA', a: 0.0078, e: 15_000 },
   I610: { n: 'Senise', p: 'PZ', r: 'BA', a: 0.008 },
-  I611: { n: 'Senna Comasco', p: 'CO', r: 'LO', a: 0.006, e: 9_999.99 },
+  I611: { n: 'Senna Comasco', p: 'CO', r: 'LO', a: 0.008, e: 9_999.99 },
   I612: {
     n: 'Senna Lodigiana',
     p: 'LO',
@@ -16897,7 +16887,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   },
   L017: { n: 'Sutri', p: 'VT', r: 'LA', a: 0.006, e: 8_125 },
   L018: { n: 'Sutrio', p: 'UD', r: 'FV', a: 0.002 },
-  L019: { n: 'Suvereto', p: 'LI', r: 'TO', a: 0.007, e: 10_000 },
+  L019: { n: 'Suvereto', p: 'LI', r: 'TO', a: 0.008, e: 10_000 },
   L020: { n: 'Suzzara', p: 'MN', r: 'LO', a: 0.0065, e: 10_000 },
   L022: {
     n: 'Taceno',
@@ -17287,7 +17277,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   L254: { n: 'Torrecuso', p: 'BN', r: 'CM', a: 0.007 },
   L256: { n: "Torre D'Arese", p: 'PV', r: 'LO', a: 0.008, e: 10_000 },
   L257: { n: "Torre De' Busi", p: 'BG', r: 'LO', a: 0.008, e: 11_000 },
-  L258: { n: "Torre De' Picenardi", p: 'CR', r: 'LO', a: 0.003 },
+  L258: { n: "Torre De' Picenardi", p: 'CR', r: 'LO', a: 0.0045 },
   L259: { n: 'Torre Del Greco', p: 'NA', r: 'CM', a: 0.008 },
   L262: { n: "Torre De' Negri", p: 'PV', r: 'LO', a: 0.008, e: 12_000 },
   L263: { n: "Torre De' Passeri", p: 'PE', r: 'AB', a: 0.007 },
