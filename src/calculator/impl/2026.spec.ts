@@ -2340,6 +2340,46 @@ describe('Trattamento integrativo', () => {
 // ============================================================================
 
 describe('Addizionali', () => {
+  describe('Umbria 2026', () => {
+    // Importi attesi da aliquote e agevolazioni MEF, art. 1 L.R. 2/2025.
+    it.each([
+      [15_000, 184.5],
+      [27_999, 344.3877],
+      [28_000, 344.4],
+      [28_001, 502.1312],
+      [30_000, 564.5],
+      [50_000, 1188.5],
+      [50_000.01, 1338.500333],
+      [60_000, 1671.5],
+    ])('aliquote e detrazione regionale: imponibile %d', (imponibile, attesa) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 15_000,
+        regione: 'UM',
+        comune: 'DEFAULT',
+        altriRedditi: imponibile - 13_621.5,
+      });
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(imponibile, 2);
+      expect(result.irpefFinale).toBeGreaterThan(0);
+      expect(result.addizionali.addizionaleRegionale).toBeCloseTo(attesa, 6);
+      expect(result.addizionali.aliquotaRegionale).toBeCloseTo(attesa / imponibile, 8);
+      expect(result.addizionali.addizionaleComunale).toBeCloseTo(imponibile * 0.008, 6);
+      expect(result.addizionali.totaleAddizionali).toBeCloseTo(attesa + imponibile * 0.008, 6);
+    });
+
+    it('IRPEF zero: nessuna addizionale regionale o comunale', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000 / 0.9081,
+        regione: 'UM',
+        altreDetrazioni: 20_000,
+      });
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(30_000, 2);
+      expect(result.irpefFinale).toBe(0);
+      expect(result.addizionali.totaleAddizionali).toBe(0);
+    });
+  });
+
   describe('Lazio', () => {
     it.each([
       [15_000, 259.5],
