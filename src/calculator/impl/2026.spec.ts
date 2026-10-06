@@ -2291,6 +2291,77 @@ describe('Cuneo fiscale', () => {
 // TRATTAMENTO INTEGRATIVO
 // ============================================================================
 
+describe('Trattamento integrativo con regime impatriati', () => {
+  it.each([false, true])(
+    'RAL 40k: nessun trattamento integrativo oltre la soglia comprensiva della quota esente (minorenni: %s)',
+    (regimeImpatriatiMinorenni) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        regimeImpatriati: true,
+        regimeImpatriatiMinorenni,
+      });
+
+      // Reddito prima dell'esenzione: €40.000 - €3.676 = €36.324 > €28.000.
+      expect(result.trattamentoIntegrativo.spetta).toBe(false);
+      expect(result.trattamentoIntegrativo.importo).toBe(0);
+      expect(result.trattamentoIntegrativo.motivoNonSpettanza).toBe('Reddito superiore a €28.000');
+
+      if (regimeImpatriatiMinorenni) {
+        // Il recupero della quota esente per la soglia non aumenta l'IRPEF né cambia le detrazioni.
+        expect(result.irpef.imponibileIrpef).toBeCloseTo(14_529.6, 2);
+        expect(result.irpef.irpefLorda).toBeCloseTo(3_341.808, 2);
+        expect(result.detrazioniLavoro.detrazioneEffettiva).toBe(1_955);
+        expect(result.nettoAnnuo).toBeCloseTo(35_217.97792, 2);
+      }
+    },
+  );
+
+  it.each([
+    { altriRedditi: 1_378.5, importo: 1_200, importoPieno: true },
+    { altriRedditi: 1_378.51, importo: 71.4702, importoPieno: false },
+  ])(
+    'soglia €15.000: altri redditi $altriRedditi, trattamento $importo',
+    ({ altriRedditi, importo, importoPieno }) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 15_000,
+        regimeImpatriati: true,
+        altriRedditi,
+      });
+
+      // Reddito prima dell'esenzione: €13.621,50; imponibile agevolato: €6.810,75.
+      // A €15.000,01 si applica il ramo parziale: €1.955 - €1.883,5298 = €71,4702.
+      expect(result.trattamentoIntegrativo.spetta).toBe(true);
+      expect(result.trattamentoIntegrativo.importo).toBeCloseTo(importo, 2);
+      expect(result.trattamentoIntegrativo.importoPieno).toBe(importoPieno);
+    },
+  );
+
+  it.each([false, true])(
+    'soglia €28.000 inclusiva, oltre soglia nessun bonus anche con detrazioni elevate (minorenni: %s)',
+    (regimeImpatriatiMinorenni) => {
+      const input: InputCalcoloStipendio = {
+        ...baseInput,
+        regimeImpatriati: true,
+        regimeImpatriatiMinorenni,
+        altriRedditi: 5_297.5,
+        altreDetrazioni: 5_000,
+      };
+
+      // Reddito prima dell'esenzione: €22.702,50, più €5.297,50 = €28.000.
+      const alLimite = calc.calcolaStipendioNetto(input);
+      const oltreLimite = calc.calcolaStipendioNetto({ ...input, altriRedditi: 5_297.51 });
+
+      expect(alLimite.trattamentoIntegrativo.spetta).toBe(true);
+      expect(alLimite.trattamentoIntegrativo.importo).toBe(1_200);
+      expect(alLimite.trattamentoIntegrativo.importoPieno).toBe(false);
+      expect(oltreLimite.trattamentoIntegrativo.spetta).toBe(false);
+      expect(oltreLimite.trattamentoIntegrativo.importo).toBe(0);
+    },
+  );
+});
+
 describe('Trattamento integrativo', () => {
   it('reddito ≤ 15k con IRPEF sufficiente (capienza): spetta €1.200 pieno', () => {
     const result = calc.calcolaStipendioNetto({

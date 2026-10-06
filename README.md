@@ -570,8 +570,8 @@ Agevolazione fiscale per i lavoratori che trasferiscono la residenza fiscale in 
 - **Addizionali regionali e comunali:** Calcolate sulla base imponibile ridotta
 - **Contributi INPS:** Calcolati sull'imponibile previdenziale **pieno** (nessuna riduzione)
 - **Detrazioni lavoro dipendente e familiari:** Calcolate sul reddito complessivo ridotto
-- **Cuneo fiscale:** Per le soglie di reddito complessivo e per la fascia del reddito di lavoro dipendente rileva anche la quota esente impatriati (L. 207/2024, art. 1, c. 9), mentre la percentuale dell'indennità si applica alla sola quota imponibile (Circ. AdE 4/E/2025, par. 1.2, esempio 3)
-- **Trattamento integrativo:** Ai fini della verifica delle soglie di reddito complessivo deve rilevare anche la quota esente impatriati ([Agenzia delle Entrate, Quadro C](https://infoprecompilata.agenziaentrate.gov.it/portale/web/guest/quadro-c-lavoro-dipendente)). Il calcolo attuale usa ancora il reddito ridotto per questa verifica.
+- **Cuneo fiscale:** Per le soglie di reddito complessivo e per la fascia del reddito di lavoro dipendente rileva la quota esente impatriati (L. 207/2024, art. 1, c. 9), mentre la percentuale dell'indennità si applica alla sola quota imponibile (Circ. AdE 4/E/2025, par. 1.2, esempio 3)
+- **Trattamento integrativo:** Ai fini della verifica delle soglie di reddito complessivo rileva la quota esente impatriati ([Agenzia delle Entrate, Quadro C](https://infoprecompilata.agenziaentrate.gov.it/portale/web/guest/quadro-c-lavoro-dipendente)). IRPEF e detrazioni utilizzate nel calcolo restano determinate sul reddito imponibile ridotto.
 
 ##### Formula
 

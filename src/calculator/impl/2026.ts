@@ -747,14 +747,14 @@ function calcolaCuneoFiscale(
 }
 
 function calcolaTrattamentoIntegrativo(
-  redditoComplessivo: number,
+  redditoComplessivoPerTrattamentoIntegrativo: number,
   irpefLorda: number,
   detrazioneLavoroDipendente: number,
   totaleDetrazioni: number,
 ): DettaglioTrattamentoIntegrativo {
   const params = TRATTAMENTO_INTEGRATIVO;
 
-  if (redditoComplessivo > params.sogliaParziale) {
+  if (redditoComplessivoPerTrattamentoIntegrativo > params.sogliaParziale) {
     return {
       spetta: false,
       motivoNonSpettanza: 'Reddito superiore a €28.000',
@@ -763,7 +763,7 @@ function calcolaTrattamentoIntegrativo(
     };
   }
 
-  if (redditoComplessivo <= params.sogliaPiena) {
+  if (redditoComplessivoPerTrattamentoIntegrativo <= params.sogliaPiena) {
     const sogliaCapienza = detrazioneLavoroDipendente - params.clausolaSalvaguardia;
 
     if (irpefLorda > sogliaCapienza) {
@@ -1509,8 +1509,13 @@ export class Calculator2026 implements StipendioCalculator {
       altreDetrazioni;
 
     // 13. CALCOLO TRATTAMENTO INTEGRATIVO
+    // Per verificare le soglie di €15.000 e €28.000 si include anche il reddito esente impatriati.
+    // IRPEF e detrazioni restano calcolate sul reddito imponibile dopo l'esenzione.
+    // Agenzia delle Entrate, istruzioni Quadro C/RC: redditi agevolati considerati per intero.
+    const redditoComplessivoPerTrattamentoIntegrativo =
+      redditoComplessivo + importoEsenteImpatriati;
     const trattamentoIntegrativo = calcolaTrattamentoIntegrativo(
-      redditoComplessivo,
+      redditoComplessivoPerTrattamentoIntegrativo,
       irpef.irpefLorda,
       detrazioniLavoro.detrazioneEffettiva,
       totaleDetrazioniPreTI,
