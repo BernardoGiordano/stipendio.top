@@ -166,11 +166,13 @@ export const ADDIZIONALI_REGIONALI: Record<
   },
   UM: {
     scaglioni: [
-      { limite: 28_000, aliquota: 0.0123 },
-      { limite: 50_000, aliquota: 0.0167 },
-      { limite: Infinity, aliquota: 0.0183 },
+      { limite: 15_000, aliquota: 0.0173 },
+      { limite: 28_000, aliquota: 0.0302 },
+      { limite: 50_000, aliquota: 0.0312 },
+      { limite: Infinity, aliquota: 0.0333 },
     ],
-    // note: 'Detrazione €150 per redditi €28.001-€50.000',
+    aliquotaRidotta: { limiteReddito: 28_000, aliquota: 0.0123 },
+    detrazioneBase: { sogliaReddito: 28_000, limiteReddito: 50_000, importo: 150 },
   },
   VA: {
     scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
