@@ -747,26 +747,39 @@ function calcolaCuneoFiscale(
 }
 
 function calcolaTrattamentoIntegrativo(
-  redditoComplessivoPerTrattamentoIntegrativo: number,
+  redditoComplessivoImponibile: number,
   irpefLorda: number,
-  detrazioneLavoroDipendente: number,
+  irpefLordaRedditiLavoro: number,
+  detrazioniLavoro: DettaglioDetrazioniLavoro,
   totaleDetrazioni: number,
+  quotaEsenteImpatriati = 0,
 ): DettaglioTrattamentoIntegrativo {
   const params = TRATTAMENTO_INTEGRATIVO;
 
-  if (redditoComplessivoPerTrattamentoIntegrativo > params.sogliaParziale) {
+  // Le soglie includono la quota esente impatriati (art. 3, c. 2, D.L. 3/2020; Circ. AdE 29/E/2020)
+  const redditoComplessivo = redditoComplessivoImponibile + quotaEsenteImpatriati;
+
+  if (redditoComplessivo > params.sogliaParziale) {
     return {
       spetta: false,
-      motivoNonSpettanza: 'Reddito superiore a €28.000',
+      motivoNonSpettanza:
+        quotaEsenteImpatriati > 0
+          ? 'Reddito complessivo (inclusa quota esente impatriati) superiore a €28.000'
+          : 'Reddito superiore a €28.000',
       importo: 0,
       importoPieno: false,
     };
   }
 
-  if (redditoComplessivoPerTrattamentoIntegrativo <= params.sogliaPiena) {
-    const sogliaCapienza = detrazioneLavoroDipendente - params.clausolaSalvaguardia;
+  if (redditoComplessivo <= params.sogliaPiena) {
+    // Capienza: imposta lorda sui soli redditi di lavoro dipendente e assimilati oltre la
+    // detrazione art. 13, c. 1, TUIR meno €75, entrambi rapportati al periodo di lavoro
+    // (art. 1, c. 1, D.L. 3/2020)
+    const sogliaCapienza =
+      detrazioniLavoro.detrazioneEffettiva -
+      params.clausolaSalvaguardia * detrazioniLavoro.coefficienteGiorni;
 
-    if (irpefLorda > sogliaCapienza) {
+    if (irpefLordaRedditiLavoro > sogliaCapienza) {
       return {
         spetta: true,
         importo: params.importoMassimo,
@@ -1509,16 +1522,19 @@ export class Calculator2026 implements StipendioCalculator {
       altreDetrazioni;
 
     // 13. CALCOLO TRATTAMENTO INTEGRATIVO
-    // Per verificare le soglie di €15.000 e €28.000 si include anche il reddito esente impatriati.
-    // IRPEF e detrazioni restano calcolate sul reddito imponibile dopo l'esenzione.
-    // Agenzia delle Entrate, istruzioni Quadro C/RC: redditi agevolati considerati per intero.
-    const redditoComplessivoPerTrattamentoIntegrativo =
-      redditoComplessivo + importoEsenteImpatriati;
+    // Le soglie includono la quota esente impatriati; IRPEF e detrazioni restano sul reddito ridotto.
+    // La capienza usa l'imposta lorda sui soli redditi di lavoro dipendente e assimilati
+    // (artt. 49 e 50 TUIR, inclusa la borsa di studio, art. 50, c. 1, lett. c).
+    const irpefLordaRedditiLavoro = calcolaIrpefLorda(
+      redditoLavoroDipendente + borsaCalcolo.imponibileBorsa,
+    ).irpefLorda;
     const trattamentoIntegrativo = calcolaTrattamentoIntegrativo(
-      redditoComplessivoPerTrattamentoIntegrativo,
+      redditoComplessivo,
       irpef.irpefLorda,
-      detrazioniLavoro.detrazioneEffettiva,
+      irpefLordaRedditiLavoro,
+      detrazioniLavoro,
       totaleDetrazioniPreTI,
+      importoEsenteImpatriati,
     );
 
     // IRPEF netta

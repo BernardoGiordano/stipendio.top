@@ -234,6 +234,8 @@ Ex "Bonus Renzi" - Importo massimo: **€1.200/anno** (€100/mese)
 | €15.001 − €28.000 | Detrazioni > IRPEF Lorda                | MIN(€1.200, Eccedenza) |
 | > €28.000         | —                                       | Non spetta             |
 
+Nella fascia ≤ €15.000 l'IRPEF lorda è calcolata sui soli redditi di lavoro dipendente e assimilati (artt. 49 e 50 TUIR), e i €75 sono rapportati al periodo di lavoro (art. 1, c. 1, D.L. 3/2020). Nella fascia €15.001 − €28.000 si usa l'IRPEF lorda ordinaria (art. 1, c. 1-bis).
+
 ---
 
 #### 6. Addizionali Regionali e Comunali
@@ -571,7 +573,7 @@ Agevolazione fiscale per i lavoratori che trasferiscono la residenza fiscale in 
 - **Contributi INPS:** Calcolati sull'imponibile previdenziale **pieno** (nessuna riduzione)
 - **Detrazioni lavoro dipendente e familiari:** Calcolate sul reddito complessivo ridotto
 - **Cuneo fiscale:** Per le soglie di reddito complessivo e per la fascia del reddito di lavoro dipendente rileva la quota esente impatriati (L. 207/2024, art. 1, c. 9), mentre la percentuale dell'indennità si applica alla sola quota imponibile (Circ. AdE 4/E/2025, par. 1.2, esempio 3)
-- **Trattamento integrativo:** Ai fini della verifica delle soglie di reddito complessivo rileva la quota esente impatriati ([Agenzia delle Entrate, Quadro C](https://infoprecompilata.agenziaentrate.gov.it/portale/web/guest/quadro-c-lavoro-dipendente)). IRPEF e detrazioni utilizzate nel calcolo restano determinate sul reddito imponibile ridotto.
+- **Trattamento integrativo:** Ai fini della verifica delle soglie di reddito complessivo rileva la quota esente impatriati (art. 3, c. 2, D.L. 3/2020; Circ. AdE 29/E/2020; [Agenzia delle Entrate, Quadro C](https://infoprecompilata.agenziaentrate.gov.it/portale/web/guest/quadro-c-lavoro-dipendente)). IRPEF e detrazioni utilizzate nel calcolo restano determinate sul reddito imponibile ridotto.
 
 ##### Formula
 

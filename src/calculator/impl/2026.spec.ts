@@ -2305,7 +2305,9 @@ describe('Trattamento integrativo con regime impatriati', () => {
       // Reddito prima dell'esenzione: €40.000 - €3.676 = €36.324 > €28.000.
       expect(result.trattamentoIntegrativo.spetta).toBe(false);
       expect(result.trattamentoIntegrativo.importo).toBe(0);
-      expect(result.trattamentoIntegrativo.motivoNonSpettanza).toBe('Reddito superiore a €28.000');
+      expect(result.trattamentoIntegrativo.motivoNonSpettanza).toBe(
+        'Reddito complessivo (inclusa quota esente impatriati) superiore a €28.000',
+      );
 
       if (regimeImpatriatiMinorenni) {
         // Il recupero della quota esente per la soglia non aumenta l'IRPEF né cambia le detrazioni.
@@ -2318,11 +2320,16 @@ describe('Trattamento integrativo con regime impatriati', () => {
   );
 
   it.each([
-    { altriRedditi: 1_378.5, importo: 1_200, importoPieno: true },
-    { altriRedditi: 1_378.51, importo: 71.4702, importoPieno: false },
+    {
+      altriRedditi: 1_378.5,
+      spetta: false,
+      importo: 0,
+      motivo: 'IRPEF lorda non supera la soglia di capienza',
+    },
+    { altriRedditi: 1_378.51, spetta: true, importo: 71.4702, motivo: undefined },
   ])(
     'soglia €15.000: altri redditi $altriRedditi, trattamento $importo',
-    ({ altriRedditi, importo, importoPieno }) => {
+    ({ altriRedditi, spetta, importo, motivo }) => {
       const result = calc.calcolaStipendioNetto({
         ...baseInput,
         ral: 15_000,
@@ -2331,10 +2338,12 @@ describe('Trattamento integrativo con regime impatriati', () => {
       });
 
       // Reddito prima dell'esenzione: €13.621,50; imponibile agevolato: €6.810,75.
+      // A €15.000 la capienza usa i soli redditi di lavoro: €6.810,75 × 23% = €1.566,47 < €1.880.
       // A €15.000,01 si applica il ramo parziale: €1.955 - €1.883,5298 = €71,4702.
-      expect(result.trattamentoIntegrativo.spetta).toBe(true);
+      expect(result.trattamentoIntegrativo.spetta).toBe(spetta);
       expect(result.trattamentoIntegrativo.importo).toBeCloseTo(importo, 2);
-      expect(result.trattamentoIntegrativo.importoPieno).toBe(importoPieno);
+      expect(result.trattamentoIntegrativo.importoPieno).toBe(false);
+      expect(result.trattamentoIntegrativo.motivoNonSpettanza).toBe(motivo);
     },
   );
 
@@ -2378,6 +2387,35 @@ describe('Trattamento integrativo', () => {
       ...baseInput,
       ral: 5_000, // reddito ~4.5k → IRPEF lorda ~1.0k < detrazioneLavoro - 75
     });
+    expect(result.trattamentoIntegrativo.spetta).toBe(false);
+  });
+
+  it('capienza sui soli redditi di lavoro: gli altri redditi non la creano', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 5_000,
+      altriRedditi: 5_000,
+    });
+
+    // Lavoro: €4.540,50 × 23% = €1.044,32 < €1.880. Con gli altri redditi l'imposta sarebbe €2.194,32.
+    expect(result.irpef.irpefLorda).toBeCloseTo(2_194.315, 2);
+    expect(result.trattamentoIntegrativo.spetta).toBe(false);
+    expect(result.trattamentoIntegrativo.motivoNonSpettanza).toBe(
+      'IRPEF lorda non supera la soglia di capienza',
+    );
+  });
+
+  it('clausola di salvaguardia €75 rapportata al periodo di lavoro', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 3_500,
+      giorniLavorati: 146,
+    });
+
+    // IRPEF lorda: €3.178,35 × 23% = €731,02. Soglia: (€1.955 - €75) × 146/365 = €752.
+    // Con €75 non rapportati la soglia sarebbe €707 e il trattamento spetterebbe.
+    expect(result.irpef.irpefLorda).toBeCloseTo(731.0205, 2);
+    expect(result.detrazioniLavoro.detrazioneEffettiva).toBeCloseTo(782, 2);
     expect(result.trattamentoIntegrativo.spetta).toBe(false);
   });
 
