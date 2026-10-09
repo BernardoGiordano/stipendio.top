@@ -172,6 +172,7 @@ export const ADDIZIONALI_REGIONALI: Record<
       { limite: Infinity, aliquota: 0.0333 },
     ],
     aliquotaRidotta: { limiteReddito: 28_000, aliquota: 0.0123 },
+    // "Tra 28.001 e 50.000 euro": l'imponibile dichiarato è arrotondato all'unità di euro
     detrazioneBase: { sogliaReddito: 28_000, limiteReddito: 50_000, importo: 150 },
   },
   VA: {

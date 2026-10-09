@@ -258,10 +258,10 @@ Calcolata sull'imponibile IRPEF con aliquote variabili per regione.
 
 Agevolazioni regionali applicate:
 
-- **Umbria:** 1,23% sull'intero imponibile fino a €28.000; oltre tale limite, aliquote progressive 1,73%, 3,02%, 3,12% e 3,33%, con detrazione di €150 tra €28.001 e €50.000
 - **Valle d'Aosta:** esenzione fino a €15.000 di imponibile
 - **Friuli Venezia Giulia:** 0,70% sull'intero imponibile fino a €15.000, oltre 1,23% sull'intero imponibile
 - **Lazio:** 1,73% sull'intero imponibile fino a €28.000, detrazione di €60 tra €28.001 e €30.000
+- **Umbria:** 1,23% sull'intero imponibile fino a €28.000; oltre tale limite, aliquote progressive 1,73%, 3,02%, 3,12% e 3,33%, con detrazione di €150 tra €28.001 e €50.000
 - **Trento:** deduzione di €30.000 fino a €30.000 di imponibile, detrazione di €246 per figlio a carico fino a €50.000
 - **Bolzano:** detrazione base di €430,50 e di €340 per figlio a carico fino a €90.000, detrazione supplementare fino a €125 oltre €50.000. Il limite di €90.000 include cedolare secca, mance con imposta sostitutiva e regime forfettario
 
