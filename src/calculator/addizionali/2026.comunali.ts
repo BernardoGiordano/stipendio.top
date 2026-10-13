@@ -6430,7 +6430,6 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'SA',
     r: 'CM',
     s: [
-      { l: 15_000, a: 0.007 },
       { l: 28_000, a: 0.007 },
       { l: 50_000, a: 0.0075 },
       { l: Infinity, a: 0.008 },
@@ -9757,8 +9756,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'VA',
     r: 'LO',
     s: [
-      { l: 15_000, a: 0.005 },
-      { l: 28_000, a: 0.0055 },
+      { l: 28_000, a: 0.005 },
       { l: 50_000, a: 0.0065 },
       { l: Infinity, a: 0.008 },
     ],
@@ -10449,7 +10447,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   F541: { n: 'Monteleone Sabino', p: 'RI', r: 'LA', a: 0.005 },
   F543: { n: "Monteleone D'Orvieto", p: 'TR', r: 'UM', a: 0.008, e: 7_500 },
   F544: { n: 'Montelepre', p: 'PA', r: 'SI', a: 0.008 },
-  F545: { n: 'Montelibretti', p: 'RM', r: 'LA', a: 0.006 },
+  F545: { n: 'Montelibretti', p: 'RM', r: 'LA', a: 0.00801 },
   F546: { n: 'Montella', p: 'AV', r: 'CM', a: 0.008, e: 7_000 },
   F547: { n: 'Montello', p: 'BG', r: 'LO', a: 0.007, e: 8_500 },
   F549: { n: 'Montelparo', p: 'FM', r: 'MA', a: 0.008 },
