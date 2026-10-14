@@ -3733,7 +3733,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     ],
     e: 11_999.99,
   },
-  B974: { n: "Caslino D'Erba", p: 'CO', r: 'LO', a: 0.008, e: 12_000 },
+  B974: { n: "Caslino D'Erba", p: 'CO', r: 'LO', a: 0.008 },
   B977: { n: 'Casnate Con Bernate', p: 'CO', r: 'LO', a: 0.006, e: 15_688.4 },
   B978: {
     n: 'Casnigo',
