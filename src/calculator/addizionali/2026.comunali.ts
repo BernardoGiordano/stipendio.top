@@ -9793,7 +9793,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   F146: { n: 'Mergozzo', p: 'VB', r: 'PI', a: 0.008 },
   F147: { n: "Meri'", p: 'ME', r: 'SI', a: 0.007 },
   F148: { n: 'Merlara', p: 'PD', r: 'VE', a: 0.008, e: 12_500 },
-  F149: { n: 'Merlino', p: 'LO', r: 'LO', a: 0.0065, e: 9_999.99 },
+  F149: { n: 'Merlino', p: 'LO', r: 'LO', a: 0.0065, e: 10_000 },
   F151: {
     n: 'Merone',
     p: 'CO',
