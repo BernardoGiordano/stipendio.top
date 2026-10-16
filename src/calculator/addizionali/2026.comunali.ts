@@ -12398,7 +12398,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
       { l: 15_000, a: 0.0039 },
       { l: 28_000, a: 0.0048 },
       { l: 50_000, a: 0.0065 },
-      { l: Infinity, a: 0.0079 },
+      { l: Infinity, a: 0.008 },
     ],
     e: 9_000,
   },
