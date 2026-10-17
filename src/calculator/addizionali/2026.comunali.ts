@@ -7890,7 +7890,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     e: 15_000,
   },
   E126: { n: 'Gradoli', p: 'VT', r: 'LA', a: 0.008 },
-  E127: { n: 'Graffignana', p: 'LO', r: 'LO', a: 0.008, e: 12_500 },
+  E127: { n: 'Graffignana', p: 'LO', r: 'LO', a: 0.008, e: 10_000 },
   E128: { n: 'Graffignano', p: 'VT', r: 'LA', a: 0.008 },
   E130: { n: 'Graglia', p: 'BI', r: 'PI', a: 0.007 },
   E131: { n: 'Gragnano', p: 'NA', r: 'CM', a: 0.008, e: 15_000 },
