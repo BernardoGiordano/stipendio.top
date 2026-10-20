@@ -5480,7 +5480,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   C855: { n: 'Colledimacine', p: 'CH', r: 'AB', a: 0.008, e: 10_000 },
   C857: { n: 'Colle Di Tora', p: 'RI', r: 'LA', a: 0.005 },
   C858: { n: 'Colleferro', p: 'RM', r: 'LA', a: 0.008 },
-  C859: { n: 'Collegiove', p: 'RI', r: 'LA', a: 0.006 },
+  C859: { n: 'Collegiove', p: 'RI', r: 'LA', a: 0.008 },
   C860: {
     n: 'Collegno',
     p: 'TO',
@@ -17057,7 +17057,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     ],
   },
   L132: { n: 'Terrassa Padovana', p: 'PD', r: 'VE', a: 0.008 },
-  L134: { n: 'Terravecchia', p: 'CS', r: 'CL', a: 0.004, e: 8_000 },
+  L134: { n: 'Terravecchia', p: 'CS', r: 'CL', a: 0.004, e: 8_500 },
   L136: { n: 'Terrazzo', p: 'VR', r: 'VE', a: 0.008 },
   L138: {
     n: 'Terricciola',
@@ -18308,7 +18308,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   L840: { n: 'Vicenza', p: 'VI', r: 'VE', a: 0.008, e: 15_000 },
   L841: { n: 'Vicoforte', p: 'CN', r: 'PI', a: 0.008, e: 8_499.99 },
   L842: { n: 'Vico Del Gargano', p: 'FG', r: 'PU', a: 0.008, e: 10_000 },
-  L843: { n: 'Vico Nel Lazio', p: 'FR', r: 'LA', a: 0.007, e: 7_500 },
+  L843: { n: 'Vico Nel Lazio', p: 'FR', r: 'LA', a: 0.008, e: 7_500 },
   L844: { n: 'Villa Literno', p: 'CE', r: 'CM', a: 0.008 },
   L845: { n: 'Vico Equense', p: 'NA', r: 'CM', a: 0.008, e: 10_000 },
   L846: { n: 'Vicoli', p: 'PE', r: 'AB', a: 0.008, e: 3_000 },
