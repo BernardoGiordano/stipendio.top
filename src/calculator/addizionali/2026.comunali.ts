@@ -9949,6 +9949,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   F246: { n: 'Misilmeri', p: 'PA', r: 'SI', a: 0.008, e: 10_000 },
   F247: { n: 'Misinto', p: 'MB', r: 'LO', a: 0.008, e: 15_000 },
   F248: { n: 'Missaglia', p: 'LC', r: 'LO', a: 0.008, e: 12_000 },
+  F249: { n: 'Missanello', p: 'PZ', r: 'BA', a: 0.008, e: 25_000 },
   F250: { n: 'Misterbianco', p: 'CT', r: 'SI', a: 0.008, e: 10_500 },
   F251: { n: 'Mistretta', p: 'ME', r: 'SI', a: 0.008 },
   F254: { n: 'Moasca', p: 'AT', r: 'PI', a: 0.007, e: 6_499.99 },
