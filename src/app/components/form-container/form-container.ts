@@ -5,32 +5,19 @@ import { NgSelectComponent } from '@ng-select/ng-select';
 import {
   createDefaultAscendente,
   createDefaultFiglio,
-  haDetrazioneFigliRegionale,
-  haRedditiSostitutiviInSoglia,
   StipendioFieldTree,
   StipendioFormModel,
 } from './form-group';
 import { TipoAlimentazioneAuto, TipoContratto } from '../../../calculator/types';
 import { InfoTooltip } from '../info-tooltip/info-tooltip';
 import {
-  ADDIZIONALI_REGIONALI,
-  REGIONE_LABELS,
-} from '../../../calculator/addizionali/2026.regionali';
-import { ADDIZIONALI_COMUNALI } from '../../../calculator/addizionali/2026.comunali';
+  elencoComuni,
+  elencoRegioni,
+  haDetrazioneFigliRegionale,
+  haRedditiSostitutiviInSoglia,
+} from '../../../calculator/addizionali/2026';
 
 const ALTRO_OPTION = { value: 'DEFAULT', label: 'Non specificato' } as const;
-
-const COMUNI_PER_REGIONE: Record<string, { value: string; label: string }[]> = {};
-for (const [key, entry] of Object.entries(ADDIZIONALI_COMUNALI)) {
-  const regione = entry.r;
-  (COMUNI_PER_REGIONE[regione] ??= []).push({ value: key, label: entry.n });
-}
-for (const [regione, comuni] of Object.entries(COMUNI_PER_REGIONE)) {
-  comuni.sort((a, b) => a.label.localeCompare(b.label, 'it'));
-  COMUNI_PER_REGIONE[regione] = [ALTRO_OPTION, ...comuni];
-}
-
-const FALLBACK_COMUNI = [ALTRO_OPTION];
 
 @Component({
   selector: 'app-form-container',
@@ -42,18 +29,17 @@ export class FormContainer {
   readonly stipendioForm = input.required<StipendioFieldTree>();
   readonly formModel = input.required<WritableSignal<StipendioFormModel>>();
 
-  readonly regioniDisponibili: { value: string; label: string }[] = Object.keys(
-    ADDIZIONALI_REGIONALI,
-  )
-    .filter((r) => r !== 'DEFAULT')
-    .map((r) => ({ value: r, label: REGIONE_LABELS[r] ?? r }))
-    .sort((a, b) => a.label.localeCompare(b.label, 'it'));
+  readonly regioniDisponibili: { value: string; label: string }[] = elencoRegioni().map((r) => ({
+    value: r.codice,
+    label: r.nome,
+  }));
 
   private readonly selectedRegione = computed(() => this.formModel()().regione);
 
-  readonly comuniFiltrati = computed(() => {
-    return COMUNI_PER_REGIONE[this.selectedRegione()] ?? FALLBACK_COMUNI;
-  });
+  readonly comuniFiltrati = computed(() => [
+    ALTRO_OPTION,
+    ...elencoComuni(this.selectedRegione()).map((c) => ({ value: c.codice, label: c.nome })),
+  ]);
 
   readonly mostraMesiCarico = computed(() => haDetrazioneFigliRegionale(this.selectedRegione()));
 

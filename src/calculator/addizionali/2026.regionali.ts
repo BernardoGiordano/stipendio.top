@@ -1,3 +1,5 @@
+import type { AddizionaleRegionale } from './2026';
+
 export const REGIONE_LABELS: Record<string, string> = {
   AB: 'Abruzzo',
   BA: 'Basilicata',
@@ -22,20 +24,7 @@ export const REGIONE_LABELS: Record<string, string> = {
   VE: 'Veneto',
 };
 
-export const ADDIZIONALI_REGIONALI: Record<
-  string,
-  {
-    scaglioni: Array<{ limite: number; aliquota: number }>;
-    esenzione?: number;
-    aliquotaRidotta?: { limiteReddito: number; aliquota: number };
-    detrazioneBase?: { sogliaReddito?: number; limiteReddito: number; importo: number };
-    detrazioneSupplementare?: { sogliaReddito: number; intervalloReddito: number; importo: number };
-    detrazioneFigli?: { limiteReddito: number; importo: number };
-    // I redditi con imposta sostitutiva concorrono ai limiti di reddito delle detrazioni
-    redditiSostitutiviInSoglia?: boolean;
-    note?: string;
-  }
-> = {
+export const ADDIZIONALI_REGIONALI: Record<string, AddizionaleRegionale> = {
   AB: {
     scaglioni: [
       { limite: 28_000, aliquota: 0.0167 },

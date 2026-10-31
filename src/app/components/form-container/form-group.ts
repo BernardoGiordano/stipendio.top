@@ -26,7 +26,10 @@ import {
   TipoAlimentazioneAuto,
   TipoContratto,
 } from '../../../calculator/types';
-import { ADDIZIONALI_REGIONALI } from '../../../calculator/addizionali/2026.regionali';
+import {
+  haDetrazioneFigliRegionale,
+  haRedditiSostitutiviInSoglia,
+} from '../../../calculator/addizionali/2026';
 
 export interface AutoAziendaleFormModel {
   costoKmAci: number;
@@ -277,20 +280,6 @@ export function createDefaultFormModel(): StipendioFormModel {
     figli: [],
     ascendenti: [],
   };
-}
-
-// ============================================================================
-// Agevolazioni Regionali
-// ============================================================================
-
-/** La regione prevede una detrazione per figli proporzionata ai mesi a carico */
-export function haDetrazioneFigliRegionale(regione: string): boolean {
-  return ADDIZIONALI_REGIONALI[regione.toUpperCase()]?.detrazioneFigli !== undefined;
-}
-
-/** La regione include i redditi con imposta sostitutiva nei limiti delle detrazioni */
-export function haRedditiSostitutiviInSoglia(regione: string): boolean {
-  return ADDIZIONALI_REGIONALI[regione.toUpperCase()]?.redditiSostitutiviInSoglia === true;
 }
 
 // ============================================================================

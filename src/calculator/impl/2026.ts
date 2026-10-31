@@ -4,7 +4,6 @@ import {
   BenefitNonTassati,
   BorsaDiStudio,
   ConiugeACarico,
-  DettaglioAddizionali,
   DettaglioBenefitNonTassati,
   DettaglioBorsaDiStudio,
   DettaglioCFMT,
@@ -33,8 +32,7 @@ import {
   TipoContratto,
 } from '../types';
 import { StipendioCalculator } from '../calculator';
-import { ADDIZIONALI_REGIONALI } from '../addizionali/2026.regionali';
-import { ADDIZIONALE_DEFAULT, ADDIZIONALI_COMUNALI } from '../addizionali/2026.comunali';
+import { calcolaAddizionali } from '../addizionali/2026';
 
 /** Scaglioni IRPEF 2026 (aliquota intermedia ridotta) */
 const IRPEF_SCAGLIONI = [
@@ -621,6 +619,15 @@ function calcolaDetrazioneConiuge(redditoComplessivo: number, coniuge?: ConiugeA
   return Math.max(0, detrazione * percentuale);
 }
 
+/** Il figlio rispetta il limite di reddito per essere a carico (art. 12, comma 2, TUIR) */
+function isFiglioACarico(figlio: FiglioACarico): boolean {
+  const limiteReddito =
+    figlio.eta <= 24
+      ? DETRAZIONI_FAMILIARI.limiteRedditoFigliGiovani
+      : DETRAZIONI_FAMILIARI.limiteRedditoCarico;
+  return (figlio.redditoAnnuo ?? 0) <= limiteReddito;
+}
+
 function calcolaDetrazioneFigli(
   redditoComplessivo: number,
   figli?: FiglioACarico[],
@@ -634,10 +641,7 @@ function calcolaDetrazioneFigli(
   let numeroFigliConDetrazione = 0;
 
   for (const figlio of figli) {
-    // Verifica limite reddito per essere a carico
-    const limiteReddito =
-      figlio.eta <= 24 ? params.limiteRedditoFigliGiovani : params.limiteRedditoCarico;
-    if ((figlio.redditoAnnuo ?? 0) > limiteReddito) continue;
+    if (!isFiglioACarico(figlio)) continue;
 
     const haDetrazione =
       figlio.disabile ||
@@ -814,79 +818,6 @@ function calcolaTrattamentoIntegrativo(
   };
 }
 
-function calcolaAddizionaleRegionale(
-  imponibile: number,
-  regione: string,
-  figli?: FiglioACarico[],
-  altriRedditiSogliaAddizionale = 0,
-): { addizionale: number; aliquotaMedia: number } {
-  const config = ADDIZIONALI_REGIONALI[regione.toUpperCase()] ?? ADDIZIONALI_REGIONALI['DEFAULT'];
-
-  if (config.esenzione !== undefined && imponibile <= config.esenzione) {
-    return { addizionale: 0, aliquotaMedia: 0 };
-  }
-
-  let addizionaleTotale = 0;
-  let imponibileResiduo = imponibile;
-  let limiteInferiore = 0;
-
-  const scaglioni =
-    config.aliquotaRidotta && imponibile <= config.aliquotaRidotta.limiteReddito
-      ? [{ limite: Infinity, aliquota: config.aliquotaRidotta.aliquota }]
-      : config.scaglioni;
-
-  for (const scaglione of scaglioni) {
-    if (imponibileResiduo <= 0) break;
-
-    const ampiezzaScaglione = scaglione.limite - limiteInferiore;
-    const imponibileScaglione = Math.min(imponibileResiduo, ampiezzaScaglione);
-    addizionaleTotale += imponibileScaglione * scaglione.aliquota;
-
-    imponibileResiduo -= imponibileScaglione;
-    limiteInferiore = scaglione.limite;
-  }
-
-  const redditoSoglia =
-    imponibile + (config.redditiSostitutiviInSoglia ? altriRedditiSogliaAddizionale : 0);
-
-  if (
-    config.detrazioneBase &&
-    redditoSoglia > (config.detrazioneBase.sogliaReddito ?? 0) &&
-    redditoSoglia <= config.detrazioneBase.limiteReddito
-  ) {
-    addizionaleTotale -= config.detrazioneBase.importo;
-  }
-
-  if (config.detrazioneSupplementare && imponibile > config.detrazioneSupplementare.sogliaReddito) {
-    const rapporto = Math.min(
-      1,
-      (imponibile - config.detrazioneSupplementare.sogliaReddito) /
-        config.detrazioneSupplementare.intervalloReddito,
-    );
-    addizionaleTotale -= config.detrazioneSupplementare.importo * rapporto;
-  }
-
-  if (config.detrazioneFigli && redditoSoglia <= config.detrazioneFigli.limiteReddito) {
-    // I requisiti regionali richiamano l'art. 12, comma 2, senza i limiti di età delle detrazioni IRPEF.
-    for (const figlio of figli ?? []) {
-      const limiteReddito =
-        figlio.eta <= 24
-          ? DETRAZIONI_FAMILIARI.limiteRedditoFigliGiovani
-          : DETRAZIONI_FAMILIARI.limiteRedditoCarico;
-      if ((figlio.redditoAnnuo ?? 0) > limiteReddito) continue;
-
-      const percentuale = (figlio.percentualeCarico ?? 100) / 100;
-      const mesi = Math.min(12, Math.max(0, figlio.mesiCarico ?? 12));
-      addizionaleTotale -= config.detrazioneFigli.importo * percentuale * (mesi / 12);
-    }
-  }
-
-  addizionaleTotale = Math.max(0, addizionaleTotale);
-  const aliquotaMedia = imponibile > 0 ? addizionaleTotale / imponibile : 0;
-
-  return { addizionale: addizionaleTotale, aliquotaMedia };
-}
-
 function calcolaFondoNegri(
   fondoMarioNegri: boolean,
   aliquotaMarginaleIrpef: number,
@@ -1010,48 +941,6 @@ function calcolaFondoPensioneIntegrativo(
     eccedenzaNonDeducibile,
     risparmoFiscaleStimato,
   };
-}
-
-function calcolaAddizionaleComunale(
-  imponibile: number,
-  comune: string,
-): { addizionale: number; aliquota: number; esenzioneApplicata: boolean } {
-  const config = ADDIZIONALI_COMUNALI[comune.toUpperCase()];
-
-  if (config == null) {
-    const addizionale = imponibile * ADDIZIONALE_DEFAULT;
-    return { addizionale, aliquota: ADDIZIONALE_DEFAULT, esenzioneApplicata: false };
-  }
-
-  if (config.e && imponibile <= config.e) {
-    const aliquotaDefault = 'a' in config ? config.a : config.s[0].a;
-    return { addizionale: 0, aliquota: aliquotaDefault, esenzioneApplicata: true };
-  }
-
-  // Gestione scaglioni progressivi (es. Torino)
-  if ('s' in config) {
-    let addizionale = 0;
-    let residuo = imponibile;
-    let precedente = 0;
-    let aliquotaEffettiva = 0;
-
-    for (const scaglione of config.s) {
-      const importoScaglione = Math.min(residuo, scaglione.l - precedente);
-      if (importoScaglione > 0) {
-        addizionale += importoScaglione * scaglione.a;
-        aliquotaEffettiva = scaglione.a;
-      }
-      residuo -= importoScaglione;
-      precedente = scaglione.l;
-      if (residuo <= 0) break;
-    }
-
-    return { addizionale, aliquota: aliquotaEffettiva, esenzioneApplicata: false };
-  }
-
-  const addizionale = imponibile * config.a;
-
-  return { addizionale, aliquota: config.a, esenzioneApplicata: false };
 }
 
 function calcolaCostoAziendale(
@@ -1550,25 +1439,14 @@ export class Calculator2026 implements StipendioCalculator {
     const irpefFinale = Math.max(0, irpefNetta - cuneoFiscale.detrazioneAggiuntiva);
 
     // 14. CALCOLO ADDIZIONALI
-    const addRegionale = calcolaAddizionaleRegionale(
+    const addizionali = calcolaAddizionali({
       redditoComplessivo,
       regione,
-      figli,
+      comune,
+      figliACarico: (figli ?? []).filter(isFiglioACarico),
       altriRedditiSogliaAddizionale,
-    );
-    const addComunale = calcolaAddizionaleComunale(redditoComplessivo, comune);
-
-    // Le addizionali sono dovute solo se risulta dovuta l'IRPEF dopo le detrazioni
-    const addizionaliDovute = irpefFinale > 0;
-
-    const addizionali: DettaglioAddizionali = {
-      addizionaleRegionale: addizionaliDovute ? addRegionale.addizionale : 0,
-      aliquotaRegionale: addizionaliDovute ? addRegionale.aliquotaMedia : 0,
-      addizionaleComunale: addizionaliDovute ? addComunale.addizionale : 0,
-      aliquotaComunale: addizionaliDovute ? addComunale.aliquota : 0,
-      esenzioneComunaleApplicata: addComunale.esenzioneApplicata,
-      totaleAddizionali: addizionaliDovute ? addRegionale.addizionale + addComunale.addizionale : 0,
-    };
+      irpefDovuta: irpefFinale > 0,
+    });
 
     // Riepilogo detrazioni
     const riepilogoDetrazioni: RiepilogoDetrazioni = {

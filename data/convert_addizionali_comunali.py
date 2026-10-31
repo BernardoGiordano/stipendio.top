@@ -20,6 +20,7 @@ Usage:
 import argparse
 import csv
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -128,7 +129,12 @@ def parse_euro_amount(text: str) -> float | None:
         m = re.search(r"\ba\s+([\d.,]+\d)\s+euro", text, re.IGNORECASE)
     if not m:
         return None
-    amount_str = m.group(1).strip().rstrip(".")
+    return parse_amount(m.group(1))
+
+
+def parse_amount(raw: str) -> float:
+    """Parse an Italian-formatted amount such as "28.000,00" into a float."""
+    amount_str = raw.strip().rstrip(".")
     # Normalize Italian number format to float:
     # "28.000,00" -> 28000.00  (dots = thousands, comma = decimal)
     # "10000.00"  -> 10000.00  (no thousands sep, dot = decimal)
@@ -153,6 +159,58 @@ def parse_euro_amount(text: str) -> float | None:
     # Strip any trailing dots left over
     amount_str = amount_str.rstrip(".")
     return float(amount_str)
+
+
+AMOUNT_PATTERN = r"\d[\d.,]*\d|\d"
+
+
+def normalize_fascia(fascia: str) -> str:
+    """Lowercase a FASCIA text and strip the noise around its amounts."""
+    text = fascia.lower().replace("€", " ").replace("euro", " ")
+    text = re.sub(r"^(?:\s*applicabile\s+a\b)+", "", text)
+    # Rejoin amounts split by stray spaces: "15.000 ,00" -> "15.000,00"
+    text = re.sub(r"(\d)\s*([.,])\s*(\d)", r"\1\2\3", text)
+    # "oltre a X" and "superiore a X" open a bracket, unlike "fino a X"
+    return re.sub(r"\b(?:oltre|superior[ei]|maggior[ei])\s+ad?\b", "oltre", text)
+
+
+def parse_bracket_limit(fascia: str) -> float | None:
+    """Upper bound of a scaglione, or None when the bracket is open-ended.
+
+    The bound is the largest amount after "fino", "sino", "entro", "a", "ad" or "ed":
+      "fino a € 15.000,00", "da 0 a 15.000,00", "da euro 15.000,01 a euro 28.000,00",
+      "oltre euro 28.000,00 fino a euro 50.000,00", "tra euro 15.000,01 ed euro 28.000,00"
+    Texts such as "oltre euro 50.000,00" or "da euro 75.000,01" have no upper bound.
+    """
+    text = normalize_fascia(fascia)
+    amounts = re.findall(rf"\b(?:fino|sino|entro|a|ad|ed)\b[\s.]*({AMOUNT_PATTERN})", text)
+    return max((parse_amount(a) for a in amounts), default=None)
+
+
+def parse_bracket_start(fascia: str) -> float | None:
+    """Lower bound of a scaglione: the first amount after "da", "oltre" or "tra"."""
+    text = normalize_fascia(fascia)
+    m = re.search(rf"\b(?:da|oltre|tra)\b[\s.]*({AMOUNT_PATTERN})", text)
+    return parse_amount(m.group(1)) if m else None
+
+
+def fill_repeated_limits(codice: str, scaglioni: list[dict]) -> None:
+    """Repair a bracket whose text repeats the previous bracket (a MEF typo).
+
+    The next bracket's lower bound tells where the repeated bracket really ends.
+    """
+    for prev, cur, nxt in zip(scaglioni, scaglioni[1:], scaglioni[2:]):
+        start = nxt["start"]
+        if cur["l"] is None or cur["l"] != prev["l"] or start is None:
+            continue
+        limite = math.floor(start)
+        if limite <= cur["l"]:
+            continue
+        print(
+            f"Warning: {codice} repeats limit {cur['l']:g}, using {limite} from the next bracket",
+            file=sys.stderr,
+        )
+        cur["l"] = limite
 
 
 def is_exemption_fascia(fascia: str) -> bool:
@@ -271,19 +329,16 @@ def parse_row(row: dict) -> tuple[str, dict] | None:
     has_brackets = any(is_bracket_fascia(f) for _, f in bracket_pairs)
 
     if has_brackets:
-        scaglioni = []
-        for rate, fascia in bracket_pairs:
-            if "oltre" in fascia.lower():
-                scaglioni.append({"l": None, "a": rate})
-            else:
-                limite = parse_euro_amount(fascia)
-                if limite is not None:
-                    scaglioni.append({"l": limite, "a": rate})
-                else:
-                    scaglioni.append({"l": None, "a": rate})
+        scaglioni = [
+            {"l": parse_bracket_limit(fascia), "a": rate, "start": parse_bracket_start(fascia)}
+            for rate, fascia in bracket_pairs
+        ]
 
         # Sort by limite (None = Infinity goes last)
         scaglioni.sort(key=lambda s: s["l"] if s["l"] is not None else float("inf"))
+        fill_repeated_limits(codice, scaglioni)
+        for s in scaglioni:
+            del s["start"]
 
         result = {"n": nome, "p": pr, "r": regione, "s": scaglioni}
         if esenzione is not None:
@@ -378,7 +433,7 @@ def write_ts(entries: dict[str, dict], output_path: Path) -> None:
     """Write the entries dict as a TypeScript file."""
     lines = [
         "// prettier-ignore-file",
-        "import { AddizionaleComunale } from '../types';",
+        "import type { AddizionaleComunale } from './2026';",
         "",
         "export const ADDIZIONALE_DEFAULT = 0.008; // Default 0.8% when data is missing",
         "export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {",
