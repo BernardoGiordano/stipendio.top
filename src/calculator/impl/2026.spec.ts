@@ -1,7 +1,11 @@
 import { Calculator2026 } from './2026';
-import type { InputCalcoloStipendio } from '../types';
+import type { FondoContrattualeId, InputCalcoloStipendio, OutputCalcoloStipendio } from '../types';
 
 const calc = new Calculator2026();
+
+function fondo(result: OutputCalcoloStipendio, id: FondoContrattualeId) {
+  return result.fondiContrattuali.find((f) => f.id === id);
+}
 
 const CONTRIBUTO_FONDO_NEGRI_2026 = 1184.49;
 const CONTRIBUTO_FONDO_PASTORE_2026 = 464.81;
@@ -330,7 +334,7 @@ describe('Fondo Mario Negri', () => {
       comune: 'F205',
     });
 
-    expect(result.fondoNegri).toBeNull();
+    expect(fondo(result, 'fondoMarioNegri')).toBeUndefined();
   });
 
   it('con flag fondoMarioNegri, il contributo annuo deve essere €1.184,49', () => {
@@ -344,8 +348,11 @@ describe('Fondo Mario Negri', () => {
       fondoMarioNegri: true,
     });
 
-    expect(result.fondoNegri).not.toBeNull();
-    expect(result.fondoNegri!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_NEGRI_2026, 2);
+    expect(fondo(result, 'fondoMarioNegri')).toBeDefined();
+    expect(fondo(result, 'fondoMarioNegri')!.contributoAnnuo).toBeCloseTo(
+      CONTRIBUTO_FONDO_NEGRI_2026,
+      2,
+    );
   });
 
   it('il contributo mensile deve essere contributoAnnuo / 12', () => {
@@ -359,8 +366,11 @@ describe('Fondo Mario Negri', () => {
       fondoMarioNegri: true,
     });
 
-    expect(result.fondoNegri).not.toBeNull();
-    expect(result.fondoNegri!.contributoMensile).toBeCloseTo(CONTRIBUTO_FONDO_NEGRI_2026 / 12, 2);
+    expect(fondo(result, 'fondoMarioNegri')).toBeDefined();
+    expect(fondo(result, 'fondoMarioNegri')!.contributoMensile).toBeCloseTo(
+      CONTRIBUTO_FONDO_NEGRI_2026 / 12,
+      2,
+    );
   });
 
   it("l'imponibile IRPEF deve essere ridotto di €1.184,49", () => {
@@ -399,8 +409,8 @@ describe('Fondo Mario Negri', () => {
       fondoMarioNegri: true,
     });
 
-    expect(result.fondoNegri).not.toBeNull();
-    expect(result.fondoNegri!.risparmoFiscaleStimato).toBeCloseTo(
+    expect(fondo(result, 'fondoMarioNegri')).toBeDefined();
+    expect(fondo(result, 'fondoMarioNegri')!.risparmioFiscaleStimato).toBeCloseTo(
       CONTRIBUTO_FONDO_NEGRI_2026 * 0.43,
       2,
     );
@@ -445,8 +455,11 @@ describe('Fondo Mario Negri', () => {
         fondoMarioNegri: true,
       });
 
-      expect(result.fondoNegri).not.toBeNull();
-      expect(result.fondoNegri!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_NEGRI_2026, 2);
+      expect(fondo(result, 'fondoMarioNegri')).toBeDefined();
+      expect(fondo(result, 'fondoMarioNegri')!.contributoAnnuo).toBeCloseTo(
+        CONTRIBUTO_FONDO_NEGRI_2026,
+        2,
+      );
     }
   });
 });
@@ -462,7 +475,7 @@ describe('Fondo Antonio Pastore', () => {
       comune: 'F205',
     });
 
-    expect(result.fondoPastore).toBeNull();
+    expect(fondo(result, 'fondoPastore')).toBeUndefined();
   });
 
   it('con flag fondoPastore, il contributo annuo deve essere €464,81', () => {
@@ -476,8 +489,11 @@ describe('Fondo Antonio Pastore', () => {
       fondoPastore: true,
     });
 
-    expect(result.fondoPastore).not.toBeNull();
-    expect(result.fondoPastore!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_PASTORE_2026, 2);
+    expect(fondo(result, 'fondoPastore')).toBeDefined();
+    expect(fondo(result, 'fondoPastore')!.contributoAnnuo).toBeCloseTo(
+      CONTRIBUTO_FONDO_PASTORE_2026,
+      2,
+    );
   });
 
   it('il contributo mensile deve essere contributoAnnuo / 12', () => {
@@ -491,8 +507,8 @@ describe('Fondo Antonio Pastore', () => {
       fondoPastore: true,
     });
 
-    expect(result.fondoPastore).not.toBeNull();
-    expect(result.fondoPastore!.contributoMensile).toBeCloseTo(
+    expect(fondo(result, 'fondoPastore')).toBeDefined();
+    expect(fondo(result, 'fondoPastore')!.contributoMensile).toBeCloseTo(
       CONTRIBUTO_FONDO_PASTORE_2026 / 12,
       2,
     );
@@ -559,8 +575,11 @@ describe('Fondo Antonio Pastore', () => {
         fondoPastore: true,
       });
 
-      expect(result.fondoPastore).not.toBeNull();
-      expect(result.fondoPastore!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_PASTORE_2026, 2);
+      expect(fondo(result, 'fondoPastore')).toBeDefined();
+      expect(fondo(result, 'fondoPastore')!.contributoAnnuo).toBeCloseTo(
+        CONTRIBUTO_FONDO_PASTORE_2026,
+        2,
+      );
     }
   });
 
@@ -576,10 +595,16 @@ describe('Fondo Antonio Pastore', () => {
       fondoPastore: true,
     });
 
-    expect(result.fondoNegri).not.toBeNull();
-    expect(result.fondoPastore).not.toBeNull();
-    expect(result.fondoNegri!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_NEGRI_2026, 2);
-    expect(result.fondoPastore!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_PASTORE_2026, 2);
+    expect(fondo(result, 'fondoMarioNegri')).toBeDefined();
+    expect(fondo(result, 'fondoPastore')).toBeDefined();
+    expect(fondo(result, 'fondoMarioNegri')!.contributoAnnuo).toBeCloseTo(
+      CONTRIBUTO_FONDO_NEGRI_2026,
+      2,
+    );
+    expect(fondo(result, 'fondoPastore')!.contributoAnnuo).toBeCloseTo(
+      CONTRIBUTO_FONDO_PASTORE_2026,
+      2,
+    );
 
     // Verifica che entrambi i contributi siano inclusi nelle trattenute
     const resultSolo = calc.calcolaStipendioNetto({
@@ -607,7 +632,7 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
       comune: 'F205',
     });
 
-    expect(result.cfmt).toBeNull();
+    expect(fondo(result, 'cfmt')).toBeUndefined();
   });
 
   it('con flag cfmt, il contributo annuo deve essere €166', () => {
@@ -621,8 +646,8 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
       cfmt: true,
     });
 
-    expect(result.cfmt).not.toBeNull();
-    expect(result.cfmt!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_CFMT_2026, 2);
+    expect(fondo(result, 'cfmt')).toBeDefined();
+    expect(fondo(result, 'cfmt')!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_CFMT_2026, 2);
   });
 
   it('il contributo mensile deve essere contributoAnnuo / 12', () => {
@@ -636,8 +661,8 @@ describe('CFMT (Centro di Formazione Management del Terziario)', () => {
       cfmt: true,
     });
 
-    expect(result.cfmt).not.toBeNull();
-    expect(result.cfmt!.contributoMensile).toBeCloseTo(CONTRIBUTO_CFMT_2026 / 12, 2);
+    expect(fondo(result, 'cfmt')).toBeDefined();
+    expect(fondo(result, 'cfmt')!.contributoMensile).toBeCloseTo(CONTRIBUTO_CFMT_2026 / 12, 2);
   });
 
   it("NON deve ridurre l'imponibile IRPEF (stessa IRPEF con/senza CFMT)", () => {
@@ -699,7 +724,7 @@ describe('FASDAC (Fondo Assistenza Sanitaria Dirigenti)', () => {
       comune: 'F205',
     });
 
-    expect(result.fasdac).toBeNull();
+    expect(fondo(result, 'fasdac')).toBeUndefined();
   });
 
   it('con flag fasdac, il contributo annuo deve essere €859,08', () => {
@@ -713,8 +738,8 @@ describe('FASDAC (Fondo Assistenza Sanitaria Dirigenti)', () => {
       fasdac: true,
     });
 
-    expect(result.fasdac).not.toBeNull();
-    expect(result.fasdac!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FASDAC_2026, 2);
+    expect(fondo(result, 'fasdac')).toBeDefined();
+    expect(fondo(result, 'fasdac')!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FASDAC_2026, 2);
   });
 
   it('il contributo mensile deve essere contributoAnnuo / 12', () => {
@@ -728,8 +753,8 @@ describe('FASDAC (Fondo Assistenza Sanitaria Dirigenti)', () => {
       fasdac: true,
     });
 
-    expect(result.fasdac).not.toBeNull();
-    expect(result.fasdac!.contributoMensile).toBeCloseTo(CONTRIBUTO_FASDAC_2026 / 12, 2);
+    expect(fondo(result, 'fasdac')).toBeDefined();
+    expect(fondo(result, 'fasdac')!.contributoMensile).toBeCloseTo(CONTRIBUTO_FASDAC_2026 / 12, 2);
   });
 
   it("NON deve ridurre l'imponibile IRPEF (stessa IRPEF con/senza FASDAC)", () => {
@@ -791,7 +816,7 @@ describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
       comune: 'F205',
     });
 
-    expect(result.fondoEst).toBeNull();
+    expect(fondo(result, 'fondoEst')).toBeUndefined();
   });
 
   it('con flag fondoEst, il contributo annuo deve essere €24', () => {
@@ -805,8 +830,8 @@ describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
       fondoEst: true,
     });
 
-    expect(result.fondoEst).not.toBeNull();
-    expect(result.fondoEst!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_EST_2026, 2);
+    expect(fondo(result, 'fondoEst')).toBeDefined();
+    expect(fondo(result, 'fondoEst')!.contributoAnnuo).toBeCloseTo(CONTRIBUTO_FONDO_EST_2026, 2);
   });
 
   it('il contributo mensile deve essere €2', () => {
@@ -820,8 +845,11 @@ describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
       fondoEst: true,
     });
 
-    expect(result.fondoEst).not.toBeNull();
-    expect(result.fondoEst!.contributoMensile).toBeCloseTo(CONTRIBUTO_FONDO_EST_2026 / 12, 2);
+    expect(fondo(result, 'fondoEst')).toBeDefined();
+    expect(fondo(result, 'fondoEst')!.contributoMensile).toBeCloseTo(
+      CONTRIBUTO_FONDO_EST_2026 / 12,
+      2,
+    );
   });
 
   it("NON deve ridurre l'imponibile IRPEF (stessa IRPEF con/senza Fondo EST)", () => {
@@ -891,7 +919,7 @@ describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
       fondoEst: true,
     });
 
-    expect(resultCon.costoAziendale.fondoEstDatore).toBe(156);
+    expect(fondo(resultCon, 'fondoEst')!.contributoDatore).toBe(156);
     expect(
       resultCon.costoAziendale.totaleAnnuo - resultSenza.costoAziendale.totaleAnnuo,
     ).toBeCloseTo(156, 2);
@@ -1135,13 +1163,13 @@ describe('Regime Impatriati (Rientro Cervelli)', () => {
     });
 
     expect(result.regimeImpatriati).not.toBeNull();
-    expect(result.fondoNegri).not.toBeNull();
+    expect(fondo(result, 'fondoMarioNegri')).toBeDefined();
 
     // Il Fondo Negri riduce il reddito PRIMA della riduzione impatriati
     const redditoLavoroPre =
       result.contributiInps.imponibilePrevidenziale -
       result.contributiInps.totaleContributi -
-      result.fondoNegri!.contributoAnnuo;
+      fondo(result, 'fondoMarioNegri')!.contributoAnnuo;
 
     expect(result.regimeImpatriati!.redditoAgevolabile).toBeCloseTo(redditoLavoroPre, 0);
     expect(result.irpef.imponibileIrpef).toBeCloseTo(redditoLavoroPre * 0.5, 0);
@@ -1437,7 +1465,7 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       },
     });
 
-    expect(result.fondoNegri).not.toBeNull();
+    expect(fondo(result, 'fondoMarioNegri')).toBeDefined();
     expect(result.fondoPensioneIntegrativo).not.toBeNull();
 
     // Entrambe le deduzioni devono ridurre l'imponibile
@@ -3478,13 +3506,10 @@ describe('Property-based (fuzzy) tests', () => {
           }),
         });
 
-        const fondoNegriContributo = result.fondoNegri ? result.fondoNegri.contributoAnnuo : 0;
-        const fondoPastoreContributo = result.fondoPastore
-          ? result.fondoPastore.contributoAnnuo
-          : 0;
-        const cfmtContributo = result.cfmt ? result.cfmt.contributoAnnuo : 0;
-        const fasdacContributo = result.fasdac ? result.fasdac.contributoAnnuo : 0;
-        const fondoEstContributo = result.fondoEst ? result.fondoEst.contributoAnnuo : 0;
+        const fondiContrattualiContributo = result.fondiContrattuali.reduce(
+          (totale, fondo) => totale + fondo.contributoAnnuo,
+          0,
+        );
         const fondoPensioneContributo = result.fondoPensioneIntegrativo
           ? result.fondoPensioneIntegrativo.contributoLavoratoreAnnuo
           : 0;
@@ -3493,11 +3518,7 @@ describe('Property-based (fuzzy) tests', () => {
           result.contributiInps.totaleContributi +
           result.irpefFinale +
           result.addizionali.totaleAddizionali +
-          fondoNegriContributo +
-          fondoPastoreContributo +
-          cfmtContributo +
-          fasdacContributo +
-          fondoEstContributo +
+          fondiContrattualiContributo +
           fondoPensioneContributo;
 
         expect(result.totaleTrattenute).toBeCloseTo(expected, 2);
@@ -3612,11 +3633,7 @@ describe('Costo aziendale', () => {
     });
 
     it('non deve includere fondi dirigenti né Fondo EST', () => {
-      expect(result.costoAziendale.fondoNegriDatore).toBe(0);
-      expect(result.costoAziendale.fondoPastoreDatore).toBe(0);
-      expect(result.costoAziendale.cfmtDatore).toBe(0);
-      expect(result.costoAziendale.fasdacDatore).toBe(0);
-      expect(result.costoAziendale.fondoEstDatore).toBe(0);
+      expect(result.costoAziendale.fondiContrattualiDatore).toBe(0);
     });
 
     it('fringe benefit, rimborsi e welfare devono essere 0 se non presenti', () => {
@@ -3670,19 +3687,19 @@ describe('Costo aziendale', () => {
     });
 
     it('deve includere Fondo Negri datore (15,38% di retribuzione convenzionale)', () => {
-      expect(result.costoAziendale.fondoNegriDatore).toBeCloseTo(59_224.54 * 0.1538, 2);
+      expect(fondo(result, 'fondoMarioNegri')!.contributoDatore).toBeCloseTo(59_224.54 * 0.1538, 2);
     });
 
     it('deve includere Fondo Pastore datore', () => {
-      expect(result.costoAziendale.fondoPastoreDatore).toBe(4_856.45);
+      expect(fondo(result, 'fondoPastore')!.contributoDatore).toBe(4_856.45);
     });
 
     it('deve includere CFMT datore', () => {
-      expect(result.costoAziendale.cfmtDatore).toBe(276);
+      expect(fondo(result, 'cfmt')!.contributoDatore).toBe(276);
     });
 
     it('deve includere FASDAC datore (8,07% di retribuzione convenzionale)', () => {
-      expect(result.costoAziendale.fasdacDatore).toBeCloseTo(45_940 * 0.0807, 2);
+      expect(fondo(result, 'fasdac')!.contributoDatore).toBeCloseTo(45_940 * 0.0807, 2);
     });
 
     it('il costo aziendale deve includere tutte le voci', () => {
@@ -3874,24 +3891,8 @@ describe('Borsa di Studio come tipo di contratto (dottorato, specializzazione)',
       expect(result.totaleBonus).toBe(0);
     });
 
-    it('il fondo Negri è null', () => {
-      expect(result.fondoNegri).toBeNull();
-    });
-
-    it('il fondo Pastore è null', () => {
-      expect(result.fondoPastore).toBeNull();
-    });
-
-    it('il CFMT è null', () => {
-      expect(result.cfmt).toBeNull();
-    });
-
-    it('il FASDAC è null', () => {
-      expect(result.fasdac).toBeNull();
-    });
-
-    it('il fondo EST è null', () => {
-      expect(result.fondoEst).toBeNull();
+    it('non ha fondi contrattuali', () => {
+      expect(result.fondiContrattuali).toEqual([]);
     });
 
     it('il fondo pensione integrativo è null', () => {

@@ -16,8 +16,26 @@ import {
   haDetrazioneFigliRegionale,
   haRedditiSostitutiviInSoglia,
 } from '../../../calculator/addizionali/2026';
+import { FONDI_CONTRATTUALI, FondoContrattuale } from '../../../calculator/fondi/2026';
+import { formatCurrency } from '../../utils/intl';
 
 const ALTRO_OPTION = { value: 'DEFAULT', label: 'Non specificato' } as const;
+
+function vociFondi(categoria: FondoContrattuale['categoria']) {
+  return FONDI_CONTRATTUALI.filter((fondo) => fondo.categoria === categoria).map((fondo) => ({
+    id: fondo.id,
+    nome: fondo.nome,
+    tooltip: tooltipFondo(fondo),
+  }));
+}
+
+function tooltipFondo(fondo: FondoContrattuale): string {
+  const calcolo = fondo.calcoloContributo ? ` (${fondo.calcoloContributo})` : '';
+  const effetto = fondo.deducibile
+    ? "Riduce l'imponibile IRPEF senza limiti di deducibilità."
+    : "NON riduce l'imponibile IRPEF: trattenuta diretta dal netto.";
+  return `${fondo.descrizione} Contributo 2026: ${formatCurrency(fondo.contributoLavoratore)}/anno${calcolo}. ${effetto}`;
+}
 
 @Component({
   selector: 'app-form-container',
@@ -45,6 +63,16 @@ export class FormContainer {
 
   readonly mostraRedditiSostitutivi = computed(() =>
     haRedditiSostitutiviInSoglia(this.selectedRegione()),
+  );
+
+  readonly fondiCommercio = vociFondi('dipendentiCommercio');
+  readonly fondiDirigenti = vociFondi('dirigentiTerziario');
+
+  readonly fondoCommercioSelezionato = computed(() =>
+    this.fondiCommercio.some((fondo) => this.formModel()()[fondo.id]),
+  );
+  readonly fondoDirigentiSelezionato = computed(() =>
+    this.fondiDirigenti.some((fondo) => this.formModel()()[fondo.id]),
   );
 
   readonly tipiContratto: { value: TipoContratto; label: string }[] = [

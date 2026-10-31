@@ -81,46 +81,28 @@ export interface BenefitNonTassati {
 /** Anno fiscale di riferimento */
 export type AnnoFiscale = 2025 | 2026;
 
-/** Dettaglio Fondo Mario Negri (previdenza dirigenti CCNL Terziario) */
-export interface DettaglioFondoNegri {
-  /** Contributo annuo a carico del dirigente */
-  contributoAnnuo: number;
-  /** Contributo mensile (contributoAnnuo / 12) */
-  contributoMensile: number;
-  /** Risparmio fiscale stimato annuo (aliquota marginale x contributo) */
-  risparmoFiscaleStimato: number;
-}
+/** Fondi contrattuali selezionabili. Ogni id è anche il flag di input che seleziona il fondo */
+export type FondoContrattualeId =
+  | 'fondoMarioNegri'
+  | 'fondoPastore'
+  | 'cfmt'
+  | 'fasdac'
+  | 'fondoEst';
 
-/** Dettaglio Fondo Antonio Pastore (assicurativo-previdenziale dirigenti CCNL Terziario) */
-export interface DettaglioFondoPastore {
-  /** Contributo annuo a carico del dirigente */
+/** Dettaglio di un fondo contrattuale selezionato */
+export interface DettaglioFondoContrattuale {
+  id: FondoContrattualeId;
+  nome: string;
+  /** Contributo annuo a carico del lavoratore */
   contributoAnnuo: number;
   /** Contributo mensile (contributoAnnuo / 12) */
   contributoMensile: number;
-}
-
-/** Dettaglio CFMT (Centro di Formazione Management del Terziario) */
-export interface DettaglioCFMT {
-  /** Contributo annuo a carico del dirigente */
-  contributoAnnuo: number;
-  /** Contributo mensile (contributoAnnuo / 12) */
-  contributoMensile: number;
-}
-
-/** Dettaglio FASDAC (Fondo Assistenza Sanitaria Dirigenti Aziende Commerciali - Fondo Mario Besusso) */
-export interface DettaglioFasdac {
-  /** Contributo annuo a carico del dirigente */
-  contributoAnnuo: number;
-  /** Contributo mensile (contributoAnnuo / 12) */
-  contributoMensile: number;
-}
-
-/** Dettaglio Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio) */
-export interface DettaglioFondoEst {
-  /** Contributo annuo a carico del dipendente */
-  contributoAnnuo: number;
-  /** Contributo mensile (contributoAnnuo / 12) */
-  contributoMensile: number;
+  /** Contributo annuo a carico del datore */
+  contributoDatore: number;
+  /** Deducibile dall'imponibile IRPEF; altrimenti trattenuta diretta dal netto */
+  deducibile: boolean;
+  /** Risparmio fiscale stimato annuo (aliquota marginale x contributo deducibile) */
+  risparmioFiscaleStimato: number;
 }
 
 /** Informazioni su un figlio a carico */
@@ -154,7 +136,7 @@ export interface AscendenteACarico {
 }
 
 /** Input per il calcolo dello stipendio netto */
-export interface InputCalcoloStipendio {
+export interface InputCalcoloStipendio extends Partial<Record<FondoContrattualeId, boolean>> {
   /** Reddito Annuo Lordo (RAL) */
   ral: number;
 
@@ -210,21 +192,6 @@ export interface InputCalcoloStipendio {
 
   /** Benefit non tassati (welfare aziendale) */
   benefitNonTassati?: BenefitNonTassati;
-
-  /** Contributo Fondo Mario Negri (previdenza complementare dirigenti CCNL Terziario) */
-  fondoMarioNegri?: boolean;
-
-  /** Contributo Fondo Antonio Pastore (assicurativo-previdenziale dirigenti CCNL Terziario). Non deducibile: trattenuta diretta dal netto */
-  fondoPastore?: boolean;
-
-  /** Contributo CFMT (Centro di Formazione Management del Terziario). Non deducibile: trattenuta diretta dal netto */
-  cfmt?: boolean;
-
-  /** Contributo FASDAC (Fondo Assistenza Sanitaria Dirigenti - Fondo Mario Besusso). Non deducibile: trattenuta diretta dal netto */
-  fasdac?: boolean;
-
-  /** Contributo Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio). Non deducibile: trattenuta diretta dal netto */
-  fondoEst?: boolean;
 
   /** Regime impatriati (rientro cervelli) - D.Lgs. 209/2023, art. 5 */
   regimeImpatriati?: boolean;
@@ -479,16 +446,8 @@ export interface DettaglioCostoAziendale {
   aliquotaInpsDatore: number;
   /** TFR annuo (RAL / 13,5) */
   tfr: number;
-  /** Contributo Fondo Mario Negri a carico azienda (se dirigente) */
-  fondoNegriDatore: number;
-  /** Contributo Fondo Antonio Pastore a carico azienda (se dirigente) */
-  fondoPastoreDatore: number;
-  /** Contributo CFMT a carico azienda (se dirigente) */
-  cfmtDatore: number;
-  /** Contributo FASDAC a carico azienda (se dirigente) */
-  fasdacDatore: number;
-  /** Contributo Fondo EST a carico azienda (se dipendente CCNL Commercio) */
-  fondoEstDatore: number;
+  /** Contributi fondi contrattuali a carico azienda */
+  fondiContrattualiDatore: number;
   /** Contributo fondo pensione integrativo a carico datore */
   fondoPensioneIntegrativoDatore: number;
   /** Fringe benefit erogati (valore totale lordo) */
@@ -548,20 +507,8 @@ export interface OutputCalcoloStipendio {
   /** Dettaglio benefit non tassati */
   benefitNonTassati: DettaglioBenefitNonTassati;
 
-  /** Dettaglio Fondo Mario Negri (se dirigente CCNL Terziario) */
-  fondoNegri: DettaglioFondoNegri | null;
-
-  /** Dettaglio Fondo Antonio Pastore (se dirigente CCNL Terziario) */
-  fondoPastore: DettaglioFondoPastore | null;
-
-  /** Dettaglio CFMT (se dirigente CCNL Terziario) */
-  cfmt: DettaglioCFMT | null;
-
-  /** Dettaglio FASDAC (se dirigente CCNL Terziario) */
-  fasdac: DettaglioFasdac | null;
-
-  /** Dettaglio Fondo EST (se dipendente CCNL Commercio) */
-  fondoEst: DettaglioFondoEst | null;
+  /** Fondi contrattuali selezionati */
+  fondiContrattuali: DettaglioFondoContrattuale[];
 
   /** Dettaglio previdenza complementare (se attiva) */
   fondoPensioneIntegrativo: DettaglioFondoPensioneIntegrativo | null;

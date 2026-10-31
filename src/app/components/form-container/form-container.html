@@ -1992,7 +1992,7 @@
   <!-- Sezione Dipendenti CCNL Commercio -->
   <fieldset
     class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200 dark:bg-stone-800 dark:border-stone-700"
-    [class.opacity-60]="!model.fondoEst"
+    [class.opacity-60]="!fondoCommercioSelezionato()"
   >
     <legend class="px-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
       Dipendenti CCNL Commercio
@@ -2002,28 +2002,26 @@
       Trattenute per i dipendenti non dirigenti del settore commercio, turismo e servizi.
     </p>
 
-    <div class="flex items-center gap-2 mb-3">
-      <input
-        id="fondoEst"
-        type="checkbox"
-        [formField]="form.fondoEst"
-        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
-      />
-      <label for="fondoEst" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
-        >Fondo EST<app-info-tooltip
-          tooltipId="fondoEst-info"
-          text="Assistenza sanitaria integrativa per dipendenti CCNL Commercio. Contributo 2026: 24 euro/anno (2 euro/mese). NON riduce l'imponibile IRPEF: trattenuta diretta dal netto."
+    @for (fondo of fondiCommercio; track fondo.id) {
+      <div class="flex items-center gap-2 mb-3">
+        <input
+          [id]="fondo.id"
+          type="checkbox"
+          [formField]="form[fondo.id]"
+          class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
         />
-      </label>
-    </div>
+        <label [for]="fondo.id" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >{{ fondo.nome
+          }}<app-info-tooltip [tooltipId]="fondo.id + '-info'" [text]="fondo.tooltip" />
+        </label>
+      </div>
+    }
   </fieldset>
 
   <!-- Sezione Dirigenti CCNL Terziario -->
   <fieldset
     class="bg-white border border-stone-200 rounded-lg p-5 transition-opacity duration-200 dark:bg-stone-800 dark:border-stone-700"
-    [class.opacity-60]="
-      !model.fondoMarioNegri && !model.fondoPastore && !model.cfmt && !model.fasdac
-    "
+    [class.opacity-60]="!fondoDirigentiSelezionato()"
   >
     <legend class="px-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
       Dirigenti CCNL Terziario
@@ -2034,66 +2032,19 @@
       servizi).
     </p>
 
-    <div class="flex items-center gap-2 mb-3">
-      <input
-        id="fondoMarioNegri"
-        type="checkbox"
-        [formField]="form.fondoMarioNegri"
-        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
-      />
-      <label
-        for="fondoMarioNegri"
-        class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
-        >Fondo Mario Negri<app-info-tooltip
-          tooltipId="fondoMarioNegri-info"
-          text="Previdenza complementare obbligatoria. Contributo 2026: 1.184,49 euro/anno (2% di 59.224,54 euro). Riduce l'imponibile IRPEF senza limiti di deducibilità."
+    @for (fondo of fondiDirigenti; track fondo.id) {
+      <div class="flex items-center gap-2 mb-3">
+        <input
+          [id]="fondo.id"
+          type="checkbox"
+          [formField]="form[fondo.id]"
+          class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
         />
-      </label>
-    </div>
-
-    <div class="flex items-center gap-2 mb-3">
-      <input
-        id="fondoPastore"
-        type="checkbox"
-        [formField]="form.fondoPastore"
-        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
-      />
-      <label for="fondoPastore" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
-        >Fondo Antonio Pastore<app-info-tooltip
-          tooltipId="fondoPastore-info"
-          text="Fondo assicurativo-previdenziale integrativo obbligatorio. Contributo 2026: 464,81 euro/anno. NON riduce l'imponibile IRPEF: trattenuta diretta dal netto."
-        />
-      </label>
-    </div>
-
-    <div class="flex items-center gap-2 mb-3">
-      <input
-        id="cfmt"
-        type="checkbox"
-        [formField]="form.cfmt"
-        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
-      />
-      <label for="cfmt" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
-        >CFMT<app-info-tooltip
-          tooltipId="cfmt-info"
-          text="Contributo per formazione e aggiornamento professionale. Contributo 2026: 166 euro/anno (148 formazione + 18 piattaforma welfare). NON riduce l'imponibile IRPEF: trattenuta diretta dal netto."
-        />
-      </label>
-    </div>
-
-    <div class="flex items-center gap-2 mb-3">
-      <input
-        id="fasdac"
-        type="checkbox"
-        [formField]="form.fasdac"
-        class="w-4 h-4 rounded border-stone-300 text-stone-600 focus:ring-stone-500 focus:ring-offset-0 dark:border-stone-600 dark:bg-stone-700 dark:checked:bg-stone-500"
-      />
-      <label for="fasdac" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
-        >FASDAC<app-info-tooltip
-          tooltipId="fasdac-info"
-          text="Assistenza sanitaria integrativa (Fondo Mario Besusso). Quota dirigente 2026: 859,08 euro/anno (1,87% di 45.940 euro). NON riduce l'imponibile IRPEF: trattenuta diretta dal netto."
-        />
-      </label>
-    </div>
+        <label [for]="fondo.id" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >{{ fondo.nome
+          }}<app-info-tooltip [tooltipId]="fondo.id + '-info'" [text]="fondo.tooltip" />
+        </label>
+      </div>
+    }
   </fieldset>
 </form>

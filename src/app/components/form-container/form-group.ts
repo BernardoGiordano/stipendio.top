@@ -19,6 +19,7 @@ import {
   BorsaDiStudio,
   ConiugeACarico,
   FiglioACarico,
+  FondoContrattualeId,
   FondoPensioneIntegrativo,
   FringeBenefit,
   InputCalcoloStipendio,
@@ -30,6 +31,7 @@ import {
   haDetrazioneFigliRegionale,
   haRedditiSostitutiviInSoglia,
 } from '../../../calculator/addizionali/2026';
+import { FONDI_CONTRATTUALI } from '../../../calculator/fondi/2026';
 
 export interface AutoAziendaleFormModel {
   costoKmAci: number;
@@ -110,7 +112,7 @@ export interface AscendenteACaricoFormModel {
   convivente: boolean;
 }
 
-export interface StipendioFormModel {
+export interface StipendioFormModel extends Record<FondoContrattualeId, boolean> {
   // Mandatory fields
   ral: number;
   mensilita: string;
@@ -127,11 +129,6 @@ export interface StipendioFormModel {
   altriRedditiSogliaAddizionale: number;
   altreDetrazioni: number;
   haFigliACarico: boolean;
-  fondoMarioNegri: boolean;
-  fondoPastore: boolean;
-  cfmt: boolean;
-  fasdac: boolean;
-  fondoEst: boolean;
   regimeImpatriati: boolean;
   regimeImpatriatiMinorenni: boolean;
   altraCoperturaPensionistica: boolean;
@@ -263,11 +260,10 @@ export function createDefaultFormModel(): StipendioFormModel {
     altriRedditiSogliaAddizionale: 0,
     altreDetrazioni: 0,
     haFigliACarico: false,
-    fondoMarioNegri: false,
-    fondoPastore: false,
-    cfmt: false,
-    fasdac: false,
-    fondoEst: false,
+    ...(Object.fromEntries(FONDI_CONTRATTUALI.map((fondo) => [fondo.id, false])) as Record<
+      FondoContrattualeId,
+      boolean
+    >),
     regimeImpatriati: false,
     regimeImpatriatiMinorenni: false,
     altraCoperturaPensionistica: false,
@@ -645,11 +641,9 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
       }),
     ...(model.altreDetrazioni > 0 && { altreDetrazioni: model.altreDetrazioni }),
     ...(model.haFigliACarico && { haFigliACarico: true }),
-    ...(model.fondoMarioNegri && { fondoMarioNegri: true }),
-    ...(model.fondoPastore && { fondoPastore: true }),
-    ...(model.cfmt && { cfmt: true }),
-    ...(model.fasdac && { fasdac: true }),
-    ...(model.fondoEst && { fondoEst: true }),
+    ...Object.fromEntries(
+      FONDI_CONTRATTUALI.filter((fondo) => model[fondo.id]).map((fondo) => [fondo.id, true]),
+    ),
     ...(model.regimeImpatriati && { regimeImpatriati: true }),
     ...(model.regimeImpatriati &&
       model.regimeImpatriatiMinorenni && { regimeImpatriatiMinorenni: true }),

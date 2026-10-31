@@ -176,55 +176,15 @@
                   {{ formatCurrency(r.costoAziendale.tfr) }}
                 </dd>
               </div>
-              @if (r.costoAziendale.fondoNegriDatore > 0) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Fondo Negri (azienda)</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.costoAziendale.fondoNegriDatore) }}
-                  </dd>
-                </div>
-              }
-              @if (r.costoAziendale.fondoPastoreDatore > 0) {
+              @for (fondo of r.fondiContrattuali; track fondo.id) {
                 <div
                   class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
                 >
                   <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Fondo Pastore (azienda)
+                    {{ fondo.nome }} (azienda)
                   </dt>
                   <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.costoAziendale.fondoPastoreDatore) }}
-                  </dd>
-                </div>
-              }
-              @if (r.costoAziendale.cfmtDatore > 0) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">CFMT (azienda)</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.costoAziendale.cfmtDatore) }}
-                  </dd>
-                </div>
-              }
-              @if (r.costoAziendale.fasdacDatore > 0) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">FASDAC (azienda)</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.costoAziendale.fasdacDatore) }}
-                  </dd>
-                </div>
-              }
-              @if (r.costoAziendale.fondoEstDatore > 0) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Fondo EST (azienda)</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.costoAziendale.fondoEstDatore) }}
+                    {{ formatCurrency(fondo.contributoDatore) }}
                   </dd>
                 </div>
               }
@@ -650,13 +610,13 @@
             </dl>
           </section>
 
-          <!-- Fondo Mario Negri -->
-          @if (r.fondoNegri) {
+          <!-- Fondi Contrattuali -->
+          @for (fondo of r.fondiContrattuali; track fondo.id) {
             <section class="p-4 border-b border-stone-100 dark:border-stone-700">
               <h3
                 class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
               >
-                Fondo Mario Negri
+                {{ fondo.nome }}
               </h3>
               <dl>
                 <div
@@ -664,7 +624,7 @@
                 >
                   <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Annuo</dt>
                   <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                    - {{ formatCurrency(r.fondoNegri.contributoAnnuo) }}
+                    - {{ formatCurrency(fondo.contributoAnnuo) }}
                   </dd>
                 </div>
                 <div
@@ -672,158 +632,30 @@
                 >
                   <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Mensile</dt>
                   <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.fondoNegri.contributoMensile) }}
+                    {{ formatCurrency(fondo.contributoMensile) }}
                   </dd>
                 </div>
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Risparmio Fiscale Stimato
-                  </dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    + {{ formatCurrency(r.fondoNegri.risparmoFiscaleStimato) }}
-                  </dd>
-                </div>
-                <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
-                    (riduzione imponibile IRPEF)
-                  </dt>
-                </div>
-              </dl>
-            </section>
-          }
-
-          <!-- Fondo Antonio Pastore -->
-          @if (r.fondoPastore) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
-                Fondo Antonio Pastore
-              </h3>
-              <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Annuo</dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                    - {{ formatCurrency(r.fondoPastore.contributoAnnuo) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Mensile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.fondoPastore.contributoMensile) }}
-                  </dd>
-                </div>
-                <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
-                    (trattenuta diretta dal netto, non deducibile)
-                  </dt>
-                </div>
-              </dl>
-            </section>
-          }
-
-          <!-- CFMT -->
-          @if (r.cfmt) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
-                CFMT
-              </h3>
-              <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Annuo</dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                    - {{ formatCurrency(r.cfmt.contributoAnnuo) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Mensile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.cfmt.contributoMensile) }}
-                  </dd>
-                </div>
-                <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
-                    (trattenuta diretta dal netto, non deducibile)
-                  </dt>
-                </div>
-              </dl>
-            </section>
-          }
-
-          <!-- FASDAC -->
-          @if (r.fasdac) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
-                FASDAC
-              </h3>
-              <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Annuo</dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                    - {{ formatCurrency(r.fasdac.contributoAnnuo) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Mensile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.fasdac.contributoMensile) }}
-                  </dd>
-                </div>
-                <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
-                    (trattenuta diretta dal netto, non deducibile)
-                  </dt>
-                </div>
-              </dl>
-            </section>
-          }
-
-          <!-- Fondo EST -->
-          @if (r.fondoEst) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
-                Fondo EST
-              </h3>
-              <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Annuo</dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                    - {{ formatCurrency(r.fondoEst.contributoAnnuo) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Mensile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.fondoEst.contributoMensile) }}
-                  </dd>
-                </div>
-                <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
-                    (trattenuta diretta dal netto, non deducibile)
-                  </dt>
-                </div>
+                @if (fondo.deducibile) {
+                  <div class="flex justify-between py-1.5">
+                    <dt class="text-sm text-stone-600 dark:text-stone-400">
+                      Risparmio Fiscale Stimato
+                    </dt>
+                    <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                      + {{ formatCurrency(fondo.risparmioFiscaleStimato) }}
+                    </dd>
+                  </div>
+                  <div class="flex justify-between py-1 pl-3">
+                    <dt class="text-xs text-stone-500 dark:text-stone-400">
+                      (riduzione imponibile IRPEF)
+                    </dt>
+                  </div>
+                } @else {
+                  <div class="flex justify-between py-1 pl-3">
+                    <dt class="text-xs text-stone-500 dark:text-stone-400">
+                      (trattenuta diretta dal netto, non deducibile)
+                    </dt>
+                  </div>
+                }
               </dl>
             </section>
           }

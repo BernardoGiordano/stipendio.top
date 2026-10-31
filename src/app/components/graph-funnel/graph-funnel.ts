@@ -121,15 +121,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     const tfr = ca.tfr;
 
     // Fondi datore (raggruppati)
-    const fondiDatoreComponents = [
-      ca.fondoNegriDatore,
-      ca.fondoPastoreDatore,
-      ca.cfmtDatore,
-      ca.fasdacDatore,
-      ca.fondoEstDatore,
-      ca.fondoPensioneIntegrativoDatore,
-    ];
-    const fondiDatore = fondiDatoreComponents.reduce((s, v) => s + v, 0);
+    const fondiDatore = ca.fondiContrattualiDatore + ca.fondoPensioneIntegrativoDatore;
 
     // Trattenute split out of the calculator's totale, so column 2 always balances.
     // Fondi contrattuali and previdenza complementare make up the remainder.

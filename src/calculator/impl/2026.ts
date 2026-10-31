@@ -6,24 +6,17 @@ import {
   ConiugeACarico,
   DettaglioBenefitNonTassati,
   DettaglioBorsaDiStudio,
-  DettaglioCFMT,
   DettaglioContributiInps,
   DettaglioCostoAziendale,
-  DettaglioFasdac,
-  DettaglioFondoEst,
   DettaglioCuneoFiscale,
   DettaglioDetrazioniFamiliari,
   DettaglioDetrazioniLavoro,
-  DettaglioFondoNegri,
-  DettaglioFondoPastore,
-  DettaglioFondoPensioneIntegrativo,
   DettaglioFringeBenefit,
   DettaglioIrpef,
   DettaglioRegimeImpatriati,
   DettaglioRimborsiTrasferta,
   DettaglioTrattamentoIntegrativo,
   FiglioACarico,
-  FondoPensioneIntegrativo,
   FringeBenefit,
   InputCalcoloStipendio,
   OutputCalcoloStipendio,
@@ -33,6 +26,7 @@ import {
 } from '../types';
 import { StipendioCalculator } from '../calculator';
 import { calcolaAddizionali } from '../addizionali/2026';
+import { calcolaFondi, dettagliFondi } from '../fondi/2026';
 
 /** Scaglioni IRPEF 2026 (aliquota intermedia ridotta) */
 const IRPEF_SCAGLIONI = [
@@ -154,48 +148,6 @@ const BENEFIT_ESENTI = {
   giorniBuoniPastoDefault: 220,
 } as const;
 
-/** Parametri Fondo Mario Negri (previdenza dirigenti CCNL Terziario) */
-const FONDO_MARIO_NEGRI = {
-  /** Retribuzione convenzionale 2026 */
-  retribuzioneConvenzionale: 59_224.54,
-  /** Contributo ordinario a carico del dirigente (2% della retribuzione convenzionale) */
-  contributoOrdinarioDirigente: 1_184.49,
-} as const;
-
-/** Parametri Fondo Antonio Pastore (assicurativo-previdenziale dirigenti CCNL Terziario) */
-const FONDO_ANTONIO_PASTORE = {
-  /** Contributo annuo a carico del dirigente (fisso) */
-  contributoDirigente: 464.81,
-} as const;
-
-/** Parametri CFMT (Centro di Formazione Management del Terziario - CCNL Dirigenti Terziario 2026-2028) */
-const CFMT = {
-  contributoFormazione: 148,
-  costoGestionePiattaforma: 18,
-  totaleDirigente: 166,
-} as const;
-
-/** Parametri FASDAC (Fondo Assistenza Sanitaria Dirigenti - Fondo Mario Besusso) */
-const FASDAC = {
-  retribuzioneConvenzionale: 45_940,
-  aliquotaDirigente: 1.87,
-  contributoDirigente: 859.08,
-} as const;
-
-/** Parametri Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio - Art. 104 CCNL, dal 1 aprile 2025) */
-const FONDO_EST = {
-  contributoDipendenteMensile: 2,
-  contributoDipendente: 24,
-  contributoDatoreMensile: 13,
-  contributoDatore: 156,
-} as const;
-
-/** Parametri previdenza complementare (D.Lgs. 252/2005, aggiornato da L. 199/2025) */
-const PREVIDENZA_COMPLEMENTARE = {
-  /** Limite annuo di deducibilità (art. 10, c.1, lett. e-bis, TUIR - dal 2026: €5.300) */
-  limiteDeducibilita: 5_300,
-} as const;
-
 /** Aliquote contributive INPS a carico del datore di lavoro (Commercio/Terziario 2026) */
 const ALIQUOTE_INPS_DATORE = {
   /** Operai/impiegati senza CIGS (≤50 dip. commercio) */
@@ -208,20 +160,6 @@ const ALIQUOTE_INPS_DATORE = {
   dirigente: 0.2654,
   /** Dirigenti con CIGS */
   dirigenteConCigs: 0.2724,
-} as const;
-
-/** Contributi fondi contrattuali a carico del datore - CCNL Dirigenti Terziario 2026 */
-const FONDI_DATORE_DIRIGENTI = {
-  /** Fondo Mario Negri: ordinario 12,86% + integrativo 2,52% = 15,38% di retribuzione convenzionale */
-  fondoNegriAliquota: 0.1538,
-  fondoNegriRetribuzioneConvenzionale: 59_224.54,
-  /** Associazione Antonio Pastore: premio annuo azienda */
-  fondoPastore: 4_856.45,
-  /** CFMT: €258 formazione + €18 piattaforma welfare */
-  cfmt: 276,
-  /** FASDAC: 5,29% dirigenti in servizio + 2,78% gestione pensionati = 8,07% di retribuzione convenzionale */
-  fasdacAliquota: 0.0807,
-  fasdacRetribuzioneConvenzionale: 45_940,
 } as const;
 
 /** Parametri TFR (Art. 2120 c.c.) */
@@ -818,142 +756,13 @@ function calcolaTrattamentoIntegrativo(
   };
 }
 
-function calcolaFondoNegri(
-  fondoMarioNegri: boolean,
-  aliquotaMarginaleIrpef: number,
-): DettaglioFondoNegri | null {
-  if (!fondoMarioNegri) {
-    return null;
-  }
-
-  const contributoAnnuo = FONDO_MARIO_NEGRI.contributoOrdinarioDirigente;
-  const contributoMensile = contributoAnnuo / 12;
-  const risparmoFiscaleStimato = contributoAnnuo * aliquotaMarginaleIrpef;
-
-  return {
-    contributoAnnuo,
-    contributoMensile,
-    risparmoFiscaleStimato,
-  };
-}
-
-function calcolaFondoPastore(fondoPastore: boolean): DettaglioFondoPastore | null {
-  if (!fondoPastore) {
-    return null;
-  }
-
-  const contributoAnnuo = FONDO_ANTONIO_PASTORE.contributoDirigente;
-  const contributoMensile = contributoAnnuo / 12;
-
-  return {
-    contributoAnnuo,
-    contributoMensile,
-  };
-}
-
-function calcolaCFMT(cfmt: boolean): DettaglioCFMT | null {
-  if (!cfmt) {
-    return null;
-  }
-
-  const contributoAnnuo = CFMT.totaleDirigente;
-  const contributoMensile = contributoAnnuo / 12;
-
-  return {
-    contributoAnnuo,
-    contributoMensile,
-  };
-}
-
-function calcolaFasdac(fasdac: boolean): DettaglioFasdac | null {
-  if (!fasdac) {
-    return null;
-  }
-
-  const contributoAnnuo = FASDAC.contributoDirigente;
-  const contributoMensile = contributoAnnuo / 12;
-
-  return {
-    contributoAnnuo,
-    contributoMensile,
-  };
-}
-
-function calcolaFondoEst(fondoEst: boolean): DettaglioFondoEst | null {
-  if (!fondoEst) {
-    return null;
-  }
-
-  const contributoAnnuo = FONDO_EST.contributoDipendente;
-  const contributoMensile = contributoAnnuo / 12;
-
-  return {
-    contributoAnnuo,
-    contributoMensile,
-  };
-}
-
-function calcolaFondoPensioneIntegrativo(
-  fondoPensione: FondoPensioneIntegrativo | undefined,
-  aliquotaMarginaleIrpef: number,
-  contributoFondoSquilibrio: number,
-  contributoVolontario: number = 0,
-  mensilita: number = 12,
-): DettaglioFondoPensioneIntegrativo | null {
-  if (!fondoPensione && contributoVolontario <= 0) {
-    return null;
-  }
-
-  const ralLavoratore = fondoPensione?.ralLavoratore || 0;
-  const ralDatore = fondoPensione?.ralDatoreLavoro || 0;
-  const ralEbitemp = fondoPensione?.ralEbitemp || 0;
-
-  const contributoLavoratoreAnnuo =
-    ralLavoratore * ((fondoPensione?.contributoLavoratore || 0) / 100);
-  const contributoDatoreLavoroAnnuo =
-    ralDatore * ((fondoPensione?.contributoDatoreLavoro || 0) / 100);
-  const contributoEbitempAnnuo = ralEbitemp * ((fondoPensione?.contributoEbitemp || 0) / 100);
-  const totaleContributi =
-    contributoLavoratoreAnnuo +
-    contributoDatoreLavoroAnnuo +
-    contributoEbitempAnnuo +
-    contributoVolontario;
-
-  // Il plafond di €5.300 è ridotto dai contributi versati a fondi in squilibrio finanziario
-  // (es. Fondo Mario Negri, che gode di deducibilità piena ex art. 20, c.7, D.Lgs. 252/2005)
-  const limiteResiduo = Math.max(
-    0,
-    PREVIDENZA_COMPLEMENTARE.limiteDeducibilita - contributoFondoSquilibrio,
-  );
-  const deduzioneEffettiva = Math.min(totaleContributi, limiteResiduo);
-  const eccedenzaNonDeducibile = Math.max(0, totaleContributi - limiteResiduo);
-  const risparmoFiscaleStimato = deduzioneEffettiva * aliquotaMarginaleIrpef;
-
-  return {
-    contributoLavoratoreAnnuo,
-    contributoLavoratoreMensile:
-      contributoLavoratoreAnnuo / (fondoPensione?.ripartizionePerMensilita ? mensilita : 12),
-    contributoDatoreLavoroAnnuo,
-    contributoEbitempAnnuo,
-    contributoVolontarioAnnuo: contributoVolontario,
-    totaleContributi,
-    deduzioneEffettiva,
-    eccedenzaNonDeducibile,
-    risparmoFiscaleStimato,
-  };
-}
-
 function calcolaCostoAziendale(
   ral: number,
   imponibilePrevidenziale: number,
   tipoContratto: TipoContratto,
   aziendaConCigs: boolean,
   isDirigente: boolean,
-  fondoMarioNegri: boolean,
-  fondoPastore: boolean,
-  cfmt: boolean,
-  fasdac: boolean,
-  fondoEst: boolean,
+  fondiContrattualiDatore: number,
   contributoDatoreFondoPensione: number,
   fringeBenefitTotale: number,
   rimborsiTrasfertaTotale: number,
@@ -977,30 +786,12 @@ function calcolaCostoAziendale(
   // 2. TFR
   const tfr = ral / TFR.divisore;
 
-  // 3. Fondi contrattuali dirigenti (a carico datore)
-  const fondoNegriDatore = fondoMarioNegri
-    ? FONDI_DATORE_DIRIGENTI.fondoNegriAliquota *
-      FONDI_DATORE_DIRIGENTI.fondoNegriRetribuzioneConvenzionale
-    : 0;
-  const fondoPastoreDatore = fondoPastore ? FONDI_DATORE_DIRIGENTI.fondoPastore : 0;
-  const cfmtDatore = cfmt ? FONDI_DATORE_DIRIGENTI.cfmt : 0;
-  const fasdacDatore = fasdac
-    ? FONDI_DATORE_DIRIGENTI.fasdacAliquota * FONDI_DATORE_DIRIGENTI.fasdacRetribuzioneConvenzionale
-    : 0;
-
-  // 3b. Fondo EST (dipendenti CCNL Commercio)
-  const fondoEstDatore = fondoEst ? FONDO_EST.contributoDatore : 0;
-
-  // 4. Totale
+  // 3. Totale
   const totaleAnnuo =
     ral +
     contributiInpsDatore +
     tfr +
-    fondoNegriDatore +
-    fondoPastoreDatore +
-    cfmtDatore +
-    fasdacDatore +
-    fondoEstDatore +
+    fondiContrattualiDatore +
     contributoDatoreFondoPensione +
     fringeBenefitTotale +
     rimborsiTrasfertaTotale +
@@ -1011,11 +802,7 @@ function calcolaCostoAziendale(
     contributiInpsDatore,
     aliquotaInpsDatore,
     tfr,
-    fondoNegriDatore,
-    fondoPastoreDatore,
-    cfmtDatore,
-    fasdacDatore,
-    fondoEstDatore,
+    fondiContrattualiDatore,
     fondoPensioneIntegrativoDatore: contributoDatoreFondoPensione,
     fringeBenefit: fringeBenefitTotale,
     rimborsiTrasferta: rimborsiTrasfertaTotale,
@@ -1129,11 +916,7 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     contributiInpsDatore: contributoGSEnte,
     aliquotaInpsDatore: aliquotaGS * GESTIONE_SEPARATA_BORSE.quotaEnte,
     tfr: 0,
-    fondoNegriDatore: 0,
-    fondoPastoreDatore: 0,
-    cfmtDatore: 0,
-    fasdacDatore: 0,
-    fondoEstDatore: 0,
+    fondiContrattualiDatore: 0,
     fondoPensioneIntegrativoDatore: 0,
     fringeBenefit: 0,
     rimborsiTrasferta: 0,
@@ -1149,11 +932,7 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     fringeBenefit: zeroFringeBenefit,
     rimborsiTrasferta: zeroRimborsiTrasferta,
     benefitNonTassati: zeroBenefitNonTassati,
-    fondoNegri: null,
-    fondoPastore: null,
-    cfmt: null,
-    fasdac: null,
-    fondoEst: null,
+    fondiContrattuali: [],
     fondoPensioneIntegrativo: null,
     regimeImpatriati: null,
     borsaDiStudio,
@@ -1233,14 +1012,8 @@ export class Calculator2026 implements StipendioCalculator {
       haFigliACarico = false,
       rimborsiTrasferta: rimborsiTrasfertaInput,
       benefitNonTassati: benefitNonTassatiInput,
-      fondoMarioNegri = false,
-      fondoPastore: fondoPastoreFlag = false,
-      cfmt: cfmtFlag = false,
-      fasdac: fasdacFlag = false,
-      fondoEst: fondoEstFlag = false,
       regimeImpatriati: regimeImpatriatiFlag = false,
       regimeImpatriatiMinorenni = false,
-      fondoPensioneIntegrativo: fondoPensioneInput,
       borsaDiStudio: borsaDiStudioInput,
     } = input;
 
@@ -1269,70 +1042,22 @@ export class Calculator2026 implements StipendioCalculator {
       iscrittoPost1996,
     );
 
-    // 6. CALCOLO FONDO MARIO NEGRI (previdenza complementare dirigenti CCNL Terziario)
-    // Il contributo al Fondo Negri riduce l'imponibile IRPEF ed è una trattenuta reale
-    const contributoFondoNegri = fondoMarioNegri
-      ? FONDO_MARIO_NEGRI.contributoOrdinarioDirigente
-      : 0;
-
-    // 6c. CALCOLO FONDO ANTONIO PASTORE (assicurativo-previdenziale dirigenti CCNL Terziario)
-    // Il contributo al Fondo Pastore NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
-    const contributoFondoPastore = fondoPastoreFlag ? FONDO_ANTONIO_PASTORE.contributoDirigente : 0;
-
-    // 6d. CALCOLO CFMT (Centro di Formazione Management del Terziario)
-    // Il contributo CFMT NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
-    const contributoCFMT = cfmtFlag ? CFMT.totaleDirigente : 0;
-
-    // 6e. CALCOLO FASDAC (Fondo Assistenza Sanitaria Dirigenti)
-    // Il contributo FASDAC NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
-    const contributoFasdac = fasdacFlag ? FASDAC.contributoDirigente : 0;
-
-    // 6f. CALCOLO FONDO EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
-    // Il contributo Fondo EST NON riduce l'imponibile IRPEF, è una trattenuta diretta dal netto
-    const contributoFondoEst = fondoEstFlag ? FONDO_EST.contributoDipendente : 0;
-
-    // 6g. CALCOLO FONDO PENSIONE INTEGRATIVO (previdenza complementare)
-    // Il contributo lavoratore + datore è deducibile dall'imponibile IRPEF fino a €5.300/anno
-    // I contributi versati a fondi in squilibrio finanziario (es. Fondo Negri) riducono il plafond
-    // Il contributo lavoratore è una trattenuta reale dal netto in busta paga
-    // Il contributo datore NON è una trattenuta dal netto, ma concorre al limite di deducibilità
-    // Il contributo volontario (da sezione welfare) è una trattenuta reale che condivide il cap
-    const contributoFondoPensione = fondoPensioneInput
-      ? (fondoPensioneInput.ralLavoratore || 0) *
-        ((fondoPensioneInput.contributoLavoratore || 0) / 100)
-      : 0;
-    const contributoDatoreFondoPensione = fondoPensioneInput
-      ? (fondoPensioneInput.ralDatoreLavoro || 0) *
-        ((fondoPensioneInput.contributoDatoreLavoro || 0) / 100)
-      : 0;
-    const contributoEbitempFondoPensione = fondoPensioneInput
-      ? (fondoPensioneInput.ralEbitemp || 0) * ((fondoPensioneInput.contributoEbitemp || 0) / 100)
-      : 0;
-    const contributoVolontarioPensione = benefitNonTassatiInput?.previdenzaComplementare ?? 0;
-    const limiteResiduo = Math.max(
-      0,
-      PREVIDENZA_COMPLEMENTARE.limiteDeducibilita - contributoFondoNegri,
-    );
-    const deduzioneFondoPensione = Math.min(
-      contributoFondoPensione +
-        contributoDatoreFondoPensione +
-        contributoEbitempFondoPensione +
-        contributoVolontarioPensione,
-      limiteResiduo,
-    );
+    // 6. CALCOLO FONDI CONTRATTUALI E PREVIDENZA COMPLEMENTARE
+    // Il contributo volontario (da sezione welfare) condivide il plafond della previdenza complementare
+    const fondi = calcolaFondi({
+      ...input,
+      contributoVolontario: benefitNonTassatiInput?.previdenzaComplementare ?? 0,
+      mensilita,
+    });
 
     // 7. CALCOLO IMPONIBILE IRPEF
-    // Il Fondo Negri riduce l'imponibile IRPEF (deduzione piena, no massimale)
-    // Il Fondo Pensione Integrativo riduce l'imponibile IRPEF (deduzione con cap €5.300)
     // Il contributo datore + Ebitemp al fondo pensione è reddito per il dipendente (Art. 51 TUIR)
-    // ma è deducibile entro il cap (Art. 10 TUIR): effetto netto zero se entro il limite
+    // ma è deducibile entro il plafond (Art. 10 TUIR): effetto netto zero se entro il limite
     const redditoLavoroDipendenteLordo =
       imponibilePrevidenziale +
-      contributoDatoreFondoPensione +
-      contributoEbitempFondoPensione -
+      fondi.redditoFondoPensione -
       contributiInps.totaleContributi -
-      contributoFondoNegri -
-      deduzioneFondoPensione;
+      fondi.deduzione;
 
     // 7b. REGIME IMPATRIATI (D.Lgs. 209/2023, art. 5)
     // Riduce la base imponibile IRPEF e addizionali. Non riduce INPS.
@@ -1461,66 +1186,37 @@ export class Calculator2026 implements StipendioCalculator {
         altreDetrazioni,
     };
 
-    // 15. CALCOLO DETTAGLIO FONDO MARIO NEGRI
-    // Determina l'aliquota marginale IRPEF per stimare il risparmio fiscale
+    // 15. DETTAGLIO FONDI
+    // L'aliquota marginale IRPEF stima il risparmio fiscale delle deduzioni
     const aliquotaMarginaleIrpef =
       irpef.dettaglioScaglioni.length > 0
         ? irpef.dettaglioScaglioni[irpef.dettaglioScaglioni.length - 1].aliquota
         : 0;
-    const fondoNegri = calcolaFondoNegri(fondoMarioNegri, aliquotaMarginaleIrpef);
-
-    // 15b. CALCOLO DETTAGLIO FONDO ANTONIO PASTORE
-    const fondoPastore = calcolaFondoPastore(fondoPastoreFlag);
-
-    // 15c. CALCOLO DETTAGLIO CFMT
-    const cfmt = calcolaCFMT(cfmtFlag);
-
-    // 15d. CALCOLO DETTAGLIO FASDAC
-    const fasdac = calcolaFasdac(fasdacFlag);
-
-    // 15d2. CALCOLO DETTAGLIO FONDO EST
-    const fondoEst = calcolaFondoEst(fondoEstFlag);
-
-    // 15e. CALCOLO DETTAGLIO FONDO PENSIONE INTEGRATIVO
-    const fondoPensioneIntegrativo = calcolaFondoPensioneIntegrativo(
-      fondoPensioneInput,
+    const { fondiContrattuali, fondoPensioneIntegrativo } = dettagliFondi(
+      fondi,
       aliquotaMarginaleIrpef,
-      contributoFondoNegri,
-      contributoVolontarioPensione,
-      mensilita,
     );
 
     // 16. CALCOLO COSTO AZIENDALE
-    const isDirigente = fondoMarioNegri || fondoPastoreFlag || cfmtFlag || fasdacFlag;
     const costoAziendale = calcolaCostoAziendale(
       ral,
       contributiInps.imponibilePrevidenziale,
       tipoContratto,
       aziendaConCigs,
-      isDirigente,
-      fondoMarioNegri,
-      fondoPastoreFlag,
-      cfmtFlag,
-      fasdacFlag,
-      fondoEstFlag,
-      contributoDatoreFondoPensione,
+      fondi.isDirigente,
+      fondi.costoDatoreFondiContrattuali,
+      fondi.costoDatoreFondoPensione,
       fringeBenefit.valoreTotaleLordo,
       rimborsiTrasferta.totaleRimborsi,
       benefitNonTassati.totaleEsente + benefitNonTassati.totaleTassato,
     );
 
-    // Totale trattenute (include contributo Fondo Negri, Fondo Pastore, CFMT, FASDAC, Fondo EST, contributo lavoratore Fondo Pensione, contributo volontario, e contributo GS borsista)
+    // Totale trattenute (include fondi contrattuali, previdenza complementare lavoratore e volontaria, contributo GS borsista)
     const totaleTrattenute =
       contributiInps.totaleContributi +
       irpefFinale +
       addizionali.totaleAddizionali +
-      contributoFondoNegri +
-      contributoFondoPastore +
-      contributoCFMT +
-      contributoFasdac +
-      contributoFondoEst +
-      contributoFondoPensione +
-      contributoVolontarioPensione +
+      fondi.trattenute +
       borsaCalcolo.contributoGSBorsista;
 
     // Totale bonus
@@ -1582,11 +1278,7 @@ export class Calculator2026 implements StipendioCalculator {
       fringeBenefit,
       rimborsiTrasferta,
       benefitNonTassati,
-      fondoNegri,
-      fondoPastore,
-      cfmt,
-      fasdac,
-      fondoEst,
+      fondiContrattuali,
       fondoPensioneIntegrativo,
       regimeImpatriati: dettaglioRegimeImpatriati,
       borsaDiStudio: dettaglioBorsaDiStudio,
