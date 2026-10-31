@@ -12,6 +12,9 @@ import {
 import { OutputCalcoloStipendio } from '../../../calculator/types';
 import { formatCurrency } from '../../utils/intl';
 
+// Flows under one cent are rounding noise
+const MIN_FLOW = 0.01;
+
 interface SankeyNode {
   id: string;
   label: string;
@@ -94,14 +97,24 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     // === Extract values ===
     const ca = result.costoAziendale;
     const ral = result.ral;
-    const inpsDip = result.contributiInps.totaleContributi;
+    const fringe = result.fringeBenefit;
     const irpefFinale = result.irpefFinale;
     const addizionali = result.addizionali.totaleAddizionali;
     const cuneoIndennita = result.cuneoFiscale.indennitaEsente;
     const trattamentoIntegrativo = result.trattamentoIntegrativo.importo;
-    const rimborsiEsenti = result.rimborsiTrasferta.totaleEsente;
-    const benefitEsenti = result.benefitNonTassati.totaleEsente;
+    const borsaLordo = result.borsaDiStudio?.importoLordo ?? 0;
     const totalePercepito = result.totalePercepito;
+
+    // Taxed benefits join RAL in the taxable base; exempt ones go straight to Totale
+    const benefitTassati =
+      fringe.valoreMonetarioImponibile +
+      result.rimborsiTrasferta.rimborsiTassati +
+      result.benefitNonTassati.totaleTassato;
+    const rimborsiEsenti = result.rimborsiTrasferta.totaleEsente;
+    const benefitEsenti = fringe.valoreEsente + result.benefitNonTassati.totaleEsente;
+
+    // Taxable auto aziendale is paid in kind, so it never reaches the netto
+    const autoAziendale = fringe.valoreAutoImponibile;
 
     // Costo aziendale components
     const inpsDatore = ca.contributiInpsDatore;
@@ -118,19 +131,16 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     ];
     const fondiDatore = fondiDatoreComponents.reduce((s, v) => s + v, 0);
 
-    // Fondi dipendente (raggruppati)
-    const fondiDipComponents = [
-      result.fondoNegri?.contributoAnnuo ?? 0,
-      result.fondoPastore?.contributoAnnuo ?? 0,
-      result.cfmt?.contributoAnnuo ?? 0,
-      result.fasdac?.contributoAnnuo ?? 0,
-      result.fondoEst?.contributoAnnuo ?? 0,
-      result.fondoPensioneIntegrativo?.contributoLavoratoreAnnuo ?? 0,
-    ];
-    const fondiDip = fondiDipComponents.reduce((s, v) => s + v, 0);
+    // Trattenute split out of the calculator's totale, so column 2 always balances.
+    // Fondi contrattuali and previdenza complementare make up the remainder.
+    const inpsDip =
+      result.contributiInps.totaleContributi +
+      (result.borsaDiStudio?.contributoGestioneSeparataBorsista ?? 0);
+    const fondiDip = result.totaleTrattenute - inpsDip - irpefFinale - addizionali;
+    const trattenutaAuto = fringe.trattenutaAutoDipendente;
 
-    // Netto from RAL = RAL - all deductions from RAL
-    const nettoFromRAL = ral - inpsDip - irpefFinale - addizionali - fondiDip;
+    // Cuneo and trattamento integrativo reach Totale on their own links
+    const netto = result.nettoAnnuo - result.totaleBonus;
 
     // Costo aziendale totale
     const costoAziendale = ca.totaleAnnuo;
@@ -142,13 +152,17 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
       inpsDatore: '#dc2626',
       tfr: '#d97706',
       fondiDatore: '#7c3aed',
+      benefitTassati: '#0891b2',
+      autoAziendale: '#64748b',
       rimborsi: '#14b8a6',
       benefit: '#06b6d4',
       inpsDip: '#ef4444',
       irpef: '#f97316',
       addizionali: '#eab308',
       fondiDip: '#a855f7',
-      nettoFromRAL: '#84cc16',
+      trattenutaAuto: '#fb7185',
+      netto: '#84cc16',
+      borsa: '#ec4899',
       cuneo: '#3b82f6',
       trattamento: '#8b5cf6',
       totale: '#22c55e',
@@ -161,40 +175,37 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     const col2X = padding.left + (nodeWidth + columnGap) * 2;
     const col3X = padding.left + (nodeWidth + columnGap) * 3;
 
-    // === Build column value arrays (filtered > 0) ===
+    // === Build column value arrays ===
+
+    // Col1 sums to Costo Aziendale
     const col1Values = [
       { id: 'ral', value: ral, label: 'RAL (Lordo)' },
+      { id: 'benefitTassati', value: benefitTassati, label: 'Benefit Tassati' },
       { id: 'inpsDatore', value: inpsDatore, label: 'INPS Datore' },
       { id: 'tfr', value: tfr, label: 'TFR' },
-      ...(fondiDatore > 0
-        ? [{ id: 'fondiDatore', value: fondiDatore, label: 'Fondi Datore' }]
-        : []),
-      ...(rimborsiEsenti > 0
-        ? [{ id: 'rimborsi', value: rimborsiEsenti, label: 'Rimborsi Esenti' }]
-        : []),
-      ...(benefitEsenti > 0
-        ? [{ id: 'benefit', value: benefitEsenti, label: 'Benefit Esenti' }]
-        : []),
-    ];
+      { id: 'fondiDatore', value: fondiDatore, label: 'Fondi Datore' },
+      { id: 'autoAziendale', value: autoAziendale, label: 'Auto Aziendale' },
+      { id: 'rimborsi', value: rimborsiEsenti, label: 'Rimborsi Esenti' },
+      { id: 'benefit', value: benefitEsenti, label: 'Benefit Esenti' },
+    ].filter((v) => v.value >= MIN_FLOW);
 
+    // Col2 sums to the taxable base: RAL + benefit tassati + borsa
     const col2Values = [
       { id: 'inpsDip', value: inpsDip, label: 'INPS Dip.' },
       { id: 'irpef', value: irpefFinale, label: 'IRPEF' },
-      ...(addizionali > 0 ? [{ id: 'addizionali', value: addizionali, label: 'Addizionali' }] : []),
-      ...(fondiDip > 0 ? [{ id: 'fondiDip', value: fondiDip, label: 'Fondi Dip.' }] : []),
-      { id: 'nettoFromRAL', value: nettoFromRAL, label: 'Netto' },
-    ].filter((v) => v.value > 0);
+      { id: 'addizionali', value: addizionali, label: 'Addizionali' },
+      { id: 'fondiDip', value: fondiDip, label: 'Fondi Dip.' },
+      { id: 'trattenutaAuto', value: trattenutaAuto, label: 'Trattenuta Auto' },
+      { id: 'netto', value: netto, label: 'Netto' },
+    ].filter((v) => v.value >= MIN_FLOW);
 
-    // Col0 sources: Costo Aziendale + external bonuses
+    // Col0 sources: Costo Aziendale + income the employer does not pay
     const col0Sources = [
       { id: 'costoAziendale', value: costoAziendale, label: 'Costo Aziendale' },
-      ...(cuneoIndennita > 0
-        ? [{ id: 'cuneo', value: cuneoIndennita, label: 'Cuneo Fiscale' }]
-        : []),
-      ...(trattamentoIntegrativo > 0
-        ? [{ id: 'trattamento', value: trattamentoIntegrativo, label: 'Tratt. Integrativo' }]
-        : []),
-    ];
+      { id: 'borsa', value: borsaLordo, label: 'Borsa di Studio' },
+      { id: 'cuneo', value: cuneoIndennita, label: 'Cuneo Fiscale' },
+      { id: 'trattamento', value: trattamentoIntegrativo, label: 'Tratt. Integrativo' },
+    ].filter((v) => v.value >= MIN_FLOW);
 
     // === Scale based on the tallest column ===
     const colCounts = [col0Sources.length, col1Values.length, col2Values.length, 1 /* totale */];
@@ -284,7 +295,7 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
     });
 
     const addLink = (fromId: string, toId: string, value: number) => {
-      if (value <= 0) return;
+      if (value < MIN_FLOW) return;
       const fromNode = nodeMap.get(fromId);
       const toNode = nodeMap.get(toId);
       if (!fromNode || !toNode) return;
@@ -312,13 +323,24 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
       addLink('costoAziendale', col1Node.id, col1Node.value);
     }
 
-    // === Col1 → Col2: RAL decomposes into deductions + netto ===
+    // === Col1 → Col2: taxable sources fill deductions + netto, in order ===
+    const taxableSources = [
+      { id: 'ral', remaining: ral },
+      { id: 'benefitTassati', remaining: benefitTassati },
+      { id: 'borsa', remaining: borsaLordo },
+    ];
     for (const col2Node of col2Nodes) {
-      addLink('ral', col2Node.id, col2Node.value);
+      let needed = col2Node.value;
+      for (const source of taxableSources) {
+        const amount = Math.min(needed, source.remaining);
+        addLink(source.id, col2Node.id, amount);
+        source.remaining -= amount;
+        needed -= amount;
+      }
     }
 
     // === Col2 → Col3: Netto flows to Totale Percepito ===
-    addLink('nettoFromRAL', 'totale', nettoFromRAL);
+    addLink('netto', 'totale', netto);
 
     // === Col1 → Col3: Rimborsi/Benefit skip col2, go directly to Totale ===
     addLink('rimborsi', 'totale', rimborsiEsenti);

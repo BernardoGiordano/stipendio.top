@@ -1691,14 +1691,14 @@
           class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
           >Previdenza complementare (€/anno)<app-info-tooltip
             tooltipId="previdenzaComplementare-info"
-            text="Contributi a fondi pensione. Esenti fino a 5.164,57 euro/anno. Riducono l'imponibile fiscale."
+            text="Contributi volontari a fondi pensione. Deducibili dall'imponibile IRPEF fino a 5.300 euro/anno (dal 2026, L. 199/2025), limite condiviso con i contributi di lavoratore e datore. Non riducono i contributi INPS."
           />
         </label>
         <input
           id="previdenzaComplementare"
           type="number"
           [formField]="form.benefitNonTassati.previdenzaComplementare"
-          placeholder="Max €5.164,57 esente"
+          placeholder="Max €5.300 deducibile"
           [attr.aria-invalid]="form.benefitNonTassati.previdenzaComplementare().invalid()"
           [attr.aria-describedby]="
             form.benefitNonTassati.previdenzaComplementare().invalid()
