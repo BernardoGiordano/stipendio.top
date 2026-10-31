@@ -95,14 +95,16 @@
               Riepilogo
             </h3>
             <dl>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">RAL (Lordo Annuo)</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.ral) }}
-                </dd>
-              </div>
+              @for (voce of entrateInBusta(); track voce.descrizione) {
+                <div
+                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+                >
+                  <dt class="text-sm text-stone-600 dark:text-stone-400">{{ voce.descrizione }}</dt>
+                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                    {{ formatCurrency(voce.importo) }}
+                  </dd>
+                </div>
+              }
               <div
                 class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
               >
@@ -150,85 +152,18 @@
               Costo Aziendale
             </h3>
             <dl>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">RAL</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.costoAziendale.ral) }}
-                </dd>
-              </div>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">
-                  Contributi INPS Datore ({{ formatPercent(r.costoAziendale.aliquotaInpsDatore) }})
-                </dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.costoAziendale.contributiInpsDatore) }}
-                </dd>
-              </div>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">TFR (RAL / 13,5)</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.costoAziendale.tfr) }}
-                </dd>
-              </div>
-              @for (fondo of r.fondiContrattuali; track fondo.id) {
+              @for (voce of entrateDatore(); track voce.descrizione) {
                 <div
                   class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
                 >
                   <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    {{ fondo.nome }} (azienda)
+                    {{ voce.descrizione }}
+                    @if (voce.aliquota !== undefined) {
+                      ({{ formatPercent(voce.aliquota) }})
+                    }
                   </dt>
                   <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(fondo.contributoDatore) }}
-                  </dd>
-                </div>
-              }
-              @if (r.costoAziendale.fondoPensioneIntegrativoDatore > 0) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Fondo Pensione (datore)
-                  </dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.costoAziendale.fondoPensioneIntegrativoDatore) }}
-                  </dd>
-                </div>
-              }
-              @if (r.costoAziendale.fringeBenefit > 0) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Fringe Benefit</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.costoAziendale.fringeBenefit) }}
-                  </dd>
-                </div>
-              }
-              @if (r.costoAziendale.rimborsiTrasferta > 0) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Rimborsi Trasferta</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.costoAziendale.rimborsiTrasferta) }}
-                  </dd>
-                </div>
-              }
-              @if (r.costoAziendale.benefitNonTassati > 0) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Benefit Non Tassati (Welfare)
-                  </dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.costoAziendale.benefitNonTassati) }}
+                    {{ formatCurrency(voce.importo) }}
                   </dd>
                 </div>
               }
@@ -237,7 +172,7 @@
               >
                 <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Annuo</dt>
                 <dd class="text-sm text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.costoAziendale.totaleAnnuo) }}
+                  {{ formatCurrency(r.costoAziendale) }}
                 </dd>
               </div>
             </dl>

@@ -3,11 +3,11 @@ import {
   AutoAziendale,
   BenefitNonTassati,
   BorsaDiStudio,
+  CategoriaEntrata,
   ConiugeACarico,
   DettaglioBenefitNonTassati,
   DettaglioBorsaDiStudio,
   DettaglioContributiInps,
-  DettaglioCostoAziendale,
   DettaglioCuneoFiscale,
   DettaglioDetrazioniFamiliari,
   DettaglioDetrazioniLavoro,
@@ -16,6 +16,7 @@ import {
   DettaglioRegimeImpatriati,
   DettaglioRimborsiTrasferta,
   DettaglioTrattamentoIntegrativo,
+  DestinazioneVoce,
   FiglioACarico,
   FringeBenefit,
   InputCalcoloStipendio,
@@ -23,10 +24,13 @@ import {
   RiepilogoDetrazioni,
   RimborsiTrasferta,
   TipoContratto,
+  VoceEntrata,
+  VoceTrattenuta,
 } from '../types';
 import { StipendioCalculator } from '../calculator';
 import { calcolaAddizionali } from '../addizionali/2026';
 import { calcolaFondi, dettagliFondi } from '../fondi/2026';
+import { ripartisci, totali } from '../ripartizione';
 
 /** Scaglioni IRPEF 2026 (aliquota intermedia ridotta) */
 const IRPEF_SCAGLIONI = [
@@ -756,59 +760,58 @@ function calcolaTrattamentoIntegrativo(
   };
 }
 
-function calcolaCostoAziendale(
-  ral: number,
-  imponibilePrevidenziale: number,
+function calcolaAliquotaInpsDatore(
   tipoContratto: TipoContratto,
   aziendaConCigs: boolean,
   isDirigente: boolean,
-  fondiContrattualiDatore: number,
-  contributoDatoreFondoPensione: number,
-  fringeBenefitTotale: number,
-  rimborsiTrasfertaTotale: number,
-  benefitNonTassatiTotale: number,
-): DettaglioCostoAziendale {
-  // 1. Aliquota INPS datore
-  let aliquotaInpsDatore: number;
+): number {
   if (tipoContratto === 'apprendistato') {
-    aliquotaInpsDatore = ALIQUOTE_INPS_DATORE.apprendista;
-  } else if (isDirigente) {
-    aliquotaInpsDatore = aziendaConCigs
-      ? ALIQUOTE_INPS_DATORE.dirigenteConCigs
-      : ALIQUOTE_INPS_DATORE.dirigente;
-  } else if (aziendaConCigs) {
-    aliquotaInpsDatore = ALIQUOTE_INPS_DATORE.conCigs;
-  } else {
-    aliquotaInpsDatore = ALIQUOTE_INPS_DATORE.base;
+    return ALIQUOTE_INPS_DATORE.apprendista;
   }
-  const contributiInpsDatore = imponibilePrevidenziale * aliquotaInpsDatore;
+  if (isDirigente) {
+    return aziendaConCigs ? ALIQUOTE_INPS_DATORE.dirigenteConCigs : ALIQUOTE_INPS_DATORE.dirigente;
+  }
+  return aziendaConCigs ? ALIQUOTE_INPS_DATORE.conCigs : ALIQUOTE_INPS_DATORE.base;
+}
 
-  // 2. TFR
-  const tfr = ral / TFR.divisore;
+/** Fringe benefit, rimborsi e welfare pagati dal datore, divisi per trattamento fiscale */
+function vociBenefit(
+  fringeBenefit: DettaglioFringeBenefit,
+  rimborsiTrasferta: DettaglioRimborsiTrasferta,
+  benefitNonTassati: DettaglioBenefitNonTassati,
+): VoceEntrata[] {
+  const voce = (
+    descrizione: string,
+    importo: number,
+    categoria: CategoriaEntrata,
+    destinazione: DestinazioneVoce,
+  ): VoceEntrata => ({ descrizione, importo, categoria, pagatore: 'datore', destinazione });
 
-  // 3. Totale
-  const totaleAnnuo =
-    ral +
-    contributiInpsDatore +
-    tfr +
-    fondiContrattualiDatore +
-    contributoDatoreFondoPensione +
-    fringeBenefitTotale +
-    rimborsiTrasfertaTotale +
-    benefitNonTassatiTotale;
-
-  return {
-    ral,
-    contributiInpsDatore,
-    aliquotaInpsDatore,
-    tfr,
-    fondiContrattualiDatore,
-    fondoPensioneIntegrativoDatore: contributoDatoreFondoPensione,
-    fringeBenefit: fringeBenefitTotale,
-    rimborsiTrasferta: rimborsiTrasfertaTotale,
-    benefitNonTassati: benefitNonTassatiTotale,
-    totaleAnnuo,
-  };
+  return [
+    voce(
+      'Fringe Benefit tassati',
+      fringeBenefit.valoreMonetarioImponibile,
+      'fringeBenefit',
+      'netto',
+    ),
+    // L'auto aziendale oltre soglia è tassata ma non aumenta il netto
+    voce('Auto Aziendale', fringeBenefit.valoreAutoImponibile, 'fringeBenefit', 'inNatura'),
+    voce('Fringe Benefit esenti', fringeBenefit.valoreEsente, 'fringeBenefit', 'esente'),
+    voce(
+      'Rimborsi Trasferta tassati',
+      rimborsiTrasferta.rimborsiTassati,
+      'rimborsiTrasferta',
+      'netto',
+    ),
+    voce(
+      'Rimborsi Trasferta esenti',
+      rimborsiTrasferta.totaleEsente,
+      'rimborsiTrasferta',
+      'esente',
+    ),
+    voce('Welfare oltre soglia', benefitNonTassati.totaleTassato, 'welfare', 'netto'),
+    voce('Welfare esente', benefitNonTassati.totaleEsente, 'welfare', 'esente'),
+  ];
 }
 
 function calcolaBorsaDiStudio(borsa: BorsaDiStudio | undefined): {
@@ -856,7 +859,34 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
   const contributoGSBorsista = contributoGSTotale * GESTIONE_SEPARATA_BORSE.quotaBorsista;
   const contributoGSEnte = contributoGSTotale * GESTIONE_SEPARATA_BORSE.quotaEnte;
 
-  const nettoAnnuo = importoLordo - contributoGSBorsista;
+  const ripartizione = ripartisci(
+    [
+      {
+        descrizione: 'Importo Borsa',
+        importo: importoLordo,
+        categoria: 'retribuzione',
+        pagatore: 'datore',
+        destinazione: 'netto',
+      },
+      {
+        descrizione: 'GS a carico ente (2/3)',
+        importo: contributoGSEnte,
+        aliquota: aliquotaGS * GESTIONE_SEPARATA_BORSE.quotaEnte,
+        categoria: 'contributiDatore',
+        pagatore: 'datore',
+        destinazione: 'accantonata',
+      },
+    ],
+    [
+      {
+        descrizione: 'INPS Gestione Separata (borsista)',
+        importo: contributoGSBorsista,
+        categoria: 'contributi',
+      },
+    ],
+  );
+  const { costoAziendale, totaleTrattenute, totaleBonus, nettoAnnuo, totalePercepito } =
+    totali(ripartizione);
   const nettoMensile = nettoAnnuo / 12;
 
   // Dettaglio contributi INPS (GS borsista)
@@ -911,19 +941,6 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     totaleTassato: 0,
   };
 
-  const zeroCostoAziendale: DettaglioCostoAziendale = {
-    ral: importoLordo,
-    contributiInpsDatore: contributoGSEnte,
-    aliquotaInpsDatore: aliquotaGS * GESTIONE_SEPARATA_BORSE.quotaEnte,
-    tfr: 0,
-    fondiContrattualiDatore: 0,
-    fondoPensioneIntegrativoDatore: 0,
-    fringeBenefit: 0,
-    rimborsiTrasferta: 0,
-    benefitNonTassati: 0,
-    totaleAnnuo: importoLordo + contributoGSEnte,
-  };
-
   return {
     ral: importoLordo,
     annoFiscale: 2026,
@@ -936,7 +953,8 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     fondoPensioneIntegrativo: null,
     regimeImpatriati: null,
     borsaDiStudio,
-    costoAziendale: zeroCostoAziendale,
+    ripartizione,
+    costoAziendale,
     irpef: { imponibileIrpef: 0, irpefLorda: 0, dettaglioScaglioni: [] },
     detrazioniLavoro: {
       detrazioneTeorica: 0,
@@ -976,13 +994,13 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     },
     irpefNetta: 0,
     irpefFinale: 0,
-    totaleTrattenute: contributoGSBorsista,
-    totaleBonus: 0,
+    totaleTrattenute,
+    totaleBonus,
     nettoAnnuo,
     nettoMensile,
     nettoMensilePercepito: nettoMensile,
-    aliquotaEffettiva: contributoGSBorsista / importoLordo,
-    totalePercepito: nettoAnnuo,
+    aliquotaEffettiva: totaleTrattenute / importoLordo,
+    totalePercepito,
   };
 }
 
@@ -1197,44 +1215,93 @@ export class Calculator2026 implements StipendioCalculator {
       aliquotaMarginaleIrpef,
     );
 
-    // 16. CALCOLO COSTO AZIENDALE
-    const costoAziendale = calcolaCostoAziendale(
-      ral,
-      contributiInps.imponibilePrevidenziale,
+    // 16. RIPARTIZIONE
+    // Costo aziendale, trattenute, bonus, netto e percepito sono somme di queste voci
+    const aliquotaInpsDatore = calcolaAliquotaInpsDatore(
       tipoContratto,
       aziendaConCigs,
       fondi.isDirigente,
-      fondi.costoDatoreFondiContrattuali,
-      fondi.costoDatoreFondoPensione,
-      fringeBenefit.valoreTotaleLordo,
-      rimborsiTrasferta.totaleRimborsi,
-      benefitNonTassati.totaleEsente + benefitNonTassati.totaleTassato,
     );
-
-    // Totale trattenute (include fondi contrattuali, previdenza complementare lavoratore e volontaria, contributo GS borsista)
-    const totaleTrattenute =
-      contributiInps.totaleContributi +
-      irpefFinale +
-      addizionali.totaleAddizionali +
-      fondi.trattenute +
-      borsaCalcolo.contributoGSBorsista;
-
-    // Totale bonus
-    const totaleBonus = cuneoFiscale.indennitaEsente + trattamentoIntegrativo.importo;
-
-    // Stipendio netto annuo
-    // Nota: l'auto aziendale è un beneficio in natura (non denaro), quindi non aumenta il netto.
-    // Solo i fringe benefit monetari (buoni, rimborsi) aumentano il netto perché sono valore ricevuto.
-    // La trattenuta auto è un costo reale che il dipendente paga, quindi si sottrae dal netto.
-    // La borsa di studio aggiunge il suo importo lordo alla base (il contributo GS borsista è in totaleTrattenute)
-    const baseImponibile =
-      ral +
-      fringeBenefit.valoreMonetarioImponibile +
-      rimborsiTrasferta.rimborsiTassati +
-      benefitNonTassati.totaleTassato +
-      (borsaCalcolo.dettaglio ? borsaCalcolo.dettaglio.importoLordo : 0);
-    const nettoAnnuo =
-      baseImponibile - totaleTrattenute + totaleBonus - fringeBenefit.trattenutaAutoDipendente;
+    const entrate: VoceEntrata[] = [
+      {
+        descrizione: 'RAL',
+        importo: ral,
+        categoria: 'retribuzione',
+        pagatore: 'datore',
+        destinazione: 'netto',
+      },
+      {
+        descrizione: 'Contributi INPS Datore',
+        importo: contributiInps.imponibilePrevidenziale * aliquotaInpsDatore,
+        aliquota: aliquotaInpsDatore,
+        categoria: 'contributiDatore',
+        pagatore: 'datore',
+        destinazione: 'accantonata',
+      },
+      {
+        descrizione: 'TFR (RAL / 13,5)',
+        importo: ral / TFR.divisore,
+        categoria: 'tfr',
+        pagatore: 'datore',
+        destinazione: 'accantonata',
+      },
+      ...fondi.entrate,
+      ...vociBenefit(fringeBenefit, rimborsiTrasferta, benefitNonTassati),
+      {
+        descrizione: 'Borsa di Studio',
+        importo: borsaCalcolo.dettaglio?.importoLordo ?? 0,
+        categoria: 'borsaDiStudio',
+        pagatore: 'ente',
+        destinazione: 'netto',
+      },
+      {
+        descrizione: 'Indennità Cuneo Fiscale',
+        importo: cuneoFiscale.indennitaEsente,
+        categoria: 'bonus',
+        pagatore: 'stato',
+        destinazione: 'netto',
+      },
+      {
+        descrizione: 'Trattamento Integrativo',
+        importo: trattamentoIntegrativo.importo,
+        categoria: 'bonus',
+        pagatore: 'stato',
+        destinazione: 'netto',
+      },
+    ];
+    const trattenute: VoceTrattenuta[] = [
+      {
+        descrizione: 'Contributi INPS',
+        importo: contributiInps.totaleContributi,
+        categoria: 'contributi',
+      },
+      {
+        descrizione: 'INPS Gestione Separata (borsista)',
+        importo: borsaCalcolo.contributoGSBorsista,
+        categoria: 'contributi',
+      },
+      { descrizione: 'IRPEF', importo: irpefFinale, categoria: 'irpef' },
+      {
+        descrizione: 'Addizionale Regionale',
+        importo: addizionali.addizionaleRegionale,
+        categoria: 'addizionali',
+      },
+      {
+        descrizione: 'Addizionale Comunale',
+        importo: addizionali.addizionaleComunale,
+        categoria: 'addizionali',
+      },
+      ...fondi.trattenute,
+      // Il dipendente paga l'uso privato dell'auto aziendale dal netto
+      {
+        descrizione: 'Trattenuta Auto Aziendale',
+        importo: fringeBenefit.trattenutaAutoDipendente,
+        categoria: 'autoAziendale',
+      },
+    ];
+    const ripartizione = ripartisci(entrate, trattenute);
+    const { costoAziendale, totaleTrattenute, totaleBonus, nettoAnnuo, totalePercepito } =
+      totali(ripartizione);
 
     // Calcolo netto annuo borsa di studio (se presente)
     // Il netto borsa = importo lordo − contributo GS borsista − quota IRPEF/addizionali sulla borsa
@@ -1260,15 +1327,9 @@ export class Calculator2026 implements StipendioCalculator {
     // Stipendio netto mensile percepito (include benefit non tassati mensili)
     const nettoMensilePercepito = nettoMensile + benefitNonTassati.totaleEsente / 12;
 
-    // Aliquota effettiva
-    const aliquotaEffettiva = (totaleTrattenute - totaleBonus) / ral;
-
-    // Totale percepito
-    const totalePercepito =
-      nettoAnnuo +
-      fringeBenefit.valoreEsente +
-      rimborsiTrasferta.totaleEsente +
-      benefitNonTassati.totaleEsente;
+    // Aliquota effettiva: la trattenuta auto paga un servizio, non è un'imposta
+    const aliquotaEffettiva =
+      (totaleTrattenute - fringeBenefit.trattenutaAutoDipendente - totaleBonus) / ral;
 
     return {
       ral,
@@ -1282,6 +1343,7 @@ export class Calculator2026 implements StipendioCalculator {
       fondoPensioneIntegrativo,
       regimeImpatriati: dettaglioRegimeImpatriati,
       borsaDiStudio: dettaglioBorsaDiStudio,
+      ripartizione,
       costoAziendale,
       irpef,
       detrazioniLavoro,

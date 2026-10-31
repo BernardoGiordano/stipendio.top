@@ -25,22 +25,26 @@ function nodeValue(data: ReturnType<typeof layout>, id: string) {
 
 function expectBalanced(result: OutputCalcoloStipendio) {
   const data = layout(result);
+  const column = new Map(data.nodes.map((n) => [n.id, n.column]));
 
   for (const node of data.nodes) {
-    const incoming = data.links.filter((l) => l.to === node.id);
-    const outgoing = data.links.filter((l) => l.from === node.id);
-    if (incoming.length > 0) {
-      expect(sum(incoming.map((l) => l.value)), `${node.id} in`).toBeCloseTo(node.value, 2);
+    const incoming = sum(data.links.filter((l) => l.to === node.id).map((l) => l.value));
+    const outgoing = sum(data.links.filter((l) => l.from === node.id).map((l) => l.value));
+    if (node.column > 0) {
+      expect(incoming, `${node.id} in`).toBeCloseTo(node.value, 2);
     }
-    if (outgoing.length > 0) {
-      expect(sum(outgoing.map((l) => l.value)), `${node.id} out`).toBeCloseTo(node.value, 2);
-    }
+    // Accantonate and in-natura voci stay in their node
+    expect(outgoing, `${node.id} out`).toBeLessThanOrEqual(node.value + 0.005);
   }
 
   const column1 = sum(data.nodes.filter((n) => n.column === 1).map((n) => n.value));
-  expect(column1).toBeCloseTo(nodeValue(data, 'costoAziendale'), 2);
-  expect(nodeValue(data, 'costoAziendale')).toBeCloseTo(result.costoAziendale.totaleAnnuo, 2);
-  expect(nodeValue(data, 'netto')).toBeCloseTo(result.nettoAnnuo - result.totaleBonus, 2);
+  const intoColumn2 = sum(data.links.filter((l) => column.get(l.to) === 2).map((l) => l.value));
+  const inBusta = result.ripartizione.entrate.filter((v) => v.destinazione === 'netto');
+
+  expect(nodeValue(data, 'pagatore:datore')).toBeCloseTo(result.costoAziendale, 2);
+  expect(column1).toBeCloseTo(result.costoAziendale, 2);
+  expect(intoColumn2).toBeCloseTo(sum(inBusta.map((v) => v.importo)), 2);
+  expect(nodeValue(data, 'netto')).toBeCloseTo(result.nettoAnnuo, 2);
   expect(nodeValue(data, 'totale')).toBeCloseTo(result.totalePercepito, 2);
 }
 

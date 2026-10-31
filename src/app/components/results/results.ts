@@ -24,6 +24,18 @@ export class Results {
 
   readonly hasResult = computed(() => this.result() !== null);
 
+  /** Entrate pagate in busta prima di trattenute e bonus: con loro il riepilogo torna al netto */
+  readonly entrateInBusta = computed(
+    () =>
+      this.result()?.ripartizione.entrate.filter(
+        (voce) => voce.destinazione === 'netto' && voce.categoria !== 'bonus',
+      ) ?? [],
+  );
+
+  readonly entrateDatore = computed(
+    () => this.result()?.ripartizione.entrate.filter((voce) => voce.pagatore === 'datore') ?? [],
+  );
+
   readonly activeTab = signal<TabId>('cedolino');
 
   setActiveTab(tab: TabId): void {

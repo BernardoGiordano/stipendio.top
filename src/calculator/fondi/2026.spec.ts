@@ -1,4 +1,5 @@
 import { Calculator2026 } from '../impl/2026';
+import { somma } from '../ripartizione';
 import type { InputCalcoloStipendio } from '../types';
 import {
   calcolaFondi,
@@ -37,9 +38,8 @@ describe('calcolaFondi', () => {
       fondoPensioneIntegrativo: null,
       redditoFondoPensione: 0,
       deduzione: 0,
-      trattenute: 0,
-      costoDatoreFondiContrattuali: 0,
-      costoDatoreFondoPensione: 0,
+      entrate: [],
+      trattenute: [],
       isDirigente: false,
     });
   });
@@ -48,11 +48,21 @@ describe('calcolaFondi', () => {
     const calcolo = calcolaFondi({ ...nessunFondo, [fondo.id]: true });
 
     it('trattiene il contributo lavoratore', () => {
-      expect(calcolo.trattenute).toBe(fondo.contributoLavoratore);
+      expect(calcolo.trattenute).toEqual([
+        { descrizione: fondo.nome, importo: fondo.contributoLavoratore, categoria: 'fondi' },
+      ]);
     });
 
     it('addebita il contributo datore al costo aziendale', () => {
-      expect(calcolo.costoDatoreFondiContrattuali).toBe(fondo.contributoDatore);
+      expect(calcolo.entrate).toEqual([
+        {
+          descrizione: `${fondo.nome} (azienda)`,
+          importo: fondo.contributoDatore,
+          categoria: 'fondi',
+          pagatore: 'datore',
+          destinazione: 'accantonata',
+        },
+      ]);
     });
 
     it('deduce il contributo solo se deducibile', () => {
@@ -84,11 +94,11 @@ describe('calcolaFondi', () => {
     expect(calcolo.fondiContrattuali.map((fondo) => fondo.id)).toEqual(
       FONDI_CONTRATTUALI.map((fondo) => fondo.id),
     );
-    expect(calcolo.trattenute).toBeCloseTo(
+    expect(somma(calcolo.trattenute)).toBeCloseTo(
       FONDI_CONTRATTUALI.reduce((totale, fondo) => totale + fondo.contributoLavoratore, 0),
       6,
     );
-    expect(calcolo.costoDatoreFondiContrattuali).toBeCloseTo(
+    expect(somma(calcolo.entrate)).toBeCloseTo(
       FONDI_CONTRATTUALI.reduce((totale, fondo) => totale + fondo.contributoDatore, 0),
       6,
     );
@@ -141,15 +151,15 @@ describe('Plafond previdenza complementare', () => {
     expect(previdenza.contributoLavoratoreMensile).toBeCloseTo(300 / 14, 6);
     expect(calcolo.deduzione).toBeCloseTo(1_700, 6);
     expect(calcolo.redditoFondoPensione).toBeCloseTo(900, 6);
-    expect(calcolo.trattenute).toBeCloseTo(800, 6);
-    expect(calcolo.costoDatoreFondoPensione).toBeCloseTo(600, 6);
+    expect(somma(calcolo.trattenute)).toBeCloseTo(800, 6);
+    expect(somma(calcolo.entrate)).toBeCloseTo(600, 6);
   });
 
   it('esiste anche con il solo contributo volontario', () => {
     const calcolo = calcolaFondi({ ...nessunFondo, contributoVolontario: 1_000 });
 
     expect(calcolo.fondoPensioneIntegrativo?.deduzioneEffettiva).toBe(1_000);
-    expect(calcolo.trattenute).toBe(1_000);
+    expect(somma(calcolo.trattenute)).toBe(1_000);
   });
 });
 
@@ -207,7 +217,9 @@ describe('Fondi nel calcolo dello stipendio', () => {
   it.each(FONDI_CONTRATTUALI)('$nome entra nel costo aziendale', (fondo) => {
     const conFondo = calc.calcolaStipendioNetto({ ...base, [fondo.id]: true });
 
-    expect(conFondo.costoAziendale.fondiContrattualiDatore).toBe(fondo.contributoDatore);
+    const fondiDatore = conFondo.ripartizione.entrate.filter((voce) => voce.categoria === 'fondi');
+
+    expect(somma(fondiDatore)).toBe(fondo.contributoDatore);
     expect(conFondo.fondiContrattuali.map((dettaglio) => dettaglio.id)).toEqual([fondo.id]);
   });
 });

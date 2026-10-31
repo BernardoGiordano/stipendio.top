@@ -1,10 +1,25 @@
 import { Calculator2026 } from './2026';
-import type { FondoContrattualeId, InputCalcoloStipendio, OutputCalcoloStipendio } from '../types';
+import { somma } from '../ripartizione';
+import type {
+  CategoriaEntrata,
+  FondoContrattualeId,
+  InputCalcoloStipendio,
+  OutputCalcoloStipendio,
+} from '../types';
 
 const calc = new Calculator2026();
 
 function fondo(result: OutputCalcoloStipendio, id: FondoContrattualeId) {
   return result.fondiContrattuali.find((f) => f.id === id);
+}
+
+function entrateDi(result: OutputCalcoloStipendio, categoria: CategoriaEntrata) {
+  return somma(result.ripartizione.entrate.filter((voce) => voce.categoria === categoria));
+}
+
+function aliquotaInpsDatore(result: OutputCalcoloStipendio) {
+  return result.ripartizione.entrate.find((voce) => voce.categoria === 'contributiDatore')
+    ?.aliquota;
 }
 
 const CONTRIBUTO_FONDO_NEGRI_2026 = 1184.49;
@@ -920,9 +935,7 @@ describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
     });
 
     expect(fondo(resultCon, 'fondoEst')!.contributoDatore).toBe(156);
-    expect(
-      resultCon.costoAziendale.totaleAnnuo - resultSenza.costoAziendale.totaleAnnuo,
-    ).toBeCloseTo(156, 2);
+    expect(resultCon.costoAziendale - resultSenza.costoAziendale).toBeCloseTo(156, 2);
   });
 });
 
@@ -1000,10 +1013,7 @@ describe('Borsa di Studio (Dottorato/Post-laurea)', () => {
       borsaDiStudio: { importoAnnuo: 16_243 },
     });
 
-    expect(resultCon.costoAziendale.totaleAnnuo).toBeCloseTo(
-      resultSenza.costoAziendale.totaleAnnuo,
-      2,
-    );
+    expect(resultCon.costoAziendale).toBeCloseTo(resultSenza.costoAziendale, 2);
   });
 
   it("l'imponibile IRPEF borsa deve essere lordo - contributo GS borsista", () => {
@@ -1662,11 +1672,8 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
         benefitNonTassati: { previdenzaComplementare: 3_000 },
       });
       // Il costo aziendale non deve cambiare con contributo volontario
-      expect(resultCon.costoAziendale.totaleAnnuo).toBeCloseTo(
-        resultSenza.costoAziendale.totaleAnnuo,
-        0,
-      );
-      expect(resultCon.costoAziendale.benefitNonTassati).toBe(0);
+      expect(resultCon.costoAziendale).toBeCloseTo(resultSenza.costoAziendale, 0);
+      expect(entrateDi(resultCon, 'welfare')).toBe(0);
     });
 
     it('contributo volontario è una trattenuta reale dal netto', () => {
@@ -3479,49 +3486,100 @@ describe('Property-based (fuzzy) tests', () => {
     });
   });
 
-  describe('Consistenza totaleTrattenute (50 scenari casuali)', () => {
-    it('totaleTrattenute = INPS + IRPEF finale + addizionali + fondi', () => {
-      for (let i = 0; i < 50; i++) {
-        const ral = randomRal();
-        const useFondoNegri = rng() > 0.7;
-        const useFondoPastore = rng() > 0.7;
-        const useCfmt = rng() > 0.7;
-        const useFasdac = rng() > 0.7;
-        const useFondoEst = rng() > 0.7;
-        const useFondoPensione = rng() > 0.7;
+  describe('Ripartizione (50 scenari casuali)', () => {
+    // Generatore proprio, per non spostare la sequenza degli altri test
+    const rng = seededRandom(7);
+    const scenari = Array.from({ length: 50 }, (): InputCalcoloStipendio => {
+      const ral = Math.round(10_000 + rng() * 190_000);
+      return {
+        ...baseInput,
+        ral,
+        fondoMarioNegri: rng() > 0.7,
+        fondoPastore: rng() > 0.7,
+        cfmt: rng() > 0.7,
+        fasdac: rng() > 0.7,
+        fondoEst: rng() > 0.7,
+        ...(rng() > 0.7 && {
+          fondoPensioneIntegrativo: {
+            contributoLavoratore: 2,
+            ralLavoratore: ral,
+            contributoDatoreLavoro: 1,
+            ralDatoreLavoro: ral,
+          },
+        }),
+        ...(rng() > 0.5 && {
+          fringeBenefit: {
+            buoniAcquisto: Math.round(rng() * 2_000),
+            ...(rng() > 0.5 && {
+              autoAziendale: {
+                costoKmAci: 0.5,
+                tipoAlimentazione: 'altro' as const,
+                trattenutaDipendente: Math.round(rng() * 1_000),
+              },
+            }),
+          },
+        }),
+        ...(rng() > 0.5 && {
+          rimborsiTrasferta: {
+            modalitaRimborso: 'misto' as const,
+            giorniTrasfertaItalia: 10,
+            rimborsoVitto: Math.round(rng() * 1_000),
+            pagamentiTracciabili: rng() > 0.5,
+          },
+        }),
+        ...(rng() > 0.5 && {
+          benefitNonTassati: {
+            buoniPasto: Math.round(rng() * 3_000),
+            assistenzaSanitaria: Math.round(rng() * 5_000),
+            previdenzaComplementare: Math.round(rng() * 2_000),
+          },
+        }),
+        ...(rng() > 0.8 && { borsaDiStudio: { importoAnnuo: 16_243 } }),
+      };
+    });
 
-        const result = calc.calcolaStipendioNetto({
-          ...baseInput,
-          ral,
-          fondoMarioNegri: useFondoNegri,
-          fondoPastore: useFondoPastore,
-          cfmt: useCfmt,
-          fasdac: useFasdac,
-          fondoEst: useFondoEst,
-          ...(useFondoPensione && {
-            fondoPensioneIntegrativo: {
-              contributoLavoratore: 2,
-              ralLavoratore: ral,
-            },
-          }),
-        });
+    it('i totali sono somme delle voci', () => {
+      for (const input of scenari) {
+        const result = calc.calcolaStipendioNetto(input);
+        const { entrate, trattenute } = result.ripartizione;
+        const entrateVerso = (destinazione: string) =>
+          somma(entrate.filter((voce) => voce.destinazione === destinazione));
 
-        const fondiContrattualiContributo = result.fondiContrattuali.reduce(
-          (totale, fondo) => totale + fondo.contributoAnnuo,
-          0,
+        expect(somma(entrate.filter((voce) => voce.pagatore === 'datore'))).toBeCloseTo(
+          result.costoAziendale,
+          6,
         );
-        const fondoPensioneContributo = result.fondoPensioneIntegrativo
-          ? result.fondoPensioneIntegrativo.contributoLavoratoreAnnuo
-          : 0;
+        expect(somma(trattenute)).toBeCloseTo(result.totaleTrattenute, 6);
+        expect(entrateVerso('netto') - somma(trattenute)).toBeCloseTo(result.nettoAnnuo, 6);
+        expect(result.nettoAnnuo + entrateVerso('esente')).toBeCloseTo(result.totalePercepito, 6);
+        expect([...entrate, ...trattenute].every((voce) => voce.importo > 0)).toBe(true);
+      }
+    });
 
-        const expected =
+    it('le trattenute coincidono con i dettagli del calcolo', () => {
+      for (const input of scenari) {
+        const result = calc.calcolaStipendioNetto(input);
+        const trattenuteDi = (categoria: string) =>
+          somma(result.ripartizione.trattenute.filter((voce) => voce.categoria === categoria));
+        const previdenza = result.fondoPensioneIntegrativo;
+
+        expect(trattenuteDi('contributi')).toBeCloseTo(
           result.contributiInps.totaleContributi +
-          result.irpefFinale +
-          result.addizionali.totaleAddizionali +
-          fondiContrattualiContributo +
-          fondoPensioneContributo;
-
-        expect(result.totaleTrattenute).toBeCloseTo(expected, 2);
+            (result.borsaDiStudio?.contributoGestioneSeparataBorsista ?? 0),
+          6,
+        );
+        expect(trattenuteDi('irpef')).toBeCloseTo(result.irpefFinale, 6);
+        expect(trattenuteDi('addizionali')).toBeCloseTo(result.addizionali.totaleAddizionali, 6);
+        expect(trattenuteDi('fondi')).toBeCloseTo(
+          somma(result.fondiContrattuali.map((fondo) => ({ importo: fondo.contributoAnnuo }))) +
+            (previdenza?.contributoLavoratoreAnnuo ?? 0) +
+            (previdenza?.contributoVolontarioAnnuo ?? 0),
+          6,
+        );
+        expect(trattenuteDi('autoAziendale')).toBeCloseTo(
+          result.fringeBenefit.trattenutaAutoDipendente,
+          6,
+        );
       }
     });
   });
@@ -3578,9 +3636,10 @@ describe('Property-based (fuzzy) tests', () => {
   });
 
   describe('Regime Impatriati aumenta il netto (20 scenari)', () => {
-    it('attivare il regime impatriati aumenta sempre il netto', () => {
+    it('attivare il regime impatriati aumenta il netto per RAL ≥ 25k', () => {
+      // Per RAL basse la quota esente fa perdere il trattamento integrativo e riduce il cuneo
       for (let i = 0; i < 20; i++) {
-        const ral = randomRal();
+        const ral = 25_000 + Math.round(rng() * 175_000);
         const resultSenza = calc.calcolaStipendioNetto({ ...baseInput, ral });
         const resultCon = calc.calcolaStipendioNetto({
           ...baseInput,
@@ -3621,30 +3680,30 @@ describe('Costo aziendale', () => {
     });
 
     it('deve usare aliquota INPS datore 28,98%', () => {
-      expect(result.costoAziendale.aliquotaInpsDatore).toBe(0.2898);
+      expect(aliquotaInpsDatore(result)).toBe(0.2898);
     });
 
     it('deve calcolare contributi INPS datore correttamente', () => {
-      expect(result.costoAziendale.contributiInpsDatore).toBeCloseTo(30_000 * 0.2898, 2);
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(30_000 * 0.2898, 2);
     });
 
     it('deve calcolare TFR = RAL / 13,5', () => {
-      expect(result.costoAziendale.tfr).toBeCloseTo(30_000 / 13.5, 2);
+      expect(entrateDi(result, 'tfr')).toBeCloseTo(30_000 / 13.5, 2);
     });
 
     it('non deve includere fondi dirigenti né Fondo EST', () => {
-      expect(result.costoAziendale.fondiContrattualiDatore).toBe(0);
+      expect(entrateDi(result, 'fondi')).toBe(0);
     });
 
     it('fringe benefit, rimborsi e welfare devono essere 0 se non presenti', () => {
-      expect(result.costoAziendale.fringeBenefit).toBe(0);
-      expect(result.costoAziendale.rimborsiTrasferta).toBe(0);
-      expect(result.costoAziendale.benefitNonTassati).toBe(0);
+      expect(entrateDi(result, 'fringeBenefit')).toBe(0);
+      expect(entrateDi(result, 'rimborsiTrasferta')).toBe(0);
+      expect(entrateDi(result, 'welfare')).toBe(0);
     });
 
     it('deve calcolare totale annuo = RAL + INPS datore + TFR', () => {
       const expected = 30_000 + 30_000 * 0.2898 + 30_000 / 13.5;
-      expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(expected, 2);
+      expect(result.costoAziendale).toBeCloseTo(expected, 2);
     });
   });
 
@@ -3656,7 +3715,7 @@ describe('Costo aziendale', () => {
     });
 
     it('deve usare aliquota INPS datore con CIGS (29,68%)', () => {
-      expect(result.costoAziendale.aliquotaInpsDatore).toBe(0.2968);
+      expect(aliquotaInpsDatore(result)).toBe(0.2968);
     });
   });
 
@@ -3668,7 +3727,7 @@ describe('Costo aziendale', () => {
     });
 
     it('deve usare aliquota ridotta apprendistato (11,61%)', () => {
-      expect(result.costoAziendale.aliquotaInpsDatore).toBe(0.1161);
+      expect(aliquotaInpsDatore(result)).toBe(0.1161);
     });
   });
 
@@ -3683,7 +3742,7 @@ describe('Costo aziendale', () => {
     });
 
     it('deve usare aliquota dirigente (26,54%)', () => {
-      expect(result.costoAziendale.aliquotaInpsDatore).toBe(0.2654);
+      expect(aliquotaInpsDatore(result)).toBe(0.2654);
     });
 
     it('deve includere Fondo Negri datore (15,38% di retribuzione convenzionale)', () => {
@@ -3711,7 +3770,7 @@ describe('Costo aziendale', () => {
         4_856.45 +
         276 +
         45_940 * 0.0807;
-      expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(expected, 0);
+      expect(result.costoAziendale).toBeCloseTo(expected, 0);
     });
   });
 
@@ -3728,12 +3787,12 @@ describe('Costo aziendale', () => {
     });
 
     it('deve includere il contributo datore fondo pensione nel costo aziendale', () => {
-      expect(result.costoAziendale.fondoPensioneIntegrativoDatore).toBeCloseTo(700, 2);
+      expect(entrateDi(result, 'fondi')).toBeCloseTo(700, 2);
     });
 
     it('il totale deve includere il contributo datore', () => {
       const expected = 35_000 + 35_000 * 0.2898 + 35_000 / 13.5 + 700;
-      expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(expected, 0);
+      expect(result.costoAziendale).toBeCloseTo(expected, 0);
     });
   });
 
@@ -3748,13 +3807,11 @@ describe('Costo aziendale', () => {
     });
 
     it('deve includere i fringe benefit nel costo aziendale', () => {
-      expect(result.costoAziendale.fringeBenefit).toBe(700);
+      expect(entrateDi(result, 'fringeBenefit')).toBe(700);
     });
 
     it('il totale deve includere i fringe benefit', () => {
-      expect(result.costoAziendale.totaleAnnuo).toBeGreaterThan(
-        30_000 + 30_000 * 0.2898 + 30_000 / 13.5,
-      );
+      expect(result.costoAziendale).toBeGreaterThan(30_000 + 30_000 * 0.2898 + 30_000 / 13.5);
     });
   });
 
@@ -3769,7 +3826,7 @@ describe('Costo aziendale', () => {
     });
 
     it('deve includere i rimborsi trasferta nel costo aziendale', () => {
-      expect(result.costoAziendale.rimborsiTrasferta).toBeCloseTo(46.48 * 10, 2);
+      expect(entrateDi(result, 'rimborsiTrasferta')).toBeCloseTo(46.48 * 10, 2);
     });
   });
 
@@ -3786,19 +3843,19 @@ describe('Costo aziendale', () => {
     });
 
     it('deve includere i benefit non tassati nel costo aziendale', () => {
-      expect(result.costoAziendale.benefitNonTassati).toBe(1_500 + 300 + 800);
+      expect(entrateDi(result, 'welfare')).toBe(1_500 + 300 + 800);
     });
 
     it('il totale deve includere i benefit non tassati', () => {
       const baseExpected = 30_000 + 30_000 * 0.2898 + 30_000 / 13.5;
-      expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(baseExpected + 2_600, 0);
+      expect(result.costoAziendale).toBeCloseTo(baseExpected + 2_600, 0);
     });
   });
 
   describe('Il costo aziendale è sempre maggiore della RAL', () => {
     it.each([20_000, 30_000, 50_000, 80_000, 120_000])('RAL %d', (ral) => {
       const result = calc.calcolaStipendioNetto({ ...baseInput, ral });
-      expect(result.costoAziendale.totaleAnnuo).toBeGreaterThan(ral);
+      expect(result.costoAziendale).toBeGreaterThan(ral);
     });
   });
 });
@@ -3904,7 +3961,7 @@ describe('Borsa di Studio come tipo di contratto (dottorato, specializzazione)',
     });
 
     it('il TFR deve essere zero', () => {
-      expect(result.costoAziendale.tfr).toBe(0);
+      expect(entrateDi(result, 'tfr')).toBe(0);
     });
   });
 
@@ -3942,12 +3999,12 @@ describe('Borsa di Studio come tipo di contratto (dottorato, specializzazione)',
 
     it('il costo ente deve essere lordo + GS ente (2/3)', () => {
       const expectedCosto = 16_243 + (16_243 * 0.3503 * 2) / 3;
-      expect(result.costoAziendale.totaleAnnuo).toBeCloseTo(expectedCosto, 2);
+      expect(result.costoAziendale).toBeCloseTo(expectedCosto, 2);
     });
 
     it('contributi INPS datore = GS ente', () => {
       const expectedEnte = (16_243 * 0.3503 * 2) / 3;
-      expect(result.costoAziendale.contributiInpsDatore).toBeCloseTo(expectedEnte, 2);
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(expectedEnte, 2);
     });
   });
 

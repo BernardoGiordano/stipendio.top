@@ -123,28 +123,22 @@
             Costo per l'Ente
           </h3>
           <dl>
-            <div
-              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-            >
-              <dt class="text-sm text-stone-600 dark:text-stone-400">Importo Borsa</dt>
-              <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                {{ formatCurrency(r.costoAziendale.ral) }}
-              </dd>
-            </div>
-            <div
-              class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-            >
-              <dt class="text-sm text-stone-600 dark:text-stone-400">GS a carico ente (2/3)</dt>
-              <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                {{ formatCurrency(r.costoAziendale.contributiInpsDatore) }}
-              </dd>
-            </div>
+            @for (voce of r.ripartizione.entrate; track voce.descrizione) {
+              <div
+                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
+              >
+                <dt class="text-sm text-stone-600 dark:text-stone-400">{{ voce.descrizione }}</dt>
+                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  {{ formatCurrency(voce.importo) }}
+                </dd>
+              </div>
+            }
             <div
               class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
             >
               <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Annuo</dt>
               <dd class="text-sm text-stone-900 dark:text-stone-100">
-                {{ formatCurrency(r.costoAziendale.totaleAnnuo) }}
+                {{ formatCurrency(r.costoAziendale) }}
               </dd>
             </div>
           </dl>

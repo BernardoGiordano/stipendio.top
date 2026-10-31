@@ -4,6 +4,8 @@ import type {
   FondoContrattualeId,
   InputCalcoloStipendio,
   OutputCalcoloStipendio,
+  VoceEntrata,
+  VoceTrattenuta,
 } from '../types';
 
 /** Fondo previsto dal CCNL, con contributi annui fissi */
@@ -109,10 +111,10 @@ export interface CalcoloFondi {
   redditoFondoPensione: number;
   /** Deduzione dall'imponibile IRPEF */
   deduzione: number;
+  /** Contributi a carico del datore, accantonati per il lavoratore */
+  entrate: VoceEntrata[];
   /** Contributi a carico del lavoratore, trattenuti dal netto */
-  trattenute: number;
-  costoDatoreFondiContrattuali: number;
-  costoDatoreFondoPensione: number;
+  trattenute: VoceTrattenuta[];
   isDirigente: boolean;
 }
 
@@ -122,6 +124,44 @@ export function calcolaFondi(input: InputFondi): CalcoloFondi {
     selezionati.filter((fondo) => fondo.deducibile).map((fondo) => fondo.contributoLavoratore),
   );
   const previdenza = calcolaPrevidenzaComplementare(input, deduzioneFondiContrattuali);
+
+  const entrate = selezionati.map(
+    (fondo): VoceEntrata => ({
+      descrizione: `${fondo.nome} (azienda)`,
+      importo: fondo.contributoDatore,
+      categoria: 'fondi',
+      pagatore: 'datore',
+      destinazione: 'accantonata',
+    }),
+  );
+  const trattenute = selezionati.map(
+    (fondo): VoceTrattenuta => ({
+      descrizione: fondo.nome,
+      importo: fondo.contributoLavoratore,
+      categoria: 'fondi',
+    }),
+  );
+  if (previdenza) {
+    entrate.push({
+      descrizione: 'Fondo Pensione (datore)',
+      importo: previdenza.contributoDatoreLavoroAnnuo,
+      categoria: 'fondi',
+      pagatore: 'datore',
+      destinazione: 'accantonata',
+    });
+    trattenute.push(
+      {
+        descrizione: 'Fondo Pensione (lavoratore)',
+        importo: previdenza.contributoLavoratoreAnnuo,
+        categoria: 'fondi',
+      },
+      {
+        descrizione: 'Fondo Pensione (volontario)',
+        importo: previdenza.contributoVolontarioAnnuo,
+        categoria: 'fondi',
+      },
+    );
+  }
 
   return {
     fondiContrattuali: selezionati.map((fondo) => ({
@@ -137,13 +177,8 @@ export function calcolaFondi(input: InputFondi): CalcoloFondi {
       ? previdenza.contributoDatoreLavoroAnnuo + previdenza.contributoEbitempAnnuo
       : 0,
     deduzione: deduzioneFondiContrattuali + (previdenza?.deduzioneEffettiva ?? 0),
-    trattenute:
-      somma(selezionati.map((fondo) => fondo.contributoLavoratore)) +
-      (previdenza
-        ? previdenza.contributoLavoratoreAnnuo + previdenza.contributoVolontarioAnnuo
-        : 0),
-    costoDatoreFondiContrattuali: somma(selezionati.map((fondo) => fondo.contributoDatore)),
-    costoDatoreFondoPensione: previdenza?.contributoDatoreLavoroAnnuo ?? 0,
+    entrate,
+    trattenute,
     isDirigente: selezionati.some((fondo) => fondo.categoria === 'dirigentiTerziario'),
   };
 }

@@ -436,28 +436,66 @@ export interface DettaglioBorsaDiStudio {
   nettoMensile: number;
 }
 
-/** Dettaglio costo aziendale del dipendente */
-export interface DettaglioCostoAziendale {
-  /** RAL (retribuzione annua lorda) */
-  ral: number;
-  /** Contributi INPS a carico del datore di lavoro */
-  contributiInpsDatore: number;
-  /** Aliquota INPS applicata al datore */
-  aliquotaInpsDatore: number;
-  /** TFR annuo (RAL / 13,5) */
-  tfr: number;
-  /** Contributi fondi contrattuali a carico azienda */
-  fondiContrattualiDatore: number;
-  /** Contributo fondo pensione integrativo a carico datore */
-  fondoPensioneIntegrativoDatore: number;
-  /** Fringe benefit erogati (valore totale lordo) */
-  fringeBenefit: number;
-  /** Rimborsi spese trasferta erogati */
-  rimborsiTrasferta: number;
-  /** Benefit non tassati (welfare aziendale) erogati */
-  benefitNonTassati: number;
-  /** Costo aziendale totale annuo */
-  totaleAnnuo: number;
+/**
+ * Chi paga una voce di entrata.
+ * - datore: datore di lavoro, o ente erogatore quando la borsa di studio è il contratto
+ * - ente: ente che eroga una borsa di studio in aggiunta al lavoro dipendente
+ * - stato: indennità e bonus fiscali pagati in busta
+ */
+export type PagatoreVoce = 'datore' | 'ente' | 'stato';
+
+/**
+ * Dove arriva una voce di entrata.
+ * - netto: pagata in denaro, al lordo delle trattenute
+ * - esente: percepita a parte, senza trattenute
+ * - inNatura: tassata ma non pagata in denaro
+ * - accantonata: contributi, fondi e TFR, non percepiti nell'anno
+ */
+export type DestinazioneVoce = 'netto' | 'esente' | 'inNatura' | 'accantonata';
+
+export type CategoriaEntrata =
+  | 'retribuzione'
+  | 'contributiDatore'
+  | 'tfr'
+  | 'fondi'
+  | 'fringeBenefit'
+  | 'rimborsiTrasferta'
+  | 'welfare'
+  | 'borsaDiStudio'
+  | 'bonus';
+
+export type CategoriaTrattenuta =
+  | 'contributi'
+  | 'irpef'
+  | 'addizionali'
+  | 'fondi'
+  | 'autoAziendale';
+
+/** Importo annuo pagato da qualcuno verso il lavoratore o per suo conto */
+export interface VoceEntrata {
+  descrizione: string;
+  importo: number;
+  categoria: CategoriaEntrata;
+  pagatore: PagatoreVoce;
+  destinazione: DestinazioneVoce;
+  /** Aliquota applicata, se l'importo è una percentuale di un imponibile */
+  aliquota?: number;
+}
+
+/** Importo annuo sottratto alle entrate che arrivano al netto */
+export interface VoceTrattenuta {
+  descrizione: string;
+  importo: number;
+  categoria: CategoriaTrattenuta;
+}
+
+/**
+ * Voci annue non nulle del calcolo. Costo aziendale, trattenute, bonus, netto e percepito sono
+ * somme di queste voci.
+ */
+export interface Ripartizione {
+  entrate: VoceEntrata[];
+  trattenute: VoceTrattenuta[];
 }
 
 /** Dettaglio regime impatriati (rientro cervelli) */
@@ -519,8 +557,11 @@ export interface OutputCalcoloStipendio {
   /** Dettaglio borsa di studio (se presente) */
   borsaDiStudio: DettaglioBorsaDiStudio | null;
 
-  /** Dettaglio costo aziendale del dipendente */
-  costoAziendale: DettaglioCostoAziendale;
+  /** Voci di entrata e di trattenuta da cui derivano i totali */
+  ripartizione: Ripartizione;
+
+  /** Costo aziendale annuo (entrate pagate dal datore) */
+  costoAziendale: number;
 
   /** Dettaglio calcolo IRPEF */
   irpef: DettaglioIrpef;
@@ -543,7 +584,7 @@ export interface OutputCalcoloStipendio {
   irpefNetta: number;
   /** IRPEF finale (dopo detrazione cuneo) */
   irpefFinale: number;
-  /** Totale trattenute (contributi + IRPEF finale + addizionali) */
+  /** Totale trattenute (contributi, IRPEF finale, addizionali, fondi, trattenuta auto) */
   totaleTrattenute: number;
   /** Totale bonus (indennità cuneo + trattamento integrativo) */
   totaleBonus: number;
@@ -554,7 +595,7 @@ export interface OutputCalcoloStipendio {
   nettoMensile: number;
   /** Stipendio netto mensile percepito (include benefit non tassati mensili) */
   nettoMensilePercepito: number;
-  /** Aliquota effettiva totale (trattenute/RAL) */
+  /** Aliquota effettiva totale ((trattenute esclusa auto - bonus) / RAL) */
   aliquotaEffettiva: number;
   /** Totale percepito (netto + rimborsi esenti + benefit esenti) */
   totalePercepito: number;
