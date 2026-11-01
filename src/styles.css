@@ -7,13 +7,106 @@
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
+/*
+ * Theme roles. Templates use these through the utilities below
+ * (bg-surface, text-muted, border-ring, ...) and never pick palette steps.
+ * Light values live on :root and dark values on .dark.
+ */
+
+:root {
+  /* surfaces */
+  --page: var(--color-stone-50);
+  --surface: var(--color-white);
+  --field: var(--color-white);
+  --sunken: var(--color-stone-100);
+
+  /* lines */
+  --ring: var(--color-stone-200);
+  --ring-strong: var(--color-stone-300);
+  --hair: var(--color-stone-200);
+  --divider: var(--color-stone-100);
+
+  /* text, strongest to faintest */
+  --fg: var(--color-stone-900);
+  --title: var(--color-stone-800);
+  --muted: var(--color-stone-600);
+  --subtle: var(--color-stone-500);
+  --faint: var(--color-stone-400);
+
+  /* actions and states */
+  --primary: var(--color-stone-900);
+  --on-primary: var(--color-white);
+  --focus: var(--color-stone-500);
+  --pos: var(--color-green-600);
+  --neg: var(--color-red-600);
+  --danger: var(--color-red-500);
+
+  /* brand gradient stops, unused until the restyle */
+  --g1: var(--color-stone-50);
+  --g2: var(--color-stone-50);
+  --g3: var(--color-stone-50);
+}
+
+.dark {
+  --page: var(--color-stone-900);
+  --surface: var(--color-stone-800);
+  --field: var(--color-stone-700);
+  --sunken: var(--color-stone-800);
+
+  --ring: var(--color-stone-700);
+  --ring-strong: var(--color-stone-600);
+  --hair: var(--color-stone-600);
+  --divider: var(--color-stone-700);
+
+  --fg: var(--color-stone-100);
+  --title: var(--color-stone-200);
+  --muted: var(--color-stone-400);
+  --subtle: var(--color-stone-400);
+  --faint: var(--color-stone-500);
+
+  --primary: var(--color-stone-100);
+  --on-primary: var(--color-stone-900);
+  --focus: var(--color-stone-500);
+  --pos: var(--color-green-400);
+  --neg: var(--color-red-400);
+  --danger: var(--color-red-500);
+
+  --g1: var(--color-stone-900);
+  --g2: var(--color-stone-900);
+  --g3: var(--color-stone-900);
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-field: var(--field);
+  --color-sunken: var(--sunken);
+  --color-ring: var(--ring);
+  --color-ring-strong: var(--ring-strong);
+  --color-hair: var(--hair);
+  --color-divider: var(--divider);
+  --color-fg: var(--fg);
+  --color-title: var(--title);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-faint: var(--faint);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-focus: var(--focus);
+  --color-pos: var(--pos);
+  --color-neg: var(--neg);
+  --color-danger: var(--danger);
+  --color-g1: var(--g1);
+  --color-g2: var(--g2);
+  --color-g3: var(--g3);
+}
+
 html {
   @apply antialiased;
 }
 
 body {
-  @apply bg-stone-50 text-stone-900 min-h-screen;
-  @apply dark:bg-stone-900 dark:text-stone-100;
+  @apply bg-page text-fg min-h-screen;
 }
 
 /* Hide number input spinboxes */
@@ -27,88 +120,76 @@ input[type='number'] {
   appearance: textfield;
 }
 
-/* ng-select — match Tailwind/stone design system */
+/*
+ * ng-select, themed through the roles above. Rules that read a role apply
+ * in both themes. The .dark rules cover properties whose light value comes
+ * from ng-select's own theme.
+ */
 .ng-select .ng-select-container {
   min-height: 42px;
   border-radius: 0.375rem;
-  border-color: #d6d3d1; /* stone-300 */
+  border-color: var(--ring-strong);
+  background-color: var(--field);
   font-size: 0.875rem;
 }
 
 .ng-select.ng-select-focused:not(.ng-select-opened) > .ng-select-container {
-  border-color: #78716c; /* stone-500 */
-  box-shadow: 0 0 0 2px #78716c; /* ring-2 ring-stone-500 */
+  border-color: var(--focus);
+  box-shadow: 0 0 0 2px var(--focus);
 }
 
 .ng-select.ng-select-opened > .ng-select-container {
-  border-color: #78716c;
+  border-color: var(--focus);
+  background-color: var(--field);
 }
 
 .ng-select .ng-select-container .ng-value-container .ng-placeholder {
-  color: #a8a29e; /* stone-400 */
+  color: var(--faint);
 }
 
 .ng-dropdown-panel {
-  border-color: #d6d3d1;
+  border-color: var(--ring-strong);
   border-radius: 0.375rem;
+  background-color: var(--field);
   font-size: 0.875rem;
 }
 
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+  background-color: var(--field);
+}
+
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
-  background-color: #f5f5f4; /* stone-100 */
+  background-color: var(--color-stone-100);
 }
 
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected,
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked {
-  background-color: #e7e5e4; /* stone-200 */
-  color: #1c1917; /* stone-900 */
+  background-color: var(--color-stone-200);
+  color: var(--color-stone-900);
 }
 
-/* ng-select dark mode */
 :where(.dark, .dark *) .ng-select .ng-select-container {
-  background-color: #44403c; /* stone-700 */
-  border-color: #57534e; /* stone-600 */
-  color: #f5f5f4; /* stone-100 */
-}
-
-:where(.dark, .dark *) .ng-select .ng-select-container .ng-value-container .ng-placeholder {
-  color: #78716c; /* stone-500 */
+  color: var(--fg);
 }
 
 :where(.dark, .dark *) .ng-select .ng-select-container .ng-value-container .ng-input > input {
-  color: #f5f5f4;
-}
-
-:where(.dark, .dark *) .ng-select.ng-select-focused:not(.ng-select-opened) > .ng-select-container {
-  border-color: #78716c;
-  box-shadow: 0 0 0 2px #78716c;
-}
-
-:where(.dark, .dark *) .ng-select.ng-select-opened > .ng-select-container {
-  background-color: #44403c;
-  border-color: #78716c;
+  color: var(--fg);
 }
 
 :where(.dark, .dark *) .ng-select .ng-arrow-wrapper .ng-arrow {
-  border-color: #a8a29e transparent transparent;
+  border-color: var(--subtle) transparent transparent;
 }
 
 :where(.dark, .dark *) .ng-select .ng-clear-wrapper {
-  color: #a8a29e;
-}
-
-:where(.dark, .dark *) .ng-dropdown-panel {
-  background-color: #44403c;
-  border-color: #57534e;
+  color: var(--subtle);
 }
 
 :where(.dark, .dark *) .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
-  background-color: #44403c;
-  color: #f5f5f4;
+  color: var(--fg);
 }
 
 :where(.dark, .dark *) .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
-  background-color: #57534e; /* stone-600 */
+  background-color: var(--color-stone-600);
 }
 
 :where(.dark, .dark *) .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected,
@@ -116,10 +197,10 @@ input[type='number'] {
   .ng-dropdown-panel
   .ng-dropdown-panel-items
   .ng-option.ng-option-selected.ng-option-marked {
-  background-color: #78716c; /* stone-500 */
-  color: #fafaf9; /* stone-50 */
+  background-color: var(--color-stone-500);
+  color: var(--color-stone-50);
 }
 
 :where(.dark, .dark *) .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-disabled {
-  color: #78716c;
+  color: var(--faint);
 }

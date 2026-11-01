@@ -1,17 +1,15 @@
 <header
-  class="border-b border-stone-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50 dark:border-stone-700 dark:bg-stone-900/80"
+  class="border-b border-ring bg-white/80 backdrop-blur-sm sticky top-0 z-50 dark:bg-stone-900/80"
 >
   <div class="max-w-7xl mx-auto px-4 lg:px-8 py-3 flex items-center justify-between">
     <!-- Left side: Logo -->
     <div class="flex items-center gap-2">
-      <h1 class="text-xl font-semibold tracking-tight text-stone-900 dark:text-stone-100 mr-4">
-        Stipendio.🔝
-      </h1>
+      <h1 class="text-xl font-semibold tracking-tight text-fg mr-4">Stipendio.🔝</h1>
       <a
         href="https://www.linkedin.com/in/bernardogiordano"
         target="_blank"
         rel="noopener noreferrer"
-        class="hidden lg:flex items-center gap-2 p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-all duration-300 overflow-hidden group"
+        class="hidden lg:flex items-center gap-2 p-2 rounded-lg text-subtle hover:text-stone-700 hover:bg-sunken dark:hover:text-stone-200 transition-all duration-300 overflow-hidden group"
         aria-label="LinkedIn"
       >
         <svg
@@ -33,7 +31,7 @@
         href="https://github.com/BernardoGiordano/stipendio.top"
         target="_blank"
         rel="noopener noreferrer"
-        class="hidden lg:flex items-center gap-2 p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-all duration-300 overflow-hidden group"
+        class="hidden lg:flex items-center gap-2 p-2 rounded-lg text-subtle hover:text-stone-700 hover:bg-sunken dark:hover:text-stone-200 transition-all duration-300 overflow-hidden group"
         aria-label="GitHub"
       >
         <svg
@@ -57,7 +55,7 @@
         href="https://www.paypal.com/paypalme/BernardoGiordano"
         target="_blank"
         rel="noopener noreferrer"
-        class="hidden lg:flex items-center gap-2 p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-all duration-300 overflow-hidden group"
+        class="hidden lg:flex items-center gap-2 p-2 rounded-lg text-subtle hover:text-stone-700 hover:bg-sunken dark:hover:text-stone-200 transition-all duration-300 overflow-hidden group"
         aria-label="PayPal"
       >
         <svg
@@ -81,7 +79,7 @@
       </a>
       <button
         type="button"
-        class="hidden lg:flex items-center gap-2 p-2 cursor-pointer rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-all duration-300 overflow-hidden group"
+        class="hidden lg:flex items-center gap-2 p-2 cursor-pointer rounded-lg text-subtle hover:text-stone-700 hover:bg-sunken dark:hover:text-stone-200 transition-all duration-300 overflow-hidden group"
         aria-label="Cambia tema"
         (click)="themeMode.toggle()"
       >
@@ -139,8 +137,8 @@
           type="button"
           [class]="
             displayMode.isNetto()
-              ? 'px-2.5 py-1.5 font-medium cursor-pointer bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
-              : 'px-2.5 py-1.5 font-medium cursor-pointer bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
+              ? 'px-2.5 py-1.5 font-medium cursor-pointer bg-primary text-on-primary'
+              : 'px-2.5 py-1.5 font-medium cursor-pointer bg-sunken text-muted hover:bg-stone-200 dark:hover:bg-stone-700'
           "
           [attr.aria-pressed]="displayMode.isNetto()"
           (click)="displayMode.setMode('netto')"
@@ -151,8 +149,8 @@
           type="button"
           [class]="
             displayMode.isPercepito()
-              ? 'px-2.5 py-1.5 font-medium cursor-pointer bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
-              : 'px-2.5 py-1.5 font-medium cursor-pointer bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
+              ? 'px-2.5 py-1.5 font-medium cursor-pointer bg-primary text-on-primary'
+              : 'px-2.5 py-1.5 font-medium cursor-pointer bg-sunken text-muted hover:bg-stone-200 dark:hover:bg-stone-700'
           "
           [attr.aria-pressed]="displayMode.isPercepito()"
           (click)="displayMode.setMode('percepito')"
@@ -162,18 +160,16 @@
       </div>
 
       @if (calculationResult(); as r) {
-        <div
-          class="flex items-center gap-4 text-right lg:hidden mr-2 pr-2 border-r border-stone-200 dark:border-stone-700"
-        >
+        <div class="flex items-center gap-4 text-right lg:hidden mr-2 pr-2 border-r border-ring">
           <div class="flex flex-col">
             <span class="text-[10px] text-stone-400 uppercase tracking-wide">Mensile</span>
-            <span class="text-sm font-semibold text-stone-900 dark:text-stone-100">{{
+            <span class="text-sm font-semibold text-fg">{{
               formatCurrency(displayMode.isPercepito() ? r.nettoMensilePercepito : r.nettoMensile)
             }}</span>
           </div>
           <div class="flex flex-col">
             <span class="text-[10px] text-stone-400 uppercase tracking-wide">Annuo</span>
-            <span class="text-sm font-semibold text-stone-900 dark:text-stone-100">{{
+            <span class="text-sm font-semibold text-fg">{{
               formatCurrency(displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo)
             }}</span>
           </div>
@@ -183,7 +179,7 @@
       <!-- Menu trigger button (visible only on small screens) -->
       <button
         type="button"
-        class="lg:hidden p-2 cursor-pointer rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-colors"
+        class="lg:hidden p-2 cursor-pointer rounded-lg text-subtle hover:text-stone-700 hover:bg-sunken dark:hover:text-stone-200 transition-colors"
         aria-label="Menu"
         [cdkMenuTriggerFor]="menu"
       >
@@ -207,7 +203,7 @@
       <ng-template #menu>
         <div
           cdkMenu
-          class="min-w-[200px] rounded-lg bg-white dark:bg-stone-800 shadow-lg ring-1 ring-stone-200 dark:ring-stone-700 py-1 focus:outline-none"
+          class="min-w-[200px] rounded-lg bg-surface shadow-lg ring-1 ring-ring py-1 focus:outline-none"
         >
           <!-- Display mode group -->
           <div cdkMenuGroup>
@@ -252,7 +248,7 @@
           </div>
 
           <!-- Divider -->
-          <div class="my-1 border-t border-stone-200 dark:border-stone-700"></div>
+          <div class="my-1 border-t border-ring"></div>
 
           <!-- Theme mode group -->
           <div cdkMenuGroup>
@@ -297,7 +293,7 @@
           </div>
 
           <!-- Divider -->
-          <div class="my-1 border-t border-stone-200 dark:border-stone-700"></div>
+          <div class="my-1 border-t border-ring"></div>
 
           <!-- Links -->
           <a
@@ -350,11 +346,11 @@
           </a>
 
           <!-- Divider -->
-          <div class="my-1 border-t border-stone-200 dark:border-stone-700"></div>
+          <div class="my-1 border-t border-ring"></div>
 
           <!-- Build info -->
           <div
-            class="flex w-full items-center gap-3 px-4 py-2 text-xs text-stone-400 dark:text-stone-500 cursor-default select-none"
+            class="flex w-full items-center gap-3 px-4 py-2 text-xs text-faint cursor-default select-none"
           >
             <svg
               class="size-4"
@@ -399,7 +395,7 @@
   </div>
 </main>
 
-<div class="bg-stone-100 dark:bg-stone-800">
+<div class="bg-sunken">
   <div class="max-w-7xl mx-auto px-4 lg:px-8 py-2.5 flex items-center justify-between gap-4">
     <p class="text-sm text-stone-600 dark:text-stone-300">
       @if (loadedFromUrl()) {
@@ -412,7 +408,7 @@
     </p>
     <button
       type="button"
-      class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-colors bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2"
+      class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-colors bg-primary text-on-primary hover:bg-stone-800 dark:hover:bg-stone-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2"
       (click)="copyShareableLink()"
     >
       @if (formStateShare.linkCopied()) {

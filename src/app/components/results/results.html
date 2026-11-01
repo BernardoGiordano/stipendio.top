@@ -1,28 +1,26 @@
 <aside
-  class="bg-white border border-stone-200 rounded-lg overflow-hidden lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] flex flex-col dark:bg-stone-800 dark:border-stone-700"
+  class="bg-surface border border-ring rounded-lg overflow-hidden lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] flex flex-col"
 >
   @if (hasResult()) {
     @let r = result()!;
 
     <!-- Header con risultati principali -->
-    <header
-      class="bg-stone-100 border-b border-stone-200 p-6 dark:bg-stone-900 dark:border-stone-700"
-    >
+    <header class="bg-stone-100 border-b border-ring p-6 dark:bg-stone-900">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div class="flex flex-col gap-1">
-          <span class="text-sm text-stone-500 dark:text-stone-400">{{
+          <span class="text-sm text-subtle">{{
             displayMode.isPercepito() ? 'Percepito Mensile' : 'Netto Mensile'
           }}</span>
-          <span class="text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">{{
+          <span class="text-3xl font-bold tracking-tight text-fg">{{
             formatCurrency(displayMode.isPercepito() ? r.nettoMensilePercepito : r.nettoMensile)
           }}</span>
           <span class="text-xs text-stone-400">su {{ r.mensilita }} mensilità</span>
         </div>
         <div class="flex flex-col gap-1 sm:items-end">
-          <span class="text-sm text-stone-500 dark:text-stone-400">{{
+          <span class="text-sm text-subtle">{{
             displayMode.isPercepito() ? 'Totale Percepito Annuo' : 'Netto Annuo'
           }}</span>
-          <span class="text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">{{
+          <span class="text-3xl font-bold tracking-tight text-fg">{{
             formatCurrency(displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo)
           }}</span>
           <span class="text-xs text-stone-400">{{
@@ -33,11 +31,7 @@
     </header>
 
     <!-- Tab Navigation -->
-    <nav
-      class="flex border-b border-stone-200 dark:border-stone-700"
-      role="tablist"
-      aria-label="Visualizzazione risultati"
-    >
+    <nav class="flex border-b border-ring" role="tablist" aria-label="Visualizzazione risultati">
       <button
         type="button"
         role="tab"
@@ -45,8 +39,8 @@
         [attr.aria-controls]="'panel-cedolino'"
         [class]="
           activeTab() === 'cedolino'
-            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
-            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
+            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-fg bg-surface border-b-2 border-primary'
+            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-subtle bg-page hover:text-stone-700 hover:bg-sunken dark:hover:text-stone-300'
         "
         (click)="setActiveTab('cedolino')"
       >
@@ -59,8 +53,8 @@
         [attr.aria-controls]="'panel-flusso'"
         [class]="
           activeTab() === 'flusso'
-            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
-            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
+            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-fg bg-surface border-b-2 border-primary'
+            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-subtle bg-page hover:text-stone-700 hover:bg-sunken dark:hover:text-stone-300'
         "
         (click)="setActiveTab('flusso')"
       >
@@ -73,8 +67,8 @@
         [attr.aria-controls]="'panel-proiezione'"
         [class]="
           activeTab() === 'proiezione'
-            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
-            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
+            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-fg bg-surface border-b-2 border-primary'
+            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-subtle bg-page hover:text-stone-700 hover:bg-sunken dark:hover:text-stone-300'
         "
         (click)="setActiveTab('proiezione')"
       >
@@ -88,56 +82,44 @@
       @if (activeTab() === 'cedolino') {
         <div id="panel-cedolino" role="tabpanel" aria-labelledby="tab-cedolino">
           <!-- Riepilogo Generale -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
+          <section class="p-4 border-b border-divider">
+            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
               Riepilogo
             </h3>
             <dl>
               @for (voce of entrateInBusta(); track voce.descrizione) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">{{ voce.descrizione }}</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">{{ voce.descrizione }}</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(voce.importo) }}
                   </dd>
                 </div>
               }
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Totale Trattenute</dt>
-                <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+              <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                <dt class="text-sm text-muted">Totale Trattenute</dt>
+                <dd class="text-sm font-medium text-neg">
                   - {{ formatCurrency(r.totaleTrattenute) }}
                 </dd>
               </div>
               <div class="flex justify-between py-1.5">
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Totale Bonus</dt>
-                <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                  + {{ formatCurrency(r.totaleBonus) }}
-                </dd>
+                <dt class="text-sm text-muted">Totale Bonus</dt>
+                <dd class="text-sm font-medium text-pos">+ {{ formatCurrency(r.totaleBonus) }}</dd>
               </div>
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">Netto Annuo</dt>
-                <dd class="text-sm text-stone-900 dark:text-stone-100">
+              <div class="flex justify-between py-2 mt-2 border-t border-ring-strong font-semibold">
+                <dt class="text-sm text-title">Netto Annuo</dt>
+                <dd class="text-sm text-fg">
                   {{ formatCurrency(r.nettoAnnuo) }}
                 </dd>
               </div>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Aliquota Effettiva</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+              <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                <dt class="text-sm text-muted">Aliquota Effettiva</dt>
+                <dd class="text-sm font-medium text-fg">
                   {{ formatPercent(r.aliquotaEffettiva) }}
                 </dd>
               </div>
               <div class="flex justify-between py-1.5">
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Totale Percepito</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <dt class="text-sm text-muted">Totale Percepito</dt>
+                <dd class="text-sm font-medium text-fg">
                   {{ formatCurrency(r.totalePercepito) }}
                 </dd>
               </div>
@@ -145,33 +127,27 @@
           </section>
 
           <!-- Costo Aziendale -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
+          <section class="p-4 border-b border-divider">
+            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
               Costo Aziendale
             </h3>
             <dl>
               @for (voce of entrateDatore(); track voce.descrizione) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">
                     {{ voce.descrizione }}
                     @if (voce.aliquota !== undefined) {
                       ({{ formatPercent(voce.aliquota) }})
                     }
                   </dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(voce.importo) }}
                   </dd>
                 </div>
               }
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Annuo</dt>
-                <dd class="text-sm text-stone-900 dark:text-stone-100">
+              <div class="flex justify-between py-2 mt-2 border-t border-ring-strong font-semibold">
+                <dt class="text-sm text-title">Totale Annuo</dt>
+                <dd class="text-sm text-fg">
                   {{ formatCurrency(r.costoAziendale) }}
                 </dd>
               </div>
@@ -179,26 +155,20 @@
           </section>
 
           <!-- Contributi INPS -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
+          <section class="p-4 border-b border-divider">
+            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
               Contributi INPS
             </h3>
             <dl>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Imponibile Previdenziale</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+              <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                <dt class="text-sm text-muted">Imponibile Previdenziale</dt>
+                <dd class="text-sm font-medium text-fg">
                   {{ formatCurrency(r.contributiInps.imponibilePrevidenziale) }}
                 </dd>
               </div>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Aliquota Applicata</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+              <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                <dt class="text-sm text-muted">Aliquota Applicata</dt>
+                <dd class="text-sm font-medium text-fg">
                   {{ formatPercent(r.contributiInps.aliquotaApplicata) }}
                 </dd>
               </div>
@@ -208,26 +178,22 @@
                 [class.border-dotted]="r.contributiInps.contributoAggiuntivo > 0"
                 [class.border-stone-100]="r.contributiInps.contributoAggiuntivo > 0"
               >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Contributi Base</dt>
-                <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                <dt class="text-sm text-muted">Contributi Base</dt>
+                <dd class="text-sm font-medium text-neg">
                   - {{ formatCurrency(r.contributiInps.contributiBase) }}
                 </dd>
               </div>
               @if (r.contributiInps.contributoAggiuntivo > 0) {
                 <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Contributo Aggiuntivo 1%
-                  </dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                  <dt class="text-sm text-muted">Contributo Aggiuntivo 1%</dt>
+                  <dd class="text-sm font-medium text-neg">
                     - {{ formatCurrency(r.contributiInps.contributoAggiuntivo) }}
                   </dd>
                 </div>
               }
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Contributi</dt>
-                <dd class="text-sm text-red-600 dark:text-red-400">
+              <div class="flex justify-between py-2 mt-2 border-t border-ring-strong font-semibold">
+                <dt class="text-sm text-title">Totale Contributi</dt>
+                <dd class="text-sm text-neg">
                   - {{ formatCurrency(r.contributiInps.totaleContributi) }}
                 </dd>
               </div>
@@ -236,38 +202,32 @@
 
           <!-- Regime Impatriati -->
           @if (r.regimeImpatriati) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
+            <section class="p-4 border-b border-divider">
+              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
                 Regime Impatriati
               </h3>
               <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Esenzione Applicata</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Esenzione Applicata</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatPercent(r.regimeImpatriati.percentualeEsenzione) }}
                     {{ r.regimeImpatriati.haFigliMinorenni ? '(figli minorenni)' : '(standard)' }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Reddito Agevolabile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Reddito Agevolabile</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(r.regimeImpatriati.redditoAgevolabile) }}
                   </dd>
                 </div>
                 <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Importo Esente IRPEF</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                  <dt class="text-sm text-muted">Importo Esente IRPEF</dt>
+                  <dd class="text-sm font-medium text-pos">
                     {{ formatCurrency(r.regimeImpatriati.importoEsente) }}
                   </dd>
                 </div>
                 <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
+                  <dt class="text-xs text-subtle">
                     (riduce imponibile IRPEF e addizionali, non INPS)
                   </dt>
                 </div>
@@ -276,44 +236,34 @@
           }
 
           <!-- IRPEF -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
-              IRPEF
-            </h3>
+          <section class="p-4 border-b border-divider">
+            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">IRPEF</h3>
             <dl>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Imponibile IRPEF</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+              <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                <dt class="text-sm text-muted">Imponibile IRPEF</dt>
+                <dd class="text-sm font-medium text-fg">
                   {{ formatCurrency(r.irpef.imponibileIrpef) }}
                 </dd>
               </div>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">IRPEF Lorda</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+              <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                <dt class="text-sm text-muted">IRPEF Lorda</dt>
+                <dd class="text-sm font-medium text-fg">
                   {{ formatCurrency(r.irpef.irpefLorda) }}
                 </dd>
               </div>
 
               <!-- Dettaglio Scaglioni -->
-              <div class="my-2 pl-3 border-l-2 border-stone-200 dark:border-stone-600">
-                <h4 class="text-xs font-semibold text-stone-500 mb-2 dark:text-stone-400">
-                  Dettaglio Scaglioni
-                </h4>
+              <div class="my-2 pl-3 border-l-2 border-hair">
+                <h4 class="text-xs font-semibold text-subtle mb-2">Dettaglio Scaglioni</h4>
                 @for (scaglione of r.irpef.dettaglioScaglioni; track scaglione.scaglione) {
                   @if (scaglione.imponibileScaglione > 0) {
                     <div class="flex justify-between py-1">
-                      <dt class="text-xs text-stone-500 dark:text-stone-400">
+                      <dt class="text-xs text-subtle">
                         Scaglione {{ scaglione.scaglione }} ({{
                           formatPercent(scaglione.aliquota)
                         }})
                       </dt>
-                      <dd class="text-xs text-stone-500 dark:text-stone-400">
+                      <dd class="text-xs text-subtle">
                         {{ formatCurrency(scaglione.impostaScaglione) }}
                       </dd>
                     </div>
@@ -324,29 +274,23 @@
           </section>
 
           <!-- Detrazioni -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
+          <section class="p-4 border-b border-divider">
+            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
               Detrazioni
             </h3>
             <dl>
               <!-- Detrazioni Lavoro -->
               @if (r.detrazioniLavoro.detrazioneEffettiva > 0) {
                 <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Detrazioni Lavoro Dipendente
-                  </dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                  <dt class="text-sm text-muted">Detrazioni Lavoro Dipendente</dt>
+                  <dd class="text-sm font-medium text-pos">
                     + {{ formatCurrency(r.detrazioniLavoro.detrazioneEffettiva) }}
                   </dd>
                 </div>
                 @if (r.detrazioniLavoro.maggiorazione > 0) {
                   <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">
-                      di cui maggiorazione €65
-                    </dt>
-                    <dd class="text-xs text-stone-500 dark:text-stone-400">
+                    <dt class="text-xs text-subtle">di cui maggiorazione €65</dt>
+                    <dd class="text-xs text-subtle">
                       {{ formatCurrency(r.detrazioniLavoro.maggiorazione) }}
                     </dd>
                   </div>
@@ -356,35 +300,35 @@
               <!-- Detrazioni Familiari -->
               @if (r.detrazioniFamiliari.totaleDetrazioniFamiliari > 0) {
                 <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Detrazioni Familiari</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                  <dt class="text-sm text-muted">Detrazioni Familiari</dt>
+                  <dd class="text-sm font-medium text-pos">
                     + {{ formatCurrency(r.detrazioniFamiliari.totaleDetrazioniFamiliari) }}
                   </dd>
                 </div>
                 @if (r.detrazioniFamiliari.detrazioneConiuge > 0) {
                   <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">Coniuge</dt>
-                    <dd class="text-xs text-stone-500 dark:text-stone-400">
+                    <dt class="text-xs text-subtle">Coniuge</dt>
+                    <dd class="text-xs text-subtle">
                       {{ formatCurrency(r.detrazioniFamiliari.detrazioneConiuge) }}
                     </dd>
                   </div>
                 }
                 @if (r.detrazioniFamiliari.detrazioneFigli > 0) {
                   <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">
+                    <dt class="text-xs text-subtle">
                       Figli ({{ r.detrazioniFamiliari.numeroFigliConDetrazione }})
                     </dt>
-                    <dd class="text-xs text-stone-500 dark:text-stone-400">
+                    <dd class="text-xs text-subtle">
                       {{ formatCurrency(r.detrazioniFamiliari.detrazioneFigli) }}
                     </dd>
                   </div>
                 }
                 @if (r.detrazioniFamiliari.detrazioneAscendenti > 0) {
                   <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">
+                    <dt class="text-xs text-subtle">
                       Ascendenti ({{ r.detrazioniFamiliari.numeroAscendentiConDetrazione }})
                     </dt>
-                    <dd class="text-xs text-stone-500 dark:text-stone-400">
+                    <dd class="text-xs text-subtle">
                       {{ formatCurrency(r.detrazioniFamiliari.detrazioneAscendenti) }}
                     </dd>
                   </div>
@@ -394,20 +338,16 @@
               <!-- Cuneo Fiscale -->
               @if (r.cuneoFiscale.indennitaEsente > 0) {
                 <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Indennità Cuneo Fiscale (esente)
-                  </dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                  <dt class="text-sm text-muted">Indennità Cuneo Fiscale (esente)</dt>
+                  <dd class="text-sm font-medium text-pos">
                     + {{ formatCurrency(r.cuneoFiscale.indennitaEsente) }}
                   </dd>
                 </div>
               }
               @if (r.cuneoFiscale.detrazioneAggiuntiva > 0) {
                 <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Detrazione Cuneo Fiscale
-                  </dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                  <dt class="text-sm text-muted">Detrazione Cuneo Fiscale</dt>
+                  <dd class="text-sm font-medium text-pos">
                     + {{ formatCurrency(r.cuneoFiscale.detrazioneAggiuntiva) }}
                   </dd>
                 </div>
@@ -416,18 +356,16 @@
               <!-- Altre Detrazioni -->
               @if (r.riepilogoDetrazioni.altre > 0) {
                 <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Altre Detrazioni</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                  <dt class="text-sm text-muted">Altre Detrazioni</dt>
+                  <dd class="text-sm font-medium text-pos">
                     + {{ formatCurrency(r.riepilogoDetrazioni.altre) }}
                   </dd>
                 </div>
               }
 
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Detrazioni</dt>
-                <dd class="text-sm text-green-600 dark:text-green-400">
+              <div class="flex justify-between py-2 mt-2 border-t border-ring-strong font-semibold">
+                <dt class="text-sm text-title">Totale Detrazioni</dt>
+                <dd class="text-sm text-pos">
                   + {{ formatCurrency(r.riepilogoDetrazioni.totale) }}
                 </dd>
               </div>
@@ -435,31 +373,27 @@
           </section>
 
           <!-- Trattamento Integrativo -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
+          <section class="p-4 border-b border-divider">
+            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
               Trattamento Integrativo
             </h3>
             <dl>
               @if (r.trattamentoIntegrativo.spetta) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Importo Spettante</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Importo Spettante</dt>
+                  <dd class="text-sm font-medium text-pos">
                     + {{ formatCurrency(r.trattamentoIntegrativo.importo) }}
                   </dd>
                 </div>
                 <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">Importo</dt>
-                  <dd class="text-xs text-stone-500 dark:text-stone-400">
+                  <dt class="text-xs text-subtle">Importo</dt>
+                  <dd class="text-xs text-subtle">
                     {{ r.trattamentoIntegrativo.importoPieno ? 'Pieno' : 'Ridotto' }}
                   </dd>
                 </div>
               } @else {
                 <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Non spetta</dt>
+                  <dt class="text-sm text-muted">Non spetta</dt>
                   <dd class="text-sm text-stone-500">
                     {{ r.trattamentoIntegrativo.motivoNonSpettanza || '-' }}
                   </dd>
@@ -469,47 +403,35 @@
           </section>
 
           <!-- IRPEF Netta e Finale -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
+          <section class="p-4 border-b border-divider">
+            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
               IRPEF Finale
             </h3>
             <dl>
               <div class="flex justify-between py-1.5">
-                <dt class="text-sm text-stone-600 dark:text-stone-400">
-                  IRPEF Netta (dopo detrazioni)
-                </dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <dt class="text-sm text-muted">IRPEF Netta (dopo detrazioni)</dt>
+                <dd class="text-sm font-medium text-fg">
                   {{ formatCurrency(r.irpefNetta) }}
                 </dd>
               </div>
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">IRPEF Finale</dt>
-                <dd class="text-sm text-red-600 dark:text-red-400">
-                  - {{ formatCurrency(r.irpefFinale) }}
-                </dd>
+              <div class="flex justify-between py-2 mt-2 border-t border-ring-strong font-semibold">
+                <dt class="text-sm text-title">IRPEF Finale</dt>
+                <dd class="text-sm text-neg">- {{ formatCurrency(r.irpefFinale) }}</dd>
               </div>
             </dl>
           </section>
 
           <!-- Addizionali -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
+          <section class="p-4 border-b border-divider">
+            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
               Addizionali
             </h3>
             <dl>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">
+              <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                <dt class="text-sm text-muted">
                   Addizionale Regionale ({{ formatPercent(r.addizionali.aliquotaRegionale) }})
                 </dt>
-                <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                <dd class="text-sm font-medium text-neg">
                   - {{ formatCurrency(r.addizionali.addizionaleRegionale) }}
                 </dd>
               </div>
@@ -519,26 +441,22 @@
                 [class.border-dotted]="r.addizionali.esenzioneComunaleApplicata"
                 [class.border-stone-100]="r.addizionali.esenzioneComunaleApplicata"
               >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">
+                <dt class="text-sm text-muted">
                   Addizionale Comunale ({{ formatPercent(r.addizionali.aliquotaComunale) }})
                 </dt>
-                <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                <dd class="text-sm font-medium text-neg">
                   - {{ formatCurrency(r.addizionali.addizionaleComunale) }}
                 </dd>
               </div>
               @if (r.addizionali.esenzioneComunaleApplicata) {
                 <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
-                    Esenzione comunale applicata
-                  </dt>
-                  <dd class="text-xs text-stone-500 dark:text-stone-400">Sì</dd>
+                  <dt class="text-xs text-subtle">Esenzione comunale applicata</dt>
+                  <dd class="text-xs text-subtle">Sì</dd>
                 </div>
               }
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Addizionali</dt>
-                <dd class="text-sm text-red-600 dark:text-red-400">
+              <div class="flex justify-between py-2 mt-2 border-t border-ring-strong font-semibold">
+                <dt class="text-sm text-title">Totale Addizionali</dt>
+                <dd class="text-sm text-neg">
                   - {{ formatCurrency(r.addizionali.totaleAddizionali) }}
                 </dd>
               </div>
@@ -547,46 +465,36 @@
 
           <!-- Fondi Contrattuali -->
           @for (fondo of r.fondiContrattuali; track fondo.id) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
+            <section class="p-4 border-b border-divider">
+              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
                 {{ fondo.nome }}
               </h3>
               <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Annuo</dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Contributo Annuo</dt>
+                  <dd class="text-sm font-medium text-neg">
                     - {{ formatCurrency(fondo.contributoAnnuo) }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Mensile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Contributo Mensile</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(fondo.contributoMensile) }}
                   </dd>
                 </div>
                 @if (fondo.deducibile) {
                   <div class="flex justify-between py-1.5">
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Risparmio Fiscale Stimato
-                    </dt>
-                    <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                    <dt class="text-sm text-muted">Risparmio Fiscale Stimato</dt>
+                    <dd class="text-sm font-medium text-pos">
                       + {{ formatCurrency(fondo.risparmioFiscaleStimato) }}
                     </dd>
                   </div>
                   <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">
-                      (riduzione imponibile IRPEF)
-                    </dt>
+                    <dt class="text-xs text-subtle">(riduzione imponibile IRPEF)</dt>
                   </div>
                 } @else {
                   <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">
+                    <dt class="text-xs text-subtle">
                       (trattenuta diretta dal netto, non deducibile)
                     </dt>
                   </div>
@@ -597,57 +505,43 @@
 
           <!-- Borsa di Studio -->
           @if (r.borsaDiStudio) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
+            <section class="p-4 border-b border-divider">
+              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
                 Borsa di Studio
               </h3>
               <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Importo Lordo</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Importo Lordo</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(r.borsaDiStudio.importoLordo) }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    INPS Gestione Separata (borsista)
-                  </dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">INPS Gestione Separata (borsista)</dt>
+                  <dd class="text-sm font-medium text-neg">
                     - {{ formatCurrency(r.borsaDiStudio.contributoGestioneSeparataBorsista) }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Imponibile IRPEF Borsa</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Imponibile IRPEF Borsa</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(r.borsaDiStudio.imponibileIrpef) }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Netto Annuo Borsa</dt>
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Netto Annuo Borsa</dt>
                   <dd class="text-sm font-medium text-emerald-600 dark:text-emerald-400">
                     {{ formatCurrency(r.borsaDiStudio.nettoAnnuo) }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Netto Mensile Borsa</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Netto Mensile Borsa</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(r.borsaDiStudio.nettoMensile) }}
                   </dd>
                 </div>
                 <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
+                  <dt class="text-xs text-subtle">
                     (INPS GS 35,03%: 1/3 borsista, 2/3 ente. Cumulo IRPEF con reddito da lavoro)
                   </dt>
                 </div>
@@ -657,97 +551,69 @@
 
           <!-- Fondo Pensione Integrativo -->
           @if (r.fondoPensioneIntegrativo) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
+            <section class="p-4 border-b border-divider">
+              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
                 Previdenza Complementare
               </h3>
               <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Contributo Lavoratore (annuo)
-                  </dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Contributo Lavoratore (annuo)</dt>
+                  <dd class="text-sm font-medium text-neg">
                     - {{ formatCurrency(r.fondoPensioneIntegrativo.contributoLavoratoreAnnuo) }}
                   </dd>
                 </div>
                 @if (r.fondoPensioneIntegrativo.contributoDatoreLavoroAnnuo > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Contributo Datore (annuo)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Contributo Datore (annuo)</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.fondoPensioneIntegrativo.contributoDatoreLavoroAnnuo) }}
                     </dd>
                   </div>
                 }
                 @if (r.fondoPensioneIntegrativo.contributoEbitempAnnuo > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Contributo EBITEMP (annuo)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Contributo EBITEMP (annuo)</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.fondoPensioneIntegrativo.contributoEbitempAnnuo) }}
                     </dd>
                   </div>
                 }
                 @if (r.fondoPensioneIntegrativo.contributoWelfareAnnuo > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Contributo welfare azienda (annuo)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Contributo welfare azienda (annuo)</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.fondoPensioneIntegrativo.contributoWelfareAnnuo) }}
                     </dd>
                   </div>
                 }
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Mensile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Contributo Mensile</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(r.fondoPensioneIntegrativo.contributoLavoratoreMensile) }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Deduzione Effettiva</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Deduzione Effettiva</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(r.fondoPensioneIntegrativo.deduzioneEffettiva) }}
                   </dd>
                 </div>
                 @if (r.fondoPensioneIntegrativo.eccedenzaNonDeducibile > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Eccedenza Non Deducibile
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-500 dark:text-stone-400">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Eccedenza Non Deducibile</dt>
+                    <dd class="text-sm font-medium text-subtle">
                       {{ formatCurrency(r.fondoPensioneIntegrativo.eccedenzaNonDeducibile) }}
                     </dd>
                   </div>
                 }
                 <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Risparmio Fiscale Stimato
-                  </dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                  <dt class="text-sm text-muted">Risparmio Fiscale Stimato</dt>
+                  <dd class="text-sm font-medium text-pos">
                     + {{ formatCurrency(r.fondoPensioneIntegrativo.risparmoFiscaleStimato) }}
                   </dd>
                 </div>
                 <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
+                  <dt class="text-xs text-subtle">
                     (deduzione imponibile IRPEF, max 5.300 euro/anno)
                   </dt>
                 </div>
@@ -757,84 +623,66 @@
 
           <!-- Fringe Benefit -->
           @if (r.fringeBenefit.valoreTotaleLordo > 0) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
+            <section class="p-4 border-b border-divider">
+              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
                 Fringe Benefit
               </h3>
               <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Valore Totale Lordo</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Valore Totale Lordo</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(r.fringeBenefit.valoreTotaleLordo) }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Soglia Esenzione</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Soglia Esenzione</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(r.fringeBenefit.sogliaEsenzione) }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Soglia Superata</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Soglia Superata</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ r.fringeBenefit.sogliaSuperata ? 'Sì' : 'No' }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Valore Imponibile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Valore Imponibile</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(r.fringeBenefit.valoreImponibile) }}
                   </dd>
                 </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Valore Esente</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Valore Esente</dt>
+                  <dd class="text-sm font-medium text-fg">
                     {{ formatCurrency(r.fringeBenefit.valoreEsente) }}
                   </dd>
                 </div>
                 @if (r.fringeBenefit.autoAziendale) {
-                  <div class="my-2 pl-3 border-l-2 border-stone-200 dark:border-stone-600">
-                    <h4 class="text-xs font-semibold text-stone-500 mb-2 dark:text-stone-400">
-                      Auto Aziendale
-                    </h4>
+                  <div class="my-2 pl-3 border-l-2 border-hair">
+                    <h4 class="text-xs font-semibold text-subtle mb-2">Auto Aziendale</h4>
                     <div class="flex justify-between py-1">
-                      <dt class="text-xs text-stone-500 dark:text-stone-400">Valore</dt>
-                      <dd class="text-xs text-stone-500 dark:text-stone-400">
+                      <dt class="text-xs text-subtle">Valore</dt>
+                      <dd class="text-xs text-subtle">
                         {{ formatCurrency(r.fringeBenefit.autoAziendale.valore) }}
                       </dd>
                     </div>
                     <div class="flex justify-between py-1">
-                      <dt class="text-xs text-stone-500 dark:text-stone-400">
-                        Percentuale Applicata
-                      </dt>
-                      <dd class="text-xs text-stone-500 dark:text-stone-400">
+                      <dt class="text-xs text-subtle">Percentuale Applicata</dt>
+                      <dd class="text-xs text-subtle">
                         {{ formatPercent(r.fringeBenefit.autoAziendale.percentualeApplicata) }}
                       </dd>
                     </div>
                     <div class="flex justify-between py-1">
-                      <dt class="text-xs text-stone-500 dark:text-stone-400">Mesi Utilizzo</dt>
-                      <dd class="text-xs text-stone-500 dark:text-stone-400">
+                      <dt class="text-xs text-subtle">Mesi Utilizzo</dt>
+                      <dd class="text-xs text-subtle">
                         {{ r.fringeBenefit.autoAziendale.mesiUtilizzo }}
                       </dd>
                     </div>
                     @if (r.fringeBenefit.trattenutaAutoDipendente > 0) {
                       <div class="flex justify-between py-1">
-                        <dt class="text-xs text-stone-500 dark:text-stone-400">
-                          Trattenuta Dipendente
-                        </dt>
-                        <dd class="text-xs text-stone-500 dark:text-stone-400">
+                        <dt class="text-xs text-subtle">Trattenuta Dipendente</dt>
+                        <dd class="text-xs text-subtle">
                           -{{ formatCurrency(r.fringeBenefit.trattenutaAutoDipendente) }}
                         </dd>
                       </div>
@@ -847,58 +695,46 @@
 
           <!-- Rimborsi Trasferta -->
           @if (r.rimborsiTrasferta.totaleRimborsi > 0) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
+            <section class="p-4 border-b border-divider">
+              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
                 Rimborsi Trasferta
               </h3>
               <dl>
                 @if (r.rimborsiTrasferta.rimborsoForfettarioEsente > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Rimborso Forfettario (esente)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Rimborso Forfettario (esente)</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.rimborsiTrasferta.rimborsoForfettarioEsente) }}
                     </dd>
                   </div>
                 }
                 @if (r.rimborsiTrasferta.rimborsoDocumentatoEsente > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Rimborso Documentato (esente)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Rimborso Documentato (esente)</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.rimborsiTrasferta.rimborsoDocumentatoEsente) }}
                     </dd>
                   </div>
                 }
                 @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">Rimborsi Tassati</dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Rimborsi Tassati</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.rimborsiTrasferta.rimborsiTassati) }}
                     </dd>
                   </div>
                 }
                 <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Totale Esente</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                  <dt class="text-sm text-muted">Totale Esente</dt>
+                  <dd class="text-sm font-medium text-pos">
                     + {{ formatCurrency(r.rimborsiTrasferta.totaleEsente) }}
                   </dd>
                 </div>
                 <div
-                  class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
+                  class="flex justify-between py-2 mt-2 border-t border-ring-strong font-semibold"
                 >
-                  <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Rimborsi</dt>
-                  <dd class="text-sm text-stone-900 dark:text-stone-100">
+                  <dt class="text-sm text-title">Totale Rimborsi</dt>
+                  <dd class="text-sm text-fg">
                     {{ formatCurrency(r.rimborsiTrasferta.totaleRimborsi) }}
                   </dd>
                 </div>
@@ -909,68 +745,52 @@
           <!-- Benefit Non Tassati -->
           @if (r.benefitNonTassati.totaleEsente > 0 || r.benefitNonTassati.totaleTassato > 0) {
             <section class="p-4">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
+              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
                 Benefit Non Tassati (Welfare)
               </h3>
               <dl>
                 @if (r.benefitNonTassati.assistenzaSanitaria > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">Assistenza Sanitaria</dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Assistenza Sanitaria</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.benefitNonTassati.assistenzaSanitaria) }}
                     </dd>
                   </div>
                 }
                 @if (r.benefitNonTassati.buoniPastoEsenti > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">Buoni Pasto (esenti)</dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Buoni Pasto (esenti)</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.benefitNonTassati.buoniPastoEsenti) }}
                     </dd>
                   </div>
                 }
                 @if (r.benefitNonTassati.buoniPastoTassati > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Buoni Pasto (tassati)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Buoni Pasto (tassati)</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.benefitNonTassati.buoniPastoTassati) }}
                     </dd>
                   </div>
                 }
                 @if (r.benefitNonTassati.altriWelfare > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">Altri Welfare</dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                    <dt class="text-sm text-muted">Altri Welfare</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.benefitNonTassati.altriWelfare) }}
                     </dd>
                   </div>
                 }
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Totale Esente</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
+                <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
+                  <dt class="text-sm text-muted">Totale Esente</dt>
+                  <dd class="text-sm font-medium text-pos">
                     + {{ formatCurrency(r.benefitNonTassati.totaleEsente) }}
                   </dd>
                 </div>
                 @if (r.benefitNonTassati.totaleTassato > 0) {
                   <div class="flex justify-between py-1.5">
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Totale Tassato (eccedenze)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                    <dt class="text-sm text-muted">Totale Tassato (eccedenze)</dt>
+                    <dd class="text-sm font-medium text-fg">
                       {{ formatCurrency(r.benefitNonTassati.totaleTassato) }}
                     </dd>
                   </div>
@@ -1007,12 +827,8 @@
     </div>
   } @else {
     <div class="p-8 text-center">
-      <p class="text-stone-500 mb-2 dark:text-stone-400">
-        Compila il form per calcolare il tuo stipendio netto.
-      </p>
-      <p class="text-sm text-stone-400 dark:text-stone-500">
-        I campi obbligatori sono: RAL, Regione e Comune.
-      </p>
+      <p class="text-subtle mb-2">Compila il form per calcolare il tuo stipendio netto.</p>
+      <p class="text-sm text-faint">I campi obbligatori sono: RAL, Regione e Comune.</p>
     </div>
   }
 </aside>

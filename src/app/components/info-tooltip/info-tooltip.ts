@@ -20,7 +20,7 @@ import {
     <button
       #trigger
       type="button"
-      class="cursor-pointer inline-flex items-center justify-center w-4 h-4 text-stone-400 hover:text-stone-600 focus:text-stone-600 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-1 rounded-full transition-colors dark:text-stone-500 dark:hover:text-stone-300 dark:focus:text-stone-300"
+      class="cursor-pointer inline-flex items-center justify-center w-4 h-4 text-faint hover:text-stone-600 focus:text-stone-600 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-1 rounded-full transition-colors dark:hover:text-stone-300 dark:focus:text-stone-300"
       [attr.aria-label]="'Informazioni: ' + text()"
       [attr.aria-describedby]="tooltipId()"
       (mouseenter)="show()"

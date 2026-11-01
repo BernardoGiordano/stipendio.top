@@ -60,7 +60,7 @@
                   [attr.y]="node.y + node.height / 2 + 8"
                   text-anchor="start"
                   dominant-baseline="middle"
-                  class="text-[11px] font-semibold fill-stone-900 dark:fill-stone-100"
+                  class="text-[11px] font-semibold fill-fg"
                 >
                   {{ formatCurrency(node.value) }}
                 </text>
@@ -73,7 +73,7 @@
                   [attr.y]="node.y + node.height / 2 - 6"
                   text-anchor="end"
                   dominant-baseline="middle"
-                  class="text-[10px] font-medium fill-stone-600 dark:fill-stone-400"
+                  class="text-[10px] font-medium fill-muted"
                 >
                   {{ node.label }}
                 </text>
@@ -82,7 +82,7 @@
                   [attr.y]="node.y + node.height / 2 + 7"
                   text-anchor="end"
                   dominant-baseline="middle"
-                  class="text-[10px] font-semibold fill-stone-800 dark:fill-stone-200"
+                  class="text-[10px] font-semibold fill-title"
                 >
                   {{ formatCurrency(node.value) }}
                 </text>
@@ -95,7 +95,7 @@
                   [attr.y]="node.y + node.height / 2 - 6"
                   text-anchor="start"
                   dominant-baseline="middle"
-                  class="text-[10px] font-medium fill-stone-600 dark:fill-stone-400"
+                  class="text-[10px] font-medium fill-muted"
                 >
                   {{ node.label }}
                 </text>
@@ -104,7 +104,7 @@
                   [attr.y]="node.y + node.height / 2 + 7"
                   text-anchor="start"
                   dominant-baseline="middle"
-                  class="text-[10px] font-semibold fill-stone-800 dark:fill-stone-200"
+                  class="text-[10px] font-semibold fill-title"
                 >
                   {{ formatCurrency(node.value) }}
                 </text>
@@ -126,7 +126,7 @@
                   [attr.y]="node.y + node.height / 2 + 8"
                   text-anchor="end"
                   dominant-baseline="middle"
-                  class="text-[11px] font-semibold fill-stone-900 dark:fill-stone-100"
+                  class="text-[11px] font-semibold fill-fg"
                 >
                   {{ formatCurrency(node.value) }}
                 </text>
@@ -136,7 +136,7 @@
         </g>
       </svg>
     } @else {
-      <div class="flex items-center justify-center h-full text-stone-500 dark:text-stone-400">
+      <div class="flex items-center justify-center h-full text-subtle">
         <p>Compila il form per visualizzare il grafico.</p>
       </div>
     }

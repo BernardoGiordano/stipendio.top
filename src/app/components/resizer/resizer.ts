@@ -29,7 +29,7 @@ import { isPlatformBrowser } from '@angular/common';
           [class]="
             isDragging()
               ? 'bg-stone-400 dark:bg-stone-500'
-              : 'bg-stone-300 group-hover:bg-stone-400 dark:bg-stone-600 dark:group-hover:bg-stone-500'
+              : 'bg-ring-strong group-hover:bg-stone-400 dark:group-hover:bg-stone-500'
           "
         ></div>
       </div>
