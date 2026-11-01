@@ -53,7 +53,7 @@ describe('GraphFunnel sankey', () => {
     expectBalanced(calcolaStipendioNetto(baseInput));
   });
 
-  it('balances with taxed welfare, exempt fringe and contributo volontario', () => {
+  it('balances with taxed welfare, exempt fringe and contributo welfare', () => {
     expectBalanced(
       calcolaStipendioNetto({
         ...baseInput,

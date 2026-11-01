@@ -52,15 +52,23 @@ export interface RimborsiTrasferta {
   rimborsoAlloggio?: number;
   /** Rimborso viaggio/trasporto documentato */
   rimborsoViaggio?: number;
-  /** Rimborso chilometrico auto propria */
+  /** Rimborso chilometrico auto propria per trasferte fuori comune, entro le tariffe ACI (esente) */
   rimborsoKm?: number;
+  /**
+   * Rimborso chilometrico imponibile: spostamenti nel comune sede di lavoro, o quota eccedente
+   * le tariffe ACI fuori comune (art. 51, c. 5, TUIR)
+   */
+  rimborsoKmImponibile?: number;
   /** Indica se i pagamenti sono tracciabili (obbligatorio dal 2025 per vitto/alloggio/taxi) */
   pagamentiTracciabili?: boolean;
 }
 
 /** Dettaglio benefit non tassati (welfare aziendale) */
 export interface BenefitNonTassati {
-  /** Contributi previdenza complementare (fondo pensione) */
+  /**
+   * Contributi al fondo pensione versati dal datore tramite welfare aziendale (es. conversione
+   * del credito welfare). Concorrono al plafond di deducibilità, non sono una trattenuta.
+   */
   previdenzaComplementare?: number;
   /** Contributi assistenza sanitaria integrativa */
   assistenzaSanitaria?: number;
@@ -101,7 +109,10 @@ export interface DettaglioFondoContrattuale {
   contributoDatore: number;
   /** Deducibile dall'imponibile IRPEF; altrimenti trattenuta diretta dal netto */
   deducibile: boolean;
-  /** Risparmio fiscale stimato annuo (aliquota marginale x contributo deducibile) */
+  /**
+   * Risparmio fiscale annuo del contributo deducibile: quota della differenza di IRPEF,
+   * addizionali e bonus tra il calcolo senza e con le deduzioni
+   */
   risparmioFiscaleStimato: number;
 }
 
@@ -115,7 +126,7 @@ export interface FiglioACarico {
   redditoAnnuo?: number;
   /** Percentuale di carico (default 100%, 50% se ripartito) */
   percentualeCarico?: number;
-  /** Mesi a carico per le detrazioni regionali (default 12) */
+  /** Mesi a carico nell'anno (default 12): le detrazioni IRPEF e regionali sono rapportate a mese */
   mesiCarico?: number;
 }
 
@@ -125,6 +136,8 @@ export interface ConiugeACarico {
   redditoAnnuo: number;
   /** Percentuale di carico (default 100%) */
   percentualeCarico?: number;
+  /** Mesi a carico nell'anno (default 12): la detrazione è rapportata a mese */
+  mesiCarico?: number;
 }
 
 /** Dati di un ascendente a carico */
@@ -133,6 +146,8 @@ export interface AscendenteACarico {
   redditoAnnuo: number;
   /** Indica se è convivente (requisito obbligatorio dal 2025) */
   convivente: boolean;
+  /** Mesi a carico nell'anno (default 12): la detrazione è rapportata a mese */
+  mesiCarico?: number;
 }
 
 /** Input per il calcolo dello stipendio netto */
@@ -354,7 +369,7 @@ export interface DettaglioRimborsiTrasferta {
 
 /** Dettaglio benefit non tassati */
 export interface DettaglioBenefitNonTassati {
-  /** Contributi previdenza complementare (esenti) */
+  /** Contributi al fondo pensione versati tramite welfare aziendale (gestiti nel fondo pensione) */
   previdenzaComplementare: number;
   /** Contributi assistenza sanitaria (esenti) */
   assistenzaSanitaria: number;
@@ -404,15 +419,18 @@ export interface DettaglioFondoPensioneIntegrativo {
   contributoDatoreLavoroAnnuo: number;
   /** Contributo annuo EBITEMP (ente bilaterale lavoro somministrato) */
   contributoEbitempAnnuo: number;
-  /** Contributo volontario annuo aggiuntivo del lavoratore (da sezione welfare) */
-  contributoVolontarioAnnuo: number;
-  /** Totale contributi (lavoratore + datore + EBITEMP + volontario) */
+  /** Contributo annuo versato dal datore tramite welfare aziendale (da sezione welfare) */
+  contributoWelfareAnnuo: number;
+  /** Totale contributi (lavoratore + datore + EBITEMP + welfare) */
   totaleContributi: number;
   /** Deduzione effettiva dall'imponibile IRPEF (max €5.300 dal 2026) */
   deduzioneEffettiva: number;
   /** Eventuale eccedenza non deducibile */
   eccedenzaNonDeducibile: number;
-  /** Risparmio fiscale stimato annuo (aliquota marginale x deduzione effettiva) */
+  /**
+   * Risparmio fiscale annuo della deduzione effettiva: quota della differenza di IRPEF,
+   * addizionali e bonus tra il calcolo senza e con le deduzioni
+   */
   risparmoFiscaleStimato: number;
 }
 

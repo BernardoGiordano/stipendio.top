@@ -95,19 +95,19 @@ export type InputFondi = Pick<
   InputCalcoloStipendio,
   FondoContrattualeId | 'fondoPensioneIntegrativo'
 > & {
-  /** Contributo volontario alla previdenza complementare (sezione welfare) */
-  contributoVolontario: number;
+  /** Contributo al fondo pensione versato dal datore tramite welfare aziendale (sezione welfare) */
+  contributoWelfare: number;
   mensilita: number;
 };
 
-/** Effetto dei fondi sul calcolo, prima di conoscere l'aliquota marginale IRPEF */
+/** Effetto dei fondi sul calcolo, prima di conoscere il risparmio fiscale delle deduzioni */
 export interface CalcoloFondi {
   fondiContrattuali: Omit<DettaglioFondoContrattuale, 'risparmioFiscaleStimato'>[];
   fondoPensioneIntegrativo: Omit<
     DettaglioFondoPensioneIntegrativo,
     'risparmoFiscaleStimato'
   > | null;
-  /** Contributi datore ed EBITEMP al fondo pensione, reddito di lavoro dipendente (art. 51 TUIR) */
+  /** Contributi datore, EBITEMP e welfare al fondo pensione, reddito di lavoro dipendente (art. 51 TUIR) */
   redditoFondoPensione: number;
   /** Deduzione dall'imponibile IRPEF */
   deduzione: number;
@@ -142,25 +142,27 @@ export function calcolaFondi(input: InputFondi): CalcoloFondi {
     }),
   );
   if (previdenza) {
-    entrate.push({
-      descrizione: 'Fondo Pensione (datore)',
-      importo: previdenza.contributoDatoreLavoroAnnuo,
-      categoria: 'fondi',
-      pagatore: 'datore',
-      destinazione: 'accantonata',
-    });
-    trattenute.push(
+    entrate.push(
       {
-        descrizione: 'Fondo Pensione (lavoratore)',
-        importo: previdenza.contributoLavoratoreAnnuo,
+        descrizione: 'Fondo Pensione (datore)',
+        importo: previdenza.contributoDatoreLavoroAnnuo,
         categoria: 'fondi',
+        pagatore: 'datore',
+        destinazione: 'accantonata',
       },
       {
-        descrizione: 'Fondo Pensione (volontario)',
-        importo: previdenza.contributoVolontarioAnnuo,
+        descrizione: 'Fondo Pensione (welfare)',
+        importo: previdenza.contributoWelfareAnnuo,
         categoria: 'fondi',
+        pagatore: 'datore',
+        destinazione: 'accantonata',
       },
     );
+    trattenute.push({
+      descrizione: 'Fondo Pensione (lavoratore)',
+      importo: previdenza.contributoLavoratoreAnnuo,
+      categoria: 'fondi',
+    });
   }
 
   return {
@@ -174,7 +176,9 @@ export function calcolaFondi(input: InputFondi): CalcoloFondi {
     })),
     fondoPensioneIntegrativo: previdenza,
     redditoFondoPensione: previdenza
-      ? previdenza.contributoDatoreLavoroAnnuo + previdenza.contributoEbitempAnnuo
+      ? previdenza.contributoDatoreLavoroAnnuo +
+        previdenza.contributoEbitempAnnuo +
+        previdenza.contributoWelfareAnnuo
       : 0,
     deduzione: deduzioneFondiContrattuali + (previdenza?.deduzioneEffettiva ?? 0),
     entrate,
@@ -183,29 +187,33 @@ export function calcolaFondi(input: InputFondi): CalcoloFondi {
   };
 }
 
-/** Dettagli per l'output, con il risparmio fiscale stimato all'aliquota marginale IRPEF */
+/**
+ * Dettagli per l'output. Il risparmio fiscale complessivo delle deduzioni (differenza di carico
+ * fiscale tra il calcolo senza e con le deduzioni) è ripartito tra i fondi in proporzione alla
+ * quota dedotta da ciascuno.
+ */
 export function dettagliFondi(
   fondi: CalcoloFondi,
-  aliquotaMarginaleIrpef: number,
+  risparmioFiscaleDeduzioni: number,
 ): Pick<OutputCalcoloStipendio, 'fondiContrattuali' | 'fondoPensioneIntegrativo'> {
   const previdenza = fondi.fondoPensioneIntegrativo;
+  const quota = (deduzione: number) =>
+    fondi.deduzione > 0 ? (risparmioFiscaleDeduzioni * deduzione) / fondi.deduzione : 0;
 
   return {
     fondiContrattuali: fondi.fondiContrattuali.map((fondo) => ({
       ...fondo,
-      risparmioFiscaleStimato: fondo.deducibile
-        ? fondo.contributoAnnuo * aliquotaMarginaleIrpef
-        : 0,
+      risparmioFiscaleStimato: fondo.deducibile ? quota(fondo.contributoAnnuo) : 0,
     })),
     fondoPensioneIntegrativo: previdenza && {
       ...previdenza,
-      risparmoFiscaleStimato: previdenza.deduzioneEffettiva * aliquotaMarginaleIrpef,
+      risparmoFiscaleStimato: quota(previdenza.deduzioneEffettiva),
     },
   };
 }
 
 /**
- * Contributi lavoratore, datore, EBITEMP e volontario condividono il plafond, che i fondi
+ * Contributi lavoratore, datore, EBITEMP e welfare condividono il plafond, che i fondi
  * contrattuali deducibili riducono.
  */
 function calcolaPrevidenzaComplementare(
@@ -213,8 +221,8 @@ function calcolaPrevidenzaComplementare(
   deduzioneFondiContrattuali: number,
 ): CalcoloFondi['fondoPensioneIntegrativo'] {
   const fondo = input.fondoPensioneIntegrativo;
-  const contributoVolontario = input.contributoVolontario;
-  if (!fondo && contributoVolontario <= 0) {
+  const contributoWelfare = input.contributoWelfare;
+  if (!fondo && contributoWelfare <= 0) {
     return null;
   }
 
@@ -227,7 +235,7 @@ function calcolaPrevidenzaComplementare(
     contributoLavoratoreAnnuo +
     contributoDatoreLavoroAnnuo +
     contributoEbitempAnnuo +
-    contributoVolontario;
+    contributoWelfare;
 
   const plafondResiduo = Math.max(0, PLAFOND_PREVIDENZA_COMPLEMENTARE - deduzioneFondiContrattuali);
 
@@ -237,7 +245,7 @@ function calcolaPrevidenzaComplementare(
       contributoLavoratoreAnnuo / (fondo?.ripartizionePerMensilita ? input.mensilita : 12),
     contributoDatoreLavoroAnnuo,
     contributoEbitempAnnuo,
-    contributoVolontarioAnnuo: contributoVolontario,
+    contributoWelfareAnnuo: contributoWelfare,
     totaleContributi,
     deduzioneEffettiva: Math.min(totaleContributi, plafondResiduo),
     eccedenzaNonDeducibile: Math.max(0, totaleContributi - plafondResiduo),

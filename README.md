@@ -151,9 +151,9 @@ Se RC > €50.000:
 | €28.001 − €50.000 | €1.910 × [(€50.000 − RC) / €22.000]          |
 | > €50.000         | €0                                           |
 
-**Maggiorazione:** +€65 per redditi tra €25.001 e €35.000
+**Maggiorazione:** +€65 per redditi tra €25.001 e €35.000, non rapportata al periodo di lavoro (Circ. AdE 4/E/2022, par. 1.2)
 
-**Rapporto ai giorni:** `Detrazione Effettiva = Detrazione × (Giorni Lavorati / 365)`
+**Rapporto ai giorni:** `Detrazione Effettiva = Detrazione × (Giorni Lavorati / 365) + Maggiorazione`
 
 ##### 3.2 Detrazioni Carichi Familiari
 
@@ -171,16 +171,29 @@ Se RC > €50.000:
 Spetta solo per figli dai 21 ai 29 anni (compiuti) non disabili, oppure figli disabili di qualsiasi età.
 
 ```
-Detrazione = €950 × [(Coefficiente − RC) / Coefficiente]
+Detrazione per figlio = Importo Teorico × [(Coefficiente − RC) / Coefficiente]
 
-Coefficiente Base = €95.000
-Coefficiente = €95.000 + €15.000 × (N. figli − 1)
+Importo Teorico = €950
+                + €400 se il figlio è disabile
+                + €200 per ciascun figlio, se i figli a carico sono più di tre
+
+Coefficiente = €95.000 + €15.000 × (N. figli a carico − 1)
 ```
+
+Il coefficiente è lo stesso per tutti i figli. Nel numero di figli a carico rientrano anche quelli con meno di 21 anni, per i quali la detrazione non spetta ma che rilevano per il coefficiente e per la maggiorazione oltre tre figli (art. 12, c. 1, lett. c, TUIR; Circ. AdE 4/E/2022, par. 1.1).
 
 ###### Ascendenti a Carico (conviventi)
 
 ```
 Detrazione = €750 × [(€80.000 − RC) / €80.000]
+```
+
+###### Rapporto ai Mesi
+
+Le detrazioni per coniuge, figli e ascendenti sono rapportate a mese e competono dal mese in cui si verificano a quello in cui cessano le condizioni (art. 12, c. 3, TUIR):
+
+```
+Detrazione Effettiva = Detrazione × (Mesi a Carico / 12)
 ```
 
 ###### Limiti di Reddito per Essere a Carico
@@ -209,7 +222,7 @@ Il cuneo fiscale 2025 sostituisce l'esonero contributivo 6-7% con un sistema dua
 Indennità = Reddito Lavoro Dipendente × Percentuale
 ```
 
-> L'indennità è **esente** da IRPEF e contributi.
+> L'indennità è **esente** da IRPEF e contributi. La fascia percentuale si individua sul reddito di lavoro dipendente rapportato all'intero anno (`Reddito × 365 / Giorni Lavorati`, art. 1, c. 4, L. 207/2024), mentre la percentuale si applica al reddito effettivo.
 
 ##### Per Redditi €20.001 − €40.000: Detrazione Fiscale
 
@@ -218,7 +231,7 @@ Indennità = Reddito Lavoro Dipendente × Percentuale
 | €20.001 − €32.000 | €1.000                             |
 | €32.001 − €40.000 | €1.000 × [(€40.000 − RC) / €8.000] |
 
-> La detrazione opera **fino a concorrenza** dell'imposta lorda.
+> La detrazione opera **fino a concorrenza** dell'imposta lorda ed è rapportata al periodo di lavoro: `Detrazione Effettiva = Detrazione × (Giorni Lavorati / 365)` (art. 1, c. 6, L. 207/2024).
 
 ---
 
@@ -234,7 +247,7 @@ Ex "Bonus Renzi" - Importo massimo: **€1.200/anno** (€100/mese)
 | €15.001 − €28.000 | Detrazioni > IRPEF Lorda                | MIN(€1.200, Eccedenza) |
 | > €28.000         | —                                       | Non spetta             |
 
-Nella fascia ≤ €15.000 l'IRPEF lorda è calcolata sui soli redditi di lavoro dipendente e assimilati (artt. 49 e 50 TUIR), e i €75 sono rapportati al periodo di lavoro (art. 1, c. 1, D.L. 3/2020). Nella fascia €15.001 − €28.000 si usa l'IRPEF lorda ordinaria (art. 1, c. 1-bis).
+Nella fascia ≤ €15.000 l'IRPEF lorda è calcolata sui soli redditi di lavoro dipendente e assimilati (artt. 49 e 50 TUIR), e sia l'importo di €1.200 sia i €75 sono rapportati al periodo di lavoro (art. 1, c. 1, D.L. 3/2020): `Importo = €1.200 × (Giorni Lavorati / 365)`. Nella fascia €15.001 − €28.000 si usa l'IRPEF lorda ordinaria (art. 1, c. 1-bis).
 
 ---
 
@@ -346,9 +359,13 @@ Fringe Benefit = (Costo €/km ACI × 15.000 km × Percentuale) × (Mesi / 12) �
 **Rimborso Analitico:**
 Totalmente esente se documentato e con pagamento tracciabile (dal 2025).
 
+##### Rimborso Chilometrico
+
+L'indennità chilometrica per l'uso dell'auto propria è esente solo per le trasferte **fuori** dal comune sede di lavoro ed entro i limiti delle tariffe ACI (art. 51, c. 5, TUIR). Concorrono invece al reddito, e all'imponibile previdenziale, i rimborsi chilometrici per gli spostamenti nel comune e la quota eccedente le tariffe ACI: nel calcolo vanno indicati come "rimborso chilometrico imponibile".
+
 ##### Trasferte nel Comune
 
-Dal 2025: rimborso km e trasporto esenti se documentati.
+Dal 2025: spese di viaggio e trasporto (trasporto pubblico, taxi, NCC) esenti se documentate. Il rimborso chilometrico nel comune resta imponibile.
 
 ##### Obbligo Tracciabilità (dal 2025)
 
@@ -370,7 +387,7 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 
 | Voce                                        | Limite Annuo  |
 | ------------------------------------------- | ------------- |
-| Previdenza complementare                    | €5.164,57     |
+| Previdenza complementare (da welfare)       | €5.300 (\*)   |
 | Assistenza sanitaria integrativa            | €3.615,20     |
 | Buoni pasto cartacei                        | €4,00/giorno  |
 | Buoni pasto elettronici (2025)              | €8,00/giorno  |
@@ -379,6 +396,8 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 | Servizi welfare (asili, borse studio, ecc.) | 100% esenti   |
 
 > Per i buoni pasto il limite annuo è la soglia giornaliera moltiplicata per i giorni di erogazione (default 220, modificabile nella form), assumendo buoni di pari importo giornaliero.
+>
+> (\*) I contributi al fondo pensione versati dall'azienda tramite welfare sono gestiti nella [previdenza complementare](#11-previdenza-complementare-fondo-pensione-integrativo): concorrono al plafond di €5.300 insieme ai contributi di lavoratore e datore e non sono una trattenuta dal netto.
 
 ---
 
@@ -404,7 +423,7 @@ Fondo di previdenza complementare obbligatorio per i dirigenti del terziario.
 - Il contributo **riduce l'imponibile IRPEF** (deduzione integrale, senza massimale di deducibilità come per la previdenza complementare generica)
 - Il contributo **non riduce l'imponibile previdenziale** (INPS)
 - È una **trattenuta reale** che si sottrae dal netto in busta paga
-- Il risparmio fiscale dipende dall'aliquota marginale IRPEF del dirigente
+- Il risparmio fiscale è calcolato come differenza reale di carico fiscale (IRPEF, addizionali e bonus) tra il calcolo senza e con la deduzione
 
 > Il contributo aziendale (ordinario 12,86% + integrativo 2,52% = 15,38% della retribuzione convenzionale) non impatta il netto del dirigente, ma è incluso nel calcolo del [Costo Aziendale](#13-costo-aziendale).
 
@@ -481,11 +500,12 @@ La previdenza complementare consente al lavoratore dipendente di versare contrib
 
 ##### Struttura dei Contributi
 
-| Fonte                 | Descrizione                                                                   |
-| --------------------- | ----------------------------------------------------------------------------- |
-| Contributo lavoratore | Percentuale della RAL trattenuta dalla busta paga                             |
-| Contributo datore     | Percentuale della RAL versata dall'azienda (costo aggiuntivo)                 |
-| Contributo EBITEMP    | Percentuale della RAL versata dall'ente bilaterale (lavoratori somministrati) |
+| Fonte                 | Descrizione                                                                       |
+| --------------------- | --------------------------------------------------------------------------------- |
+| Contributo lavoratore | Percentuale della RAL trattenuta dalla busta paga                                 |
+| Contributo datore     | Percentuale della RAL versata dall'azienda (costo aggiuntivo)                     |
+| Contributo EBITEMP    | Percentuale della RAL versata dall'ente bilaterale (lavoratori somministrati)     |
+| Contributo welfare    | Importo versato dal datore tramite il piano welfare (sezione Benefit non tassati) |
 
 Le percentuali dipendono dal CCNL applicato e dalla scelta individuale del lavoratore. Valori tipici: 0,55% - 2% per il lavoratore, 1% - 2% per il datore.
 
@@ -493,11 +513,11 @@ Per i **lavoratori somministrati** iscritti a Fon.Te., l'ente bilaterale EBITEMP
 
 ##### Deducibilità Fiscale (Art. 10, c.1, lett. e-bis, TUIR - aggiornato da L. 199/2025)
 
-| Parametro                    | Valore                                   |
-| ---------------------------- | ---------------------------------------- |
-| Limite annuo di deducibilità | €5.300 (dal 2026)                        |
-| Cosa concorre al limite      | Contributo lavoratore + datore + EBITEMP |
-| TFR destinato al fondo       | Escluso dal limite                       |
+| Parametro                    | Valore                                             |
+| ---------------------------- | -------------------------------------------------- |
+| Limite annuo di deducibilità | €5.300 (dal 2026)                                  |
+| Cosa concorre al limite      | Contributo lavoratore + datore + EBITEMP + welfare |
+| TFR destinato al fondo       | Escluso dal limite                                 |
 
 **Formula:**
 
@@ -517,6 +537,7 @@ Eccedenza Non Deducibile = MAX(0, Totale Contributi − €5.300)
 - **Netto in busta:** Solo il contributo lavoratore è una trattenuta reale dal netto
 - **Contributo datore:** Non è una trattenuta dalla busta paga, ma concorre al limite di deducibilità
 - **Contributo EBITEMP:** Come il contributo datore, non è una trattenuta dal netto, ma concorre al limite di deducibilità
+- **Contributo welfare:** Come il contributo datore, è pagato dall'azienda (incluso nel costo aziendale), non è una trattenuta dal netto e concorre al limite di deducibilità
 
 ##### Esempio
 
@@ -527,9 +548,11 @@ Contributo lavoratore: €40.000 × 1% = €400/anno
 Contributo datore: €40.000 × 1,5% = €600/anno
 Totale: €1.000 (sotto il limite di €5.300)
 Deduzione effettiva: €1.000
-Risparmio IRPEF (aliquota marginale 33%): €330/anno
-Costo netto per il lavoratore: €400 − €330 = €70/anno
+Risparmio IRPEF nominale (aliquota marginale 33%): €330/anno
+Costo netto per il lavoratore: circa €400 − €330 = €70/anno
 ```
+
+Il calcolatore non si ferma all'aliquota marginale: il **risparmio fiscale** mostrato è la differenza di carico fiscale (IRPEF finale, addizionali regionale e comunale, indennità cuneo e trattamento integrativo) tra il calcolo senza e con le deduzioni. Nella fascia €28.000 − €50.000, ad esempio, ogni euro dedotto recupera anche parte della detrazione lavoro dipendente (1.910/22.000) e, tra €32.000 e €40.000, della detrazione cuneo (1.000/8.000), oltre alle addizionali: l'aliquota marginale effettiva supera il 50%. Quando concorrono più deduzioni (es. Fondo Negri e fondo pensione) il risparmio è ripartito in proporzione alla quota dedotta da ciascuna.
 
 > **Nota:** L'eventuale eccedenza non deducibile non genera risparmio fiscale nell'anno di versamento, ma sarà esente da tassazione al momento dell'erogazione della prestazione pensionistica.
 
@@ -613,6 +636,12 @@ COSTO AZIENDALE = RAL + Contributi INPS Datore + TFR
 
 I contributi INPS a carico del datore sono calcolati sull'imponibile previdenziale (lo stesso utilizzato per la quota lavoratore) e includono IVS, NASpI, malattia, maternità, CUAF, CIG e Fondo Garanzia TFR.
 
+Per gli iscritti dal 1996 il massimale contributivo (€122.295 nel 2026) limita la sola quota IVS, pari al 23,81%; le contribuzioni minori restano dovute sull'intero imponibile:
+
+```
+INPS Datore = MIN(Imponibile, Massimale) × 23,81% + Imponibile × (Aliquota − 23,81%)
+```
+
 | Tipologia                     | Aliquota Datore |
 | ----------------------------- | --------------- |
 | Operai/impiegati (senza CIGS) | 28,98%          |
@@ -665,7 +694,7 @@ Il costo aziendale include anche le componenti variabili erogate dall'azienda, s
 
 - **Fringe Benefit:** il valore totale dei fringe benefit erogati (buoni acquisto, buoni carburante, rimborsi utenze/affitto/mutuo, auto aziendale, altri). Per l'auto aziendale, viene utilizzato il valore convenzionale ai fini fiscali.
 - **Rimborsi Trasferta:** il totale dei rimborsi spese per trasferte (forfettari ed analitici, sia esenti che tassati).
-- **Benefit Non Tassati (Welfare):** il totale dei benefit di welfare aziendale erogati (buoni pasto, previdenza complementare, assistenza sanitaria, abbonamento trasporti, servizi welfare).
+- **Benefit Non Tassati (Welfare):** il totale dei benefit di welfare aziendale erogati (buoni pasto, assistenza sanitaria, abbonamento trasporti, servizi welfare). La previdenza complementare da welfare è inclusa nella voce Fondo Pensione (datore/welfare).
 
 > Queste voci contribuiscono anche all'imponibile previdenziale per le eventuali parti tassabili, e il relativo costo INPS datore è già incluso nella voce "Contributi INPS Datore".
 
@@ -864,10 +893,10 @@ Costo per l'Ente:      € 20.036,55
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  6e. PREVIDENZA COMPLEMENTARE (se attiva)                       │
-│      Contributo lav. + datore + EBITEMP, deduc. fino a €5.300  │
+│      Contributo lav. + datore + EBITEMP + welfare, ded. ≤ €5.300│
 │      → Riduce l'imponibile IRPEF (con cap)                     │
 │      → Solo contributo lavoratore è trattenuta dal netto        │
-│      → Contributo datore e EBITEMP non sono trattenute          │
+│      → Datore, EBITEMP e welfare non sono trattenute            │
 │      → NON riduce l'imponibile previdenziale (INPS)            │
 └─────────────────────────────────────────────────────────────────┘
                               │

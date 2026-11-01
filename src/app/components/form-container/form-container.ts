@@ -13,7 +13,6 @@ import { InfoTooltip } from '../info-tooltip/info-tooltip';
 import {
   elencoComuni,
   elencoRegioni,
-  haDetrazioneFigliRegionale,
   haRedditiSostitutiviInSoglia,
 } from '../../../calculator/addizionali/2026';
 import { FONDI_CONTRATTUALI, FondoContrattuale } from '../../../calculator/fondi/2026';
@@ -58,8 +57,6 @@ export class FormContainer {
     ALTRO_OPTION,
     ...elencoComuni(this.selectedRegione()).map((c) => ({ value: c.codice, label: c.nome })),
   ]);
-
-  readonly mostraMesiCarico = computed(() => haDetrazioneFigliRegionale(this.selectedRegione()));
 
   readonly mostraRedditiSostitutivi = computed(() =>
     haRedditiSostitutiviInSoglia(this.selectedRegione()),
