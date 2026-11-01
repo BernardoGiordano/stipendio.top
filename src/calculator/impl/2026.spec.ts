@@ -2008,9 +2008,23 @@ describe('Detrazioni lavoro dipendente', () => {
       ...baseInput,
       giorniLavorati: 200,
     });
+    expect(resultFull.detrazioniLavoro.maggiorazione).toBe(0);
     expect(resultPartial.detrazioniLavoro.coefficienteGiorni).toBeCloseTo(200 / 365, 4);
     expect(resultPartial.detrazioniLavoro.detrazioneEffettiva).toBeCloseTo(
       resultFull.detrazioniLavoro.detrazioneEffettiva * (200 / 365),
+      2,
+    );
+  });
+
+  it('la maggiorazione €65 non è rapportata ai giorni lavorati', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 35_000, // reddito ~31.8k → maggiorazione
+      giorniLavorati: 200,
+    });
+    expect(result.detrazioniLavoro.maggiorazione).toBe(65);
+    expect(result.detrazioniLavoro.detrazioneEffettiva).toBeCloseTo(
+      result.detrazioniLavoro.detrazioneTeorica * (200 / 365) + 65,
       2,
     );
   });

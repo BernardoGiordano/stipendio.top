@@ -517,8 +517,10 @@ function calcolaDetrazioniLavoroDipendente(
     maggiorazione = params.maggiorazioneRedditiMedi;
   }
 
+  // La maggiorazione di €65 spetta per intero, senza ragguaglio al periodo di lavoro
+  // (Circ. AdE 4/E/2022, par. 1.2)
   const coefficienteGiorni = giorniLavorati / 365;
-  const detrazioneEffettiva = (detrazioneTeorica + maggiorazione) * coefficienteGiorni;
+  const detrazioneEffettiva = detrazioneTeorica * coefficienteGiorni + maggiorazione;
 
   return {
     detrazioneTeorica,

@@ -151,9 +151,9 @@ Se RC > €50.000:
 | €28.001 − €50.000 | €1.910 × [(€50.000 − RC) / €22.000]          |
 | > €50.000         | €0                                           |
 
-**Maggiorazione:** +€65 per redditi tra €25.001 e €35.000
+**Maggiorazione:** +€65 per redditi tra €25.001 e €35.000, non rapportata al periodo di lavoro (Circ. AdE 4/E/2022, par. 1.2)
 
-**Rapporto ai giorni:** `Detrazione Effettiva = Detrazione × (Giorni Lavorati / 365)`
+**Rapporto ai giorni:** `Detrazione Effettiva = Detrazione × (Giorni Lavorati / 365) + Maggiorazione`
 
 ##### 3.2 Detrazioni Carichi Familiari
 
