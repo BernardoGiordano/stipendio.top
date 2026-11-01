@@ -2310,6 +2310,31 @@ describe('Cuneo fiscale', () => {
     expect(result.cuneoFiscale.detrazioneAggiuntiva).toBeLessThan(1_000);
   });
 
+  it('indennità: la fascia percentuale usa il reddito annualizzato', () => {
+    // RAL 7.000 su 200 giorni: reddito ~6.4k, annualizzato ~11.6k → 5,3% anziché 7,1%
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 7_000,
+      giorniLavorati: 200,
+    });
+    expect(result.cuneoFiscale.spettaIndennita).toBe(true);
+    expect(result.cuneoFiscale.percentualeIndennita).toBe(0.053);
+    expect(result.cuneoFiscale.indennitaEsente).toBeCloseTo(
+      result.irpef.imponibileIrpef * 0.053,
+      2,
+    );
+  });
+
+  it('detrazione rapportata al periodo di lavoro', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      giorniLavorati: 200,
+    });
+    expect(result.cuneoFiscale.spettaDetrazione).toBe(true);
+    expect(result.cuneoFiscale.detrazioneAggiuntiva).toBeCloseTo(1_000 * (200 / 365), 2);
+  });
+
   it('reddito complessivo > 40.000: né indennità né detrazione', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,

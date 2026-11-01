@@ -209,7 +209,7 @@ Il cuneo fiscale 2025 sostituisce l'esonero contributivo 6-7% con un sistema dua
 Indennità = Reddito Lavoro Dipendente × Percentuale
 ```
 
-> L'indennità è **esente** da IRPEF e contributi.
+> L'indennità è **esente** da IRPEF e contributi. La fascia percentuale si individua sul reddito di lavoro dipendente rapportato all'intero anno (`Reddito × 365 / Giorni Lavorati`, art. 1, c. 4, L. 207/2024), mentre la percentuale si applica al reddito effettivo.
 
 ##### Per Redditi €20.001 − €40.000: Detrazione Fiscale
 
@@ -218,7 +218,7 @@ Indennità = Reddito Lavoro Dipendente × Percentuale
 | €20.001 − €32.000 | €1.000                             |
 | €32.001 − €40.000 | €1.000 × [(€40.000 − RC) / €8.000] |
 
-> La detrazione opera **fino a concorrenza** dell'imposta lorda.
+> La detrazione opera **fino a concorrenza** dell'imposta lorda ed è rapportata al periodo di lavoro: `Detrazione Effettiva = Detrazione × (Giorni Lavorati / 365)` (art. 1, c. 6, L. 207/2024).
 
 ---
 

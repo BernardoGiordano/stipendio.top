@@ -637,6 +637,7 @@ function calcolaDetrazioneAscendenti(
 function calcolaCuneoFiscale(
   redditoComplessivoImponibile: number,
   redditoLavoroDipendenteImponibile: number,
+  coefficienteGiorni: number,
   quotaEsenteImpatriati = 0,
 ): DettaglioCuneoFiscale {
   const params = CUNEO_FISCALE;
@@ -646,9 +647,13 @@ function calcolaCuneoFiscale(
   const redditoLavoroDipendente = redditoLavoroDipendenteImponibile + quotaEsenteImpatriati;
 
   if (redditoComplessivo <= params.sogliaIndennita) {
+    // La fascia percentuale si individua sul reddito di lavoro dipendente rapportato all'intero
+    // anno (L. 207/2024, art. 1, c. 4)
+    const redditoAnnualizzato =
+      coefficienteGiorni > 0 ? redditoLavoroDipendente / coefficienteGiorni : 0;
     let percentuale = 0;
     for (const fascia of params.percentualiIndennita) {
-      if (redditoLavoroDipendente <= fascia.limite) {
+      if (redditoAnnualizzato <= fascia.limite) {
         percentuale = fascia.percentuale;
         break;
       }
@@ -676,11 +681,12 @@ function calcolaCuneoFiscale(
       detrazione = params.detrazioneBase * coefficiente;
     }
 
+    // La detrazione è rapportata al periodo di lavoro (L. 207/2024, art. 1, c. 6)
     return {
       spettaIndennita: false,
       spettaDetrazione: true,
       indennitaEsente: 0,
-      detrazioneAggiuntiva: Math.max(0, detrazione),
+      detrazioneAggiuntiva: Math.max(0, detrazione) * coefficienteGiorni,
     };
   }
 
@@ -1145,6 +1151,7 @@ export class Calculator2026 implements StipendioCalculator {
     const cuneoFiscale = calcolaCuneoFiscale(
       redditoComplessivo,
       redditoLavoroDipendente,
+      detrazioniLavoro.coefficienteGiorni,
       importoEsenteImpatriati,
     );
 
