@@ -3,13 +3,14 @@ import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculat
 import { GraphFunnel } from '../graph-funnel/graph-funnel';
 import { GraphProjection } from '../graph-projection/graph-projection';
 import { DisplayMode } from '../../services/display-mode';
+import { LedgerRow } from '../ledger/ledger';
 import { formatCurrency, formatPercent } from '../../utils/intl';
 
 type TabId = 'cedolino' | 'flusso' | 'proiezione';
 
 @Component({
   selector: 'app-results',
-  imports: [GraphFunnel, GraphProjection],
+  imports: [GraphFunnel, GraphProjection, LedgerRow],
   templateUrl: './results.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
