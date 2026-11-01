@@ -2332,6 +2332,81 @@ describe('Detrazioni carichi familiari', () => {
     expect(result.detrazioniFamiliari.totaleDetrazioniFamiliari).toBe(0);
   });
 
+  describe('Rapporto ai mesi (art. 12, c. 3, TUIR)', () => {
+    it('coniuge a carico per 6 mesi: detrazione dimezzata', () => {
+      const intero = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        coniuge: { redditoAnnuo: 0 },
+      });
+      const parziale = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        coniuge: { redditoAnnuo: 0, mesiCarico: 6 },
+      });
+      expect(parziale.detrazioniFamiliari.detrazioneConiuge).toBeCloseTo(
+        intero.detrazioniFamiliari.detrazioneConiuge / 2,
+        6,
+      );
+    });
+
+    it('figlio a carico per 3 mesi: detrazione IRPEF a un quarto', () => {
+      const intero = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        figli: [{ eta: 25, disabile: false }],
+      });
+      const parziale = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        figli: [{ eta: 25, disabile: false, mesiCarico: 3 }],
+      });
+      expect(parziale.detrazioniFamiliari.detrazioneFigli).toBeCloseTo(
+        intero.detrazioniFamiliari.detrazioneFigli / 4,
+        6,
+      );
+    });
+
+    it('ascendente a carico per 9 mesi: detrazione a tre quarti', () => {
+      const intero = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        ascendenti: [{ redditoAnnuo: 0, convivente: true }],
+      });
+      const parziale = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        ascendenti: [{ redditoAnnuo: 0, convivente: true, mesiCarico: 9 }],
+      });
+      expect(parziale.detrazioniFamiliari.detrazioneAscendenti).toBeCloseTo(
+        (intero.detrazioniFamiliari.detrazioneAscendenti * 3) / 4,
+        6,
+      );
+    });
+
+    it('mesi fuori intervallo vengono limitati a 0-12', () => {
+      const intero = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        coniuge: { redditoAnnuo: 0 },
+      });
+      const oltre = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        coniuge: { redditoAnnuo: 0, mesiCarico: 15 },
+      });
+      const zero = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        coniuge: { redditoAnnuo: 0, mesiCarico: 0 },
+      });
+      expect(oltre.detrazioniFamiliari.detrazioneConiuge).toBe(
+        intero.detrazioniFamiliari.detrazioneConiuge,
+      );
+      expect(zero.detrazioniFamiliari.detrazioneConiuge).toBe(0);
+    });
+  });
+
   it('totaleDetrazioniFamiliari = coniuge + figli + ascendenti', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,

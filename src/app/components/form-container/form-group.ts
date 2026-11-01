@@ -27,10 +27,7 @@ import {
   TipoAlimentazioneAuto,
   TipoContratto,
 } from '../../../calculator/types';
-import {
-  haDetrazioneFigliRegionale,
-  haRedditiSostitutiviInSoglia,
-} from '../../../calculator/addizionali/2026';
+import { haRedditiSostitutiviInSoglia } from '../../../calculator/addizionali/2026';
 import { FONDI_CONTRATTUALI } from '../../../calculator/fondi/2026';
 
 export interface AutoAziendaleFormModel {
@@ -98,6 +95,7 @@ export interface ConiugeACaricoFormModel {
   enabled: boolean;
   redditoAnnuo: number;
   percentualeCarico: number;
+  mesiCarico: number;
 }
 
 export interface FiglioACaricoFormModel {
@@ -110,6 +108,7 @@ export interface FiglioACaricoFormModel {
 export interface AscendenteACaricoFormModel {
   redditoAnnuo: number;
   convivente: boolean;
+  mesiCarico: number;
 }
 
 export interface StipendioFormModel extends Record<FondoContrattualeId, boolean> {
@@ -224,6 +223,7 @@ function createDefaultConiuge(): ConiugeACaricoFormModel {
     enabled: false,
     redditoAnnuo: 0,
     percentualeCarico: 100,
+    mesiCarico: 12,
   };
 }
 
@@ -240,6 +240,7 @@ export function createDefaultAscendente(): AscendenteACaricoFormModel {
   return {
     redditoAnnuo: 0,
     convivente: true,
+    mesiCarico: 12,
   };
 }
 
@@ -367,6 +368,14 @@ const borsaDiStudioSchema = schema<BorsaDiStudioFormModel>((path) => {
   min(path.importoAnnuo, 0, { message: "L'importo non può essere negativo" });
 });
 
+function validaMesiCarico({ value }: { value: () => number }) {
+  const v = value();
+  if (!Number.isInteger(v) || v < 0 || v > 12) {
+    return { kind: 'range', message: 'Valore intero tra 0 e 12' };
+  }
+  return null;
+}
+
 const coniugeSchema = schema<ConiugeACaricoFormModel>((path) => {
   validate(path.redditoAnnuo, ({ value, valueOf }) => {
     if (valueOf(path).enabled && value() < 0) {
@@ -377,6 +386,7 @@ const coniugeSchema = schema<ConiugeACaricoFormModel>((path) => {
 
   min(path.percentualeCarico, 0, { message: 'La percentuale deve essere tra 0 e 100' });
   max(path.percentualeCarico, 100, { message: 'La percentuale deve essere tra 0 e 100' });
+  validate(path.mesiCarico, validaMesiCarico);
 });
 
 const figlioSchema = schema<FiglioACaricoFormModel>((path) => {
@@ -384,10 +394,12 @@ const figlioSchema = schema<FiglioACaricoFormModel>((path) => {
 
   min(path.percentualeCarico, 0, { message: 'La percentuale deve essere tra 0 e 100' });
   max(path.percentualeCarico, 100, { message: 'La percentuale deve essere tra 0 e 100' });
+  validate(path.mesiCarico, validaMesiCarico);
 });
 
 const ascendenteSchema = schema<AscendenteACaricoFormModel>((path) => {
   min(path.redditoAnnuo, 0, { message: 'Valore non valido' });
+  validate(path.mesiCarico, validaMesiCarico);
 });
 
 export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
@@ -437,17 +449,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   apply(path.benefitNonTassati, benefitNonTassatiSchema);
 
   // Arrays
-  applyEach(path.figli, (figlio) => {
-    apply(figlio, figlioSchema);
-    validate(figlio.mesiCarico, ({ value, valueOf }) => {
-      if (!haDetrazioneFigliRegionale(valueOf(path.regione))) return null;
-      const v = value();
-      if (!Number.isInteger(v) || v < 0 || v > 12) {
-        return { kind: 'range', message: 'Valore intero tra 0 e 12' };
-      }
-      return null;
-    });
-  });
+  applyEach(path.figli, figlioSchema);
   applyEach(path.ascendenti, ascendenteSchema);
 });
 
@@ -573,6 +575,7 @@ function toConiuge(model: ConiugeACaricoFormModel): ConiugeACarico | undefined {
   return {
     redditoAnnuo: model.redditoAnnuo,
     ...(model.percentualeCarico !== 100 && { percentualeCarico: model.percentualeCarico }),
+    ...(model.mesiCarico !== 12 && { mesiCarico: model.mesiCarico }),
   };
 }
 
@@ -593,6 +596,7 @@ function toAscendenti(models: AscendenteACaricoFormModel[]): AscendenteACarico[]
   return models.map((m) => ({
     redditoAnnuo: m.redditoAnnuo,
     convivente: m.convivente,
+    ...((m.mesiCarico ?? 12) !== 12 && { mesiCarico: m.mesiCarico ?? 12 }),
   }));
 }
 

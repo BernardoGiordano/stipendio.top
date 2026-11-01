@@ -115,7 +115,7 @@ export interface FiglioACarico {
   redditoAnnuo?: number;
   /** Percentuale di carico (default 100%, 50% se ripartito) */
   percentualeCarico?: number;
-  /** Mesi a carico per le detrazioni regionali (default 12) */
+  /** Mesi a carico nell'anno (default 12): le detrazioni IRPEF e regionali sono rapportate a mese */
   mesiCarico?: number;
 }
 
@@ -125,6 +125,8 @@ export interface ConiugeACarico {
   redditoAnnuo: number;
   /** Percentuale di carico (default 100%) */
   percentualeCarico?: number;
+  /** Mesi a carico nell'anno (default 12): la detrazione è rapportata a mese */
+  mesiCarico?: number;
 }
 
 /** Dati di un ascendente a carico */
@@ -133,6 +135,8 @@ export interface AscendenteACarico {
   redditoAnnuo: number;
   /** Indica se è convivente (requisito obbligatorio dal 2025) */
   convivente: boolean;
+  /** Mesi a carico nell'anno (default 12): la detrazione è rapportata a mese */
+  mesiCarico?: number;
 }
 
 /** Input per il calcolo dello stipendio netto */

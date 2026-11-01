@@ -562,7 +562,12 @@ function calcolaDetrazioneConiuge(redditoComplessivo: number, coniuge?: ConiugeA
     detrazione = 0;
   }
 
-  return Math.max(0, detrazione * percentuale);
+  return Math.max(0, detrazione * percentuale) * coefficienteMesi(coniuge.mesiCarico);
+}
+
+/** Quota dell'anno in cui il familiare è a carico: le detrazioni sono rapportate a mese (art. 12, c. 3, TUIR) */
+function coefficienteMesi(mesiCarico: number | undefined): number {
+  return Math.min(12, Math.max(0, mesiCarico ?? 12)) / 12;
 }
 
 /** Il figlio rispetta il limite di reddito per essere a carico (art. 12, comma 2, TUIR) */
@@ -616,7 +621,8 @@ function calcolaDetrazioneFigli(
       (figlio.disabile ? params.maggiorazioneFiglioDisabile : 0) +
       maggiorazioneOltreTreFigli;
 
-    detrazioneTotale += importoTeorico * rapporto * percentuale;
+    detrazioneTotale +=
+      importoTeorico * rapporto * percentuale * coefficienteMesi(figlio.mesiCarico);
   }
 
   return { detrazione: detrazioneTotale, numeroFigli: numeroFigliConDetrazione };
@@ -643,7 +649,8 @@ function calcolaDetrazioneAscendenti(
     if (redditoComplessivo < params.coefficienteBaseAltri) {
       const rapporto =
         (params.coefficienteBaseAltri - redditoComplessivo) / params.coefficienteBaseAltri;
-      detrazioneTotale += params.importoTeoricoAltri * rapporto;
+      detrazioneTotale +=
+        params.importoTeoricoAltri * rapporto * coefficienteMesi(ascendente.mesiCarico);
     }
   }
 

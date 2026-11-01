@@ -755,6 +755,38 @@
             }
           }
         </div>
+
+        <div class="flex flex-col gap-1">
+          <label
+            for="coniugeMesi"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Mesi a carico<app-info-tooltip
+              tooltipId="coniugeMesi-info"
+              text="La detrazione è rapportata a mese: contano i mesi dell'anno in cui il coniuge è stato a carico (es. 12 per l'intero anno)."
+            />
+          </label>
+          <input
+            id="coniugeMesi"
+            type="number"
+            step="1"
+            [formField]="form.coniuge.mesiCarico"
+            [attr.aria-invalid]="form.coniuge.mesiCarico().invalid()"
+            [attr.aria-describedby]="
+              form.coniuge.mesiCarico().invalid() ? 'coniugeMesi-error' : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+          />
+          @if (form.coniuge.mesiCarico().invalid()) {
+            @for (error of form.coniuge.mesiCarico().errors(); track error.kind) {
+              <span
+                id="coniugeMesi-error"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
+          }
+        </div>
       </div>
     }
   </fieldset>
@@ -877,34 +909,37 @@
           </div>
         </div>
 
-        @if (mostraMesiCarico()) {
-          <div class="flex flex-col gap-1 mb-3">
-            <label [for]="'figlioMesi' + $index" class="text-sm text-stone-600 dark:text-stone-400"
-              >Mesi a carico (addizionale regionale)</label
-            >
-            <input
-              [id]="'figlioMesi' + $index"
-              type="number"
-              step="1"
-              [formField]="form.figli[$index].mesiCarico"
-              [attr.aria-invalid]="form.figli[$index].mesiCarico().invalid()"
-              [attr.aria-describedby]="
-                form.figli[$index].mesiCarico().invalid() ? 'figlioMesi' + $index + '-error' : null
-              "
-              class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+        <div class="flex flex-col gap-1 mb-3">
+          <label
+            [for]="'figlioMesi' + $index"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Mesi a carico<app-info-tooltip
+              [tooltipId]="'figlioMesi' + $index + '-info'"
+              text="Le detrazioni IRPEF e regionali sono rapportate a mese: contano i mesi dell'anno in cui il figlio è stato a carico (es. 12 per l'intero anno)."
             />
-            @if (form.figli[$index].mesiCarico().invalid()) {
-              @for (error of form.figli[$index].mesiCarico().errors(); track error.kind) {
-                <span
-                  [id]="'figlioMesi' + $index + '-error'"
-                  class="text-xs text-red-600 mt-1 dark:text-red-400"
-                  role="alert"
-                  >{{ error.message }}</span
-                >
-              }
+          </label>
+          <input
+            [id]="'figlioMesi' + $index"
+            type="number"
+            step="1"
+            [formField]="form.figli[$index].mesiCarico"
+            [attr.aria-invalid]="form.figli[$index].mesiCarico().invalid()"
+            [attr.aria-describedby]="
+              form.figli[$index].mesiCarico().invalid() ? 'figlioMesi' + $index + '-error' : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100"
+          />
+          @if (form.figli[$index].mesiCarico().invalid()) {
+            @for (error of form.figli[$index].mesiCarico().errors(); track error.kind) {
+              <span
+                [id]="'figlioMesi' + $index + '-error'"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
             }
-          </div>
-        }
+          }
+        </div>
 
         <div class="flex items-center gap-2">
           <input
@@ -997,6 +1032,40 @@
             @for (error of form.ascendenti[$index].redditoAnnuo().errors(); track error.kind) {
               <span
                 [id]="'ascendenteReddito' + $index + '-error'"
+                class="text-xs text-red-600 mt-1 dark:text-red-400"
+                role="alert"
+                >{{ error.message }}</span
+              >
+            }
+          }
+        </div>
+
+        <div class="flex flex-col gap-1 mb-3">
+          <label
+            [for]="'ascendenteMesi' + $index"
+            class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+            >Mesi a carico<app-info-tooltip
+              [tooltipId]="'ascendenteMesi' + $index + '-info'"
+              text="La detrazione è rapportata a mese: contano i mesi dell'anno in cui l'ascendente è stato a carico (es. 12 per l'intero anno)."
+            />
+          </label>
+          <input
+            [id]="'ascendenteMesi' + $index"
+            type="number"
+            step="1"
+            [formField]="form.ascendenti[$index].mesiCarico"
+            [attr.aria-invalid]="form.ascendenti[$index].mesiCarico().invalid()"
+            [attr.aria-describedby]="
+              form.ascendenti[$index].mesiCarico().invalid()
+                ? 'ascendenteMesi' + $index + '-error'
+                : null
+            "
+            class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+          />
+          @if (form.ascendenti[$index].mesiCarico().invalid()) {
+            @for (error of form.ascendenti[$index].mesiCarico().errors(); track error.kind) {
+              <span
+                [id]="'ascendenteMesi' + $index + '-error'"
                 class="text-xs text-red-600 mt-1 dark:text-red-400"
                 role="alert"
                 >{{ error.message }}</span
