@@ -17,6 +17,7 @@ import {
   DettaglioRimborsiTrasferta,
   DettaglioTrattamentoIntegrativo,
   DestinazioneVoce,
+  DettaglioAddizionali,
   FiglioACarico,
   FringeBenefit,
   InputCalcoloStipendio,
@@ -1057,6 +1058,210 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
   };
 }
 
+/** Parametri del calcolo di IRPEF, detrazioni, bonus e addizionali */
+interface ContestoImposte {
+  /** Reddito di lavoro dipendente al netto di contributi e deduzioni, prima dell'esenzione impatriati */
+  redditoLavoroDipendenteLordo: number;
+  regimeImpatriati: boolean;
+  regimeImpatriatiMinorenni: boolean;
+  borsaDiStudio: BorsaDiStudio | undefined;
+  altriRedditi: number;
+  altreDetrazioni: number;
+  giorniLavorati: number;
+  tipoContratto: TipoContratto;
+  coniuge: ConiugeACarico | undefined;
+  figli: FiglioACarico[] | undefined;
+  ascendenti: AscendenteACarico[] | undefined;
+  regione: string;
+  comune: string;
+  altriRedditiSogliaAddizionale: number;
+}
+
+interface RisultatoImposte {
+  dettaglioRegimeImpatriati: DettaglioRegimeImpatriati | null;
+  borsaCalcolo: ReturnType<typeof calcolaBorsaDiStudio>;
+  redditoComplessivo: number;
+  irpef: DettaglioIrpef;
+  detrazioniLavoro: DettaglioDetrazioniLavoro;
+  detrazioniFamiliari: DettaglioDetrazioniFamiliari;
+  cuneoFiscale: DettaglioCuneoFiscale;
+  trattamentoIntegrativo: DettaglioTrattamentoIntegrativo;
+  irpefNetta: number;
+  irpefFinale: number;
+  addizionali: DettaglioAddizionali;
+  riepilogoDetrazioni: RiepilogoDetrazioni;
+}
+
+/** Imposte e bonus a partire dal reddito di lavoro dipendente già ridotto delle deduzioni */
+function calcolaImposte(ctx: ContestoImposte): RisultatoImposte {
+  const {
+    redditoLavoroDipendenteLordo,
+    regimeImpatriatiMinorenni,
+    altriRedditi,
+    altreDetrazioni,
+    giorniLavorati,
+    tipoContratto,
+    coniuge,
+    figli,
+    ascendenti,
+    regione,
+    comune,
+    altriRedditiSogliaAddizionale,
+  } = ctx;
+
+  // 7b. REGIME IMPATRIATI (D.Lgs. 209/2023, art. 5)
+  // Riduce la base imponibile IRPEF e addizionali. Non riduce INPS.
+  let dettaglioRegimeImpatriati: DettaglioRegimeImpatriati | null = null;
+  let importoEsenteImpatriati = 0;
+
+  if (ctx.regimeImpatriati) {
+    const percentualeEsenzione = regimeImpatriatiMinorenni
+      ? REGIME_IMPATRIATI.percentualeEsenzioneMinorenni
+      : REGIME_IMPATRIATI.percentualeEsenzioneStandard;
+
+    const redditoAgevolabile = Math.min(
+      Math.max(0, redditoLavoroDipendenteLordo),
+      REGIME_IMPATRIATI.tettoRedditoAgevolabile,
+    );
+    importoEsenteImpatriati = redditoAgevolabile * percentualeEsenzione;
+
+    dettaglioRegimeImpatriati = {
+      percentualeEsenzione,
+      redditoAgevolabile,
+      importoEsente: importoEsenteImpatriati,
+      haFigliMinorenni: regimeImpatriatiMinorenni,
+    };
+  }
+
+  const redditoLavoroDipendente = redditoLavoroDipendenteLordo - importoEsenteImpatriati;
+
+  // 7c. CALCOLO BORSA DI STUDIO (dottorato/post-laurea tassata)
+  // INPS Gestione Separata 35,03%, 1/3 a carico borsista, cumulo IRPEF
+  const borsaCalcolo = calcolaBorsaDiStudio(ctx.borsaDiStudio);
+
+  const redditoComplessivo = redditoLavoroDipendente + altriRedditi + borsaCalcolo.imponibileBorsa;
+
+  // 8. CALCOLO IRPEF LORDA
+  const irpef = calcolaIrpefLorda(redditoComplessivo);
+
+  // 9. CALCOLO DETRAZIONI LAVORO DIPENDENTE
+  const detrazioniLavoro = calcolaDetrazioniLavoroDipendente(
+    redditoComplessivo,
+    giorniLavorati,
+    tipoContratto,
+  );
+
+  // 10. CALCOLO DETRAZIONI CARICHI FAMILIARI
+  const detrazioneConiuge = calcolaDetrazioneConiuge(redditoComplessivo, coniuge);
+  const { detrazione: detrazioneFigli, numeroFigli } = calcolaDetrazioneFigli(
+    redditoComplessivo,
+    figli,
+  );
+  const { detrazione: detrazioneAscendenti, numeroAscendenti } = calcolaDetrazioneAscendenti(
+    redditoComplessivo,
+    ascendenti,
+  );
+
+  const detrazioniFamiliari: DettaglioDetrazioniFamiliari = {
+    detrazioneConiuge,
+    detrazioneFigli,
+    numeroFigliConDetrazione: numeroFigli,
+    detrazioneAscendenti,
+    numeroAscendentiConDetrazione: numeroAscendenti,
+    totaleDetrazioniFamiliari: detrazioneConiuge + detrazioneFigli + detrazioneAscendenti,
+  };
+
+  // 11. CALCOLO CUNEO FISCALE
+  const cuneoFiscale = calcolaCuneoFiscale(
+    redditoComplessivo,
+    redditoLavoroDipendente,
+    detrazioniLavoro.coefficienteGiorni,
+    importoEsenteImpatriati,
+  );
+
+  // 12. CALCOLO TOTALE DETRAZIONI
+  const totaleDetrazioniPreTI =
+    detrazioniLavoro.detrazioneEffettiva +
+    detrazioniFamiliari.totaleDetrazioniFamiliari +
+    altreDetrazioni;
+
+  // 13. CALCOLO TRATTAMENTO INTEGRATIVO
+  // Le soglie includono la quota esente impatriati; IRPEF e detrazioni restano sul reddito ridotto.
+  // La capienza usa l'imposta lorda sui soli redditi di lavoro dipendente e assimilati
+  // (artt. 49 e 50 TUIR, inclusa la borsa di studio, art. 50, c. 1, lett. c).
+  const irpefLordaRedditiLavoro = calcolaIrpefLorda(
+    redditoLavoroDipendente + borsaCalcolo.imponibileBorsa,
+  ).irpefLorda;
+  const trattamentoIntegrativo = calcolaTrattamentoIntegrativo(
+    redditoComplessivo,
+    irpef.irpefLorda,
+    irpefLordaRedditiLavoro,
+    detrazioniLavoro,
+    totaleDetrazioniPreTI,
+    importoEsenteImpatriati,
+  );
+
+  // IRPEF netta
+  const irpefNetta = Math.max(
+    0,
+    irpef.irpefLorda -
+      detrazioniLavoro.detrazioneEffettiva -
+      detrazioniFamiliari.totaleDetrazioniFamiliari -
+      altreDetrazioni,
+  );
+
+  // IRPEF finale
+  const irpefFinale = Math.max(0, irpefNetta - cuneoFiscale.detrazioneAggiuntiva);
+
+  // 14. CALCOLO ADDIZIONALI
+  const addizionali = calcolaAddizionali({
+    redditoComplessivo,
+    regione,
+    comune,
+    figliACarico: (figli ?? []).filter(isFiglioACarico),
+    altriRedditiSogliaAddizionale,
+    irpefDovuta: irpefFinale > 0,
+  });
+
+  // Riepilogo detrazioni
+  const riepilogoDetrazioni: RiepilogoDetrazioni = {
+    lavoroDipendente: detrazioniLavoro.detrazioneEffettiva,
+    carichiFamiliari: detrazioniFamiliari.totaleDetrazioniFamiliari,
+    cuneoFiscale: cuneoFiscale.detrazioneAggiuntiva,
+    altre: altreDetrazioni,
+    totale:
+      detrazioniLavoro.detrazioneEffettiva +
+      detrazioniFamiliari.totaleDetrazioniFamiliari +
+      cuneoFiscale.detrazioneAggiuntiva +
+      altreDetrazioni,
+  };
+
+  return {
+    dettaglioRegimeImpatriati,
+    borsaCalcolo,
+    redditoComplessivo,
+    irpef,
+    detrazioniLavoro,
+    detrazioniFamiliari,
+    cuneoFiscale,
+    trattamentoIntegrativo,
+    irpefNetta,
+    irpefFinale,
+    addizionali,
+    riepilogoDetrazioni,
+  };
+}
+
+/** Imposte dovute al netto dei bonus erogati in busta */
+function caricoFiscale(imposte: RisultatoImposte): number {
+  return (
+    imposte.irpefFinale +
+    imposte.addizionali.totaleAddizionali -
+    imposte.cuneoFiscale.indennitaEsente -
+    imposte.trattamentoIntegrativo.importo
+  );
+}
+
 export class Calculator2026 implements StipendioCalculator {
   calcolaStipendioNetto(input: InputCalcoloStipendio): OutputCalcoloStipendio {
     // Borsa di studio come contratto: calcolo semplificato (solo GS INPS, esente IRPEF)
@@ -1131,143 +1336,54 @@ export class Calculator2026 implements StipendioCalculator {
       contributiInps.totaleContributi -
       fondi.deduzione;
 
-    // 7b. REGIME IMPATRIATI (D.Lgs. 209/2023, art. 5)
-    // Riduce la base imponibile IRPEF e addizionali. Non riduce INPS.
-    let dettaglioRegimeImpatriati: DettaglioRegimeImpatriati | null = null;
-    let importoEsenteImpatriati = 0;
-
-    if (regimeImpatriatiFlag) {
-      const percentualeEsenzione = regimeImpatriatiMinorenni
-        ? REGIME_IMPATRIATI.percentualeEsenzioneMinorenni
-        : REGIME_IMPATRIATI.percentualeEsenzioneStandard;
-
-      const redditoAgevolabile = Math.min(
-        Math.max(0, redditoLavoroDipendenteLordo),
-        REGIME_IMPATRIATI.tettoRedditoAgevolabile,
-      );
-      importoEsenteImpatriati = redditoAgevolabile * percentualeEsenzione;
-
-      dettaglioRegimeImpatriati = {
-        percentualeEsenzione,
-        redditoAgevolabile,
-        importoEsente: importoEsenteImpatriati,
-        haFigliMinorenni: regimeImpatriatiMinorenni,
-      };
-    }
-
-    const redditoLavoroDipendente = redditoLavoroDipendenteLordo - importoEsenteImpatriati;
-
-    // 7c. CALCOLO BORSA DI STUDIO (dottorato/post-laurea tassata)
-    // INPS Gestione Separata 35,03%, 1/3 a carico borsista, cumulo IRPEF
-    const borsaCalcolo = calcolaBorsaDiStudio(borsaDiStudioInput);
-
-    const redditoComplessivo =
-      redditoLavoroDipendente + altriRedditi + borsaCalcolo.imponibileBorsa;
-
-    // 8. CALCOLO IRPEF LORDA
-    const irpef = calcolaIrpefLorda(redditoComplessivo);
-
-    // 9. CALCOLO DETRAZIONI LAVORO DIPENDENTE
-    const detrazioniLavoro = calcolaDetrazioniLavoroDipendente(
-      redditoComplessivo,
+    // 7b-14. REGIME IMPATRIATI, BORSA DI STUDIO, IRPEF, DETRAZIONI, BONUS E ADDIZIONALI
+    const contestoImposte: ContestoImposte = {
+      redditoLavoroDipendenteLordo,
+      regimeImpatriati: regimeImpatriatiFlag,
+      regimeImpatriatiMinorenni,
+      borsaDiStudio: borsaDiStudioInput,
+      altriRedditi,
+      altreDetrazioni,
       giorniLavorati,
       tipoContratto,
-    );
-
-    // 10. CALCOLO DETRAZIONI CARICHI FAMILIARI
-    const detrazioneConiuge = calcolaDetrazioneConiuge(redditoComplessivo, coniuge);
-    const { detrazione: detrazioneFigli, numeroFigli } = calcolaDetrazioneFigli(
-      redditoComplessivo,
+      coniuge,
       figli,
-    );
-    const { detrazione: detrazioneAscendenti, numeroAscendenti } = calcolaDetrazioneAscendenti(
-      redditoComplessivo,
       ascendenti,
-    );
-
-    const detrazioniFamiliari: DettaglioDetrazioniFamiliari = {
-      detrazioneConiuge,
-      detrazioneFigli,
-      numeroFigliConDetrazione: numeroFigli,
-      detrazioneAscendenti,
-      numeroAscendentiConDetrazione: numeroAscendenti,
-      totaleDetrazioniFamiliari: detrazioneConiuge + detrazioneFigli + detrazioneAscendenti,
-    };
-
-    // 11. CALCOLO CUNEO FISCALE
-    const cuneoFiscale = calcolaCuneoFiscale(
-      redditoComplessivo,
-      redditoLavoroDipendente,
-      detrazioniLavoro.coefficienteGiorni,
-      importoEsenteImpatriati,
-    );
-
-    // 12. CALCOLO TOTALE DETRAZIONI
-    const totaleDetrazioniPreTI =
-      detrazioniLavoro.detrazioneEffettiva +
-      detrazioniFamiliari.totaleDetrazioniFamiliari +
-      altreDetrazioni;
-
-    // 13. CALCOLO TRATTAMENTO INTEGRATIVO
-    // Le soglie includono la quota esente impatriati; IRPEF e detrazioni restano sul reddito ridotto.
-    // La capienza usa l'imposta lorda sui soli redditi di lavoro dipendente e assimilati
-    // (artt. 49 e 50 TUIR, inclusa la borsa di studio, art. 50, c. 1, lett. c).
-    const irpefLordaRedditiLavoro = calcolaIrpefLorda(
-      redditoLavoroDipendente + borsaCalcolo.imponibileBorsa,
-    ).irpefLorda;
-    const trattamentoIntegrativo = calcolaTrattamentoIntegrativo(
-      redditoComplessivo,
-      irpef.irpefLorda,
-      irpefLordaRedditiLavoro,
-      detrazioniLavoro,
-      totaleDetrazioniPreTI,
-      importoEsenteImpatriati,
-    );
-
-    // IRPEF netta
-    const irpefNetta = Math.max(
-      0,
-      irpef.irpefLorda -
-        detrazioniLavoro.detrazioneEffettiva -
-        detrazioniFamiliari.totaleDetrazioniFamiliari -
-        altreDetrazioni,
-    );
-
-    // IRPEF finale
-    const irpefFinale = Math.max(0, irpefNetta - cuneoFiscale.detrazioneAggiuntiva);
-
-    // 14. CALCOLO ADDIZIONALI
-    const addizionali = calcolaAddizionali({
-      redditoComplessivo,
       regione,
       comune,
-      figliACarico: (figli ?? []).filter(isFiglioACarico),
       altriRedditiSogliaAddizionale,
-      irpefDovuta: irpefFinale > 0,
-    });
-
-    // Riepilogo detrazioni
-    const riepilogoDetrazioni: RiepilogoDetrazioni = {
-      lavoroDipendente: detrazioniLavoro.detrazioneEffettiva,
-      carichiFamiliari: detrazioniFamiliari.totaleDetrazioniFamiliari,
-      cuneoFiscale: cuneoFiscale.detrazioneAggiuntiva,
-      altre: altreDetrazioni,
-      totale:
-        detrazioniLavoro.detrazioneEffettiva +
-        detrazioniFamiliari.totaleDetrazioniFamiliari +
-        cuneoFiscale.detrazioneAggiuntiva +
-        altreDetrazioni,
     };
+    const imposte = calcolaImposte(contestoImposte);
+    const {
+      dettaglioRegimeImpatriati,
+      borsaCalcolo,
+      redditoComplessivo,
+      irpef,
+      detrazioniLavoro,
+      detrazioniFamiliari,
+      cuneoFiscale,
+      trattamentoIntegrativo,
+      irpefNetta,
+      irpefFinale,
+      addizionali,
+      riepilogoDetrazioni,
+    } = imposte;
 
     // 15. DETTAGLIO FONDI
-    // L'aliquota marginale IRPEF stima il risparmio fiscale delle deduzioni
-    const aliquotaMarginaleIrpef =
-      irpef.dettaglioScaglioni.length > 0
-        ? irpef.dettaglioScaglioni[irpef.dettaglioScaglioni.length - 1].aliquota
+    // Il risparmio fiscale delle deduzioni è la differenza di carico fiscale (IRPEF, addizionali,
+    // bonus) tra il calcolo senza e con le deduzioni, non una stima all'aliquota marginale
+    const risparmioFiscaleDeduzioni =
+      fondi.deduzione > 0
+        ? caricoFiscale(
+            calcolaImposte({
+              ...contestoImposte,
+              redditoLavoroDipendenteLordo: redditoLavoroDipendenteLordo + fondi.deduzione,
+            }),
+          ) - caricoFiscale(imposte)
         : 0;
     const { fondiContrattuali, fondoPensioneIntegrativo } = dettagliFondi(
       fondi,
-      aliquotaMarginaleIrpef,
+      risparmioFiscaleDeduzioni,
     );
 
     // 16. RIPARTIZIONE

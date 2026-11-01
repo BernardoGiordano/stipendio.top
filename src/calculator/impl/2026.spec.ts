@@ -431,21 +431,29 @@ describe('Fondo Mario Negri', () => {
     expect(differenzaImponibile).toBeCloseTo(CONTRIBUTO_FONDO_NEGRI_2026, 2);
   });
 
-  it('il risparmio fiscale deve essere calcolato con aliquota marginale 43%', () => {
-    const result = calc.calcolaStipendioNetto({
+  it('il risparmio fiscale è la differenza reale di imposte, non la sola aliquota marginale', () => {
+    const input: InputCalcoloStipendio = {
       ral: 80_000,
       mensilita: 13,
       tipoContratto: 'indeterminato',
       annoFiscale: 2026,
       regione: 'LO',
       comune: 'F205',
-      fondoMarioNegri: true,
-    });
+    };
+    const senza = calc.calcolaStipendioNetto(input);
+    const con = calc.calcolaStipendioNetto({ ...input, fondoMarioNegri: true });
+    const caricoFiscale = (r: OutputCalcoloStipendio) =>
+      r.irpefFinale + r.addizionali.totaleAddizionali - r.totaleBonus;
 
-    expect(fondo(result, 'fondoMarioNegri')).toBeDefined();
-    expect(fondo(result, 'fondoMarioNegri')!.risparmioFiscaleStimato).toBeCloseTo(
-      CONTRIBUTO_FONDO_NEGRI_2026 * 0.43,
-      2,
+    expect(fondo(con, 'fondoMarioNegri')).toBeDefined();
+    const risparmio = fondo(con, 'fondoMarioNegri')!.risparmioFiscaleStimato;
+    expect(risparmio).toBeCloseTo(caricoFiscale(senza) - caricoFiscale(con), 6);
+    // Oltre al 43% IRPEF pesano addizionale regionale (1,73%) e comunale Milano (0,8%)
+    expect(risparmio).toBeCloseTo(CONTRIBUTO_FONDO_NEGRI_2026 * (0.43 + 0.0173 + 0.008), 2);
+    // Il netto migliora esattamente del risparmio, al netto della trattenuta
+    expect(con.nettoAnnuo - senza.nettoAnnuo).toBeCloseTo(
+      risparmio - CONTRIBUTO_FONDO_NEGRI_2026,
+      6,
     );
   });
 
@@ -1426,21 +1434,42 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
     );
   });
 
-  it('il risparmio fiscale deve usare aliquota marginale IRPEF', () => {
-    // RAL 40k → imponibile IRPEF ~36k → aliquota marginale 33%
-    const result = calc.calcolaStipendioNetto({
+  it('il risparmio fiscale include addizionali e decalage di detrazioni e cuneo', () => {
+    // RAL 40k → imponibile IRPEF ~36k: oltre al 33% IRPEF, la deduzione recupera detrazione
+    // lavoro (1.910/22.000) e detrazione cuneo (1.000/8.000) e riduce le addizionali
+    // (Lombardia 1,72% nello scaglione 28-50k, Milano 0,8%)
+    const senza = calc.calcolaStipendioNetto({ ...baseInput, ral: 40_000 });
+    const con = calc.calcolaStipendioNetto({
       ...baseInput,
       ral: 40_000,
       fondoPensioneIntegrativo: { contributoLavoratore: 2, ralLavoratore: 40_000 },
     });
+    const caricoFiscale = (r: OutputCalcoloStipendio) =>
+      r.irpefFinale + r.addizionali.totaleAddizionali - r.totaleBonus;
 
-    expect(result.fondoPensioneIntegrativo).not.toBeNull();
-    const deduzione = result.fondoPensioneIntegrativo!.deduzioneEffettiva;
-    const aliquotaMarginale =
-      result.irpef.dettaglioScaglioni[result.irpef.dettaglioScaglioni.length - 1].aliquota;
-    expect(result.fondoPensioneIntegrativo!.risparmoFiscaleStimato).toBeCloseTo(
-      deduzione * aliquotaMarginale,
-      2,
+    expect(con.fondoPensioneIntegrativo).not.toBeNull();
+    const deduzione = con.fondoPensioneIntegrativo!.deduzioneEffettiva;
+    const risparmio = con.fondoPensioneIntegrativo!.risparmoFiscaleStimato;
+    expect(risparmio).toBeCloseTo(caricoFiscale(senza) - caricoFiscale(con), 6);
+    expect(risparmio).toBeGreaterThan(deduzione * 0.33);
+    expect(risparmio / deduzione).toBeCloseTo(
+      0.33 + 1_910 / 22_000 + 1_000 / 8_000 + 0.0172 + 0.008,
+      3,
+    );
+  });
+
+  it('il risparmio fiscale è ripartito tra Fondo Negri e fondo pensione in proporzione', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 80_000,
+      fondoMarioNegri: true,
+      fondoPensioneIntegrativo: { contributoLavoratore: 2, ralLavoratore: 80_000 },
+    });
+    const negri = fondo(result, 'fondoMarioNegri')!;
+    const previdenza = result.fondoPensioneIntegrativo!;
+    expect(negri.risparmioFiscaleStimato / negri.contributoAnnuo).toBeCloseTo(
+      previdenza.risparmoFiscaleStimato / previdenza.deduzioneEffettiva,
+      6,
     );
   });
 

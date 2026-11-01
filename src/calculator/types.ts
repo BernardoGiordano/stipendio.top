@@ -109,7 +109,10 @@ export interface DettaglioFondoContrattuale {
   contributoDatore: number;
   /** Deducibile dall'imponibile IRPEF; altrimenti trattenuta diretta dal netto */
   deducibile: boolean;
-  /** Risparmio fiscale stimato annuo (aliquota marginale x contributo deducibile) */
+  /**
+   * Risparmio fiscale annuo del contributo deducibile: quota della differenza di IRPEF,
+   * addizionali e bonus tra il calcolo senza e con le deduzioni
+   */
   risparmioFiscaleStimato: number;
 }
 
@@ -424,7 +427,10 @@ export interface DettaglioFondoPensioneIntegrativo {
   deduzioneEffettiva: number;
   /** Eventuale eccedenza non deducibile */
   eccedenzaNonDeducibile: number;
-  /** Risparmio fiscale stimato annuo (aliquota marginale x deduzione effettiva) */
+  /**
+   * Risparmio fiscale annuo della deduzione effettiva: quota della differenza di IRPEF,
+   * addizionali e bonus tra il calcolo senza e con le deduzioni
+   */
   risparmoFiscaleStimato: number;
 }
 

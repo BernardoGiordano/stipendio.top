@@ -169,21 +169,33 @@ describe('Plafond previdenza complementare', () => {
 });
 
 describe('dettagliFondi', () => {
-  it('stima il risparmio fiscale solo sulle deduzioni', () => {
+  it('ripartisce il risparmio fiscale tra le sole deduzioni, in proporzione', () => {
     const tutti = Object.fromEntries(FONDI_CONTRATTUALI.map((fondo) => [fondo.id, true]));
     const calcolo = calcolaFondi({ ...nessunFondo, ...tutti, contributoWelfare: 1_000 });
-    const dettagli = dettagliFondi(calcolo, 0.33);
+    const risparmio = 900;
+    const dettagli = dettagliFondi(calcolo, risparmio);
 
     for (const fondo of dettagli.fondiContrattuali) {
       expect(fondo.risparmioFiscaleStimato).toBeCloseTo(
-        fondo.deducibile ? fondo.contributoAnnuo * 0.33 : 0,
+        fondo.deducibile ? (risparmio * fondo.contributoAnnuo) / calcolo.deduzione : 0,
         6,
       );
     }
     expect(dettagli.fondoPensioneIntegrativo!.risparmoFiscaleStimato).toBeCloseTo(
-      calcolo.fondoPensioneIntegrativo!.deduzioneEffettiva * 0.33,
+      (risparmio * calcolo.fondoPensioneIntegrativo!.deduzioneEffettiva) / calcolo.deduzione,
       6,
     );
+    expect(
+      somma(dettagli.fondiContrattuali.map((f) => ({ importo: f.risparmioFiscaleStimato }))) +
+        dettagli.fondoPensioneIntegrativo!.risparmoFiscaleStimato,
+    ).toBeCloseTo(risparmio, 6);
+  });
+
+  it('senza deduzioni il risparmio è zero', () => {
+    const calcolo = calcolaFondi({ ...nessunFondo, fondoPastore: true });
+    const dettagli = dettagliFondi(calcolo, 0);
+    expect(dettagli.fondiContrattuali[0].risparmioFiscaleStimato).toBe(0);
+    expect(dettagli.fondoPensioneIntegrativo).toBeNull();
   });
 });
 

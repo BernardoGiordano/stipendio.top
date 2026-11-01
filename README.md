@@ -423,7 +423,7 @@ Fondo di previdenza complementare obbligatorio per i dirigenti del terziario.
 - Il contributo **riduce l'imponibile IRPEF** (deduzione integrale, senza massimale di deducibilità come per la previdenza complementare generica)
 - Il contributo **non riduce l'imponibile previdenziale** (INPS)
 - È una **trattenuta reale** che si sottrae dal netto in busta paga
-- Il risparmio fiscale dipende dall'aliquota marginale IRPEF del dirigente
+- Il risparmio fiscale è calcolato come differenza reale di carico fiscale (IRPEF, addizionali e bonus) tra il calcolo senza e con la deduzione
 
 > Il contributo aziendale (ordinario 12,86% + integrativo 2,52% = 15,38% della retribuzione convenzionale) non impatta il netto del dirigente, ma è incluso nel calcolo del [Costo Aziendale](#13-costo-aziendale).
 
@@ -548,9 +548,11 @@ Contributo lavoratore: €40.000 × 1% = €400/anno
 Contributo datore: €40.000 × 1,5% = €600/anno
 Totale: €1.000 (sotto il limite di €5.300)
 Deduzione effettiva: €1.000
-Risparmio IRPEF (aliquota marginale 33%): €330/anno
-Costo netto per il lavoratore: €400 − €330 = €70/anno
+Risparmio IRPEF nominale (aliquota marginale 33%): €330/anno
+Costo netto per il lavoratore: circa €400 − €330 = €70/anno
 ```
+
+Il calcolatore non si ferma all'aliquota marginale: il **risparmio fiscale** mostrato è la differenza di carico fiscale (IRPEF finale, addizionali regionale e comunale, indennità cuneo e trattamento integrativo) tra il calcolo senza e con le deduzioni. Nella fascia €28.000 − €50.000, ad esempio, ogni euro dedotto recupera anche parte della detrazione lavoro dipendente (1.910/22.000) e, tra €32.000 e €40.000, della detrazione cuneo (1.000/8.000), oltre alle addizionali: l'aliquota marginale effettiva supera il 50%. Quando concorrono più deduzioni (es. Fondo Negri e fondo pensione) il risparmio è ripartito in proporzione alla quota dedotta da ciascuna.
 
 > **Nota:** L'eventuale eccedenza non deducibile non genera risparmio fiscale nell'anno di versamento, ma sarà esente da tassazione al momento dell'erogazione della prestazione pensionistica.
 

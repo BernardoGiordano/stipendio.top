@@ -100,7 +100,7 @@ export type InputFondi = Pick<
   mensilita: number;
 };
 
-/** Effetto dei fondi sul calcolo, prima di conoscere l'aliquota marginale IRPEF */
+/** Effetto dei fondi sul calcolo, prima di conoscere il risparmio fiscale delle deduzioni */
 export interface CalcoloFondi {
   fondiContrattuali: Omit<DettaglioFondoContrattuale, 'risparmioFiscaleStimato'>[];
   fondoPensioneIntegrativo: Omit<
@@ -187,23 +187,27 @@ export function calcolaFondi(input: InputFondi): CalcoloFondi {
   };
 }
 
-/** Dettagli per l'output, con il risparmio fiscale stimato all'aliquota marginale IRPEF */
+/**
+ * Dettagli per l'output. Il risparmio fiscale complessivo delle deduzioni (differenza di carico
+ * fiscale tra il calcolo senza e con le deduzioni) è ripartito tra i fondi in proporzione alla
+ * quota dedotta da ciascuno.
+ */
 export function dettagliFondi(
   fondi: CalcoloFondi,
-  aliquotaMarginaleIrpef: number,
+  risparmioFiscaleDeduzioni: number,
 ): Pick<OutputCalcoloStipendio, 'fondiContrattuali' | 'fondoPensioneIntegrativo'> {
   const previdenza = fondi.fondoPensioneIntegrativo;
+  const quota = (deduzione: number) =>
+    fondi.deduzione > 0 ? (risparmioFiscaleDeduzioni * deduzione) / fondi.deduzione : 0;
 
   return {
     fondiContrattuali: fondi.fondiContrattuali.map((fondo) => ({
       ...fondo,
-      risparmioFiscaleStimato: fondo.deducibile
-        ? fondo.contributoAnnuo * aliquotaMarginaleIrpef
-        : 0,
+      risparmioFiscaleStimato: fondo.deducibile ? quota(fondo.contributoAnnuo) : 0,
     })),
     fondoPensioneIntegrativo: previdenza && {
       ...previdenza,
-      risparmoFiscaleStimato: previdenza.deduzioneEffettiva * aliquotaMarginaleIrpef,
+      risparmoFiscaleStimato: quota(previdenza.deduzioneEffettiva),
     },
   };
 }
