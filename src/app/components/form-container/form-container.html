@@ -1,10 +1,13 @@
 <form class="flex flex-col gap-4">
+  <h2 class="sr-only">Dati per il calcolo</h2>
   @let form = stipendioForm();
   @let model = formModel()();
 
   <!-- Sezione Dati Principali -->
-  <fieldset class="bg-surface border border-ring rounded-lg p-5">
-    <legend class="px-2 text-sm font-semibold text-title">Dati Contrattuali</legend>
+  <fieldset class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring">
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Dati Contrattuali
+    </legend>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="flex flex-col gap-1">
@@ -22,7 +25,7 @@
           aria-required="true"
           [attr.aria-invalid]="form.ral().invalid()"
           [attr.aria-describedby]="form.ral().invalid() ? 'ral-error' : null"
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger bg-field"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.ral().invalid()) {
           @for (error of form.ral().errors(); track error.kind) {
@@ -46,7 +49,7 @@
           aria-required="true"
           [attr.aria-invalid]="form.mensilita().invalid()"
           [attr.aria-describedby]="form.mensilita().invalid() ? 'mensilita-error' : null"
-          class="h-[42px] px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         >
           @for (m of mensilita; track m) {
             <option [value]="m">{{ m }}</option>
@@ -72,7 +75,7 @@
           id="tipoContratto"
           [formField]="form.tipoContratto"
           aria-required="true"
-          class="h-[42px] px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
+          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus"
         >
           @for (tipo of tipiContratto; track tipo.value) {
             <option [value]="tipo.value">{{ tipo.label }}</option>
@@ -91,7 +94,7 @@
           id="annoFiscale"
           [formField]="form.annoFiscale"
           aria-required="true"
-          class="h-[42px] px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
+          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus"
         >
           @for (anno of anniFiscali; track anno) {
             <option [value]="anno">{{ anno }}</option>
@@ -113,7 +116,7 @@
           aria-required="true"
           [attr.aria-invalid]="form.regione().invalid()"
           [attr.aria-describedby]="form.regione().invalid() ? 'regione-error' : null"
-          class="h-[42px] px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         >
           @for (regione of regioniDisponibili; track regione.value) {
             <option [value]="regione.value">{{ regione.label }}</option>
@@ -153,8 +156,10 @@
   </fieldset>
 
   <!-- Sezione Opzioni Contrattuali -->
-  <fieldset class="bg-surface border border-ring rounded-lg p-5">
-    <legend class="px-2 text-sm font-semibold text-title">Opzioni Contrattuali</legend>
+  <fieldset class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring">
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Opzioni Contrattuali
+    </legend>
 
     <div class="flex flex-col gap-1 mb-4">
       <label for="giorniLavorati" class="text-sm text-muted flex items-center"
@@ -170,7 +175,7 @@
         placeholder="Default: 365"
         [attr.aria-invalid]="form.giorniLavorati().invalid()"
         [attr.aria-describedby]="form.giorniLavorati().invalid() ? 'giorniLavorati-error' : null"
-        class="px-3 py-2 border border-ring-strong rounded-md text-fg placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger bg-field"
+        class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
       />
       @if (form.giorniLavorati().invalid()) {
         @for (error of form.giorniLavorati().errors(); track error.kind) {
@@ -245,8 +250,10 @@
   </fieldset>
 
   <!-- Sezione Altri Redditi e Detrazioni -->
-  <fieldset class="bg-surface border border-ring rounded-lg p-5">
-    <legend class="px-2 text-sm font-semibold text-title">Altri Redditi e Detrazioni</legend>
+  <fieldset class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring">
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Altri Redditi e Detrazioni
+    </legend>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="flex flex-col gap-1">
@@ -263,7 +270,7 @@
           placeholder="Es. redditi fondiari"
           [attr.aria-invalid]="form.altriRedditi().invalid()"
           [attr.aria-describedby]="form.altriRedditi().invalid() ? 'altriRedditi-error' : null"
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger bg-field"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.altriRedditi().invalid()) {
           @for (error of form.altriRedditi().errors(); track error.kind) {
@@ -292,7 +299,7 @@
                 ? 'altriRedditiSogliaAddizionale-error'
                 : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger bg-field"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.altriRedditiSogliaAddizionale().invalid()) {
             @for (error of form.altriRedditiSogliaAddizionale().errors(); track error.kind) {
@@ -323,7 +330,7 @@
           [attr.aria-describedby]="
             form.altreDetrazioni().invalid() ? 'altreDetrazioni-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger bg-field"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.altreDetrazioni().invalid()) {
           @for (error of form.altreDetrazioni().errors(); track error.kind) {
@@ -338,10 +345,12 @@
 
   <!-- Sezione Previdenza Complementare -->
   <fieldset
-    class="bg-surface border border-ring rounded-lg p-5 transition-opacity duration-200"
-    [class.opacity-60]="!model.fondoPensioneIntegrativo.enabled"
+    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
+    [attr.data-inactive]="!model.fondoPensioneIntegrativo.enabled || null"
   >
-    <legend class="px-2 text-sm font-semibold text-title">Previdenza Complementare</legend>
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Previdenza Complementare
+    </legend>
 
     <div class="flex items-center gap-2 mb-3">
       <input
@@ -385,7 +394,7 @@
                 ? 'contributoLavoratore-error'
                 : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.fondoPensioneIntegrativo.contributoLavoratore().invalid()) {
             @for (
@@ -416,7 +425,7 @@
             [attr.aria-describedby]="
               form.fondoPensioneIntegrativo.ralLavoratore().invalid() ? 'ralLavoratore-error' : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.fondoPensioneIntegrativo.ralLavoratore().invalid()) {
             @for (
@@ -452,7 +461,7 @@
                 ? 'contributoDatoreLavoro-error'
                 : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.fondoPensioneIntegrativo.contributoDatoreLavoro().invalid()) {
             @for (
@@ -485,7 +494,7 @@
                 ? 'ralDatoreLavoro-error'
                 : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.fondoPensioneIntegrativo.ralDatoreLavoro().invalid()) {
             @for (
@@ -521,7 +530,7 @@
                 ? 'contributoEbitemp-error'
                 : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.fondoPensioneIntegrativo.contributoEbitemp().invalid()) {
             @for (
@@ -552,7 +561,7 @@
             [attr.aria-describedby]="
               form.fondoPensioneIntegrativo.ralEbitemp().invalid() ? 'ralEbitemp-error' : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.fondoPensioneIntegrativo.ralEbitemp().invalid()) {
             @for (error of form.fondoPensioneIntegrativo.ralEbitemp().errors(); track error.kind) {
@@ -572,9 +581,7 @@
           [formField]="form.fondoPensioneIntegrativo.ripartizionePerMensilita"
           class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
         />
-        <label
-          for="ripartizionePerMensilita"
-          class="text-sm text-stone-700 dark:text-stone-300 flex items-center"
+        <label for="ripartizionePerMensilita" class="text-sm text-title flex items-center"
           >Dividi contributo per numero mensilità<app-info-tooltip
             tooltipId="ripartizionePerMensilita-info"
             text="Se attivo, il contributo mensile del lavoratore viene diviso per il numero di mensilità (es. 13 o 14) anziché per 12. Alcune aziende ripartiscono il contributo su tutte le mensilità, inclusa la tredicesima."
@@ -586,10 +593,12 @@
 
   <!-- Sezione Coniuge a Carico -->
   <fieldset
-    class="bg-surface border border-ring rounded-lg p-5 transition-opacity duration-200"
-    [class.opacity-60]="!model.coniuge.enabled"
+    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
+    [attr.data-inactive]="!model.coniuge.enabled || null"
   >
-    <legend class="px-2 text-sm font-semibold text-title">Coniuge a Carico</legend>
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Coniuge a Carico
+    </legend>
 
     <div class="flex items-center gap-2 mb-4">
       <input
@@ -598,9 +607,7 @@
         [formField]="form.coniuge.enabled"
         class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
       />
-      <label
-        for="coniugeEnabled"
-        class="text-sm text-stone-700 font-medium dark:text-stone-300 flex items-center"
+      <label for="coniugeEnabled" class="text-sm text-title font-medium flex items-center"
         >Ho un coniuge a carico<app-info-tooltip
           tooltipId="coniugeEnabled-info"
           text="Il coniuge con reddito fino a 2.840,51 euro annui da diritto a una detrazione fiscale da 0 a 800 euro, in base al tuo reddito."
@@ -626,7 +633,7 @@
             [attr.aria-describedby]="
               form.coniuge.redditoAnnuo().invalid() ? 'coniugeReddito-error' : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.coniuge.redditoAnnuo().invalid()) {
             @for (error of form.coniuge.redditoAnnuo().errors(); track error.kind) {
@@ -652,7 +659,7 @@
             [attr.aria-describedby]="
               form.coniuge.percentualeCarico().invalid() ? 'coniugePercentuale-error' : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.coniuge.percentualeCarico().invalid()) {
             @for (error of form.coniuge.percentualeCarico().errors(); track error.kind) {
@@ -679,7 +686,7 @@
             [attr.aria-describedby]="
               form.coniuge.mesiCarico().invalid() ? 'coniugeMesi-error' : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.coniuge.mesiCarico().invalid()) {
             @for (error of form.coniuge.mesiCarico().errors(); track error.kind) {
@@ -695,10 +702,12 @@
 
   <!-- Sezione Figli a Carico -->
   <fieldset
-    class="bg-surface border border-ring rounded-lg p-5 transition-opacity duration-200"
-    [class.opacity-60]="!model.haFigliACarico && model.figli.length === 0"
+    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
+    [attr.data-inactive]="(!model.haFigliACarico && model.figli.length === 0) || null"
   >
-    <legend class="px-2 text-sm font-semibold text-title">Figli a Carico</legend>
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Figli a Carico
+    </legend>
 
     <div class="flex items-center gap-2 mb-4">
       <input
@@ -716,15 +725,13 @@
     </div>
 
     @for (figlio of model.figli; track $index) {
-      <div class="border border-dashed border-ring-strong rounded-md p-4 mb-3 bg-page/50">
+      <div class="rounded-lg p-4 mb-3 bg-page ring-1 ring-inset ring-ring">
         <div class="flex items-center justify-between mb-3">
-          <h4 class="text-sm font-semibold text-stone-700 dark:text-stone-300">
-            Figlio {{ $index + 1 }}
-          </h4>
+          <h3 class="text-sm font-semibold text-title">Figlio {{ $index + 1 }}</h3>
           <button
             type="button"
             (click)="removeFiglio($index)"
-            class="p-2 text-neg hover:bg-red-50 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-1 transition-colors dark:hover:bg-red-900/20"
+            class="p-2 text-neg hover:bg-neg/10 rounded-lg cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-danger transition-colors"
             aria-label="Rimuovi figlio {{ $index + 1 }}"
           >
             <svg
@@ -758,7 +765,7 @@
               [attr.aria-describedby]="
                 form.figli[$index].eta().invalid() ? 'figlioEta' + $index + '-error' : null
               "
-              class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+              class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
             />
             @if (form.figli[$index].eta().invalid()) {
               @for (error of form.figli[$index].eta().errors(); track error.kind) {
@@ -786,7 +793,7 @@
                   ? 'figlioPercentuale' + $index + '-error'
                   : null
               "
-              class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+              class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
             />
             @if (form.figli[$index].percentualeCarico().invalid()) {
               @for (error of form.figli[$index].percentualeCarico().errors(); track error.kind) {
@@ -817,7 +824,7 @@
             [attr.aria-describedby]="
               form.figli[$index].mesiCarico().invalid() ? 'figlioMesi' + $index + '-error' : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.figli[$index].mesiCarico().invalid()) {
             @for (error of form.figli[$index].mesiCarico().errors(); track error.kind) {
@@ -851,7 +858,7 @@
     <button
       type="button"
       (click)="addFiglio()"
-      class="px-4 py-2 text-sm font-medium border border-stone-400 rounded-md bg-stone-100 text-stone-700 cursor-pointer hover:bg-stone-200 hover:border-stone-500 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 transition-colors dark:bg-stone-600 dark:border-stone-500 dark:text-stone-100 dark:hover:bg-stone-500"
+      class="px-4 py-2 text-sm font-medium rounded-lg bg-field text-fg shadow-xs ring-1 ring-ring-strong cursor-pointer hover:bg-page focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus transition-colors"
     >
       Aggiungi figlio
     </button>
@@ -859,23 +866,21 @@
 
   <!-- Sezione Ascendenti a Carico -->
   <fieldset
-    class="bg-surface border border-ring rounded-lg p-5 transition-opacity duration-200"
-    [class.opacity-60]="model.ascendenti.length === 0"
+    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
+    [attr.data-inactive]="model.ascendenti.length === 0 || null"
   >
-    <legend class="px-2 text-sm font-semibold text-title">
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
       Ascendenti a Carico (genitori/nonni)
     </legend>
 
     @for (ascendente of model.ascendenti; track $index) {
-      <div class="border border-dashed border-ring-strong rounded-md p-4 mb-3 bg-page/50">
+      <div class="rounded-lg p-4 mb-3 bg-page ring-1 ring-inset ring-ring">
         <div class="flex items-center justify-between mb-3">
-          <h4 class="text-sm font-semibold text-stone-700 dark:text-stone-300">
-            Ascendente {{ $index + 1 }}
-          </h4>
+          <h3 class="text-sm font-semibold text-title">Ascendente {{ $index + 1 }}</h3>
           <button
             type="button"
             (click)="removeAscendente($index)"
-            class="p-2 text-neg hover:bg-red-50 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-1 transition-colors dark:hover:bg-red-900/20"
+            class="p-2 text-neg hover:bg-neg/10 rounded-lg cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-danger transition-colors"
             aria-label="Rimuovi ascendente {{ $index + 1 }}"
           >
             <svg
@@ -910,7 +915,7 @@
                 ? 'ascendenteReddito' + $index + '-error'
                 : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.ascendenti[$index].redditoAnnuo().invalid()) {
             @for (error of form.ascendenti[$index].redditoAnnuo().errors(); track error.kind) {
@@ -942,7 +947,7 @@
                 ? 'ascendenteMesi' + $index + '-error'
                 : null
             "
-            class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
           @if (form.ascendenti[$index].mesiCarico().invalid()) {
             @for (error of form.ascendenti[$index].mesiCarico().errors(); track error.kind) {
@@ -978,7 +983,7 @@
     <button
       type="button"
       (click)="addAscendente()"
-      class="px-4 py-2 text-sm font-medium border border-stone-400 rounded-md bg-stone-100 text-stone-700 cursor-pointer hover:bg-stone-200 hover:border-stone-500 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 transition-colors dark:bg-stone-600 dark:border-stone-500 dark:text-stone-100 dark:hover:bg-stone-500"
+      class="px-4 py-2 text-sm font-medium rounded-lg bg-field text-fg shadow-xs ring-1 ring-ring-strong cursor-pointer hover:bg-page focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus transition-colors"
     >
       Aggiungi ascendente
     </button>
@@ -986,10 +991,12 @@
 
   <!-- Sezione Fringe Benefit -->
   <fieldset
-    class="bg-surface border border-ring rounded-lg p-5 transition-opacity duration-200"
-    [class.opacity-60]="!model.fringeBenefit.enabled"
+    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
+    [attr.data-inactive]="!model.fringeBenefit.enabled || null"
   >
-    <legend class="px-2 text-sm font-semibold text-title">Fringe Benefit</legend>
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Fringe Benefit
+    </legend>
 
     <div class="flex items-center gap-2 mb-4">
       <input
@@ -998,9 +1005,7 @@
         [formField]="form.fringeBenefit.enabled"
         class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
       />
-      <label
-        for="fringeBenefitEnabled"
-        class="text-sm text-stone-700 font-medium dark:text-stone-300 flex items-center"
+      <label for="fringeBenefitEnabled" class="text-sm text-title font-medium flex items-center"
         >Ho fringe benefit<app-info-tooltip
           tooltipId="fringeBenefitEnabled-info"
           text="Compensi in natura. Esenti fino a 1.000 euro all'anno (2.000 con figli a carico) per il triennio 2025-2027. ATTENZIONE: sistema a soglia secca - se superi anche di 1 centesimo, tutto diventa imponibile!"
@@ -1024,7 +1029,7 @@
           [attr.aria-describedby]="
             form.fringeBenefit.buoniAcquisto().invalid() ? 'buoniAcquisto-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.fringeBenefit.buoniAcquisto().invalid()) {
           @for (error of form.fringeBenefit.buoniAcquisto().errors(); track error.kind) {
@@ -1045,7 +1050,7 @@
           [attr.aria-describedby]="
             form.fringeBenefit.buoniCarburante().invalid() ? 'buoniCarburante-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.fringeBenefit.buoniCarburante().invalid()) {
           @for (error of form.fringeBenefit.buoniCarburante().errors(); track error.kind) {
@@ -1068,7 +1073,7 @@
           [attr.aria-describedby]="
             form.fringeBenefit.rimborsoUtenze().invalid() ? 'rimborsoUtenze-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.fringeBenefit.rimborsoUtenze().invalid()) {
           @for (error of form.fringeBenefit.rimborsoUtenze().errors(); track error.kind) {
@@ -1091,7 +1096,7 @@
           [attr.aria-describedby]="
             form.fringeBenefit.rimborsoAffitto().invalid() ? 'rimborsoAffitto-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.fringeBenefit.rimborsoAffitto().invalid()) {
           @for (error of form.fringeBenefit.rimborsoAffitto().errors(); track error.kind) {
@@ -1116,7 +1121,7 @@
               ? 'rimborsoInteressiMutuo-error'
               : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.fringeBenefit.rimborsoInteressiMutuo().invalid()) {
           @for (error of form.fringeBenefit.rimborsoInteressiMutuo().errors(); track error.kind) {
@@ -1139,7 +1144,7 @@
           [attr.aria-describedby]="
             form.fringeBenefit.altri().invalid() ? 'fringeBenefitAltri-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.fringeBenefit.altri().invalid()) {
           @for (error of form.fringeBenefit.altri().errors(); track error.kind) {
@@ -1158,9 +1163,7 @@
           [formField]="form.fringeBenefit.autoAziendaleEnabled"
           class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
         />
-        <label
-          for="autoAziendaleEnabled"
-          class="text-sm text-stone-700 font-medium dark:text-stone-300 flex items-center"
+        <label for="autoAziendaleEnabled" class="text-sm text-title font-medium flex items-center"
           >Ho auto aziendale<app-info-tooltip
             tooltipId="autoAziendaleEnabled-info"
             text="Il valore si calcola: (costo ACI x 15.000 km x percentuale) x mesi/12. Non rientra nella soglia fringe benefit."
@@ -1169,10 +1172,8 @@
       </div>
 
       @if (model.fringeBenefit.autoAziendaleEnabled) {
-        <div class="border border-dashed border-ring-strong rounded-md p-4 bg-page/50">
-          <h4 class="text-sm font-semibold text-stone-700 mb-3 dark:text-stone-300">
-            Auto Aziendale
-          </h4>
+        <div class="rounded-lg p-4 bg-page ring-1 ring-inset ring-ring">
+          <h3 class="text-sm font-semibold text-title mb-3">Auto Aziendale</h3>
 
           <div class="flex flex-col gap-1 mb-3">
             <label for="costoKmAci" class="text-sm text-muted flex items-center"
@@ -1189,7 +1190,7 @@
               [attr.aria-describedby]="
                 form.fringeBenefit.autoAziendale.costoKmAci().invalid() ? 'costoKmAci-error' : null
               "
-              class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+              class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
             />
             @if (form.fringeBenefit.autoAziendale.costoKmAci().invalid()) {
               @for (
@@ -1213,7 +1214,7 @@
             <select
               id="tipoAlimentazione"
               [formField]="form.fringeBenefit.autoAziendale.tipoAlimentazione"
-              class="h-[42px] px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
+              class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus"
             >
               @for (tipo of tipiAlimentazione; track tipo.value) {
                 <option [value]="tipo.value">{{ tipo.label }}</option>
@@ -1233,7 +1234,7 @@
                   ? 'mesiUtilizzo-error'
                   : null
               "
-              class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+              class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
             />
             @if (form.fringeBenefit.autoAziendale.mesiUtilizzo().invalid()) {
               @for (
@@ -1266,7 +1267,7 @@
                   ? 'trattenutaDipendente-error'
                   : null
               "
-              class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+              class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
             />
             @if (form.fringeBenefit.autoAziendale.trattenutaDipendente().invalid()) {
               @for (
@@ -1308,7 +1309,7 @@
                     ? 'emissioniCO2-error'
                     : null
                 "
-                class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+                class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
               />
               @if (form.fringeBenefit.autoAziendale.emissioniCO2().invalid()) {
                 @for (
@@ -1329,10 +1330,12 @@
 
   <!-- Sezione Rimborsi Trasferta -->
   <fieldset
-    class="bg-surface border border-ring rounded-lg p-5 transition-opacity duration-200"
-    [class.opacity-60]="!model.rimborsiTrasferta.enabled"
+    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
+    [attr.data-inactive]="!model.rimborsiTrasferta.enabled || null"
   >
-    <legend class="px-2 text-sm font-semibold text-title">Rimborsi Trasferta</legend>
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Rimborsi Trasferta
+    </legend>
 
     <div class="flex items-center gap-2 mb-4">
       <input
@@ -1341,9 +1344,7 @@
         [formField]="form.rimborsiTrasferta.enabled"
         class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
       />
-      <label
-        for="rimborsiTrasfertaEnabled"
-        class="text-sm text-stone-700 font-medium dark:text-stone-300 flex items-center"
+      <label for="rimborsiTrasfertaEnabled" class="text-sm text-title font-medium flex items-center"
         >Ho rimborsi trasferta<app-info-tooltip
           tooltipId="rimborsiTrasfertaEnabled-info"
           text="Rimborsi per trasferte fuori dal comune di lavoro. Possono essere forfettari (46,48 euro/giorno Italia, 77,47 euro estero) o a pie' di lista."
@@ -1362,7 +1363,7 @@
         <select
           id="modalitaRimborso"
           [formField]="form.rimborsiTrasferta.modalitaRimborso"
-          class="h-[42px] px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
+          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus"
         >
           @for (modalita of modalitaRimborso; track modalita.value) {
             <option [value]="modalita.value">{{ modalita.label }}</option>
@@ -1384,7 +1385,7 @@
               ? 'giorniTrasfertaItalia-error'
               : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.rimborsiTrasferta.giorniTrasfertaItalia().invalid()) {
           @for (
@@ -1412,7 +1413,7 @@
               ? 'giorniTrasfertaEstero-error'
               : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.rimborsiTrasferta.giorniTrasfertaEstero().invalid()) {
           @for (
@@ -1438,7 +1439,7 @@
           [attr.aria-describedby]="
             form.rimborsiTrasferta.rimborsoVitto().invalid() ? 'rimborsoVitto-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.rimborsiTrasferta.rimborsoVitto().invalid()) {
           @for (error of form.rimborsiTrasferta.rimborsoVitto().errors(); track error.kind) {
@@ -1461,7 +1462,7 @@
           [attr.aria-describedby]="
             form.rimborsiTrasferta.rimborsoAlloggio().invalid() ? 'rimborsoAlloggio-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.rimborsiTrasferta.rimborsoAlloggio().invalid()) {
           @for (error of form.rimborsiTrasferta.rimborsoAlloggio().errors(); track error.kind) {
@@ -1482,7 +1483,7 @@
           [attr.aria-describedby]="
             form.rimborsiTrasferta.rimborsoViaggio().invalid() ? 'rimborsoViaggio-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.rimborsiTrasferta.rimborsoViaggio().invalid()) {
           @for (error of form.rimborsiTrasferta.rimborsoViaggio().errors(); track error.kind) {
@@ -1508,7 +1509,7 @@
           [attr.aria-describedby]="
             form.rimborsiTrasferta.rimborsoKm().invalid() ? 'rimborsoKm-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.rimborsiTrasferta.rimborsoKm().invalid()) {
           @for (error of form.rimborsiTrasferta.rimborsoKm().errors(); track error.kind) {
@@ -1536,7 +1537,7 @@
               ? 'rimborsoKmImponibile-error'
               : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.rimborsiTrasferta.rimborsoKmImponibile().invalid()) {
           @for (error of form.rimborsiTrasferta.rimborsoKmImponibile().errors(); track error.kind) {
@@ -1566,10 +1567,12 @@
 
   <!-- Sezione Benefit Non Tassati (Welfare) -->
   <fieldset
-    class="bg-surface border border-ring rounded-lg p-5 transition-opacity duration-200"
-    [class.opacity-60]="!model.benefitNonTassati.enabled"
+    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
+    [attr.data-inactive]="!model.benefitNonTassati.enabled || null"
   >
-    <legend class="px-2 text-sm font-semibold text-title">Benefit Non Tassati (Welfare)</legend>
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Benefit Non Tassati (Welfare)
+    </legend>
 
     <div class="flex items-center gap-2 mb-4">
       <input
@@ -1578,9 +1581,7 @@
         [formField]="form.benefitNonTassati.enabled"
         class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
       />
-      <label
-        for="benefitNonTassatiEnabled"
-        class="text-sm text-stone-700 font-medium dark:text-stone-300 flex items-center"
+      <label for="benefitNonTassatiEnabled" class="text-sm text-title font-medium flex items-center"
         >Ho benefit non tassati<app-info-tooltip
           tooltipId="benefitNonTassatiEnabled-info"
           text="Voci welfare completamente esenti o con limiti specifici: previdenza, sanità, buoni pasto, trasporto pubblico, servizi familiari."
@@ -1607,7 +1608,7 @@
               ? 'previdenzaComplementare-error'
               : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.benefitNonTassati.previdenzaComplementare().invalid()) {
           @for (
@@ -1639,7 +1640,7 @@
               ? 'assistenzaSanitaria-error'
               : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.benefitNonTassati.assistenzaSanitaria().invalid()) {
           @for (error of form.benefitNonTassati.assistenzaSanitaria().errors(); track error.kind) {
@@ -1665,7 +1666,7 @@
           [attr.aria-describedby]="
             form.benefitNonTassati.buoniPasto().invalid() ? 'buoniPasto-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.benefitNonTassati.buoniPasto().invalid()) {
           @for (error of form.benefitNonTassati.buoniPasto().errors(); track error.kind) {
@@ -1691,7 +1692,7 @@
           [attr.aria-describedby]="
             form.benefitNonTassati.giorniBuoniPasto().invalid() ? 'giorniBuoniPasto-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.benefitNonTassati.giorniBuoniPasto().invalid()) {
           @for (error of form.benefitNonTassati.giorniBuoniPasto().errors(); track error.kind) {
@@ -1734,7 +1735,7 @@
               ? 'abbonamentoTrasporto-error'
               : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.benefitNonTassati.abbonamentoTrasporto().invalid()) {
           @for (error of form.benefitNonTassati.abbonamentoTrasporto().errors(); track error.kind) {
@@ -1761,7 +1762,7 @@
           [attr.aria-describedby]="
             form.benefitNonTassati.serviziWelfare().invalid() ? 'serviziWelfare-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.benefitNonTassati.serviziWelfare().invalid()) {
           @for (error of form.benefitNonTassati.serviziWelfare().errors(); track error.kind) {
@@ -1784,7 +1785,7 @@
           [attr.aria-describedby]="
             form.benefitNonTassati.altri().invalid() ? 'benefitNonTassatiAltri-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.benefitNonTassati.altri().invalid()) {
           @for (error of form.benefitNonTassati.altri().errors(); track error.kind) {
@@ -1799,10 +1800,12 @@
 
   <!-- Sezione Borsa di Studio -->
   <fieldset
-    class="bg-surface border border-ring rounded-lg p-5 transition-opacity duration-200"
-    [class.opacity-60]="!model.borsaDiStudio.enabled"
+    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
+    [attr.data-inactive]="!model.borsaDiStudio.enabled || null"
   >
-    <legend class="px-2 text-sm font-semibold text-title">Borsa di Studio</legend>
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Borsa di Studio
+    </legend>
 
     <p class="text-xs text-subtle mb-4">
       Borse di studio post-laurea assegnate da universit&agrave; italiane, tassate dal 7 giugno 2025
@@ -1838,7 +1841,7 @@
           [attr.aria-describedby]="
             form.borsaDiStudio.importoAnnuo().invalid() ? 'borsaDiStudioImporto-error' : null
           "
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg bg-field placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.borsaDiStudio.importoAnnuo().invalid()) {
           @for (error of form.borsaDiStudio.importoAnnuo().errors(); track error.kind) {
@@ -1853,10 +1856,12 @@
 
   <!-- Sezione Dipendenti CCNL Commercio -->
   <fieldset
-    class="bg-surface border border-ring rounded-lg p-5 transition-opacity duration-200"
-    [class.opacity-60]="!fondoCommercioSelezionato()"
+    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
+    [attr.data-inactive]="!fondoCommercioSelezionato() || null"
   >
-    <legend class="px-2 text-sm font-semibold text-title">Dipendenti CCNL Commercio</legend>
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Dipendenti CCNL Commercio
+    </legend>
 
     <p class="text-xs text-subtle mb-4">
       Trattenute per i dipendenti non dirigenti del settore commercio, turismo e servizi.
@@ -1880,10 +1885,12 @@
 
   <!-- Sezione Dirigenti CCNL Terziario -->
   <fieldset
-    class="bg-surface border border-ring rounded-lg p-5 transition-opacity duration-200"
-    [class.opacity-60]="!fondoDirigentiSelezionato()"
+    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
+    [attr.data-inactive]="!fondoDirigentiSelezionato() || null"
   >
-    <legend class="px-2 text-sm font-semibold text-title">Dirigenti CCNL Terziario</legend>
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Dirigenti CCNL Terziario
+    </legend>
 
     <p class="text-xs text-subtle mb-4">
       Trattenute obbligatorie per i dirigenti del settore terziario (commercio, distribuzione,

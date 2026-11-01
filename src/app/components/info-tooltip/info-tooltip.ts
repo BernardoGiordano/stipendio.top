@@ -20,7 +20,7 @@ import {
     <button
       #trigger
       type="button"
-      class="cursor-pointer inline-flex items-center justify-center w-4 h-4 text-faint hover:text-stone-600 focus:text-stone-600 focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-1 rounded-full transition-colors dark:hover:text-stone-300 dark:focus:text-stone-300"
+      class="cursor-pointer inline-flex items-center justify-center w-4 h-4 text-faint hover:text-muted focus-visible:text-muted focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus rounded-full transition-colors"
       [attr.aria-label]="'Informazioni: ' + text()"
       [attr.aria-describedby]="tooltipId()"
       (mouseenter)="show()"
@@ -70,7 +70,7 @@ export class InfoTooltip implements OnDestroy {
     this.renderer.setAttribute(
       tooltipEl,
       'class',
-      'fixed z-[9999] px-3 py-2 text-xs leading-relaxed text-white bg-stone-800 rounded-lg shadow-lg max-w-xs w-max pointer-events-none dark:bg-stone-700',
+      'fixed z-[9999] px-3 py-2 text-xs leading-relaxed text-fg bg-surface rounded-lg shadow-lg ring-1 ring-ring max-w-xs w-max pointer-events-none',
     );
     this.renderer.setStyle(tooltipEl, 'top', `${triggerRect.top - 8}px`);
     this.renderer.setStyle(tooltipEl, 'transform', 'translateY(-100%)');
@@ -84,7 +84,7 @@ export class InfoTooltip implements OnDestroy {
     this.renderer.setAttribute(
       arrow,
       'class',
-      'absolute top-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-stone-800 dark:border-t-stone-700',
+      'absolute top-full size-2 bg-surface shadow-[1px_1px_0_0_var(--ring)]',
     );
     this.renderer.setAttribute(arrow, 'aria-hidden', 'true');
     this.renderer.appendChild(tooltipEl, arrow);
@@ -103,10 +103,11 @@ export class InfoTooltip implements OnDestroy {
     tooltipLeft = Math.max(minLeft, Math.min(maxLeft, tooltipLeft));
     this.renderer.setStyle(tooltipEl, 'left', `${tooltipLeft}px`);
 
-    // Position arrow to point at trigger center
+    // Position arrow to point at trigger center. The arrow is a square turned
+    // 45deg; its shadow draws the two lower edges in the ring colour.
     const arrowLeft = triggerCenterX - tooltipLeft;
     this.renderer.setStyle(arrow, 'left', `${arrowLeft}px`);
-    this.renderer.setStyle(arrow, 'transform', 'translateX(-50%)');
+    this.renderer.setStyle(arrow, 'transform', 'translate(-50%, -50%) rotate(45deg)');
   }
 
   hide(): void {

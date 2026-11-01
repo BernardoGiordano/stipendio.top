@@ -5,7 +5,7 @@
       <div class="absolute inset-0 flex items-center justify-center bg-page" aria-live="polite">
         <div class="flex flex-col items-center gap-3">
           <svg
-            class="animate-spin size-8 text-stone-400"
+            class="animate-spin size-8 text-faint"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -46,13 +46,17 @@
   </div>
 
   <!-- View Mode Toggle -->
-  <div class="flex justify-end gap-2 pt-3" role="group" aria-label="Visualizzazione">
+  <div
+    class="self-end mt-3 flex gap-0.5 rounded-full p-0.5 bg-sunken ring-1 ring-inset ring-ring shadow-glow"
+    role="group"
+    aria-label="Visualizzazione"
+  >
     <button
       type="button"
       [class]="
         viewMode() === 'monthly'
-          ? 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-primary text-on-primary'
-          : 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-sunken text-muted hover:bg-stone-200 dark:hover:bg-stone-700'
+          ? 'cursor-pointer px-3 py-1 text-xs font-medium rounded-full bg-primary text-on-primary shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
+          : 'cursor-pointer px-3 py-1 text-xs font-medium rounded-full text-muted hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
       "
       [attr.aria-pressed]="viewMode() === 'monthly'"
       (click)="setViewMode('monthly')"
@@ -63,8 +67,8 @@
       type="button"
       [class]="
         viewMode() === 'annual'
-          ? 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-primary text-on-primary'
-          : 'cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md bg-sunken text-muted hover:bg-stone-200 dark:hover:bg-stone-700'
+          ? 'cursor-pointer px-3 py-1 text-xs font-medium rounded-full bg-primary text-on-primary shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
+          : 'cursor-pointer px-3 py-1 text-xs font-medium rounded-full text-muted hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
       "
       [attr.aria-pressed]="viewMode() === 'annual'"
       (click)="setViewMode('annual')"

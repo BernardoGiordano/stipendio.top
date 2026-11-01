@@ -1,9 +1,12 @@
 <form class="flex flex-col gap-4">
+  <h2 class="sr-only">Dati per il calcolo</h2>
   @let form = stipendioForm();
 
   <!-- Sezione Dati Principali -->
-  <fieldset class="bg-surface border border-ring rounded-lg p-5">
-    <legend class="px-2 text-sm font-semibold text-title">Dati Borsa di Studio</legend>
+  <fieldset class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring">
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Dati Borsa di Studio
+    </legend>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="flex flex-col gap-1">
@@ -21,7 +24,7 @@
           aria-required="true"
           [attr.aria-invalid]="form.ral().invalid()"
           [attr.aria-describedby]="form.ral().invalid() ? 'ral-error' : null"
-          class="px-3 py-2 border border-ring-strong rounded-md text-fg placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger bg-field"
+          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
         @if (form.ral().invalid()) {
           @for (error of form.ral().errors(); track error.kind) {
@@ -43,7 +46,7 @@
           id="tipoContratto"
           [formField]="form.tipoContratto"
           aria-required="true"
-          class="h-[42px] px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
+          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus"
         >
           @for (tipo of tipiContratto; track tipo.value) {
             <option [value]="tipo.value">{{ tipo.label }}</option>
@@ -62,7 +65,7 @@
           id="annoFiscale"
           [formField]="form.annoFiscale"
           aria-required="true"
-          class="h-[42px] px-3 py-2 border border-ring-strong rounded-md text-fg bg-field focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent"
+          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus"
         >
           @for (anno of anniFiscali; track anno) {
             <option [value]="anno">{{ anno }}</option>
@@ -73,8 +76,10 @@
   </fieldset>
 
   <!-- Sezione Opzioni Borsa di Studio -->
-  <fieldset class="bg-surface border border-ring rounded-lg p-5">
-    <legend class="px-2 text-sm font-semibold text-title">Opzioni Borsa di Studio</legend>
+  <fieldset class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring">
+    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
+      Opzioni Borsa di Studio
+    </legend>
 
     <div class="flex items-center gap-2">
       <input
