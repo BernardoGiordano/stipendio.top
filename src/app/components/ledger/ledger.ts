@@ -9,9 +9,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { HUE_CLASS, Hue } from '../../services/chart-palette';
 import { formatCurrency, formatPercent } from '../../utils/intl';
-import { Icon, IconName } from '../icon/icon';
 
 /**
  * Money entering ('in') or leaving ('out') the busta, or a reduction of a cost
@@ -29,9 +27,6 @@ export interface LedgerVoce {
   value?: string;
   flow?: Flow;
   level?: Level;
-  /** Share of the reference amount, drawn as a bar next to the value */
-  share?: number;
-  bar?: string;
 }
 
 /** Signed text and tone of an amount; a zero or missing amount gets neither */
@@ -56,23 +51,7 @@ export function signed(amount: number | undefined, flow?: Flow) {
   },
   template: `
     <dt [class]="labelClass()">{{ label() }}<ng-content /></dt>
-    <dd [class]="valueClass()">
-      @if (share() !== undefined) {
-        <span
-          aria-hidden="true"
-          class="hidden h-1.5 w-[140px] shrink-0 overflow-hidden rounded-[3px] bg-sunken sm:block"
-        >
-          <span
-            class="block h-full rounded-[3px]"
-            [style.width.%]="barWidth()"
-            [style.background-color]="bar()"
-          ></span>
-        </span>
-        <span class="text-right sm:min-w-[7.5rem]">{{ text() }}</span>
-      } @else {
-        {{ text() }}
-      }
-    </dd>
+    <dd [class]="valueClass()">{{ text() }}</dd>
   `,
 })
 export class LedgerRow {
@@ -82,8 +61,6 @@ export class LedgerRow {
   readonly value = input<string>();
   readonly flow = input<Flow>();
   readonly level = input<Level>('row');
-  readonly share = input<number>();
-  readonly bar = input<string>();
 
   private readonly amountValue = computed(
     () => this.value() === undefined && this.percent() === undefined,
@@ -100,18 +77,19 @@ export class LedgerRow {
     return this.signedAmount()!.text;
   });
 
-  readonly barWidth = computed(() => Math.min(1, Math.max(0, this.share() ?? 0)) * 100);
-
+  /**
+   * Rows draw a dotted rule above themselves, like the lines of a payslip.
+   * Details hang off the row before them, totals close a block with a solid rule.
+   */
   readonly rowClass = computed(() => {
-    const align = this.share() !== undefined ? 'items-center' : 'items-baseline';
-    const base = `flex justify-between gap-4 ${align}`;
+    const base = 'flex items-baseline justify-between gap-4';
     switch (this.level()) {
       case 'total':
-        return `${base} mt-1.5 border-t border-ring-card pt-2.5 pb-[7px] text-[14.5px]/[21px] font-medium`;
+        return `${base} mt-1 border-t border-fg/25 pt-2 pb-1.5 text-sm/5 font-semibold`;
       case 'detail':
-        return `${base} -mt-[3px] pb-1.5 pl-3.5 text-[13px]/[18px]`;
+        return `${base} -mt-1 pb-1.5 pl-3.5 text-[13px]/[18px]`;
       default:
-        return `${base} py-[7px] text-[14.5px]/[21px]`;
+        return `${base} border-t border-dotted border-ring-strong py-1.5 text-sm/5 first:border-t-0`;
     }
   });
 
@@ -130,51 +108,42 @@ export class LedgerRow {
     const tone =
       this.signedAmount()?.tone ?? (this.level() === 'detail' ? 'text-muted' : 'text-fg');
     const wrapping = this.value() === undefined ? 'whitespace-nowrap' : 'min-w-0 break-words';
-    const layout = this.share() !== undefined ? 'flex items-center gap-4' : '';
-    return `text-right tabular-nums ${wrapping} ${tone} ${layout}`;
+    const weight = this.level() === 'row' ? 'font-medium' : '';
+    return `text-right tabular-nums ${wrapping} ${tone} ${weight}`;
   });
 }
 
 let nextCardId = 0;
 
 /**
- * A card of the Dettaglio tab: tinted icon tile, title and the section total
- * in its sign colour, then the projected rows. Stacked cards share bento corners.
+ * A section of the payslip: a mono heading ruled off from its rows, with the
+ * section total on the right. Consecutive sections share one sheet.
  */
 @Component({
   selector: 'app-ledger-card',
-  imports: [Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'block rounded-lg bg-surface shadow-xs ring-1 ring-ring-card first:rounded-t-[20px] last:rounded-b-[20px]',
+    class: 'block border-t border-hair first:border-t-0',
   },
   template: `
-    <section [attr.aria-labelledby]="id + '-title'">
-      <div class="flex items-center gap-3.5 px-4 pt-4 pb-3 sm:px-6">
-        <span
-          aria-hidden="true"
-          class="flex size-8 shrink-0 items-center justify-center rounded-[9px]"
-          [class]="tile()"
-        >
-          <app-icon [name]="icon()" class="size-[17px]" />
-        </span>
+    <section [attr.aria-labelledby]="id + '-title'" class="px-4 pt-4 pb-3 sm:px-6 sm:pt-5">
+      <div class="flex items-baseline justify-between gap-4 border-b border-fg/25 pb-2">
         <h3
           [id]="id + '-title'"
-          class="min-w-0 flex-1 text-base/[22px] font-medium tracking-[-0.01em] text-fg"
+          class="min-w-0 font-mono text-xs/5 font-semibold tracking-widest text-title uppercase"
         >
           {{ heading() }}
         </h3>
         @if (total() !== undefined) {
           <p
-            class="text-base/[22px] font-medium whitespace-nowrap tabular-nums"
+            class="text-[15px]/5 font-semibold whitespace-nowrap tabular-nums"
             [class]="totalAmount().tone ?? 'text-fg'"
           >
             {{ totalAmount().text }}
           </p>
         }
       </div>
-      <div class="px-4 pb-3.5 sm:pr-6 sm:pl-[70px]">
+      <div class="pt-1">
         <ng-content />
       </div>
     </section>
@@ -182,13 +151,10 @@ let nextCardId = 0;
 })
 export class LedgerCard {
   readonly heading = input.required<string>();
-  readonly hue = input.required<Hue>();
-  readonly icon = input.required<IconName>();
   readonly total = input<number>();
   readonly flow = input<Flow>();
 
   readonly id = `ledger-card-${nextCardId++}`;
-  protected readonly tile = computed(() => HUE_CLASS[this.hue()].tile);
   protected readonly totalAmount = computed(() => signed(this.total(), this.flow()));
 }
 

@@ -1,11 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  Injector,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculator/types';
 import { REGIONE_LABELS } from '../../../calculator/addizionali/2026.regionali';
 import { PLAFOND_PREVIDENZA_COMPLEMENTARE } from '../../../calculator/fondi/2026';
 import { GraphFunnel } from '../graph-funnel/graph-funnel';
 import { GraphProjection } from '../graph-projection/graph-projection';
-import { DisplayMode } from '../../services/display-mode';
-import { HUE, SERIE } from '../../services/chart-palette';
 import { LedgerCard, LedgerRow, LedgerVoce } from '../ledger/ledger';
 import { Kpi, Stat, Tray } from '../tray/tray';
 import { ripartizioneRal } from '../tray/breakdown';
@@ -13,6 +23,9 @@ import { aumentoNetto } from '../../utils/proiezione';
 import { formatCurrency, formatPercent } from '../../utils/intl';
 
 type TabId = 'cedolino' | 'flusso' | 'proiezione';
+
+/** Tailwind's lg breakpoint, where the tab bar pins to the top */
+const PINNED_BAR_QUERY = '(min-width: 64rem)';
 
 const TABS: readonly { id: TabId; label: string }[] = [
   { id: 'cedolino', label: 'Dettaglio' },
@@ -33,8 +46,19 @@ export class Results {
   readonly tabs = TABS;
   /** A line of context under a card's rows */
   readonly note = 'pt-0.5 pb-1.5 pl-3.5 text-[13px]/[18px] text-muted';
+  /** Panels clear the pinned tab bar when scrolled into view */
+  readonly panel =
+    'scroll-mt-[74px] rounded-[20px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus';
 
-  readonly displayMode = inject(DisplayMode);
+  /** The tab bar while pinned: a frosted sheet flush with the top of the viewport */
+  readonly pinnedBar =
+    'lg:rounded-b-xl lg:bg-surface/95 lg:shadow-md lg:ring-1 lg:ring-ring-card lg:backdrop-blur-md';
+
+  private readonly injector = inject(Injector);
+  private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
+
+  /** True while the tab bar sits pinned at the top of the viewport */
+  readonly barStuck = signal(false);
 
   readonly result = input<OutputCalcoloStipendio | null>(null);
   readonly baseInput = input<InputCalcoloStipendio | null>(null);
@@ -56,24 +80,13 @@ export class Results {
     const mensilita = `su ${r.mensilita} mensilità`;
     const percepitoMensile = { label: 'Percepito mensile', value: r.nettoMensilePercepito };
     const nettoMensile = { label: 'Netto mensile', value: r.nettoMensile };
-    if (this.displayMode.isPercepito()) {
-      return [
-        { ...percepitoMensile, note: `${mensilita}, welfare compreso` },
-        { ...nettoMensile, note: 'in busta paga' },
-        {
-          label: 'Totale annuo',
-          value: r.totalePercepito,
-          note: `netto ${formatCurrency(r.nettoAnnuo)}`,
-        },
-      ];
-    }
     return [
-      { ...nettoMensile, note: mensilita },
-      { ...percepitoMensile, note: 'welfare compreso' },
+      { ...percepitoMensile, note: `${mensilita}, welfare compreso` },
+      { ...nettoMensile, note: 'in busta paga' },
       {
-        label: 'Netto annuo',
-        value: r.nettoAnnuo,
-        note: `percepito ${formatCurrency(r.totalePercepito)}`,
+        label: 'Percepito annuo',
+        value: r.totalePercepito,
+        note: `netto ${formatCurrency(r.nettoAnnuo)}`,
       },
     ];
   });
@@ -109,21 +122,17 @@ export class Results {
     return stats;
   });
 
-  /** Riepilogo rows: what reaches the busta, where it goes, and what is paid on top */
+  /**
+   * Riepilogo rows, read top to bottom like a payslip: what reaches the busta,
+   * the trattenute with their breakdown, the netto, then what is paid on top.
+   */
   readonly riepilogo = computed<LedgerVoce[]>(() => {
     const r = this.result();
     const ripartizione = this.ripartizione();
     if (!r || !ripartizione) return [];
-    const share = (importo: number) => (ripartizione.base > 0 ? importo / ripartizione.base : 0);
-
     const entrate: LedgerVoce[] = r.ripartizione.entrate
       .filter((voce) => voce.destinazione === 'netto' && voce.categoria !== 'bonus')
-      .map((voce) => ({
-        label: voce.descrizione,
-        amount: voce.importo,
-        share: share(voce.importo),
-        bar: 'var(--ring-strong)',
-      }));
+      .map((voce) => ({ label: voce.descrizione, amount: voce.importo }));
 
     const trattenute: LedgerVoce[] = ripartizione.quote
       .filter((quota) => quota.id !== 'netto')
@@ -131,45 +140,29 @@ export class Results {
         label: quota.label,
         amount: quota.importo,
         flow: 'out',
-        share: quota.quota,
-        bar: HUE[quota.hue].bar,
+        level: 'detail',
       }));
 
     const esenti: LedgerVoce[] = r.ripartizione.entrate
       .filter((voce) => voce.destinazione === 'esente')
-      .map((voce) => ({
-        label: voce.descrizione,
-        amount: voce.importo,
-        flow: 'in',
-        share: share(voce.importo),
-        bar: SERIE.percepito,
-      }));
+      .map((voce) => ({ label: voce.descrizione, amount: voce.importo, flow: 'in' }));
+
+    const bonus: LedgerVoce[] =
+      r.totaleBonus > 0 ? [{ label: 'Bonus fiscali', amount: r.totaleBonus, flow: 'in' }] : [];
 
     return [
       ...entrate,
+      { label: 'Trattenute', amount: r.totaleTrattenute, flow: 'out' },
       ...trattenute,
-      { label: 'Totale trattenute', amount: r.totaleTrattenute, flow: 'out', level: 'detail' },
-      ...(r.totaleBonus > 0
+      ...bonus,
+      { label: 'Netto annuo', amount: r.nettoAnnuo, level: 'total' },
+      { label: 'Aliquota effettiva', percent: r.aliquotaEffettiva, level: 'detail' },
+      ...(esenti.length
         ? [
-            {
-              label: 'Bonus fiscali',
-              amount: r.totaleBonus,
-              flow: 'in',
-              share: share(r.totaleBonus),
-              bar: HUE.verde.bar,
-            } satisfies LedgerVoce,
+            ...esenti,
+            { label: 'Totale percepito', amount: r.totalePercepito, level: 'total' } as const,
           ]
         : []),
-      {
-        label: 'Netto annuo',
-        amount: r.nettoAnnuo,
-        level: 'total',
-        share: share(r.nettoAnnuo),
-        bar: HUE.verde.bar,
-      },
-      { label: 'Aliquota effettiva', percent: r.aliquotaEffettiva, level: 'detail' },
-      ...esenti,
-      { label: 'Totale percepito', amount: r.totalePercepito, level: 'total' },
     ];
   });
 
@@ -217,8 +210,31 @@ export class Results {
 
   readonly activeTab = signal<TabId>('cedolino');
 
+  constructor() {
+    effect((onCleanup) => {
+      const bar = this.bar()?.nativeElement;
+      if (!bar || typeof IntersectionObserver === 'undefined') return;
+      // A pinned bar sits at top 0, so the 1px inset clips it and its ratio drops below 1
+      const observer = new IntersectionObserver(
+        ([entry]) =>
+          this.barStuck.set(entry.intersectionRatio < 1 && entry.boundingClientRect.top < 1),
+        { rootMargin: '-1px 0px 0px 0px', threshold: 1 },
+      );
+      observer.observe(bar);
+      onCleanup(() => {
+        observer.disconnect();
+        this.barStuck.set(false);
+      });
+    });
+  }
+
+  /** Selects a tab; with the bar pinned, brings the top of the new panel into view */
   setActiveTab(tab: TabId): void {
     this.activeTab.set(tab);
+    if (!this.barStuck() || !matchMedia(PINNED_BAR_QUERY).matches) return;
+    afterNextRender(() => document.getElementById(`panel-${tab}`)?.scrollIntoView(), {
+      injector: this.injector,
+    });
   }
 
   /** Arrow keys, Home and End move between tabs and select them */
@@ -236,7 +252,7 @@ export class Results {
               : -1;
     if (next < 0) return;
     event.preventDefault();
-    this.activeTab.set(TABS[next].id);
-    document.getElementById(`tab-${TABS[next].id}`)?.focus();
+    this.setActiveTab(TABS[next].id);
+    document.getElementById(`tab-${TABS[next].id}`)?.focus({ preventScroll: true });
   }
 }

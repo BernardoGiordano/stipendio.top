@@ -48,7 +48,7 @@ describe('LedgerRow', () => {
   });
 
   it.each<[Level, string, string]>([
-    ['row', 'py-[7px]', 'text-fg'],
+    ['row', 'py-1.5', 'text-fg'],
     ['total', 'border-t', 'text-fg'],
     ['detail', 'pl-3.5', 'text-muted'],
   ])('applies the %s hierarchy', (level, spacing, tone) => {
@@ -62,13 +62,6 @@ describe('LedgerRow', () => {
     const { value } = render({ label: 'Detrazioni applicate', amount: 2676.91, flow: 'reduce' });
     expect(value.textContent!.trim()).toBe(`− ${formatCurrency(2676.91)}`);
     expect(value.classList.contains('text-pos')).toBe(true);
-  });
-
-  it('draws the share bar next to the value', () => {
-    const { row, value } = render({ label: 'IRPEF', amount: 4896.15, share: 0.14, bar: '#c25a74' });
-    const fill = row.querySelector<HTMLElement>('dd [aria-hidden="true"] span')!;
-    expect(parseFloat(fill.style.width)).toBeCloseTo(14);
-    expect(value.textContent).toContain(formatCurrency(4896.15));
   });
 
   it('preserves an outgoing flow on detail rows', () => {

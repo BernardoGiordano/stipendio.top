@@ -50,40 +50,26 @@
     </div>
 
     <nav aria-label="Principale" class="flex shrink-0 items-center gap-1">
-      @if (!isBorsaDiStudio()) {
-        <div
-          role="group"
-          aria-label="Importo da mostrare"
-          class="flex gap-0.5 rounded-full bg-tray p-0.5 shadow-glow ring-1 ring-ring-strong lg:mr-2 lg:p-[3px]"
+      @for (link of headerLinks; track link.href) {
+        <a
+          [href]="link.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          [attr.aria-label]="link.menuLabel"
+          [class]="barItem"
         >
-          @for (option of displayOptions; track option.mode) {
-            <button
-              type="button"
-              [attr.aria-pressed]="displayMode.mode() === option.mode"
-              (click)="displayMode.setMode(option.mode)"
-              [class]="
-                (displayMode.mode() === option.mode
-                  ? 'bg-primary text-on-primary shadow-sm '
-                  : 'text-muted hover:bg-sunken hover:text-fg ') + pill
-              "
-            >
-              {{ option.label }}
-            </button>
-          }
-        </div>
+          <app-icon [name]="link.icon" class="size-5 shrink-0" />
+          <span [class]="barLabel">{{ link.label }}</span>
+        </a>
       }
-
-      <a [href]="links.github.href" target="_blank" rel="noopener noreferrer" [class]="navLink">
-        Codice sorgente
-      </a>
-      <a href="#sostieni" [class]="navLink">Sostieni</a>
       <button
         type="button"
-        [class]="iconButton + ' hidden lg:flex'"
+        [class]="barItem + ' cursor-pointer'"
         [attr.aria-label]="themeMode.isDark() ? 'Passa al tema chiaro' : 'Passa al tema scuro'"
         (click)="themeMode.toggle()"
       >
-        <app-icon [name]="themeMode.isDark() ? 'sun' : 'moon'" class="size-5" />
+        <app-icon [name]="themeMode.isDark() ? 'sun' : 'moon'" class="size-5 shrink-0" />
+        <span [class]="barLabel">{{ themeMode.isDark() ? 'Tema chiaro' : 'Tema scuro' }}</span>
       </button>
 
       <button
@@ -162,22 +148,9 @@
         Calcolo dello stipendio netto
       </h1>
     </div>
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-      @if (loadedFromUrl()) {
-        <p class="text-sm text-muted">Configurazione caricata da link condiviso.</p>
-      }
-      <button
-        type="button"
-        class="inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-[18px] py-2 text-[15px] font-medium text-on-primary shadow-md transition-colors hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-        (click)="copyShareableLink()"
-      >
-        <app-icon [name]="formStateShare.linkCopied() ? 'check-bold' : 'link'" class="size-4" />
-        {{ formStateShare.linkCopied() ? 'Copiato!' : 'Copia link al calcolo' }}
-      </button>
-      <span class="sr-only" aria-live="polite">
-        {{ formStateShare.linkCopied() ? 'Link al calcolo copiato negli appunti' : '' }}
-      </span>
-    </div>
+    @if (loadedFromUrl()) {
+      <p class="text-sm text-muted">Configurazione caricata da link condiviso.</p>
+    }
   </div>
 
   <div class="flex flex-col gap-4 lg:flex-row lg:gap-0" [style.--split-ratio]="splitRatio()">
@@ -201,9 +174,13 @@
       class="min-w-0 scroll-mt-4 rounded-[26px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus lg:flex-[calc(1-var(--split-ratio))_1_0%]"
     >
       @if (isBorsaDiStudio()) {
-        <app-results-borsa [result]="calculationResult()" />
+        <app-results-borsa [result]="calculationResult()">
+          <app-share-link [copied]="formStateShare.linkCopied()" (share)="copyShareableLink()" />
+        </app-results-borsa>
       } @else {
-        <app-results [result]="calculationResult()" [baseInput]="calculationInput()" />
+        <app-results [result]="calculationResult()" [baseInput]="calculationInput()">
+          <app-share-link [copied]="formStateShare.linkCopied()" (share)="copyShareableLink()" />
+        </app-results>
       }
     </div>
   </div>
@@ -296,7 +273,7 @@
 </footer>
 
 @if (calculationResult(); as r) {
-  @let percepito = !isBorsaDiStudio() && displayMode.isPercepito();
+  @let percepito = !isBorsaDiStudio();
   <!-- Reserve room for the bar and device safe area at the end of the page. -->
   <div aria-hidden="true" class="h-[calc(5rem+env(safe-area-inset-bottom))] lg:hidden"></div>
   <aside

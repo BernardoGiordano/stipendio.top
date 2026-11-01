@@ -8,34 +8,59 @@
       [stats]="stats()"
     />
 
-    <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-      <div
-        role="tablist"
-        aria-label="Visualizzazione risultati"
-        class="flex gap-0.5 rounded-full bg-surface p-1 shadow-xs ring-1 ring-ring-strong"
-      >
-        @for (tab of tabs; track tab.id) {
-          <button
-            type="button"
-            role="tab"
-            [id]="'tab-' + tab.id"
-            [attr.aria-selected]="activeTab() === tab.id"
-            [attr.aria-controls]="'panel-' + tab.id"
-            [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
-            (click)="setActiveTab(tab.id)"
-            (keydown)="onTabKeydown($event)"
-            [class]="
-              (activeTab() === tab.id
-                ? 'bg-primary text-on-primary shadow-sm '
-                : 'text-muted hover:bg-sunken hover:text-fg ') +
-              'h-[34px] cursor-pointer rounded-full px-3.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:px-[18px] sm:text-[15px]'
-            "
-          >
-            {{ tab.label }}
-          </button>
-        }
+    <!-- On desktop the bar pins to the top once the tray has scrolled away -->
+    <div
+      #bar
+      class="group/bar @container z-20 -mx-2 p-2 transition-[background-color,box-shadow] duration-200 lg:sticky lg:top-0"
+      [attr.data-stuck]="barStuck() || null"
+      [class]="barStuck() ? pinnedBar : ''"
+    >
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div
+          role="tablist"
+          aria-label="Visualizzazione risultati"
+          class="flex gap-0.5 rounded-full bg-surface p-1 shadow-xs ring-1 ring-ring-strong"
+        >
+          @for (tab of tabs; track tab.id) {
+            <button
+              type="button"
+              role="tab"
+              [id]="'tab-' + tab.id"
+              [attr.aria-selected]="activeTab() === tab.id"
+              [attr.aria-controls]="'panel-' + tab.id"
+              [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
+              (click)="setActiveTab(tab.id)"
+              (keydown)="onTabKeydown($event)"
+              [class]="
+                (activeTab() === tab.id
+                  ? 'bg-primary text-on-primary shadow-sm '
+                  : 'text-muted hover:bg-sunken hover:text-fg ') +
+                'h-[34px] cursor-pointer rounded-full px-3.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:px-[18px] sm:text-[15px]'
+              "
+            >
+              {{ tab.label }}
+            </button>
+          }
+        </div>
+        <div class="ml-auto flex items-center gap-3">
+          @if (barStuck()) {
+            <!-- Repeats the tray's first figure, which is out of view while the bar is pinned -->
+            <p aria-hidden="true" class="hidden text-right whitespace-nowrap lg:@lg:block">
+              <span
+                class="block font-mono text-[10px]/3 font-semibold tracking-widest text-muted uppercase"
+              >
+                {{ kpi()[0].label }}
+              </span>
+              <span
+                class="mt-1 block text-lg/5 font-medium tracking-[-0.03em] text-fg tabular-nums"
+              >
+                {{ formatCurrency(kpi()[0].value) }}
+              </span>
+            </p>
+          }
+          <ng-content select="app-share-link" />
+        </div>
       </div>
-      <p class="text-sm text-muted">Importi annui</p>
     </div>
 
     <!-- Dettaglio -->
@@ -45,15 +70,17 @@
         role="tabpanel"
         aria-labelledby="tab-cedolino"
         tabindex="0"
-        class="flex flex-col gap-2 rounded-[20px] tabular-nums focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        [class]="panel"
+        class="overflow-hidden rounded-[20px] bg-surface tabular-nums shadow-xs ring-1 ring-ring-card"
       >
-        <!-- Riepilogo -->
-        <app-ledger-card
-          heading="Riepilogo"
-          hue="verde"
-          icon="receipt"
-          [total]="displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo"
+        <p
+          class="flex justify-between px-4 pt-3 pb-2.5 font-mono text-[11px]/4 font-semibold tracking-widest text-faint uppercase sm:px-6"
         >
+          <span>Voce</span>
+          <span>Importo annuo</span>
+        </p>
+        <!-- Riepilogo -->
+        <app-ledger-card heading="Riepilogo" [total]="r.totalePercepito">
           <dl>
             @for (voce of riepilogo(); track voce.label) {
               <div
@@ -63,8 +90,6 @@
                 [percent]="voce.percent"
                 [flow]="voce.flow"
                 [level]="voce.level ?? 'row'"
-                [share]="voce.share"
-                [bar]="voce.bar"
               ></div>
             }
           </dl>
@@ -73,8 +98,6 @@
         <!-- Contributi INPS -->
         <app-ledger-card
           heading="Contributi INPS"
-          hue="arancio"
-          icon="shield"
           [total]="r.contributiInps.totaleContributi"
           flow="out"
         >
@@ -113,12 +136,7 @@
 
         <!-- Regime impatriati -->
         @if (r.regimeImpatriati) {
-          <app-ledger-card
-            heading="Regime impatriati"
-            hue="blu"
-            icon="plane"
-            [total]="r.regimeImpatriati.importoEsente"
-          >
+          <app-ledger-card heading="Regime impatriati" [total]="r.regimeImpatriati.importoEsente">
             <dl>
               <div
                 appLedgerRow
@@ -145,13 +163,7 @@
         }
 
         <!-- IRPEF -->
-        <app-ledger-card
-          heading="IRPEF"
-          hue="rosa"
-          icon="landmark"
-          [total]="r.irpefFinale"
-          flow="out"
-        >
+        <app-ledger-card heading="IRPEF" [total]="r.irpefFinale" flow="out">
           <dl>
             <div appLedgerRow label="Imponibile IRPEF" [amount]="r.irpef.imponibileIrpef"></div>
             @for (scaglione of r.irpef.dettaglioScaglioni; track scaglione.scaglione) {
@@ -193,13 +205,7 @@
         </app-ledger-card>
 
         <!-- Detrazioni e trattamento integrativo -->
-        <app-ledger-card
-          heading="Detrazioni"
-          hue="verde"
-          icon="tag"
-          [total]="r.riepilogoDetrazioni.totale"
-          flow="in"
-        >
+        <app-ledger-card heading="Detrazioni" [total]="r.riepilogoDetrazioni.totale" flow="in">
           <dl>
             @if (r.detrazioniLavoro.detrazioneEffettiva > 0) {
               <div
@@ -300,13 +306,7 @@
         </app-ledger-card>
 
         <!-- Addizionali -->
-        <app-ledger-card
-          heading="Addizionali"
-          hue="ocra"
-          icon="pin"
-          [total]="r.addizionali.totaleAddizionali"
-          flow="out"
-        >
+        <app-ledger-card heading="Addizionali" [total]="r.addizionali.totaleAddizionali" flow="out">
           <dl>
             <div
               appLedgerRow
@@ -338,13 +338,7 @@
 
         <!-- Fondi contrattuali -->
         @if (r.fondiContrattuali.length) {
-          <app-ledger-card
-            heading="Fondi contrattuali"
-            hue="blu"
-            icon="briefcase"
-            [total]="fondiTotale()"
-            flow="out"
-          >
+          <app-ledger-card heading="Fondi contrattuali" [total]="fondiTotale()" flow="out">
             <dl>
               @for (fondo of r.fondiContrattuali; track fondo.id) {
                 <div
@@ -379,12 +373,7 @@
 
         <!-- Borsa di studio aggiuntiva -->
         @if (r.borsaDiStudio) {
-          <app-ledger-card
-            heading="Borsa di studio"
-            hue="ocra"
-            icon="cap"
-            [total]="r.borsaDiStudio.nettoAnnuo"
-          >
+          <app-ledger-card heading="Borsa di studio" [total]="r.borsaDiStudio.nettoAnnuo">
             <dl>
               <div appLedgerRow label="Importo lordo" [amount]="r.borsaDiStudio.importoLordo"></div>
               <div
@@ -421,8 +410,6 @@
         @if (r.fondoPensioneIntegrativo; as fp) {
           <app-ledger-card
             heading="Fondo pensione"
-            hue="viola"
-            icon="sprout"
             [total]="fp.contributoLavoratoreAnnuo"
             flow="out"
           >
@@ -482,12 +469,7 @@
 
         <!-- Fringe benefit -->
         @if (r.fringeBenefit.valoreTotaleLordo > 0) {
-          <app-ledger-card
-            heading="Fringe benefit"
-            hue="verde"
-            icon="car"
-            [total]="r.fringeBenefit.valoreTotaleLordo"
-          >
+          <app-ledger-card heading="Fringe benefit" [total]="r.fringeBenefit.valoreTotaleLordo">
             <dl>
               <div
                 appLedgerRow
@@ -542,8 +524,6 @@
         @if (r.rimborsiTrasferta.totaleRimborsi > 0) {
           <app-ledger-card
             heading="Rimborsi trasferta"
-            hue="blu"
-            icon="route"
             [total]="r.rimborsiTrasferta.totaleRimborsi"
           >
             <dl>
@@ -583,8 +563,6 @@
         @if (r.benefitNonTassati.totaleEsente > 0 || r.benefitNonTassati.totaleTassato > 0) {
           <app-ledger-card
             heading="Benefit non tassati"
-            hue="verde"
-            icon="gift"
             [total]="r.benefitNonTassati.totaleEsente"
             flow="in"
           >
@@ -637,12 +615,7 @@
         }
 
         <!-- Costo aziendale -->
-        <app-ledger-card
-          heading="Costo aziendale"
-          hue="terracotta"
-          icon="building"
-          [total]="r.costoAziendale"
-        >
+        <app-ledger-card heading="Costo aziendale" [total]="r.costoAziendale">
           <dl>
             @for (voce of entrateDatore(); track voce.descrizione) {
               <div appLedgerRow [label]="voce.descrizione" [amount]="voce.importo">
@@ -663,7 +636,7 @@
         role="tabpanel"
         aria-labelledby="tab-flusso"
         tabindex="0"
-        class="rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        [class]="panel"
       >
         <section
           aria-labelledby="flusso-title"
@@ -699,7 +672,7 @@
         role="tabpanel"
         aria-labelledby="tab-proiezione"
         tabindex="0"
-        class="rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        [class]="panel"
       >
         <app-graph-projection [result]="result()" [baseInput]="baseInput()" />
       </div>

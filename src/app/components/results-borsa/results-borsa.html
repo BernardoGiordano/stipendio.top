@@ -9,14 +9,18 @@
       oggetto="della borsa"
     />
 
+    <div class="flex items-center justify-between gap-3">
+      <h3 class="pl-1 font-mono text-[11px]/4 font-semibold tracking-widest text-faint uppercase">
+        Dettaglio
+      </h3>
+      <ng-content select="app-share-link" />
+    </div>
+
     @if (r.borsaDiStudio; as borsa) {
-      <div class="flex flex-col gap-2 tabular-nums">
-        <app-ledger-card
-          heading="Riepilogo borsa di studio"
-          hue="ocra"
-          icon="cap"
-          [total]="r.nettoAnnuo"
-        >
+      <div
+        class="overflow-hidden rounded-[20px] bg-surface tabular-nums shadow-xs ring-1 ring-ring-card"
+      >
+        <app-ledger-card heading="Riepilogo borsa di studio" [total]="r.nettoAnnuo">
           <dl>
             <div appLedgerRow label="Importo lordo annuo" [amount]="borsa.importoLordo"></div>
             <div appLedgerRow label="IRPEF" value="Esente"></div>
@@ -33,8 +37,6 @@
 
         <app-ledger-card
           heading="INPS Gestione Separata"
-          hue="arancio"
-          icon="shield"
           [total]="borsa.contributoGestioneSeparataBorsista"
           flow="out"
         >
@@ -63,12 +65,7 @@
           </dl>
         </app-ledger-card>
 
-        <app-ledger-card
-          heading="Dettaglio mensile"
-          hue="verde"
-          icon="receipt"
-          [total]="r.nettoMensile"
-        >
+        <app-ledger-card heading="Dettaglio mensile" [total]="r.nettoMensile">
           <dl>
             <div appLedgerRow label="Lordo mensile" [amount]="borsa.importoLordo / 12"></div>
             <div
@@ -81,12 +78,7 @@
           </dl>
         </app-ledger-card>
 
-        <app-ledger-card
-          heading="Costo per l'ente"
-          hue="terracotta"
-          icon="building"
-          [total]="r.costoAziendale"
-        >
+        <app-ledger-card heading="Costo per l'ente" [total]="r.costoAziendale">
           <dl>
             @for (voce of r.ripartizione.entrate; track voce.descrizione) {
               <div appLedgerRow [label]="voce.descrizione" [amount]="voce.importo"></div>

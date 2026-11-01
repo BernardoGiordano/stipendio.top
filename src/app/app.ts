@@ -15,6 +15,7 @@ import { ResultsBorsa } from './components/results-borsa/results-borsa';
 import { Resizer } from './components/resizer/resizer';
 import { Icon } from './components/icon/icon';
 import { AnimatedAmount } from './components/ledger/ledger';
+import { ShareLink } from './components/share-link/share-link';
 import { LINKS, NAV_LINKS } from './links';
 import {
   createDefaultFormModel,
@@ -27,7 +28,6 @@ import { calcolaStipendioNetto } from '../calculator/calculator';
 import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../calculator/types';
 import { ThemeMode } from './services/theme-mode';
 import { FormStateShare } from './services/form-state-share';
-import { DisplayMode } from './services/display-mode';
 import {
   CdkMenu,
   CdkMenuGroup,
@@ -49,6 +49,7 @@ const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
     Resizer,
     Icon,
     AnimatedAmount,
+    ShareLink,
     CdkMenu,
     CdkMenuItem,
     CdkMenuItemRadio,
@@ -56,6 +57,7 @@ const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
     CdkMenuTrigger,
   ],
   templateUrl: './app.html',
+  styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'relative block overflow-clip' },
 })
@@ -67,21 +69,18 @@ export class App {
 
   readonly links = LINKS;
   readonly navLinks = NAV_LINKS;
+  readonly headerLinks = [LINKS.github, LINKS.paypal];
   readonly licenseHref = `${LINKS.github.href}/blob/main/LICENSE`;
-
-  readonly displayOptions = [
-    { mode: 'netto', label: 'Netto' },
-    { mode: 'percepito', label: 'Percepito' },
-  ] as const;
 
   readonly themeOptions = [
     { theme: 'light', label: 'Tema chiaro' },
     { theme: 'dark', label: 'Tema scuro' },
   ] as const;
 
-  /** Netto/Percepito pill: compact on mobile, Radiant size on desktop */
-  readonly pill = `h-[26px] cursor-pointer rounded-full px-[9px] text-xs font-medium lg:h-[30px] lg:px-3.5 lg:text-sm ${FOCUS}`;
-  readonly navLink = `hidden h-11 items-center rounded-lg px-3.5 text-[15px] font-medium text-fg hover:text-muted lg:flex ${FOCUS}`;
+  /** Desktop links reveal their labels on hover or keyboard focus. */
+  readonly barItem = `group hidden h-11 items-center overflow-hidden rounded-lg px-3 text-muted transition-colors hover:bg-sunken hover:text-fg lg:flex ${FOCUS}`;
+  readonly barLabel =
+    'hover-text-delay max-w-0 overflow-hidden text-sm font-medium whitespace-nowrap opacity-0 group-hover:max-w-xs group-hover:opacity-100 group-focus-visible:max-w-xs group-focus-visible:opacity-100';
   readonly iconButton = `size-11 cursor-pointer items-center justify-center rounded-lg text-fg hover:bg-sunken ${FOCUS}`;
   readonly creditLink = `rounded-sm font-medium text-fg underline decoration-fg/30 underline-offset-4 hover:decoration-fg ${FOCUS}`;
   readonly menuItem =
@@ -89,7 +88,6 @@ export class App {
 
   readonly themeMode = inject(ThemeMode);
   readonly formStateShare = inject(FormStateShare);
-  readonly displayMode = inject(DisplayMode);
 
   readonly formModel = signal<StipendioFormModel>(this.loadInitialFormState());
   readonly stipendioForm = createStipendioForm(this.formModel);
