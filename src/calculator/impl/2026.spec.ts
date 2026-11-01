@@ -3965,6 +3965,47 @@ describe('Costo aziendale', () => {
     });
   });
 
+  describe('Massimale contributivo sulla sola quota IVS', () => {
+    it('post-1996 oltre il massimale: solo il 23,81% è limitato a €122.295', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 150_000,
+        iscrittoPost1996: true,
+      });
+      const atteso = 122_295 * 0.2381 + 150_000 * (0.2898 - 0.2381);
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(atteso, 2);
+      expect(entrateDi(result, 'contributiDatore')).toBeGreaterThan(122_295 * 0.2898);
+    });
+
+    it('pre-1996: nessun massimale, aliquota piena su tutto', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 150_000,
+        iscrittoPost1996: false,
+      });
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(150_000 * 0.2898, 2);
+    });
+
+    it('entro il massimale: aliquota piena', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 100_000,
+        iscrittoPost1996: true,
+      });
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(100_000 * 0.2898, 2);
+    });
+
+    it('apprendista oltre il massimale: aliquota forfettaria entro il massimale', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 150_000,
+        tipoContratto: 'apprendistato',
+        iscrittoPost1996: true,
+      });
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(122_295 * 0.1161, 2);
+    });
+  });
+
   describe('Con CIGS', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,

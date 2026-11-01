@@ -630,6 +630,12 @@ COSTO AZIENDALE = RAL + Contributi INPS Datore + TFR
 
 I contributi INPS a carico del datore sono calcolati sull'imponibile previdenziale (lo stesso utilizzato per la quota lavoratore) e includono IVS, NASpI, malattia, maternità, CUAF, CIG e Fondo Garanzia TFR.
 
+Per gli iscritti dal 1996 il massimale contributivo (€122.295 nel 2026) limita la sola quota IVS, pari al 23,81%; le contribuzioni minori restano dovute sull'intero imponibile:
+
+```
+INPS Datore = MIN(Imponibile, Massimale) × 23,81% + Imponibile × (Aliquota − 23,81%)
+```
+
 | Tipologia                     | Aliquota Datore |
 | ----------------------------- | --------------- |
 | Operai/impiegati (senza CIGS) | 28,98%          |
