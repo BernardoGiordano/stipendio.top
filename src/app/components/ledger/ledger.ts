@@ -21,6 +21,7 @@ export interface LedgerVoce {
   label: string;
   amount?: number;
   percent?: number;
+  value?: string;
   flow?: Flow;
   level?: Level;
 }
@@ -47,16 +48,20 @@ export class LedgerRow {
   readonly label = input.required<string>();
   readonly amount = input<number>();
   readonly percent = input<number>();
+  readonly value = input<string>();
   readonly flow = input<Flow>();
   readonly level = input<Level>('row');
 
   /** Flow that applies: none when the amount is zero or missing */
   private readonly activeFlow = computed(() => {
+    if (this.value() !== undefined || this.percent() !== undefined) return undefined;
     const amount = this.amount();
     return amount !== undefined && amount > 0 ? this.flow() : undefined;
   });
 
   readonly text = computed(() => {
+    const text = this.value();
+    if (text !== undefined) return text;
     const percent = this.percent();
     if (percent !== undefined) return formatPercent(percent);
     const value = formatCurrency(this.amount() ?? 0);
@@ -88,10 +93,19 @@ export class LedgerRow {
 
   readonly valueClass = computed(() => {
     const level = this.level();
-    if (level === 'detail') return 'text-xs text-subtle tabular-nums';
     const flow = this.activeFlow();
-    const tone = flow === 'in' ? 'text-pos' : flow === 'out' ? 'text-neg' : 'text-fg';
-    return `text-sm tabular-nums whitespace-nowrap ${tone} ${level === 'total' ? '' : 'font-medium'}`;
+    const tone =
+      flow === 'in'
+        ? 'text-pos'
+        : flow === 'out'
+          ? 'text-neg'
+          : level === 'detail'
+            ? 'text-subtle'
+            : 'text-fg';
+    const size = level === 'detail' ? 'text-xs' : 'text-sm';
+    const weight = level === 'row' ? 'font-medium' : '';
+    const wrapping = this.value() === undefined ? 'whitespace-nowrap' : 'min-w-0 break-words';
+    return `${size} text-right tabular-nums ${wrapping} ${tone} ${weight}`;
   });
 }
 

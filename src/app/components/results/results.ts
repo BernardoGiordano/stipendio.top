@@ -3,19 +3,18 @@ import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculat
 import { GraphFunnel } from '../graph-funnel/graph-funnel';
 import { GraphProjection } from '../graph-projection/graph-projection';
 import { DisplayMode } from '../../services/display-mode';
-import { LedgerRow } from '../ledger/ledger';
-import { formatCurrency, formatPercent } from '../../utils/intl';
+import { AnimatedAmount, LedgerRow, LedgerVoce } from '../ledger/ledger';
+import { formatPercent } from '../../utils/intl';
 
 type TabId = 'cedolino' | 'flusso' | 'proiezione';
 
 @Component({
   selector: 'app-results',
-  imports: [GraphFunnel, GraphProjection, LedgerRow],
+  imports: [GraphFunnel, GraphProjection, LedgerRow, AnimatedAmount],
   templateUrl: './results.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Results {
-  readonly formatCurrency = formatCurrency;
   readonly formatPercent = formatPercent;
 
   readonly displayMode = inject(DisplayMode);
@@ -25,13 +24,23 @@ export class Results {
 
   readonly hasResult = computed(() => this.result() !== null);
 
-  /** Entrate pagate in busta prima di trattenute e bonus: con loro il riepilogo torna al netto */
-  readonly entrateInBusta = computed(
-    () =>
-      this.result()?.ripartizione.entrate.filter(
-        (voce) => voce.destinazione === 'netto' && voce.categoria !== 'bonus',
-      ) ?? [],
-  );
+  /** Cash entries and totals calculated from the same ripartizione as the charts. */
+  readonly riepilogo = computed<LedgerVoce[]>(() => {
+    const r = this.result();
+    if (!r) return [];
+    const entrate = r.ripartizione.entrate
+      .filter((voce) => voce.destinazione === 'netto' && voce.categoria !== 'bonus')
+      .map((voce) => ({ label: voce.descrizione, amount: voce.importo }));
+
+    return [
+      ...entrate,
+      { label: 'Totale Trattenute', amount: r.totaleTrattenute, flow: 'out' },
+      { label: 'Totale Bonus', amount: r.totaleBonus, flow: 'in' },
+      { label: 'Netto Annuo', amount: r.nettoAnnuo, level: 'total' },
+      { label: 'Aliquota Effettiva', percent: r.aliquotaEffettiva },
+      { label: 'Totale Percepito', amount: r.totalePercepito },
+    ];
+  });
 
   readonly entrateDatore = computed(
     () => this.result()?.ripartizione.entrate.filter((voce) => voce.pagatore === 'datore') ?? [],

@@ -1,19 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { OutputCalcoloStipendio } from '../../../calculator/types';
 import { DisplayMode } from '../../services/display-mode';
-import { LedgerRow } from '../ledger/ledger';
-import { formatCurrency, formatPercent } from '../../utils/intl';
+import { AnimatedAmount, LedgerRow } from '../ledger/ledger';
 
 @Component({
   selector: 'app-results-borsa',
-  imports: [LedgerRow],
+  imports: [LedgerRow, AnimatedAmount],
   templateUrl: './results-borsa.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResultsBorsa {
-  readonly formatCurrency = formatCurrency;
-  readonly formatPercent = formatPercent;
-
   readonly displayMode = inject(DisplayMode);
 
   readonly result = input<OutputCalcoloStipendio | null>(null);

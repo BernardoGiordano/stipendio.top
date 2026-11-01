@@ -17,18 +17,20 @@
             <span class="font-mono text-xs/5 font-semibold tracking-widest uppercase text-fg"
               >Netto Mensile</span
             >
-            <span class="text-4xl font-medium tracking-tight tabular-nums text-fg">{{
-              formatCurrency(r.nettoMensile)
-            }}</span>
+            <app-amount
+              class="text-4xl font-medium tracking-tight tabular-nums text-fg"
+              [value]="r.nettoMensile"
+            />
             <span class="text-xs text-fg">su 12 rate mensili</span>
           </div>
           <div class="flex flex-col gap-1 sm:items-end">
             <span class="font-mono text-xs/5 font-semibold tracking-widest uppercase text-fg"
               >Netto Annuo</span
             >
-            <span class="text-4xl font-medium tracking-tight tabular-nums text-fg">{{
-              formatCurrency(r.nettoAnnuo)
-            }}</span>
+            <app-amount
+              class="text-4xl font-medium tracking-tight tabular-nums text-fg"
+              [value]="r.nettoAnnuo"
+            />
             <span class="text-xs text-fg">(stipendio netto)</span>
           </div>
         </div>
@@ -51,14 +53,8 @@
                 label="Importo Lordo Annuo"
                 [amount]="r.borsaDiStudio.importoLordo"
               ></div>
-              <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
-                <dt class="text-sm text-muted">IRPEF</dt>
-                <dd class="text-sm font-medium text-pos">Esente</dd>
-              </div>
-              <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
-                <dt class="text-sm text-muted">Addizionali</dt>
-                <dd class="text-sm font-medium text-pos">Esenti</dd>
-              </div>
+              <div appLedgerRow label="IRPEF" value="Esente"></div>
+              <div appLedgerRow label="Addizionali" value="Esenti"></div>
               <div appLedgerRow label="Netto Annuo" [amount]="r.nettoAnnuo" level="total"></div>
               <div appLedgerRow label="Aliquota Effettiva" [percent]="r.aliquotaEffettiva"></div>
             </dl>

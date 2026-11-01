@@ -11,11 +11,12 @@ import { OutputCalcoloStipendio } from '../../../calculator/types';
 import { DisplayMode } from '../../services/display-mode';
 import { formatCurrency } from '../../utils/intl';
 import { Icon } from '../icon/icon';
+import { AnimatedAmount } from '../ledger/ledger';
 
 /** Gradient panel under the header that leads with the monthly result */
 @Component({
   selector: 'app-hero',
-  imports: [Icon],
+  imports: [Icon, AnimatedAmount],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block relative' },
   template: `
@@ -41,7 +42,11 @@ import { Icon } from '../icon/icon';
       <p
         class="mt-2 text-5xl/none font-medium tracking-tighter text-fg tabular-nums sm:text-7xl/none"
       >
-        {{ headline() }}
+        @if (headline() !== null) {
+          <app-amount [value]="headline()!" />
+        } @else {
+          – €
+        }
       </p>
       <p class="mt-6 max-w-lg text-lg/7 text-fg">
         @if (result()) {
@@ -98,7 +103,7 @@ export class Hero {
 
   readonly headline = computed(() => {
     const r = this.result();
-    if (!r) return '– €';
-    return formatCurrency(this.percepito() ? r.nettoMensilePercepito : r.nettoMensile);
+    if (!r) return null;
+    return this.percepito() ? r.nettoMensilePercepito : r.nettoMensile;
   });
 }

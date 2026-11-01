@@ -17,18 +17,20 @@
             <span class="font-mono text-xs/5 font-semibold tracking-widest uppercase text-fg">{{
               displayMode.isPercepito() ? 'Percepito Mensile' : 'Netto Mensile'
             }}</span>
-            <span class="text-4xl font-medium tracking-tight tabular-nums text-fg">{{
-              formatCurrency(displayMode.isPercepito() ? r.nettoMensilePercepito : r.nettoMensile)
-            }}</span>
+            <app-amount
+              class="text-4xl font-medium tracking-tight tabular-nums text-fg"
+              [value]="displayMode.isPercepito() ? r.nettoMensilePercepito : r.nettoMensile"
+            />
             <span class="text-xs text-fg">su {{ r.mensilita }} mensilità</span>
           </div>
           <div class="flex flex-col gap-1 sm:items-end">
             <span class="font-mono text-xs/5 font-semibold tracking-widest uppercase text-fg">{{
               displayMode.isPercepito() ? 'Totale Percepito Annuo' : 'Netto Annuo'
             }}</span>
-            <span class="text-4xl font-medium tracking-tight tabular-nums text-fg">{{
-              formatCurrency(displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo)
-            }}</span>
+            <app-amount
+              class="text-4xl font-medium tracking-tight tabular-nums text-fg"
+              [value]="displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo"
+            />
             <span class="text-xs text-fg">{{
               displayMode.isPercepito()
                 ? '(netto + rimborsi + benefit esenti)'
@@ -101,30 +103,16 @@
                 Riepilogo
               </h3>
               <dl>
-                @for (voce of entrateInBusta(); track voce.descrizione) {
-                  <div appLedgerRow label="{{ voce.descrizione }}" [amount]="voce.importo"></div>
+                @for (voce of riepilogo(); track voce.label) {
+                  <div
+                    appLedgerRow
+                    [label]="voce.label"
+                    [amount]="voce.amount"
+                    [percent]="voce.percent"
+                    [flow]="voce.flow"
+                    [level]="voce.level ?? 'row'"
+                  ></div>
                 }
-                <div
-                  appLedgerRow
-                  label="Totale Trattenute"
-                  [amount]="r.totaleTrattenute"
-                  flow="out"
-                ></div>
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-muted">Totale Bonus</dt>
-                  @if (r.totaleBonus > 0) {
-                    <dd class="text-sm font-medium text-pos">
-                      + {{ formatCurrency(r.totaleBonus) }}
-                    </dd>
-                  } @else {
-                    <dd class="text-sm font-medium text-fg">
-                      {{ formatCurrency(r.totaleBonus) }}
-                    </dd>
-                  }
-                </div>
-                <div appLedgerRow label="Netto Annuo" [amount]="r.nettoAnnuo" level="total"></div>
-                <div appLedgerRow label="Aliquota Effettiva" [percent]="r.aliquotaEffettiva"></div>
-                <div appLedgerRow label="Totale Percepito" [amount]="r.totalePercepito"></div>
               </dl>
             </section>
 
@@ -135,16 +123,10 @@
               </h3>
               <dl>
                 @for (voce of entrateDatore(); track voce.descrizione) {
-                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
-                    <dt class="text-sm text-muted">
-                      {{ voce.descrizione }}
-                      @if (voce.aliquota !== undefined) {
-                        ({{ formatPercent(voce.aliquota) }})
-                      }
-                    </dt>
-                    <dd class="text-sm font-medium text-fg">
-                      {{ formatCurrency(voce.importo) }}
-                    </dd>
+                  <div appLedgerRow [label]="voce.descrizione" [amount]="voce.importo">
+                    @if (voce.aliquota !== undefined) {
+                      ({{ formatPercent(voce.aliquota) }})
+                    }
                   </div>
                 }
                 <div
@@ -203,13 +185,15 @@
                   Regime Impatriati
                 </h3>
                 <dl>
-                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
-                    <dt class="text-sm text-muted">Esenzione Applicata</dt>
-                    <dd class="text-sm font-medium text-fg">
-                      {{ formatPercent(r.regimeImpatriati.percentualeEsenzione) }}
-                      {{ r.regimeImpatriati.haFigliMinorenni ? '(figli minorenni)' : '(standard)' }}
-                    </dd>
-                  </div>
+                  <div
+                    appLedgerRow
+                    label="Esenzione Applicata"
+                    [value]="
+                      formatPercent(r.regimeImpatriati.percentualeEsenzione) +
+                      ' ' +
+                      (r.regimeImpatriati.haFigliMinorenni ? '(figli minorenni)' : '(standard)')
+                    "
+                  ></div>
                   <div
                     appLedgerRow
                     label="Reddito Agevolabile"
@@ -220,12 +204,10 @@
                     label="Importo Esente IRPEF"
                     [amount]="r.regimeImpatriati.importoEsente"
                   ></div>
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-subtle">
-                      (riduce imponibile IRPEF e addizionali, non INPS)
-                    </dt>
-                  </div>
                 </dl>
+                <p class="py-1 pl-3 text-xs text-subtle">
+                  (riduce imponibile IRPEF e addizionali, non INPS)
+                </p>
               </section>
             }
 
@@ -366,19 +348,18 @@
                     [amount]="r.trattamentoIntegrativo.importo"
                     flow="in"
                   ></div>
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-subtle">Importo</dt>
-                    <dd class="text-xs text-subtle">
-                      {{ r.trattamentoIntegrativo.importoPieno ? 'Pieno' : 'Ridotto' }}
-                    </dd>
-                  </div>
+                  <div
+                    appLedgerRow
+                    label="Importo"
+                    [value]="r.trattamentoIntegrativo.importoPieno ? 'Pieno' : 'Ridotto'"
+                    level="detail"
+                  ></div>
                 } @else {
-                  <div class="flex justify-between py-1.5">
-                    <dt class="text-sm text-muted">Non spetta</dt>
-                    <dd class="text-sm text-subtle">
-                      {{ r.trattamentoIntegrativo.motivoNonSpettanza || '-' }}
-                    </dd>
-                  </div>
+                  <div
+                    appLedgerRow
+                    label="Non spetta"
+                    [value]="r.trattamentoIntegrativo.motivoNonSpettanza || '-'"
+                  ></div>
                 }
               </dl>
             </section>
@@ -425,10 +406,12 @@
                   flow="out"
                 ></div>
                 @if (r.addizionali.esenzioneComunaleApplicata) {
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-subtle">Esenzione comunale applicata</dt>
-                    <dd class="text-xs text-subtle">Sì</dd>
-                  </div>
+                  <div
+                    appLedgerRow
+                    label="Esenzione comunale applicata"
+                    value="Sì"
+                    level="detail"
+                  ></div>
                 }
                 <div
                   appLedgerRow
@@ -465,17 +448,15 @@
                       [amount]="fondo.risparmioFiscaleStimato"
                       flow="in"
                     ></div>
-                    <div class="flex justify-between py-1 pl-3">
-                      <dt class="text-xs text-subtle">(riduzione imponibile IRPEF)</dt>
-                    </div>
-                  } @else {
-                    <div class="flex justify-between py-1 pl-3">
-                      <dt class="text-xs text-subtle">
-                        (trattenuta diretta dal netto, non deducibile)
-                      </dt>
-                    </div>
                   }
                 </dl>
+                <p class="py-1 pl-3 text-xs text-subtle">
+                  {{
+                    fondo.deducibile
+                      ? '(riduzione imponibile IRPEF)'
+                      : '(trattenuta diretta dal netto, non deducibile)'
+                  }}
+                </p>
               </section>
             }
 
@@ -512,12 +493,10 @@
                     label="Netto Mensile Borsa"
                     [amount]="r.borsaDiStudio.nettoMensile"
                   ></div>
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-subtle">
-                      (INPS GS 35,03%: 1/3 borsista, 2/3 ente. Cumulo IRPEF con reddito da lavoro)
-                    </dt>
-                  </div>
                 </dl>
+                <p class="py-1 pl-3 text-xs text-subtle">
+                  (INPS GS 35,03%: 1/3 borsista, 2/3 ente. Cumulo IRPEF con reddito da lavoro)
+                </p>
               </section>
             }
 
@@ -578,12 +557,10 @@
                     [amount]="r.fondoPensioneIntegrativo.risparmoFiscaleStimato"
                     flow="in"
                   ></div>
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-subtle">
-                      (deduzione imponibile IRPEF, max 5.300 euro/anno)
-                    </dt>
-                  </div>
                 </dl>
+                <p class="py-1 pl-3 text-xs text-subtle">
+                  (deduzione imponibile IRPEF, max 5.300 euro/anno)
+                </p>
               </section>
             }
 
@@ -604,12 +581,11 @@
                     label="Soglia Esenzione"
                     [amount]="r.fringeBenefit.sogliaEsenzione"
                   ></div>
-                  <div class="flex justify-between py-1.5 border-b border-dotted border-divider">
-                    <dt class="text-sm text-muted">Soglia Superata</dt>
-                    <dd class="text-sm font-medium text-fg">
-                      {{ r.fringeBenefit.sogliaSuperata ? 'Sì' : 'No' }}
-                    </dd>
-                  </div>
+                  <div
+                    appLedgerRow
+                    label="Soglia Superata"
+                    [value]="r.fringeBenefit.sogliaSuperata ? 'Sì' : 'No'"
+                  ></div>
                   <div
                     appLedgerRow
                     label="Valore Imponibile"
@@ -637,19 +613,20 @@
                         [percent]="r.fringeBenefit.autoAziendale.percentualeApplicata"
                         level="detail"
                       ></div>
-                      <div class="flex justify-between py-1">
-                        <dt class="text-xs text-subtle">Mesi Utilizzo</dt>
-                        <dd class="text-xs text-subtle">
-                          {{ r.fringeBenefit.autoAziendale.mesiUtilizzo }}
-                        </dd>
-                      </div>
+                      <div
+                        appLedgerRow
+                        label="Mesi Utilizzo"
+                        [value]="'' + r.fringeBenefit.autoAziendale.mesiUtilizzo"
+                        level="detail"
+                      ></div>
                       @if (r.fringeBenefit.trattenutaAutoDipendente > 0) {
-                        <div class="flex justify-between py-1">
-                          <dt class="text-xs text-subtle">Trattenuta Dipendente</dt>
-                          <dd class="text-xs text-subtle">
-                            -{{ formatCurrency(r.fringeBenefit.trattenutaAutoDipendente) }}
-                          </dd>
-                        </div>
+                        <div
+                          appLedgerRow
+                          label="Trattenuta Dipendente"
+                          [amount]="r.fringeBenefit.trattenutaAutoDipendente"
+                          flow="out"
+                          level="detail"
+                        ></div>
                       }
                     </dl>
                   </div>
