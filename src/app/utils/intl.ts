@@ -1,11 +1,11 @@
-export function formatCurrency(value: number | null | undefined): string {
+export function formatCurrency(value: number | null | undefined, fractionDigits = 2): string {
   if (value === null || value === undefined) return '-';
   return new Intl.NumberFormat('it-IT', {
     style: 'currency',
     currency: 'EUR',
     useGrouping: 'always',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   }).format(value);
 }
 

@@ -17,7 +17,7 @@ import { isPlatformBrowser } from '@angular/common';
   template: `
     <div class="hidden lg:block w-4 self-stretch relative mx-1">
       <div
-        class="fixed top-1/2 -translate-y-1/2 w-4 h-12 flex items-center justify-center cursor-col-resize group"
+        class="sticky top-[50vh] -translate-y-1/2 w-4 h-12 flex items-center justify-center cursor-col-resize group"
         (mousedown)="onMouseDown($event)"
         (touchstart)="onTouchStart($event)"
         role="separator"

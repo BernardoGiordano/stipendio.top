@@ -1,16 +1,22 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
+  Injector,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormContainer } from './components/form-container/form-container';
 import { FormBorsaContainer } from './components/form-borsa-container/form-borsa-container';
 import { Results } from './components/results/results';
 import { ResultsBorsa } from './components/results-borsa/results-borsa';
 import { Resizer } from './components/resizer/resizer';
+import { Hero } from './components/hero/hero';
+import { Icon } from './components/icon/icon';
+import { LINKS, NAV_LINKS } from './links';
 import {
   createDefaultFormModel,
   createStipendioForm,
@@ -41,6 +47,8 @@ import buildInfo from '../build.json';
     Results,
     ResultsBorsa,
     Resizer,
+    Hero,
+    Icon,
     CdkMenu,
     CdkMenuItem,
     CdkMenuItemRadio,
@@ -54,6 +62,30 @@ import buildInfo from '../build.json';
 export class App {
   readonly formatCurrency = formatCurrency;
   readonly buildInfo = buildInfo;
+
+  readonly links = LINKS;
+  readonly navLinks = NAV_LINKS;
+
+  readonly displayOptions = [
+    { mode: 'netto', label: 'Netto', menuLabel: 'Mostra netto' },
+    { mode: 'percepito', label: 'Percepito', menuLabel: 'Mostra percepito' },
+  ] as const;
+
+  readonly themeOptions = [
+    { theme: 'light', label: 'Tema chiaro' },
+    { theme: 'dark', label: 'Tema scuro' },
+  ] as const;
+
+  /** Desktop bar link: icon only, label slides out on hover */
+  readonly barItem =
+    'hidden lg:flex items-center gap-2 p-2 rounded-lg text-subtle hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus transition-all duration-300 overflow-hidden group';
+  readonly barLabel =
+    'text-sm font-medium whitespace-nowrap max-w-0 group-hover:max-w-xs group-focus-visible:max-w-xs overflow-hidden opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 hover-text-delay';
+  readonly menuItem =
+    'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-fg hover:bg-sunken focus:bg-sunken focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus cursor-pointer';
+
+  private readonly injector = inject(Injector);
+  private readonly results = viewChild(Results);
 
   readonly themeMode = inject(ThemeMode);
   readonly formStateShare = inject(FormStateShare);
@@ -98,6 +130,18 @@ export class App {
         this.calculationResult();
       }
     });
+  }
+
+  /** Opens the Flusso tab, scrolls the results to the top and moves focus to the tab */
+  showFlow(): void {
+    this.results()?.setActiveTab('flusso');
+    afterNextRender(
+      () => {
+        document.getElementById('risultati')?.scrollIntoView({ block: 'start' });
+        document.getElementById('tab-flusso')?.focus({ preventScroll: true });
+      },
+      { injector: this.injector },
+    );
   }
 
   copyShareableLink(): void {
