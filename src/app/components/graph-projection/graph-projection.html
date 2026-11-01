@@ -1,79 +1,253 @@
-<div class="flex flex-col h-full">
-  <!-- Chart Container -->
-  <div class="flex-1 min-h-0 w-full relative">
-    @if (isLoading()) {
-      <div class="absolute inset-0 flex items-center justify-center bg-page" aria-live="polite">
-        <div class="flex flex-col items-center gap-3">
-          <svg
-            class="animate-spin size-8 text-faint"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
+<!-- Netto mensile per RAL -->
+<section
+  aria-labelledby="proiezione-linea"
+  class="rounded-t-2xl rounded-b-md bg-surface px-4 pt-4 pb-[18px] shadow-xs ring-1 ring-ring-card sm:px-5"
+>
+  <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+    <h3 id="proiezione-linea" [class]="eyebrow">Netto mensile per RAL</h3>
+    <ul aria-label="Legenda" class="flex gap-4 text-xs text-label">
+      <li class="flex items-center gap-1.5">
+        <span aria-hidden="true" class="h-0.5 w-3.5 bg-accent"></span>Netto
+      </li>
+      @if (chart()?.percepito) {
+        <li class="flex items-center gap-1.5">
+          <span
             aria-hidden="true"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <span class="text-sm text-subtle">Caricamento grafico...</span>
-        </div>
-      </div>
-    }
-    <div
-      #chartContainer
-      class="h-full w-full"
-      role="img"
-      [attr.aria-label]="
-        viewMode() === 'monthly'
-          ? displayMode.isPercepito()
-            ? 'Grafico heatmap della proiezione del percepito mensile'
-            : 'Grafico heatmap della proiezione del netto mensile'
-          : displayMode.isPercepito()
-            ? 'Grafico heatmap della proiezione del totale percepito annuale'
-            : 'Grafico heatmap della proiezione del netto annuale'
-      "
-    ></div>
+            class="w-3.5 border-t-2 border-dashed"
+            [style.border-color]="verde"
+          ></span
+          >Percepito
+        </li>
+      }
+    </ul>
   </div>
 
-  <!-- View Mode Toggle -->
-  <div
-    class="self-end mt-3 flex gap-0.5 rounded-full p-0.5 bg-sunken ring-1 ring-inset ring-ring shadow-glow"
-    role="group"
-    aria-label="Visualizzazione"
-  >
-    <button
-      type="button"
-      [class]="
-        viewMode() === 'monthly'
-          ? 'cursor-pointer px-3 py-1 text-xs font-medium rounded-full bg-primary text-on-primary shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
-          : 'cursor-pointer px-3 py-1 text-xs font-medium rounded-full text-muted hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
-      "
-      [attr.aria-pressed]="viewMode() === 'monthly'"
-      (click)="setViewMode('monthly')"
-    >
-      Mensile
-    </button>
-    <button
-      type="button"
-      [class]="
-        viewMode() === 'annual'
-          ? 'cursor-pointer px-3 py-1 text-xs font-medium rounded-full bg-primary text-on-primary shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
-          : 'cursor-pointer px-3 py-1 text-xs font-medium rounded-full text-muted hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
-      "
-      [attr.aria-pressed]="viewMode() === 'annual'"
-      (click)="setViewMode('annual')"
-    >
-      Annuale
-    </button>
+  <div #chartBox class="mt-2.5">
+    @if (chart(); as c) {
+      <svg
+        [attr.viewBox]="'0 0 ' + c.w + ' ' + height"
+        [attr.height]="height"
+        class="block w-full tabular-nums"
+        role="img"
+        [attr.aria-label]="c.label"
+      >
+        @for (tick of c.yTicks; track tick.label; let first = $first) {
+          <line
+            [attr.x1]="c.left"
+            [attr.x2]="c.right"
+            [attr.y1]="tick.y"
+            [attr.y2]="tick.y"
+            [class]="first ? 'stroke-ring-strong' : 'stroke-hair'"
+          />
+          <text
+            [attr.x]="c.left - 8"
+            [attr.y]="tick.y + 4"
+            text-anchor="end"
+            class="fill-muted text-[11px]"
+          >
+            {{ tick.label }}
+          </text>
+        }
+        @for (tick of c.xTicks; track tick.label) {
+          <text
+            [attr.x]="tick.x"
+            [attr.y]="c.bottom + 18"
+            text-anchor="middle"
+            class="fill-muted text-[11px]"
+          >
+            {{ tick.label }}
+          </text>
+        }
+
+        <polygon [attr.points]="c.area" class="fill-accent/7" />
+        @if (c.percepito) {
+          <polyline
+            [attr.points]="c.percepito"
+            fill="none"
+            [attr.stroke]="verde"
+            stroke-width="2"
+            stroke-dasharray="5 4"
+          />
+        }
+        <polyline
+          [attr.points]="c.netto"
+          fill="none"
+          stroke-width="2.5"
+          stroke-linejoin="round"
+          class="stroke-accent"
+        />
+
+        <line
+          [attr.x1]="c.tu.x"
+          [attr.x2]="c.tu.x"
+          [attr.y1]="c.top"
+          [attr.y2]="c.bottom"
+          stroke-dasharray="3 3"
+          class="stroke-fg"
+        />
+        <circle
+          [attr.cx]="c.tu.x"
+          [attr.cy]="c.tu.y"
+          r="5"
+          stroke-width="2.5"
+          class="fill-surface stroke-accent"
+        />
+        <text
+          [attr.x]="c.tu.flip ? c.tu.x - 7 : c.tu.x + 7"
+          [attr.y]="c.top + 12"
+          [attr.text-anchor]="c.tu.flip ? 'end' : 'start'"
+          class="text-xs"
+        >
+          <tspan class="fill-fg font-medium">Tu, {{ euroTondi(c.tu.ral) }}</tspan>
+          <tspan [attr.x]="c.tu.flip ? c.tu.x - 7 : c.tu.x + 7" dy="16" class="fill-muted">
+            {{ euro(c.tu.netto) }} netti al mese
+          </tspan>
+        </text>
+      </svg>
+    }
   </div>
-</div>
+
+  @if (aumenti(); as a) {
+    <div class="mt-2.5 flex flex-wrap gap-2 text-[13px]/[19px] text-label tabular-nums">
+      <p [class]="insight">
+        <strong class="font-medium text-fg"
+          >+ 1.000 € di RAL → + {{ euro(a.annuo) }} netti l'anno</strong
+        ><br />
+        {{ euro(a.mensile) }} in più al mese. Ti resta il {{ percent(a.quota, 0) }} dell'aumento.
+      </p>
+      <p [class]="insight">
+        <strong class="font-medium text-fg"
+          >Da {{ numero(a.ral) }} a {{ numero(a.ral + 5000) }} €: + {{ euro(a.passo1) }} al
+          mese</strong
+        ><br />
+        Da {{ numero(a.ral + 5000) }} a {{ numero(a.ral + 10000) }} €: + {{ euro(a.passo2) }}.
+      </p>
+    </div>
+  }
+</section>
+
+<!-- Confronto RAL -->
+<section
+  aria-labelledby="proiezione-confronto"
+  class="rounded-md bg-surface px-4 pt-3.5 pb-4 shadow-xs ring-1 ring-ring-card sm:px-5"
+>
+  <h3 id="proiezione-confronto" [class]="eyebrow">Confronto RAL, stesse opzioni</h3>
+  <div
+    class="mt-2 overflow-x-auto rounded-sm focus-visible:outline-2 focus-visible:outline-focus"
+    tabindex="0"
+    role="region"
+    aria-label="Tabella del confronto RAL, scorrevole"
+  >
+    <table class="w-full min-w-[440px] text-[13px]/[18px] tabular-nums">
+      <thead>
+        <tr class="text-right text-muted">
+          <th scope="col" class="py-1.5 pr-2 text-left font-medium">RAL</th>
+          <th scope="col" class="px-2 py-1.5 font-medium">Netto mensile</th>
+          <th scope="col" class="px-2 py-1.5 font-medium">Netto annuo</th>
+          <th scope="col" class="py-1.5 pl-2 font-medium">Aliquota effettiva</th>
+        </tr>
+      </thead>
+      <tbody class="text-right text-fg">
+        @for (riga of confronto(); track riga.ral) {
+          <tr
+            class="border-t border-hair"
+            [class]="riga.attuale ? 'bg-terracotta-tint font-medium' : ''"
+          >
+            <th
+              scope="row"
+              class="py-[5px] pr-2 text-left"
+              [class]="riga.attuale ? 'font-medium' : 'font-normal'"
+            >
+              {{ euroTondi(riga.ral) }}{{ riga.attuale ? ' · tu' : '' }}
+            </th>
+            <td class="px-2 py-[5px]">{{ euro(riga.nettoMensile) }}</td>
+            <td class="px-2 py-[5px]">{{ euro(riga.nettoAnnuo) }}</td>
+            <td class="py-[5px] pl-2">{{ percent(riga.aliquotaEffettiva) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Percepito con più welfare -->
+@if (heat(); as h) {
+  <section
+    aria-labelledby="proiezione-welfare"
+    class="rounded-t-md rounded-b-2xl bg-surface px-4 pt-3.5 pb-4 shadow-xs ring-1 ring-ring-card sm:px-5"
+  >
+    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <h3 id="proiezione-welfare" [class]="eyebrow">
+        {{ periodo() === 'mensile' ? 'Percepito mensile' : 'Percepito annuo' }} con più welfare
+      </h3>
+      <div
+        role="group"
+        aria-label="Periodo"
+        class="flex gap-0.5 rounded-full p-0.5 ring-1 ring-ring-strong"
+      >
+        @for (p of periodi; track p.id) {
+          <button
+            type="button"
+            [attr.aria-pressed]="periodo() === p.id"
+            (click)="periodo.set(p.id)"
+            [class]="
+              (periodo() === p.id ? 'bg-primary text-on-primary ' : 'text-muted hover:text-fg ') +
+              'h-[26px] cursor-pointer rounded-full px-2.5 text-xs font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
+            "
+          >
+            {{ p.label }}
+          </button>
+        }
+      </div>
+    </div>
+    <div
+      class="mt-2 overflow-x-auto rounded-sm focus-visible:outline-2 focus-visible:outline-focus"
+      tabindex="0"
+      role="region"
+      aria-label="Tabella del percepito con più welfare, scorrevole"
+    >
+      <table
+        class="w-full min-w-[480px] border-separate border-spacing-0.5 text-center text-[12.5px]/4 tabular-nums"
+      >
+        <caption class="caption-bottom pt-2 text-left text-xs text-muted">
+          Righe: RAL. Colonne: servizi welfare aggiuntivi in euro l'anno. Valori in euro
+          {{
+            periodo() === 'mensile' ? 'al mese' : "l'anno"
+          }}.
+        </caption>
+        <thead>
+          <tr class="text-muted">
+            <th scope="col" class="px-1.5 py-1 text-left font-medium">RAL</th>
+            @for (welfare of h.welfare; track welfare) {
+              <th scope="col" class="p-1 font-medium">{{ numero(welfare) }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (riga of h.righe; track riga.ral) {
+            <tr>
+              <th
+                scope="row"
+                class="p-1.5 text-left"
+                [class]="riga.attuale ? 'font-medium text-fg' : 'font-normal text-label'"
+              >
+                {{ numero(riga.ral) }}
+              </th>
+              @for (cella of riga.celle; track $index) {
+                <td
+                  class="rounded px-1 py-1.5"
+                  [class.font-semibold]="cella.attuale"
+                  [style.background-color]="cella.colore"
+                  [style.color]="h.text"
+                  [style.box-shadow]="cella.attuale ? 'inset 0 0 0 2px ' + h.text : null"
+                >
+                  {{ numero(cella.valore) }}
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

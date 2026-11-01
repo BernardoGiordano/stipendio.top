@@ -15,9 +15,9 @@ import { isPlatformBrowser } from '@angular/common';
   selector: 'app-resizer',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="hidden lg:block w-4 self-stretch relative mx-1">
+    <div class="hidden lg:block w-8 shrink-0 self-stretch relative">
       <div
-        class="sticky top-[50vh] -translate-y-1/2 w-4 h-12 flex items-center justify-center cursor-col-resize group"
+        class="sticky top-[50vh] -translate-y-1/2 w-8 h-12 flex items-center justify-center cursor-col-resize group"
         (mousedown)="onMouseDown($event)"
         (touchstart)="onTouchStart($event)"
         role="separator"

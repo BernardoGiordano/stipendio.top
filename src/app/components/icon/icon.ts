@@ -102,6 +102,120 @@ const ICONS = {
     viewBox: '0 0 15 15',
     paths: [{ d: 'M7 0h1v15H7zM0 7h15v1H0z' }],
   },
+  /* Category icons of the results, stroked on a 24 grid */
+  receipt: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [{ d: 'M6 3h12v18l-3-2-3 2-3-2-3 2V3Z M9 8h6 M9 12h6 M9 16h3' }],
+  },
+  shield: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [{ d: 'M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z M9 12l2 2 4-4' }],
+  },
+  plane: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [{ d: 'M21 3 3 10.5l7 2.5 2.5 7L21 3Z M10 13l5-5' }],
+  },
+  landmark: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [{ d: 'M3 21h18 M5 10v8 M10 10v8 M14 10v8 M19 10v8 M3 10l9-6 9 6Z' }],
+  },
+  tag: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [{ d: 'M3 12V4h8l10 10-8 8L3 12Z M7.5 7.5h.01' }],
+  },
+  pin: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [{ d: 'M12 21s-6-5.5-6-11a6 6 0 1 1 12 0c0 5.5-6 11-6 11Z M12 10h.01' }],
+  },
+  briefcase: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [{ d: 'M3 8h18v12H3Z M8 8V5h8v3 M3 13h18' }],
+  },
+  cap: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [{ d: 'M2 9l10-5 10 5-10 5Z M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5 M22 9v6' }],
+  },
+  sprout: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [{ d: 'M12 21v-9 M12 12C12 8 9 5 4 5c0 4 3 7 8 7Z M12 12c0-3 2-6 7-6 0 3-2 6-7 6Z' }],
+  },
+  car: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [
+      { d: 'M5 17h14v-5l-2-5H7l-2 5v5Z M5 12h14 M7.5 17v2 M16.5 17v2 M8 14.5h.01 M16 14.5h.01' },
+    ],
+  },
+  route: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [
+      {
+        d: 'M6 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z M18 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7',
+      },
+    ],
+  },
+  gift: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [
+      {
+        d: 'M4 11h16v10H4Z M3 7h18v4H3Z M12 7v14 M12 7C10 3 6 3 6 5.5S12 7 12 7Zm0 0c2-4 6-4 6-1.5S12 7 12 7Z',
+      },
+    ],
+  },
+  building: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [
+      {
+        d: 'M4 21V5l8-2v18 M12 9h8v12 M2 21h20 M8 8h.01 M8 12h.01 M8 16h.01 M16 13h.01 M16 17h.01',
+      },
+    ],
+  },
+  trend: {
+    viewBox: '0 0 24 24',
+    stroke: 1.8,
+    paths: [{ d: 'M4 17l6-6 4 4 6-7 M14 8h6v6' }],
+  },
+  'chevron-down': {
+    viewBox: '0 0 20 20',
+    paths: [
+      {
+        evenodd: true,
+        d: 'M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z',
+      },
+    ],
+  },
+  x: {
+    viewBox: '0 0 24 24',
+    stroke: 2,
+    paths: [{ d: 'M6 6l12 12M18 6 6 18' }],
+  },
+  add: {
+    viewBox: '0 0 24 24',
+    stroke: 2,
+    paths: [{ d: 'M12 5v14M5 12h14' }],
+  },
+  'arrow-up': {
+    viewBox: '0 0 24 24',
+    stroke: 2.2,
+    paths: [{ d: 'M12 19V5M6 11l6-6 6 6' }],
+  },
+  'arrow-down': {
+    viewBox: '0 0 24 24',
+    stroke: 2.2,
+    paths: [{ d: 'M12 5v14M6 13l6 6 6-6' }],
+  },
   'arrow-right': {
     viewBox: '0 0 20 20',
     paths: [

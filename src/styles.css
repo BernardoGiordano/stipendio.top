@@ -15,14 +15,15 @@
 
 :root {
   /* surfaces */
-  --page: var(--color-stone-50);
+  --page: #faf9f7;
   --surface: var(--color-white);
   --field: var(--color-white);
   --sunken: rgb(0 0 0 / 0.04);
 
   /* lines */
   --ring: rgb(0 0 0 / 0.05);
-  --ring-strong: rgb(0 0 0 / 0.1);
+  --ring-card: rgb(0 0 0 / 0.07);
+  --ring-strong: rgb(0 0 0 / 0.12);
   --hair: rgb(0 0 0 / 0.06);
   --divider: var(--color-stone-100);
   --plus: rgb(0 0 0 / 0.12);
@@ -30,6 +31,7 @@
   /* text, strongest to faintest */
   --fg: var(--color-stone-900);
   --title: var(--color-stone-800);
+  --label: var(--color-stone-700);
   --muted: var(--color-stone-600);
   --subtle: oklch(50% 0.012 66);
   --faint: var(--color-stone-500);
@@ -42,6 +44,11 @@
   --neg: #b42318;
   --danger: #b42318;
 
+  /* brand accent: switch on-state, eyebrow dot, projection line */
+  --accent: #b54a2a;
+  --switch-off: var(--color-stone-200);
+  --switch-ring: #8f8983;
+
   /* results tray fill and the inner glow of glassy controls */
   --tray: rgb(255 255 255 / 0.5);
   --glow: rgb(255 255 255 / 0.3);
@@ -50,6 +57,25 @@
   --g1: #fdf0d5;
   --g2: #f2a383;
   --g3: #ca6680;
+
+  /*
+   * Category hues: ink text on a tint fill. Mirrored in HUE (chart-palette.ts),
+   * whose spec checks every pair at 4.5:1 over --surface in both themes.
+   */
+  --verde-ink: #4a6b28;
+  --verde-tint: #ecf0e7;
+  --rosa-ink: #a3445e;
+  --rosa-tint: #f8ebee;
+  --arancio-ink: #9c4a28;
+  --arancio-tint: #faefea;
+  --ocra-ink: #7e5813;
+  --ocra-tint: #f7f1e6;
+  --viola-ink: #74578a;
+  --viola-tint: #f1eef3;
+  --blu-ink: #3e5a7a;
+  --blu-tint: #eaeef2;
+  --terracotta-ink: #9a3d22;
+  --terracotta-tint: #f6e9e5;
 }
 
 .dark {
@@ -59,6 +85,7 @@
   --sunken: rgb(255 255 255 / 0.06);
 
   --ring: rgb(255 255 255 / 0.1);
+  --ring-card: rgb(255 255 255 / 0.1);
   --ring-strong: rgb(255 255 255 / 0.15);
   --hair: rgb(255 255 255 / 0.08);
   --divider: var(--color-stone-800);
@@ -66,6 +93,7 @@
 
   --fg: var(--color-stone-50);
   --title: var(--color-stone-200);
+  --label: var(--color-stone-300);
   --muted: var(--color-stone-400);
   --subtle: var(--color-stone-400);
   --faint: oklch(66% 0.012 58);
@@ -77,12 +105,31 @@
   --neg: #f88b7e;
   --danger: #f88b7e;
 
+  --accent: #e8916d;
+  --switch-off: rgb(255 255 255 / 0.1);
+  --switch-ring: #8f8983;
+
   --tray: rgb(255 255 255 / 0.03);
   --glow: rgb(255 255 255 / 0.08);
 
   --g1: #3a2a1b;
   --g2: #5c2f26;
   --g3: #4b1f36;
+
+  --verde-ink: #a3c96b;
+  --verde-tint: rgb(127 156 76 / 0.16);
+  --rosa-ink: #e59aae;
+  --rosa-tint: rgb(194 90 116 / 0.18);
+  --arancio-ink: #f0a383;
+  --arancio-tint: rgb(217 119 79 / 0.18);
+  --ocra-ink: #e0b866;
+  --ocra-tint: rgb(191 138 44 / 0.18);
+  --viola-ink: #c3a8d3;
+  --viola-tint: rgb(142 111 158 / 0.22);
+  --blu-ink: #a9bfd8;
+  --blu-tint: rgb(79 109 143 / 0.25);
+  --terracotta-ink: #f2a383;
+  --terracotta-tint: rgb(181 74 42 / 0.2);
 }
 
 @theme inline {
@@ -91,12 +138,14 @@
   --color-field: var(--field);
   --color-sunken: var(--sunken);
   --color-ring: var(--ring);
+  --color-ring-card: var(--ring-card);
   --color-ring-strong: var(--ring-strong);
   --color-hair: var(--hair);
   --color-divider: var(--divider);
   --color-plus: var(--plus);
   --color-fg: var(--fg);
   --color-title: var(--title);
+  --color-label: var(--label);
   --color-muted: var(--muted);
   --color-subtle: var(--subtle);
   --color-faint: var(--faint);
@@ -106,10 +155,28 @@
   --color-pos: var(--pos);
   --color-neg: var(--neg);
   --color-danger: var(--danger);
+  --color-accent: var(--accent);
+  --color-switch-off: var(--switch-off);
+  --color-switch-ring: var(--switch-ring);
   --color-tray: var(--tray);
   --color-g1: var(--g1);
   --color-g2: var(--g2);
   --color-g3: var(--g3);
+
+  --color-verde-ink: var(--verde-ink);
+  --color-verde-tint: var(--verde-tint);
+  --color-rosa-ink: var(--rosa-ink);
+  --color-rosa-tint: var(--rosa-tint);
+  --color-arancio-ink: var(--arancio-ink);
+  --color-arancio-tint: var(--arancio-tint);
+  --color-ocra-ink: var(--ocra-ink);
+  --color-ocra-tint: var(--ocra-tint);
+  --color-viola-ink: var(--viola-ink);
+  --color-viola-tint: var(--viola-tint);
+  --color-blu-ink: var(--blu-ink);
+  --color-blu-tint: var(--blu-tint);
+  --color-terracotta-ink: var(--terracotta-ink);
+  --color-terracotta-tint: var(--terracotta-tint);
 
   /* inner glow alone, and the glow plus the soft drop of the results tray */
   --shadow-glow: inset 0 0 2px 1px var(--glow);

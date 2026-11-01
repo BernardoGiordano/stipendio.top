@@ -15,7 +15,7 @@ function render(inputs: LedgerVoce = { label: 'Importo' }) {
 describe('LedgerRow', () => {
   it.each<Flow>(['in', 'out'])('keeps zero unsigned and neutral for %s', (flow) => {
     const { value } = render({ label: 'Bonus', amount: 0, flow });
-    expect(value.textContent).toBe(formatCurrency(0));
+    expect(value.textContent!.trim()).toBe(formatCurrency(0));
     expect(value.classList.contains('text-fg')).toBe(true);
     expect(value.className).not.toMatch(/text-(pos|neg)/);
   });
@@ -25,42 +25,55 @@ describe('LedgerRow', () => {
     ['out', '−', 'text-neg'],
   ])('uses the sign and tone for %s', (flow, sign, tone) => {
     const { fixture, value } = render({ label: 'Importo', amount: 1993.15, flow });
-    expect(value.textContent).toBe(`${sign} ${formatCurrency(1993.15)}`);
+    expect(value.textContent!.trim()).toBe(`${sign} ${formatCurrency(1993.15)}`);
     expect(value.classList.contains(tone)).toBe(true);
 
     fixture.componentRef.setInput('amount', 0);
     fixture.detectChanges();
-    expect(value.textContent).toBe(formatCurrency(0));
+    expect(value.textContent!.trim()).toBe(formatCurrency(0));
     expect(value.classList.contains(tone)).toBe(false);
   });
 
   it('formats percentages without a cash-flow sign or tone', () => {
     const { value } = render({ label: 'Aliquota', percent: 0.23, flow: 'out' });
-    expect(value.textContent).toBe(formatPercent(0.23));
+    expect(value.textContent!.trim()).toBe(formatPercent(0.23));
     expect(value.className).not.toMatch(/text-(pos|neg)/);
   });
 
   it('allows text values to wrap without currency formatting', () => {
     const { value } = render({ label: 'IRPEF', value: 'Esente', flow: 'in' });
-    expect(value.textContent).toBe('Esente');
+    expect(value.textContent!.trim()).toBe('Esente');
     expect(value.classList.contains('whitespace-nowrap')).toBe(false);
     expect(value.className).not.toMatch(/text-(pos|neg)/);
   });
 
   it.each<[Level, string, string]>([
-    ['row', 'border-dotted', 'text-sm'],
-    ['total', 'border-t', 'text-sm'],
-    ['detail', 'pl-3', 'text-xs'],
-  ])('applies the %s hierarchy', (level, separator, size) => {
+    ['row', 'py-[7px]', 'text-fg'],
+    ['total', 'border-t', 'text-fg'],
+    ['detail', 'pl-3.5', 'text-muted'],
+  ])('applies the %s hierarchy', (level, spacing, tone) => {
     const { row, value } = render({ label: 'Importo', amount: 10, level });
     expect(row.dataset['level']).toBe(level);
-    expect(row.classList.contains(separator)).toBe(true);
-    expect(value.classList.contains(size)).toBe(true);
+    expect(row.classList.contains(spacing)).toBe(true);
+    expect(value.classList.contains(tone)).toBe(true);
+  });
+
+  it('shows a reduction with a minus in the positive tone', () => {
+    const { value } = render({ label: 'Detrazioni applicate', amount: 2676.91, flow: 'reduce' });
+    expect(value.textContent!.trim()).toBe(`− ${formatCurrency(2676.91)}`);
+    expect(value.classList.contains('text-pos')).toBe(true);
+  });
+
+  it('draws the share bar next to the value', () => {
+    const { row, value } = render({ label: 'IRPEF', amount: 4896.15, share: 0.14, bar: '#c25a74' });
+    const fill = row.querySelector<HTMLElement>('dd [aria-hidden="true"] span')!;
+    expect(parseFloat(fill.style.width)).toBeCloseTo(14);
+    expect(value.textContent).toContain(formatCurrency(4896.15));
   });
 
   it('preserves an outgoing flow on detail rows', () => {
     const { value } = render({ label: 'Trattenuta', amount: 100, flow: 'out', level: 'detail' });
-    expect(value.textContent).toBe(`− ${formatCurrency(100)}`);
+    expect(value.textContent!.trim()).toBe(`− ${formatCurrency(100)}`);
     expect(value.classList.contains('text-neg')).toBe(true);
   });
 });

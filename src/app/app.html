@@ -1,58 +1,98 @@
-<header class="sticky top-0 z-50 bg-page/80 backdrop-blur-sm">
-  <!-- Two full-width hairlines under the row, plus marks where they meet the content edges -->
+<!-- Radiant gradient glow behind the header -->
+<div
+  aria-hidden="true"
+  class="pointer-events-none absolute -top-[150px] right-[6%] h-[260px] w-[620px] -rotate-10 rounded-full bg-linear-115 from-g1 from-28% via-g2 via-70% to-g3 opacity-75 blur-3xl dark:opacity-35"
+></div>
+
+<header class="relative mt-2 py-[9px] lg:mt-4">
+  <!-- Two full-width hairlines above and below the row; plus marks sit where they cross the logo -->
+  <div aria-hidden="true" class="absolute inset-x-0 top-0 border-t border-hair"></div>
+  <div aria-hidden="true" class="absolute inset-x-0 top-2 border-t border-hair"></div>
   <div aria-hidden="true" class="absolute inset-x-0 bottom-0 border-b border-hair"></div>
   <div aria-hidden="true" class="absolute inset-x-0 bottom-2 border-b border-hair"></div>
-  <div
-    class="relative max-w-7xl mx-auto px-4 lg:px-8 pt-3 pb-[calc(--spacing(5)+1px)] flex items-center justify-between"
-  >
-    <app-icon name="plus" class="absolute bottom-px left-2 lg:left-6 size-[15px] text-plus" />
-    <app-icon name="plus" class="absolute bottom-px right-2 lg:right-6 size-[15px] text-plus" />
 
-    <!-- Left side: logo, links and theme switch (desktop) -->
-    <div class="flex items-center gap-2">
-      <h1 class="text-xl font-semibold tracking-tight text-fg mr-4">Stipendio.🔝</h1>
-      @for (link of navLinks; track link.href) {
-        <a [href]="link.href" target="_blank" rel="noopener noreferrer" [class]="barItem">
-          <app-icon [name]="link.icon" class="size-5" />
-          <span [class]="barLabel">{{ link.label }}</span>
-        </a>
-      }
-      <button type="button" [class]="barItem + ' cursor-pointer'" (click)="themeMode.toggle()">
-        <app-icon [name]="themeMode.isDark() ? 'sun' : 'moon'" class="size-5" />
-        <span [class]="barLabel">{{ themeMode.isDark() ? 'Tema chiaro' : 'Tema scuro' }}</span>
-      </button>
+  <div
+    class="relative mx-auto flex max-w-[1376px] items-center justify-between gap-x-4 pr-3 pl-4 lg:px-8"
+  >
+    <div class="relative min-w-0 py-1.5 pr-2.5 lg:py-3 lg:pr-[18px]">
+      <app-icon name="plus" class="absolute -top-2 -left-2 hidden size-[15px] text-plus lg:block" />
+      <app-icon name="plus" class="absolute -top-2 -right-2 size-[15px] text-plus" />
+      <app-icon
+        name="plus"
+        class="absolute -bottom-2 -left-2 hidden size-[15px] text-plus lg:block"
+      />
+      <app-icon name="plus" class="absolute -right-2 -bottom-2 size-[15px] text-plus" />
+      <a
+        href="/"
+        class="flex items-center gap-2 rounded-lg text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus lg:gap-2.5"
+      >
+        <svg viewBox="0 0 32 32" aria-hidden="true" class="size-[26px] shrink-0 lg:size-[30px]">
+          <rect width="32" height="32" rx="9" class="fill-fg" />
+          <path
+            d="M10 18.5 16 12.5l6 6"
+            fill="none"
+            stroke-width="2.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="stroke-[#f2a383] dark:stroke-[#b54a2a]"
+          />
+          <path
+            d="M10.5 23h11"
+            stroke-width="2.6"
+            stroke-linecap="round"
+            class="stroke-[#fdf0d5] dark:stroke-[#ca6680]"
+          />
+        </svg>
+        <span class="truncate text-base font-semibold tracking-[-0.03em] lg:text-lg">
+          stipendio.top
+        </span>
+      </a>
     </div>
 
-    <!-- Right side: Netto/Percepito switch (desktop) and menu (mobile) -->
-    <div class="flex items-center gap-2">
-      <div
-        class="hidden lg:flex gap-0.5 rounded-full p-0.5 text-xs bg-sunken ring-1 ring-inset ring-ring shadow-glow"
-        role="group"
-        aria-label="Modalità visualizzazione importi"
+    <nav aria-label="Principale" class="flex shrink-0 items-center gap-1">
+      @if (!isBorsaDiStudio()) {
+        <div
+          role="group"
+          aria-label="Importo da mostrare"
+          class="flex gap-0.5 rounded-full bg-tray p-0.5 shadow-glow ring-1 ring-ring-strong lg:mr-2 lg:p-[3px]"
+        >
+          @for (option of displayOptions; track option.mode) {
+            <button
+              type="button"
+              [attr.aria-pressed]="displayMode.mode() === option.mode"
+              (click)="displayMode.setMode(option.mode)"
+              [class]="
+                (displayMode.mode() === option.mode
+                  ? 'bg-primary text-on-primary shadow-sm '
+                  : 'text-muted hover:bg-sunken hover:text-fg ') + pill
+              "
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+      }
+
+      <a [href]="links.github.href" target="_blank" rel="noopener noreferrer" [class]="navLink">
+        Codice sorgente
+      </a>
+      <a href="#sostieni" [class]="navLink">Sostieni</a>
+      <button
+        type="button"
+        [class]="iconButton + ' hidden lg:flex'"
+        [attr.aria-label]="themeMode.isDark() ? 'Passa al tema chiaro' : 'Passa al tema scuro'"
+        (click)="themeMode.toggle()"
       >
-        @for (option of displayOptions; track option.mode) {
-          <button
-            type="button"
-            [class]="
-              displayMode.mode() === option.mode
-                ? 'rounded-full px-3 py-1 font-medium cursor-pointer bg-primary text-on-primary shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
-                : 'rounded-full px-3 py-1 font-medium cursor-pointer text-muted hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
-            "
-            [attr.aria-pressed]="displayMode.mode() === option.mode"
-            (click)="displayMode.setMode(option.mode)"
-          >
-            {{ option.label }}
-          </button>
-        }
-      </div>
+        <app-icon [name]="themeMode.isDark() ? 'sun' : 'moon'" class="size-5" />
+      </button>
 
       <button
         type="button"
-        class="lg:hidden p-2 cursor-pointer rounded-lg text-subtle hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus transition-colors"
+        [class]="iconButton + ' flex lg:hidden'"
         aria-label="Menu"
         [cdkMenuTriggerFor]="menu"
       >
-        <app-icon name="menu" class="size-5" />
+        <app-icon name="menu" class="size-[22px]" />
       </button>
 
       <ng-template #menu>
@@ -60,26 +100,6 @@
           cdkMenu
           class="min-w-[200px] rounded-xl bg-surface p-1 shadow-lg ring-1 ring-ring focus:outline-none"
         >
-          <div cdkMenuGroup>
-            @for (option of displayOptions; track option.mode) {
-              <button
-                cdkMenuItemRadio
-                [cdkMenuItemChecked]="displayMode.mode() === option.mode"
-                (cdkMenuItemTriggered)="displayMode.setMode(option.mode)"
-                [class]="menuItem"
-              >
-                <span class="size-4">
-                  @if (displayMode.mode() === option.mode) {
-                    <app-icon name="check" class="size-4" />
-                  }
-                </span>
-                {{ option.menuLabel }}
-              </button>
-            }
-          </div>
-
-          <div class="my-1 border-t border-hair"></div>
-
           <div cdkMenuGroup>
             @for (option of themeOptions; track option.theme) {
               <button
@@ -116,123 +136,160 @@
           <div class="my-1 border-t border-hair"></div>
 
           <div
-            class="flex w-full items-center gap-3 px-3 py-2 text-xs text-faint cursor-default select-none"
+            class="flex w-full cursor-default items-center gap-3 px-3 py-2 text-xs text-faint select-none"
           >
             <app-icon name="info" class="size-4" />
             v: {{ buildInfo.buildDate }} ({{ buildInfo.gitCommit }})
           </div>
         </div>
       </ng-template>
-    </div>
+    </nav>
   </div>
 </header>
 
-<app-hero
-  [result]="calculationResult()"
-  [isBorsa]="isBorsaDiStudio()"
-  [loadedFromUrl]="loadedFromUrl()"
-  [linkCopied]="formStateShare.linkCopied()"
-  (share)="copyShareableLink()"
-  (showFlow)="showFlow()"
-/>
-
-<main
-  class="flex flex-col lg:flex-row gap-6 lg:gap-0 p-4 lg:p-8 max-w-7xl mx-auto"
-  [style.--split-ratio]="splitRatio()"
->
-  <div class="w-full lg:w-auto lg:flex-[var(--split-ratio)]">
-    @if (isBorsaDiStudio()) {
-      <app-form-borsa-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
-    } @else {
-      <app-form-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
-    }
+<main class="relative mx-auto max-w-[1376px] px-3 sm:px-4 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4 pt-6 pb-5 lg:pt-10 lg:pb-8">
+    <div>
+      <p
+        class="inline-flex items-center gap-2 font-mono text-xs/5 font-semibold tracking-widest text-muted uppercase"
+      >
+        <span aria-hidden="true" class="size-2 rounded-full bg-accent"></span>
+        Legge di bilancio 2026 · dipendenti privati
+      </p>
+      <h1
+        class="mt-1.5 text-[28px]/tight font-medium tracking-[-0.045em] text-fg lg:text-[40px]/[1.1]"
+      >
+        Calcolo dello stipendio netto
+      </h1>
+    </div>
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+      @if (loadedFromUrl()) {
+        <p class="text-sm text-muted">Configurazione caricata da link condiviso.</p>
+      }
+      <button
+        type="button"
+        class="inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-[18px] py-2 text-[15px] font-medium text-on-primary shadow-md transition-colors hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        (click)="copyShareableLink()"
+      >
+        <app-icon [name]="formStateShare.linkCopied() ? 'check-bold' : 'link'" class="size-4" />
+        {{ formStateShare.linkCopied() ? 'Copiato!' : 'Copia link al calcolo' }}
+      </button>
+      <span class="sr-only" aria-live="polite">
+        {{ formStateShare.linkCopied() ? 'Link al calcolo copiato negli appunti' : '' }}
+      </span>
+    </div>
   </div>
-  <app-resizer [value]="splitRatio()" (resize)="onResize($event)" />
-  <div
-    id="risultati"
-    role="region"
-    aria-label="Risultati del calcolo"
-    tabindex="-1"
-    class="w-full lg:w-auto lg:flex-[calc(1-var(--split-ratio))] scroll-mt-20 rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-  >
-    @if (isBorsaDiStudio()) {
-      <app-results-borsa [result]="calculationResult()" />
-    } @else {
-      <app-results [result]="calculationResult()" [baseInput]="calculationInput()" />
-    }
+
+  <div class="flex flex-col gap-4 lg:flex-row lg:gap-0" [style.--split-ratio]="splitRatio()">
+    <div id="dati" class="min-w-0 scroll-mt-4 lg:flex-[var(--split-ratio)_1_0%]">
+      @if (isBorsaDiStudio()) {
+        <app-form-borsa-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
+      } @else {
+        <app-form-container
+          [stipendioForm]="stipendioForm"
+          [formModel]="formModel"
+          [result]="calculationResult()"
+        />
+      }
+    </div>
+    <app-resizer [value]="splitRatio()" (resize)="onResize($event)" />
+    <div
+      id="risultati"
+      role="region"
+      aria-label="Risultati del calcolo"
+      tabindex="-1"
+      class="min-w-0 scroll-mt-4 rounded-[26px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus lg:flex-[calc(1-var(--split-ratio))_1_0%]"
+    >
+      @if (isBorsaDiStudio()) {
+        <app-results-borsa [result]="calculationResult()" />
+      } @else {
+        <app-results [result]="calculationResult()" [baseInput]="calculationInput()" />
+      }
+    </div>
   </div>
 </main>
 
-<!-- Inset gradient panel with the call to action, then a ruled credits row -->
-<footer class="relative">
+<!-- Gradient frame with a frosted panel: call to action, then credits -->
+<footer id="sostieni" class="relative mt-16 scroll-mt-4 p-2 lg:mt-[72px]">
   <div
-    aria-hidden="true"
-    class="absolute inset-2 rounded-4xl bg-linear-115 from-g1 from-28% via-g2 via-70% to-g3 ring-1 ring-ring ring-inset sm:bg-linear-145"
-  ></div>
-  <div class="relative py-6">
-    <section aria-labelledby="cta-title" class="max-w-2xl mx-auto px-6 pt-16 pb-20 text-center">
-      <p class="font-mono text-xs/5 font-semibold tracking-widest text-fg uppercase">
-        Gratuito e open source
-      </p>
-      <h2
-        id="cta-title"
-        class="mt-2 text-4xl/tight font-medium tracking-tighter text-fg sm:text-5xl/tight"
+    class="relative overflow-hidden rounded-[28px] bg-linear-145 from-g1 from-28% via-g2 via-70% to-g3"
+  >
+    <div aria-hidden="true" class="absolute inset-2 rounded-[21px] bg-surface/78"></div>
+    <div class="relative mx-auto max-w-[1376px] px-6 pt-10 pb-8 sm:px-12 sm:pt-12">
+      <section
+        aria-labelledby="cta-title"
+        class="flex flex-wrap items-center justify-between gap-x-10 gap-y-5"
       >
-        Ti è stato utile?
-      </h2>
-      <p class="mt-6 text-lg/7 text-fg">
-        Stipendio.top è gratuito e senza pubblicità. Una donazione o una stella su GitHub aiutano a
-        tenerlo aggiornato a ogni legge di bilancio.
-      </p>
-      <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <a
-          [href]="links.paypal.href"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-on-primary shadow-md transition-colors hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-        >
-          <app-icon [name]="links.paypal.icon" class="size-4" />
-          {{ links.paypal.menuLabel }}
-        </a>
-        <a
-          [href]="links.github.href"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 rounded-full bg-tray px-4 py-2 text-sm font-medium text-fg shadow-glow ring-1 ring-ring ring-inset transition-colors hover:bg-surface/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-        >
-          <app-icon [name]="links.github.icon" class="size-4" />
-          {{ links.github.menuLabel }}
-        </a>
-      </div>
-    </section>
-
-    <div class="relative py-[calc(--spacing(2)+1px)]">
-      <div aria-hidden="true" class="absolute inset-x-0 top-0 border-t border-hair"></div>
-      <div aria-hidden="true" class="absolute inset-x-0 top-2 border-t border-hair"></div>
-      <div aria-hidden="true" class="absolute inset-x-0 bottom-0 border-b border-hair"></div>
-      <div aria-hidden="true" class="absolute inset-x-0 bottom-2 border-b border-hair"></div>
-      <div class="max-w-7xl mx-auto px-4 lg:px-8">
-        <div
-          class="relative py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-fg"
-        >
-          <app-icon name="plus" class="absolute -top-2 -left-2 size-[15px] text-plus" />
-          <app-icon name="plus" class="absolute -top-2 -right-2 size-[15px] text-plus" />
-          <app-icon name="plus" class="absolute -bottom-2 -left-2 size-[15px] text-plus" />
-          <app-icon name="plus" class="absolute -bottom-2 -right-2 size-[15px] text-plus" />
-          <p class="text-center sm:text-left">
-            Il calcolatore dello stipendio netto per lavoratori dipendenti privati in Italia.
+        <div>
+          <p class="font-mono text-xs/5 font-semibold tracking-widest text-muted uppercase">
+            Gratuito e open source
           </p>
-          <p>
-            Realizzato con <span role="img" aria-label="amore">&#10084;</span> da
-            <a
-              href="https://github.com/BernardoGiordano"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="rounded-sm font-semibold underline decoration-fg/30 underline-offset-4 hover:decoration-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-              >Bernardo Giordano</a
-            >
+          <h2
+            id="cta-title"
+            class="mt-1.5 text-[32px]/[1.15] font-medium tracking-[-0.04em] text-fg"
+          >
+            Ti è stato utile?
+          </h2>
+          <p class="mt-2 text-[15px]/[23px] text-label">
+            Senza pubblicità, aggiornato a ogni legge di bilancio.
           </p>
         </div>
+        <div class="flex flex-wrap gap-3">
+          <a
+            [href]="links.paypal.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 rounded-full bg-primary px-[18px] py-2 text-[15px] font-medium text-on-primary shadow-md transition-colors hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >
+            <app-icon [name]="links.paypal.icon" class="size-4" />
+            Fai una donazione
+          </a>
+          <a
+            [href]="links.github.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 rounded-full bg-tray px-[18px] py-2 text-[15px] font-medium text-fg shadow-glow ring-1 ring-ring-card ring-inset transition-colors hover:bg-surface/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >
+            <app-icon [name]="links.github.icon" class="size-4" />
+            Stella su GitHub
+          </a>
+        </div>
+      </section>
+
+      <div
+        class="mt-8 flex flex-wrap justify-between gap-x-6 gap-y-2 border-t border-ring-card pt-[18px] text-[13.5px]/5 text-label"
+      >
+        <p>
+          © {{ year }}
+          <a
+            href="https://github.com/BernardoGiordano"
+            target="_blank"
+            rel="noopener noreferrer"
+            [class]="creditLink"
+            >Bernardo Giordano</a
+          >
+          ·
+          <a [href]="licenseHref" target="_blank" rel="noopener noreferrer" [class]="creditLink"
+            >GPLv3</a
+          >
+          ·
+          <a
+            [href]="links.linkedin.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            [class]="creditLink"
+            >LinkedIn</a
+          >
+          ·
+          <a
+            [href]="links.github.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            [class]="creditLink"
+            >GitHub</a
+          >
+        </p>
+        <p>Stima informativa, non sostituisce la busta paga. Versione {{ version }}</p>
       </div>
     </div>
   </div>
@@ -241,25 +298,27 @@
 @if (calculationResult(); as r) {
   @let percepito = !isBorsaDiStudio() && displayMode.isPercepito();
   <!-- Reserve room for the bar and device safe area at the end of the page. -->
-  <div aria-hidden="true" class="h-[calc(6rem+env(safe-area-inset-bottom))] lg:hidden"></div>
+  <div aria-hidden="true" class="h-[calc(5rem+env(safe-area-inset-bottom))] lg:hidden"></div>
   <aside
     aria-label="Risultato mensile"
-    class="fixed inset-x-0 bottom-0 z-40 border-t border-hair bg-surface/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-sm lg:hidden"
+    class="fixed inset-x-0 bottom-0 z-40 border-t border-hair bg-surface/95 px-3.5 pt-2.5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-sm lg:hidden"
   >
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
-      <div>
-        <p class="text-xs text-muted">{{ percepito ? 'Percepito mensile' : 'Netto mensile' }}</p>
+    <div class="mx-auto flex max-w-[1376px] items-center justify-between gap-3">
+      <div class="min-w-0">
+        <p class="font-mono text-[10px]/4 font-semibold tracking-widest text-muted uppercase">
+          {{ percepito ? 'Percepito mensile' : 'Netto mensile' }}
+        </p>
         <app-amount
-          class="block text-xl font-semibold tracking-tight text-fg tabular-nums"
+          class="mt-0.5 block text-[22px]/7 font-medium tracking-[-0.035em] text-fg tabular-nums"
           [value]="percepito ? r.nettoMensilePercepito : r.nettoMensile"
         />
       </div>
       <a
-        href="#risultati"
-        class="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-on-primary shadow-sm hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        [href]="barTarget().href"
+        class="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-primary px-3.5 text-sm font-medium text-on-primary shadow-sm hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
-        Risultati
-        <app-icon name="arrow-right" class="size-4" />
+        <app-icon [name]="barTarget().icon" class="size-3.5" />
+        {{ barTarget().label }}
       </a>
     </div>
   </aside>

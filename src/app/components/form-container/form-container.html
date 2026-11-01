@@ -1,36 +1,39 @@
-<form class="flex flex-col gap-4">
+<form class="flex flex-col gap-3">
   <h2 class="sr-only">Dati per il calcolo</h2>
   @let form = stipendioForm();
   @let model = formModel()();
+  @let riepilogo = riepiloghi();
 
-  <!-- Sezione Dati Principali -->
-  <h3 class="mt-2 text-sm font-semibold text-title">Essenziali</h3>
-  <app-section heading="Dati Contrattuali">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <!-- Dati contrattuali -->
+  <app-section heading="Dati contrattuali" class="rounded-t-2xl rounded-b-md">
+    <div class="flex flex-wrap gap-4">
       <app-field
         label="RAL"
         required
+        unit="€ / anno"
         info="Retribuzione Annua Lorda: il compenso totale annuo lordo previsto dal contratto, prima di contributi e imposte."
+        class="flex-[1_1_220px]"
       >
-        <input appControl type="number" [formField]="form.ral" placeholder="Es. 24000" />
+        <input appControl="lg" type="number" [formField]="form.ral" placeholder="Es. 24000" />
       </app-field>
 
       <app-field
         label="Mensilità"
         required
+        group
         info="Numero di mensilità annue. La 13a e 14a sono erogate come tredicesima e quattordicesima. La RAL viene divisa per questo numero."
+        class="flex-[1_1_200px]"
       >
-        <select appControl [formField]="form.mensilita">
-          @for (m of mensilita; track m) {
-            <option [value]="m">{{ m }}</option>
-          }
-        </select>
+        <app-segmented [formField]="form.mensilita" [options]="mensilita" />
       </app-field>
+    </div>
 
+    <div class="mt-4 flex flex-wrap gap-4">
       <app-field
-        label="Tipo Contratto"
+        label="Tipo contratto"
         required
         info="Gli apprendisti hanno un'aliquota INPS ridotta (5,84%). I contratti a tempo determinato hanno una detrazione minima garantita inferiore."
+        class="flex-[2_1_220px]"
       >
         <select appControl [formField]="form.tipoContratto">
           @for (tipo of tipiContratto; track tipo.value) {
@@ -40,9 +43,10 @@
       </app-field>
 
       <app-field
-        label="Anno Fiscale"
+        label="Anno fiscale"
         required
         info="Dal 2026 l'aliquota IRPEF del 2° scaglione scende dal 35% al 33%. Possono variare anche soglie e limiti."
+        class="flex-[1_1_100px]"
       >
         <select appControl [formField]="form.annoFiscale">
           @for (anno of anniFiscali; track anno) {
@@ -55,6 +59,7 @@
         label="Regione"
         required
         info="Determina l'addizionale regionale IRPEF, che varia da 1,23% a 3,33% a seconda della regione e del reddito."
+        class="flex-[1_1_150px]"
       >
         <select appControl [formField]="form.regione" (change)="onRegioneChange()">
           @for (regione of regioniDisponibili; track regione.value) {
@@ -67,6 +72,7 @@
         label="Comune"
         controlId="comune"
         info="Determina l'addizionale comunale IRPEF (0-0,8%). Alcuni comuni prevedono esenzioni per redditi bassi."
+        class="flex-[1_1_170px]"
       >
         <ng-select
           [items]="comuniFiltrati()"
@@ -85,738 +91,792 @@
     </div>
   </app-section>
 
-  <!-- Sezione Opzioni Contrattuali -->
-  <app-section heading="Opzioni Contrattuali">
-    <app-field
-      label="Giorni Lavorati (opzionale)"
-      info="Le detrazioni lavoro dipendente sono rapportate ai giorni effettivi. Utile per chi non lavora l'intero anno."
-      class="mb-4"
-    >
-      <input
-        appControl
-        type="number"
-        [formField]="form.giorniLavorati"
-        placeholder="Default: 365"
-      />
-    </app-field>
-
-    <app-check
-      label="Azienda con più di 15 dipendenti (CIGS)"
-      info="CIGS = Cassa Integrazione Guadagni Straordinaria. Le aziende con oltre 15 dipendenti versano un contributo aggiuntivo, portando l'aliquota INPS dal 9,19% al 9,49%."
-      class="mb-3"
-    >
-      <input appControl type="checkbox" [formField]="form.aziendaConCigs" />
-    </app-check>
-
-    <app-check
-      label="Iscritto alla previdenza dal 1996 in poi"
-      info="Chi si è iscritto alla previdenza dopo il 1995 ha un massimale contributivo di 122.295 euro (2026)."
-      class="mb-3"
-    >
-      <input appControl type="checkbox" [formField]="form.iscrittoPost1996" />
-    </app-check>
-
-    <app-check
-      label="Regime impatriati (rientro cervelli)"
-      info="D.Lgs. 209/2023, art. 5. Per lavoratori che trasferiscono la residenza fiscale in Italia. Il 50% del reddito da lavoro dipendente è esente IRPEF (60% con figli minorenni). Tetto: 600.000 euro. Non riduce i contributi INPS."
-      class="mb-3"
-    >
-      <input appControl type="checkbox" [formField]="form.regimeImpatriati" />
-    </app-check>
-
-    @if (model.regimeImpatriati) {
-      <app-check
-        label="Ho almeno un figlio minorenne residente in Italia"
-        info="Se hai almeno un figlio minorenne residente in Italia, l'esenzione sale dal 50% al 60% del reddito agevolabile."
-        class="mb-3 ml-6"
-      >
-        <input appControl type="checkbox" [formField]="form.regimeImpatriatiMinorenni" />
-      </app-check>
-    }
-  </app-section>
-
-  <!-- Sezione Altri Redditi e Detrazioni -->
-  <h3 class="mt-2 text-sm font-semibold text-title">Avanzate</h3>
-  <app-section heading="Altri Redditi e Detrazioni" collapsible [active]="altriRedditiAttivi()">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <!-- Opzioni contrattuali -->
+  <app-section heading="Opzioni contrattuali" class="rounded-md">
+    <div class="flex flex-wrap items-start gap-x-7 gap-y-3">
       <app-field
-        label="Altri Redditi (€/anno)"
-        info="Redditi non da lavoro dipendente (es. affitti, rendite). Concorrono al reddito complessivo per IRPEF e detrazioni."
+        label="Giorni lavorati"
+        info="Le detrazioni lavoro dipendente sono rapportate ai giorni effettivi. Utile per chi non lavora l'intero anno."
+        class="w-[120px]"
       >
-        <input
-          appControl
-          type="number"
-          [formField]="form.altriRedditi"
-          placeholder="Es. redditi fondiari"
-        />
+        <input appControl type="number" [formField]="form.giorniLavorati" placeholder="365" />
       </app-field>
 
-      @if (mostraRedditiSostitutivi()) {
-        <app-field
-          label="Redditi con imposta sostitutiva (€/anno)"
-          info="Redditi da cedolare secca, mance con imposta sostitutiva e regime forfettario. Rilevano per il limite di 90.000 euro delle detrazioni regionali di Bolzano. Non inserirli anche in Altri Redditi."
+      <div class="flex min-w-0 flex-[1_1_260px] flex-col sm:pt-[18px]">
+        <app-check
+          label="Azienda con più di 15 dipendenti (CIGS)"
+          info="CIGS = Cassa Integrazione Guadagni Straordinaria. Le aziende con oltre 15 dipendenti versano un contributo aggiuntivo, portando l'aliquota INPS dal 9,19% al 9,49%."
         >
-          <input appControl type="number" [formField]="form.altriRedditiSogliaAddizionale" />
-        </app-field>
-      }
+          <input appControl type="checkbox" [formField]="form.aziendaConCigs" />
+        </app-check>
 
-      <app-field
-        label="Altre Detrazioni (€/anno)"
-        info="Detrazioni extra non calcolate automaticamente (es. 19% interessi mutuo prima casa, spese mediche, ristrutturazioni)."
-      >
-        <input
-          appControl
-          type="number"
-          [formField]="form.altreDetrazioni"
-          placeholder="Es. interessi mutuo"
-        />
-      </app-field>
+        <app-check
+          label="Iscritto alla previdenza dal 1996 in poi"
+          info="Chi si è iscritto alla previdenza dopo il 1995 ha un massimale contributivo di 122.295 euro (2026)."
+        >
+          <input appControl type="checkbox" [formField]="form.iscrittoPost1996" />
+        </app-check>
+
+        <app-check
+          label="Regime impatriati (rientro cervelli)"
+          info="D.Lgs. 209/2023, art. 5. Per lavoratori che trasferiscono la residenza fiscale in Italia. Il 50% del reddito da lavoro dipendente è esente IRPEF (60% con figli minorenni). Tetto: 600.000 euro. Non riduce i contributi INPS."
+        >
+          <input appControl type="checkbox" [formField]="form.regimeImpatriati" />
+        </app-check>
+
+        @if (model.regimeImpatriati) {
+          <app-check
+            label="Ho almeno un figlio minorenne residente in Italia"
+            info="Se hai almeno un figlio minorenne residente in Italia, l'esenzione sale dal 50% al 60% del reddito agevolabile."
+            class="ml-[26px]"
+          >
+            <input appControl type="checkbox" [formField]="form.regimeImpatriatiMinorenni" />
+          </app-check>
+        }
+      </div>
     </div>
   </app-section>
 
-  <!-- Sezione Previdenza Complementare -->
-  <app-section
-    heading="Previdenza Complementare"
-    collapsible
-    [active]="model.fondoPensioneIntegrativo.enabled"
-    [toggle]="form.fondoPensioneIntegrativo.enabled"
-    toggleLabel="Fondo pensione integrativo"
-    toggleInfo="Previdenza complementare (D.Lgs. 252/2005). I contributi del lavoratore e del datore sono deducibili dall'imponibile IRPEF fino a un massimo di 5.300 euro/anno (dal 2026, L. 199/2025). Non riducono i contributi INPS."
+  <!-- Situazione e benefit: one row per optional section -->
+  <section
+    aria-labelledby="situazione-title"
+    class="rounded-t-md rounded-b-2xl bg-surface shadow-xs ring-1 ring-ring-card"
   >
-    @if (model.fondoPensioneIntegrativo.enabled) {
-      <p class="text-xs text-subtle mb-4">
-        Inserisci le percentuali di contribuzione e la RAL di riferimento. Il limite di deducibilità
-        complessivo (lavoratore + datore) è di 5.300 euro/anno.
+    <div class="flex items-baseline justify-between gap-4 px-4 pt-[18px] pb-3 sm:px-5">
+      <h3
+        id="situazione-title"
+        class="font-mono text-[11px]/[18px] font-semibold tracking-widest text-faint uppercase"
+      >
+        Situazione e benefit
+      </h3>
+      <p class="text-[13px] text-muted tabular-nums">
+        {{ sezioniAttive() }} {{ sezioniAttive() === 1 ? 'sezione attiva' : 'sezioni attive' }}
       </p>
+    </div>
 
-      <!-- Riga contributo lavoratore -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <app-field
-          label="Contributo lavoratore (%)"
-          info="Percentuale della RAL versata dal lavoratore al fondo pensione. Trattenuta dalla busta paga. Valore tipico: 0,55% - 2% a seconda del CCNL."
-        >
-          <input
-            appControl
-            type="number"
-            step="0.01"
-            [formField]="form.fondoPensioneIntegrativo.contributoLavoratore"
-            placeholder="Es. 1.0"
-          />
-        </app-field>
-
-        <app-field
-          label="RAL di riferimento (€)"
-          info="RAL sulla quale calcolare il contributo del lavoratore."
-        >
-          <input
-            appControl
-            type="number"
-            step="1"
-            [formField]="form.fondoPensioneIntegrativo.ralLavoratore"
-            placeholder="RAL di riferimento"
-          />
-        </app-field>
-      </div>
-
-      <!-- Riga contributo datore di lavoro -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <app-field
-          label="Contributo datore di lavoro (%)"
-          info="Percentuale della RAL versata dal datore di lavoro al fondo pensione. Non è una trattenuta dalla busta paga ma concorre al limite di deducibilità di 5.300 euro. Valore tipico: 1% - 2%."
-        >
-          <input
-            appControl
-            type="number"
-            step="0.01"
-            [formField]="form.fondoPensioneIntegrativo.contributoDatoreLavoro"
-            placeholder="Es. 1.5"
-          />
-        </app-field>
-
-        <app-field
-          label="RAL di riferimento (€)"
-          info="RAL sulla quale calcolare il contributo del datore di lavoro."
-        >
-          <input
-            appControl
-            type="number"
-            step="1"
-            [formField]="form.fondoPensioneIntegrativo.ralDatoreLavoro"
-            placeholder="RAL di riferimento"
-          />
-        </app-field>
-      </div>
-
-      <!-- Riga contributo EBITEMP (lavoratori somministrati) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <app-field
-          label="Contributo EBITEMP (%)"
-          info="Contributo dell'ente bilaterale EBITEMP al fondo pensione, previsto per i lavoratori somministrati. Non è una trattenuta dalla busta paga ma concorre al limite di deducibilità di 5.300 euro. Valore tipico: 2%."
-        >
-          <input
-            appControl
-            type="number"
-            step="0.01"
-            [formField]="form.fondoPensioneIntegrativo.contributoEbitemp"
-            placeholder="Es. 2.0"
-          />
-        </app-field>
-
-        <app-field
-          label="RAL di riferimento (€)"
-          info="RAL sulla quale calcolare il contributo EBITEMP."
-        >
-          <input
-            appControl
-            type="number"
-            step="1"
-            [formField]="form.fondoPensioneIntegrativo.ralEbitemp"
-            placeholder="RAL di riferimento"
-          />
-        </app-field>
-      </div>
-
-      <!-- Opzione ripartizione per mensilità -->
-      <app-check
-        label="Dividi contributo per numero mensilità"
-        info="Se attivo, il contributo mensile del lavoratore viene diviso per il numero di mensilità (es. 13 o 14) anziché per 12. Alcune aziende ripartiscono il contributo su tutte le mensilità, inclusa la tredicesima."
-        class="mt-4"
-      >
-        <input
-          appControl
-          type="checkbox"
-          [formField]="form.fondoPensioneIntegrativo.ripartizionePerMensilita"
-        />
-      </app-check>
-    }
-  </app-section>
-
-  <!-- Sezione Coniuge a Carico -->
-  <app-section
-    heading="Coniuge a Carico"
-    collapsible
-    [active]="model.coniuge.enabled"
-    [toggle]="form.coniuge.enabled"
-    toggleLabel="Ho un coniuge a carico"
-    toggleInfo="Il coniuge con reddito fino a 2.840,51 euro annui da diritto a una detrazione fiscale da 0 a 800 euro, in base al tuo reddito."
-  >
-    @if (model.coniuge.enabled) {
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <app-field
-          label="Reddito annuo coniuge (€)"
-          info="Limite massimo 2.840,51 euro per essere considerato a carico. Include tutti i redditi, anche quelli esenti."
-        >
-          <input
-            appControl
-            type="number"
-            [formField]="form.coniuge.redditoAnnuo"
-            placeholder="Max €2.840,51 per detrazione"
-          />
-        </app-field>
-
-        <app-field
-          label="Percentuale a carico (%)"
-          info="Di norma 100%, ma in casi particolari la detrazione può essere ripartita."
-        >
-          <input appControl type="number" [formField]="form.coniuge.percentualeCarico" />
-        </app-field>
-
-        <app-field
-          label="Mesi a carico"
-          info="La detrazione è rapportata a mese: contano i mesi dell'anno in cui il coniuge è stato a carico (es. 12 per l'intero anno)."
-        >
-          <input appControl type="number" step="1" [formField]="form.coniuge.mesiCarico" />
-        </app-field>
-      </div>
-    }
-  </app-section>
-
-  <!-- Sezione Figli a Carico -->
-  <app-section
-    heading="Figli a Carico"
-    collapsible
-    [active]="model.haFigliACarico || model.figli.length > 0"
-  >
-    <app-check
-      label="Ho figli a carico (per soglia fringe benefit)"
-      info="Chi ha figli a carico beneficia di una soglia fringe benefit raddoppiata: 2.000 euro invece di 1.000 euro."
-      class="mb-4"
+    <!-- Altri redditi e detrazioni -->
+    <app-section
+      variant="row"
+      heading="Altri redditi e detrazioni"
+      [active]="attive().altriRedditi"
+      [summary]="riepilogo.altriRedditi"
     >
-      <input appControl type="checkbox" [formField]="form.haFigliACarico" />
-    </app-check>
+      <div class="flex flex-wrap items-end gap-3">
+        <app-field
+          label="Altri redditi"
+          unit="€ / anno"
+          info="Redditi non da lavoro dipendente (es. affitti, rendite). Concorrono al reddito complessivo per IRPEF e detrazioni."
+          class="flex-[1_1_150px]"
+        >
+          <input appControl type="number" [formField]="form.altriRedditi" placeholder="0" />
+        </app-field>
 
-    @for (figlio of model.figli; track $index) {
-      <div class="rounded-lg p-4 mb-3 bg-page ring-1 ring-inset ring-ring">
-        <div class="flex items-center justify-between mb-3">
-          <h5 class="text-sm font-semibold text-title">Figlio {{ $index + 1 }}</h5>
-          <button
-            type="button"
-            (click)="removeFiglio($index)"
-            class="p-2 text-neg hover:bg-neg/10 rounded-lg cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-danger transition-colors"
-            aria-label="Rimuovi figlio {{ $index + 1 }}"
+        <app-field
+          label="Altre detrazioni"
+          unit="€ / anno"
+          info="Detrazioni extra non calcolate automaticamente (es. 19% interessi mutuo prima casa, spese mediche, ristrutturazioni)."
+          class="flex-[1_1_150px]"
+        >
+          <input appControl type="number" [formField]="form.altreDetrazioni" placeholder="0" />
+        </app-field>
+
+        @if (mostraRedditiSostitutivi()) {
+          <app-field
+            label="Redditi con imposta sostitutiva"
+            unit="€ / anno"
+            info="Redditi da cedolare secca, mance con imposta sostitutiva e regime forfettario. Rilevano per il limite di 90.000 euro delle detrazioni regionali di Bolzano. Non inserirli anche in Altri Redditi."
+            class="flex-[1_1_100%]"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+            <input
+              appControl
+              type="number"
+              [formField]="form.altriRedditiSogliaAddizionale"
+              placeholder="0"
+            />
+          </app-field>
+        }
+      </div>
+    </app-section>
+
+    <!-- Previdenza complementare -->
+    <app-section
+      variant="row"
+      heading="Previdenza complementare"
+      [active]="attive().previdenza"
+      [toggle]="form.fondoPensioneIntegrativo.enabled"
+      [summary]="riepilogo.previdenza"
+      info="Previdenza complementare (D.Lgs. 252/2005). I contributi del lavoratore e del datore sono deducibili dall'imponibile IRPEF fino a un massimo di 5.300 euro/anno (dal 2026, L. 199/2025). Non riducono i contributi INPS."
+    >
+      @if (model.fondoPensioneIntegrativo.enabled) {
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-wrap items-end gap-3">
+            <app-field
+              label="Contributo lavoratore"
+              unit="%"
+              info="Percentuale della RAL versata dal lavoratore al fondo pensione. Trattenuta dalla busta paga. Valore tipico: 0,55% - 2% a seconda del CCNL."
+              class="flex-[1_1_130px]"
             >
-              <path
-                fill-rule="evenodd"
-                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                clip-rule="evenodd"
+              <input
+                appControl
+                type="number"
+                step="0.01"
+                [formField]="form.fondoPensioneIntegrativo.contributoLavoratore"
+                placeholder="Es. 1.0"
               />
-            </svg>
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-          <app-field
-            label="Età"
-            info="Detrazione IRPEF solo per figli 21-30 anni. Sotto i 21 anni spetta l'Assegno Unico INPS (non calcolato qui)."
-          >
-            <input appControl type="number" [formField]="form.figli[$index].eta" />
-          </app-field>
-
-          <app-field label="Percentuale a carico (%)">
-            <input appControl type="number" [formField]="form.figli[$index].percentualeCarico" />
-          </app-field>
-        </div>
-
-        <app-field
-          label="Mesi a carico"
-          info="Le detrazioni IRPEF e regionali sono rapportate a mese: contano i mesi dell'anno in cui il figlio è stato a carico (es. 12 per l'intero anno)."
-          class="mb-3"
-        >
-          <input appControl type="number" step="1" [formField]="form.figli[$index].mesiCarico" />
-        </app-field>
-
-        <app-check
-          label="Disabile"
-          info="I figli disabili danno diritto alla detrazione fiscale a qualsiasi età, non solo tra 21 e 30 anni."
-        >
-          <input appControl type="checkbox" [formField]="form.figli[$index].disabile" />
-        </app-check>
-      </div>
-    }
-
-    <button
-      type="button"
-      (click)="addFiglio()"
-      class="px-4 py-2 text-sm font-medium rounded-lg bg-field text-fg shadow-xs ring-1 ring-ring-strong cursor-pointer hover:bg-page focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus transition-colors"
-    >
-      Aggiungi figlio
-    </button>
-  </app-section>
-
-  <!-- Sezione Ascendenti a Carico -->
-  <app-section
-    heading="Ascendenti a Carico (genitori/nonni)"
-    collapsible
-    [active]="model.ascendenti.length > 0"
-  >
-    @for (ascendente of model.ascendenti; track $index) {
-      <div class="rounded-lg p-4 mb-3 bg-page ring-1 ring-inset ring-ring">
-        <div class="flex items-center justify-between mb-3">
-          <h5 class="text-sm font-semibold text-title">Ascendente {{ $index + 1 }}</h5>
-          <button
-            type="button"
-            (click)="removeAscendente($index)"
-            class="p-2 text-neg hover:bg-neg/10 rounded-lg cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-danger transition-colors"
-            aria-label="Rimuovi ascendente {{ $index + 1 }}"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+            </app-field>
+            <app-field
+              label="RAL di riferimento"
+              unit="€"
+              info="RAL sulla quale calcolare il contributo del lavoratore."
+              class="flex-[1_1_130px]"
             >
-              <path
-                fill-rule="evenodd"
-                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                clip-rule="evenodd"
+              <input
+                appControl
+                type="number"
+                step="1"
+                [formField]="form.fondoPensioneIntegrativo.ralLavoratore"
+                placeholder="RAL"
               />
-            </svg>
-          </button>
-        </div>
+            </app-field>
+          </div>
 
-        <app-field
-          label="Reddito annuo (€)"
-          info="Limite massimo 2.840,51 euro per essere a carico. La detrazione massima è 750 euro e decresce col reddito."
-          class="mb-3"
-        >
-          <input appControl type="number" [formField]="form.ascendenti[$index].redditoAnnuo" />
-        </app-field>
+          <div class="flex flex-wrap items-end gap-3">
+            <app-field
+              label="Contributo datore"
+              unit="%"
+              info="Percentuale della RAL versata dal datore di lavoro al fondo pensione. Non è una trattenuta dalla busta paga ma concorre al limite di deducibilità di 5.300 euro. Valore tipico: 1% - 2%."
+              class="flex-[1_1_130px]"
+            >
+              <input
+                appControl
+                type="number"
+                step="0.01"
+                [formField]="form.fondoPensioneIntegrativo.contributoDatoreLavoro"
+                placeholder="Es. 1.5"
+              />
+            </app-field>
+            <app-field
+              label="RAL di riferimento"
+              unit="€"
+              info="RAL sulla quale calcolare il contributo del datore di lavoro."
+              class="flex-[1_1_130px]"
+            >
+              <input
+                appControl
+                type="number"
+                step="1"
+                [formField]="form.fondoPensioneIntegrativo.ralDatoreLavoro"
+                placeholder="RAL"
+              />
+            </app-field>
+          </div>
 
-        <app-field
-          label="Mesi a carico"
-          info="La detrazione è rapportata a mese: contano i mesi dell'anno in cui l'ascendente è stato a carico (es. 12 per l'intero anno)."
-          class="mb-3"
-        >
-          <input
-            appControl
-            type="number"
-            step="1"
-            [formField]="form.ascendenti[$index].mesiCarico"
-          />
-        </app-field>
-
-        <app-check
-          label="Convivente"
-          info="La detrazione per ascendenti spetta solo se conviventi. Richiesta residenza nello stesso nucleo familiare."
-        >
-          <input appControl type="checkbox" [formField]="form.ascendenti[$index].convivente" />
-        </app-check>
-      </div>
-    }
-
-    <button
-      type="button"
-      (click)="addAscendente()"
-      class="px-4 py-2 text-sm font-medium rounded-lg bg-field text-fg shadow-xs ring-1 ring-ring-strong cursor-pointer hover:bg-page focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus transition-colors"
-    >
-      Aggiungi ascendente
-    </button>
-  </app-section>
-
-  <!-- Sezione Fringe Benefit -->
-  <app-section
-    heading="Fringe Benefit"
-    collapsible
-    [active]="model.fringeBenefit.enabled"
-    [toggle]="form.fringeBenefit.enabled"
-    toggleLabel="Ho fringe benefit"
-    toggleInfo="Compensi in natura. Esenti fino a 1.000 euro all'anno (2.000 con figli a carico) per il triennio 2025-2027. ATTENZIONE: sistema a soglia secca - se superi anche di 1 centesimo, tutto diventa imponibile!"
-  >
-    @if (model.fringeBenefit.enabled) {
-      <app-field
-        label="Buoni acquisto/spesa (€/anno)"
-        info="Buoni spendibili per acquisti. Concorrono alla soglia fringe benefit complessiva."
-        class="mb-4"
-      >
-        <input appControl type="number" [formField]="form.fringeBenefit.buoniAcquisto" />
-      </app-field>
-
-      <app-field label="Buoni carburante (€/anno)" class="mb-4">
-        <input appControl type="number" [formField]="form.fringeBenefit.buoniCarburante" />
-      </app-field>
-
-      <app-field label="Rimborso utenze domestiche (€/anno)" class="mb-4">
-        <input appControl type="number" [formField]="form.fringeBenefit.rimborsoUtenze" />
-      </app-field>
-
-      <app-field label="Rimborso affitto prima casa (€/anno)" class="mb-4">
-        <input appControl type="number" [formField]="form.fringeBenefit.rimborsoAffitto" />
-      </app-field>
-
-      <app-field label="Rimborso interessi mutuo (€/anno)" class="mb-4">
-        <input appControl type="number" [formField]="form.fringeBenefit.rimborsoInteressiMutuo" />
-      </app-field>
-
-      <app-field label="Altri fringe benefit (€/anno)" class="mb-4">
-        <input appControl type="number" [formField]="form.fringeBenefit.altri" />
-      </app-field>
-
-      <!-- Auto Aziendale -->
-      <app-check
-        label="Ho auto aziendale"
-        info="Il valore si calcola: (costo ACI x 15.000 km x percentuale) x mesi/12. Non rientra nella soglia fringe benefit."
-        class="mb-4"
-      >
-        <input appControl type="checkbox" [formField]="form.fringeBenefit.autoAziendaleEnabled" />
-      </app-check>
-
-      @if (model.fringeBenefit.autoAziendaleEnabled) {
-        <div class="rounded-lg p-4 bg-page ring-1 ring-inset ring-ring">
-          <h5 class="text-sm font-semibold text-title mb-3">Auto Aziendale</h5>
-
-          <app-field
-            label="Costo km ACI (€/km)"
-            info="Tariffa ufficiale ACI per il modello di auto. Consultare le tabelle ACI pubblicate annualmente. Inserisci le cifre decimali dopo la virgola (es. 0,03)"
-            class="mb-3"
-          >
-            <input
-              appControl
-              type="number"
-              [formField]="form.fringeBenefit.autoAziendale.costoKmAci"
-            />
-          </app-field>
-
-          <app-field
-            label="Tipo alimentazione"
-            info="Dal 2025: elettrico 10%, ibrido plug-in 20%, altri 50%. Per auto assegnate prima del 2025 si usa il regime CO2."
-            class="mb-3"
-          >
-            <select appControl [formField]="form.fringeBenefit.autoAziendale.tipoAlimentazione">
-              @for (tipo of tipiAlimentazione; track tipo.value) {
-                <option [value]="tipo.value">{{ tipo.label }}</option>
-              }
-            </select>
-          </app-field>
-
-          <app-field label="Mesi di utilizzo" class="mb-3">
-            <input
-              appControl
-              type="number"
-              [formField]="form.fringeBenefit.autoAziendale.mesiUtilizzo"
-            />
-          </app-field>
-
-          <app-field
-            label="Trattenuta dipendente (€/anno)"
-            info="Importo eventualmente trattenuto in busta paga per l'uso personale dell'auto. Riduce il fringe benefit imponibile."
-            class="mb-3"
-          >
-            <input
-              appControl
-              type="number"
-              [formField]="form.fringeBenefit.autoAziendale.trattenutaDipendente"
-            />
-          </app-field>
+          <div class="flex flex-wrap items-end gap-3">
+            <app-field
+              label="Contributo EBITEMP"
+              unit="%"
+              info="Contributo dell'ente bilaterale EBITEMP al fondo pensione, previsto per i lavoratori somministrati. Non è una trattenuta dalla busta paga ma concorre al limite di deducibilità di 5.300 euro. Valore tipico: 2%."
+              class="flex-[1_1_130px]"
+            >
+              <input
+                appControl
+                type="number"
+                step="0.01"
+                [formField]="form.fondoPensioneIntegrativo.contributoEbitemp"
+                placeholder="0"
+              />
+            </app-field>
+            <app-field
+              label="RAL di riferimento"
+              unit="€"
+              info="RAL sulla quale calcolare il contributo EBITEMP."
+              class="flex-[1_1_130px]"
+            >
+              <input
+                appControl
+                type="number"
+                step="1"
+                [formField]="form.fondoPensioneIntegrativo.ralEbitemp"
+                placeholder="RAL"
+              />
+            </app-field>
+          </div>
 
           <app-check
-            label="Assegnato prima del 2025 (regime CO2)"
-            info="Le auto assegnate prima del 2025 usano il vecchio regime basato su emissioni CO2: fino a 60 g/km 25%, 61-160 g/km 30%, 161-190 g/km 50%, oltre 60%."
-            class="mb-3"
+            label="Dividi contributo per numero mensilità"
+            info="Se attivo, il contributo mensile del lavoratore viene diviso per il numero di mensilità (es. 13 o 14) anziché per 12. Alcune aziende ripartiscono il contributo su tutte le mensilità, inclusa la tredicesima."
           >
             <input
               appControl
               type="checkbox"
-              [formField]="form.fringeBenefit.autoAziendale.assegnatoPre2025"
+              [formField]="form.fondoPensioneIntegrativo.ripartizionePerMensilita"
             />
           </app-check>
 
-          @if (model.fringeBenefit.autoAziendale.assegnatoPre2025) {
-            <app-field label="Emissioni CO2 (g/km)">
-              <input
-                appControl
-                type="number"
-                [formField]="form.fringeBenefit.autoAziendale.emissioniCO2"
-              />
-            </app-field>
+          @if (deducibile(); as d) {
+            <div class="text-xs text-muted tabular-nums">
+              <p class="flex justify-between gap-3">
+                <span>Deducibile usato, lavoratore + datore + welfare</span>
+                <span
+                  ><strong class="font-medium text-fg">{{ d.usato }}</strong> su
+                  {{ d.plafond }}</span
+                >
+              </p>
+              <div aria-hidden="true" class="mt-1 h-1 rounded-sm bg-switch-off">
+                <div
+                  class="h-1 rounded-sm"
+                  [style.width.%]="d.quota * 100"
+                  [style.background-color]="violaBar"
+                ></div>
+              </div>
+            </div>
           }
         </div>
       }
-    }
-  </app-section>
+    </app-section>
 
-  <!-- Sezione Rimborsi Trasferta -->
-  <app-section
-    heading="Rimborsi Trasferta"
-    collapsible
-    [active]="model.rimborsiTrasferta.enabled"
-    [toggle]="form.rimborsiTrasferta.enabled"
-    toggleLabel="Ho rimborsi trasferta"
-    toggleInfo="Rimborsi per trasferte fuori dal comune di lavoro. Possono essere forfettari (46,48 euro/giorno Italia, 77,47 euro estero) o a pie' di lista."
-  >
-    @if (model.rimborsiTrasferta.enabled) {
-      <app-field
-        label="Modalità rimborso"
-        info="Forfettario: indennità fissa giornaliera. Analitico: rimborso a pie' di lista documentato. Misto: forfettario ridotto + rimborso vitto/alloggio."
-        class="mb-4"
-      >
-        <select appControl [formField]="form.rimborsiTrasferta.modalitaRimborso">
-          @for (modalita of modalitaRimborso; track modalita.value) {
-            <option [value]="modalita.value">{{ modalita.label }}</option>
-          }
-        </select>
-      </app-field>
+    <!-- Coniuge a carico -->
+    <app-section
+      variant="row"
+      heading="Coniuge a carico"
+      [active]="attive().coniuge"
+      [toggle]="form.coniuge.enabled"
+      [summary]="riepilogo.coniuge"
+      info="Il coniuge con reddito fino a 2.840,51 euro annui da diritto a una detrazione fiscale da 0 a 800 euro, in base al tuo reddito."
+    >
+      @if (model.coniuge.enabled) {
+        <div class="flex flex-wrap items-end gap-3">
+          <app-field
+            label="Reddito annuo"
+            unit="€"
+            info="Limite massimo 2.840,51 euro per essere considerato a carico. Include tutti i redditi, anche quelli esenti."
+            class="flex-[1_1_150px]"
+          >
+            <input
+              appControl
+              type="number"
+              [formField]="form.coniuge.redditoAnnuo"
+              placeholder="Max 2.840,51"
+            />
+          </app-field>
 
-      <app-field label="Giorni trasferta Italia" class="mb-4">
-        <input
-          appControl
-          type="number"
-          [formField]="form.rimborsiTrasferta.giorniTrasfertaItalia"
-        />
-      </app-field>
+          <app-field
+            label="A carico"
+            unit="%"
+            info="Di norma 100%, ma in casi particolari la detrazione può essere ripartita."
+            class="flex-[1_1_100px]"
+          >
+            <input appControl type="number" [formField]="form.coniuge.percentualeCarico" />
+          </app-field>
 
-      <app-field label="Giorni trasferta Estero" class="mb-4">
-        <input
-          appControl
-          type="number"
-          [formField]="form.rimborsiTrasferta.giorniTrasfertaEstero"
-        />
-      </app-field>
+          <app-field
+            label="Mesi a carico"
+            info="La detrazione è rapportata a mese: contano i mesi dell'anno in cui il coniuge è stato a carico (es. 12 per l'intero anno)."
+            class="flex-[1_1_100px]"
+          >
+            <input appControl type="number" step="1" [formField]="form.coniuge.mesiCarico" />
+          </app-field>
+        </div>
+      }
+    </app-section>
 
-      <app-field label="Rimborso vitto documentato (€/anno)" class="mb-4">
-        <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoVitto" />
-      </app-field>
-
-      <app-field label="Rimborso alloggio documentato (€/anno)" class="mb-4">
-        <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoAlloggio" />
-      </app-field>
-
-      <app-field label="Rimborso viaggio (€/anno)" class="mb-4">
-        <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoViaggio" />
-      </app-field>
-
-      <app-field
-        label="Rimborso chilometrico fuori comune (€/anno)"
-        info="Indennità chilometrica per l'uso dell'auto propria in trasferte fuori dal comune sede di lavoro, entro le tariffe ACI: esente da imposte e contributi. Non richiede pagamento tracciabile."
-        class="mb-4"
-      >
-        <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoKm" />
-      </app-field>
-
-      <app-field
-        label="Rimborso chilometrico imponibile (€/anno)"
-        info="Rimborsi chilometrici che concorrono al reddito (art. 51, c. 5, TUIR): spostamenti nel comune sede di lavoro e quota eccedente le tariffe ACI nelle trasferte fuori comune."
-        class="mb-4"
-      >
-        <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoKmImponibile" />
-      </app-field>
-
+    <!-- Figli a carico -->
+    <app-section
+      variant="row"
+      heading="Figli a carico"
+      [active]="attive().figli"
+      [summary]="riepilogo.figli"
+    >
       <app-check
-        label="Pagamenti tracciabili"
-        info="Dal 2025 obbligo di tracciabilità per vitto, alloggio e taxi. Senza tracciabilità i rimborsi diventano imponibili."
+        label="Ho figli a carico (per soglia fringe benefit)"
+        info="Chi ha figli a carico beneficia di una soglia fringe benefit raddoppiata: 2.000 euro invece di 1.000 euro."
       >
-        <input
-          appControl
-          type="checkbox"
-          [formField]="form.rimborsiTrasferta.pagamentiTracciabili"
-        />
-      </app-check>
-    }
-  </app-section>
-
-  <!-- Sezione Benefit Non Tassati (Welfare) -->
-  <app-section
-    heading="Benefit Non Tassati (Welfare)"
-    collapsible
-    [active]="model.benefitNonTassati.enabled"
-    [toggle]="form.benefitNonTassati.enabled"
-    toggleLabel="Ho benefit non tassati"
-    toggleInfo="Voci welfare completamente esenti o con limiti specifici: previdenza, sanità, buoni pasto, trasporto pubblico, servizi familiari."
-  >
-    @if (model.benefitNonTassati.enabled) {
-      <app-field
-        label="Previdenza complementare da welfare (€/anno)"
-        info="Contributi al fondo pensione versati dall'azienda tramite il piano welfare (es. credito welfare convertito in previdenza). Non sono una trattenuta: sono reddito dedotto entro i 5.300 euro/anno, limite condiviso con i contributi di lavoratore e datore. Non riducono i contributi INPS."
-        class="mb-4"
-      >
-        <input
-          appControl
-          type="number"
-          [formField]="form.benefitNonTassati.previdenzaComplementare"
-          placeholder="Max €5.300 deducibile"
-        />
-      </app-field>
-
-      <app-field
-        label="Assistenza sanitaria (€/anno)"
-        info="Contributi a casse/fondi sanitari integrativi. Esenti fino a 3.615,20 euro/anno."
-        class="mb-4"
-      >
-        <input
-          appControl
-          type="number"
-          [formField]="form.benefitNonTassati.assistenzaSanitaria"
-          placeholder="Max €3.615,20 esente"
-        />
-      </app-field>
-
-      <app-field
-        label="Buoni pasto (€/anno)"
-        info="Esenti fino a 4 euro/giorno (cartacei) o 10 euro/giorno (elettronici, dal 2026). Il calcolo assume buoni di pari importo giornaliero, per i giorni di erogazione indicati. L'eccedenza è imponibile."
-        class="mb-4"
-      >
-        <input appControl type="number" [formField]="form.benefitNonTassati.buoniPasto" />
-      </app-field>
-
-      <app-field
-        label="Giorni di erogazione buoni pasto"
-        info="Numero effettivo di giorni coperti dai buoni pasto nell'anno. Il valore predefinito di 220 giorni è una stima: modificarlo in base ai buoni ricevuti."
-        class="mb-4"
-      >
-        <input appControl type="number" [formField]="form.benefitNonTassati.giorniBuoniPasto" />
-      </app-field>
-
-      <app-check
-        label="Buoni pasto elettronici (soglia 10 euro invece di 4 euro)"
-        info="I buoni elettronici hanno soglia di esenzione maggiore (10 euro/giorno dal 2026). Sono tracciabili e preferiti dal fisco."
-        class="mb-4"
-      >
-        <input
-          appControl
-          type="checkbox"
-          [formField]="form.benefitNonTassati.buoniPastoElettronici"
-        />
+        <input appControl type="checkbox" [formField]="form.haFigliACarico" />
       </app-check>
 
-      <app-field
-        label="Abbonamento trasporto pubblico (€/anno)"
-        info="Rimborso o erogazione diretta di abbonamenti TPL. Completamente esente, senza limiti di importo."
-        class="mb-4"
-      >
-        <input appControl type="number" [formField]="form.benefitNonTassati.abbonamentoTrasporto" />
-      </app-field>
+      @for (figlio of model.figli; track $index) {
+        <fieldset class="mt-2 rounded-lg bg-sunken p-2.5 ring-1 ring-hair ring-inset">
+          <legend class="sr-only">Figlio {{ $index + 1 }}</legend>
+          <div class="flex flex-wrap items-end gap-x-2.5 gap-y-2">
+            <span
+              aria-hidden="true"
+              class="flex h-[34px] w-4 items-center font-mono text-xs font-semibold text-muted"
+              >{{ $index + 1 }}</span
+            >
+            <app-field
+              label="Età"
+              info="Detrazione IRPEF solo per figli 21-30 anni. Sotto i 21 anni spetta l'Assegno Unico INPS (non calcolato qui)."
+              class="w-[72px]"
+            >
+              <input appControl type="number" [formField]="form.figli[$index].eta" />
+            </app-field>
 
-      <app-field
-        label="Servizi welfare (€/anno)"
-        info="Asili nido, borse di studio, colonie estive, assistenza anziani, ecc. Completamente esenti se erogati alla generalità dei dipendenti."
-        class="mb-4"
-      >
-        <input
-          appControl
-          type="number"
-          [formField]="form.benefitNonTassati.serviziWelfare"
-          placeholder="Asili, borse studio, ecc."
-        />
-      </app-field>
+            <app-field label="A carico" group class="w-[124px]">
+              <app-segmented
+                [formField]="form.figli[$index].percentualeCarico"
+                [options]="quoteCarico"
+              />
+            </app-field>
 
-      <app-field label="Altri benefit non tassati (€/anno)">
-        <input appControl type="number" [formField]="form.benefitNonTassati.altri" />
-      </app-field>
-    }
-  </app-section>
+            <app-field
+              label="Mesi"
+              info="Le detrazioni IRPEF e regionali sono rapportate a mese: contano i mesi dell'anno in cui il figlio è stato a carico (es. 12 per l'intero anno)."
+              class="w-[72px]"
+            >
+              <input
+                appControl
+                type="number"
+                step="1"
+                [formField]="form.figli[$index].mesiCarico"
+              />
+            </app-field>
 
-  <!-- Sezione Borsa di Studio -->
-  <app-section
-    heading="Borsa di Studio"
-    collapsible
-    [active]="model.borsaDiStudio.enabled"
-    description="Borse di studio post-laurea assegnate da universit&agrave; italiane, tassate dal 7 giugno 2025 (D.L. 45/2025, L. 79/2025). Soggette a INPS Gestione Separata e cumulo IRPEF."
-    [toggle]="form.borsaDiStudio.enabled"
-    toggleLabel="Ho una borsa di studio"
-    toggleInfo="Dal 7/6/2025 le borse post-laurea sono redditi assimilati al lavoro dipendente. INPS Gestione Separata 35,03% (1/3 borsista, 2/3 ente). L'imponibile si cumula con la RAL per IRPEF e addizionali."
-  >
-    @if (model.borsaDiStudio.enabled) {
-      <app-field label="Importo annuo lordo (&euro;/anno)" class="mb-4">
-        <input
-          appControl
-          type="number"
-          [formField]="form.borsaDiStudio.importoAnnuo"
-          placeholder="Es. 16243"
-        />
-      </app-field>
-    }
-  </app-section>
+            <app-check
+              label="Disabile"
+              info="I figli disabili danno diritto alla detrazione fiscale a qualsiasi età, non solo tra 21 e 30 anni."
+              class="h-[34px]"
+            >
+              <input appControl type="checkbox" [formField]="form.figli[$index].disabile" />
+            </app-check>
 
-  <!-- Sezione Dipendenti CCNL Commercio -->
-  <app-section
-    heading="Dipendenti CCNL Commercio"
-    collapsible
-    [active]="fondoCommercioSelezionato()"
-    description="Trattenute per i dipendenti non dirigenti del settore commercio, turismo e servizi."
-  >
-    @for (fondo of fondiCommercio; track fondo.id) {
-      <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" class="mb-3">
-        <input appControl type="checkbox" [formField]="form[fondo.id]" />
-      </app-check>
-    }
-  </app-section>
+            <button
+              type="button"
+              (click)="removeFiglio($index)"
+              [class]="removeButton"
+              [attr.aria-label]="'Rimuovi figlio ' + ($index + 1)"
+            >
+              <app-icon name="x" class="size-4" />
+            </button>
+          </div>
+        </fieldset>
+      }
 
-  <!-- Sezione Dirigenti CCNL Terziario -->
-  <app-section
-    heading="Dirigenti CCNL Terziario"
-    collapsible
-    [active]="fondoDirigentiSelezionato()"
-    description="Trattenute obbligatorie per i dirigenti del settore terziario (commercio, distribuzione, servizi)."
-  >
-    @for (fondo of fondiDirigenti; track fondo.id) {
-      <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" class="mb-3">
-        <input appControl type="checkbox" [formField]="form[fondo.id]" />
-      </app-check>
-    }
-  </app-section>
+      <button type="button" (click)="addFiglio()" [class]="addButton">
+        <app-icon name="add" class="size-3.5" />
+        Aggiungi figlio
+      </button>
+    </app-section>
+
+    <!-- Ascendenti a carico -->
+    <app-section
+      variant="row"
+      heading="Ascendenti a carico (genitori/nonni)"
+      [active]="attive().ascendenti"
+      [summary]="riepilogo.ascendenti"
+    >
+      @for (ascendente of model.ascendenti; track $index) {
+        <fieldset class="mb-2 rounded-lg bg-sunken p-2.5 ring-1 ring-hair ring-inset">
+          <legend class="sr-only">Ascendente {{ $index + 1 }}</legend>
+          <div class="flex flex-wrap items-end gap-x-2.5 gap-y-2">
+            <span
+              aria-hidden="true"
+              class="flex h-[34px] w-4 items-center font-mono text-xs font-semibold text-muted"
+              >{{ $index + 1 }}</span
+            >
+            <app-field
+              label="Reddito annuo"
+              unit="€"
+              info="Limite massimo 2.840,51 euro per essere a carico. La detrazione massima è 750 euro e decresce col reddito."
+              class="flex-[1_1_130px]"
+            >
+              <input appControl type="number" [formField]="form.ascendenti[$index].redditoAnnuo" />
+            </app-field>
+
+            <app-field
+              label="Mesi"
+              info="La detrazione è rapportata a mese: contano i mesi dell'anno in cui l'ascendente è stato a carico (es. 12 per l'intero anno)."
+              class="w-[72px]"
+            >
+              <input
+                appControl
+                type="number"
+                step="1"
+                [formField]="form.ascendenti[$index].mesiCarico"
+              />
+            </app-field>
+
+            <app-check
+              label="Convivente"
+              info="La detrazione per ascendenti spetta solo se conviventi. Richiesta residenza nello stesso nucleo familiare."
+              class="h-[34px]"
+            >
+              <input appControl type="checkbox" [formField]="form.ascendenti[$index].convivente" />
+            </app-check>
+
+            <button
+              type="button"
+              (click)="removeAscendente($index)"
+              [class]="removeButton"
+              [attr.aria-label]="'Rimuovi ascendente ' + ($index + 1)"
+            >
+              <app-icon name="x" class="size-4" />
+            </button>
+          </div>
+        </fieldset>
+      }
+
+      <button type="button" (click)="addAscendente()" [class]="addButton">
+        <app-icon name="add" class="size-3.5" />
+        Aggiungi ascendente
+      </button>
+    </app-section>
+
+    <!-- Fringe benefit -->
+    <app-section
+      variant="row"
+      heading="Fringe benefit"
+      [active]="attive().fringeBenefit"
+      [toggle]="form.fringeBenefit.enabled"
+      [summary]="riepilogo.fringeBenefit"
+      info="Compensi in natura. Esenti fino a 1.000 euro all'anno (2.000 con figli a carico) per il triennio 2025-2027. ATTENZIONE: sistema a soglia secca - se superi anche di 1 centesimo, tutto diventa imponibile!"
+    >
+      @if (model.fringeBenefit.enabled) {
+        <div class="flex flex-wrap items-end gap-3">
+          <app-field
+            label="Buoni acquisto/spesa"
+            unit="€ / anno"
+            info="Buoni spendibili per acquisti. Concorrono alla soglia fringe benefit complessiva."
+            class="flex-[1_1_150px]"
+          >
+            <input appControl type="number" [formField]="form.fringeBenefit.buoniAcquisto" />
+          </app-field>
+          <app-field label="Buoni carburante" unit="€ / anno" class="flex-[1_1_150px]">
+            <input appControl type="number" [formField]="form.fringeBenefit.buoniCarburante" />
+          </app-field>
+          <app-field label="Rimborso utenze domestiche" unit="€ / anno" class="flex-[1_1_150px]">
+            <input appControl type="number" [formField]="form.fringeBenefit.rimborsoUtenze" />
+          </app-field>
+          <app-field label="Rimborso affitto prima casa" unit="€ / anno" class="flex-[1_1_150px]">
+            <input appControl type="number" [formField]="form.fringeBenefit.rimborsoAffitto" />
+          </app-field>
+          <app-field label="Rimborso interessi mutuo" unit="€ / anno" class="flex-[1_1_150px]">
+            <input
+              appControl
+              type="number"
+              [formField]="form.fringeBenefit.rimborsoInteressiMutuo"
+            />
+          </app-field>
+          <app-field label="Altri fringe benefit" unit="€ / anno" class="flex-[1_1_150px]">
+            <input appControl type="number" [formField]="form.fringeBenefit.altri" />
+          </app-field>
+        </div>
+
+        <app-check
+          label="Ho auto aziendale"
+          info="Il valore si calcola: (costo ACI x 15.000 km x percentuale) x mesi/12. Non rientra nella soglia fringe benefit."
+          class="mt-2"
+        >
+          <input appControl type="checkbox" [formField]="form.fringeBenefit.autoAziendaleEnabled" />
+        </app-check>
+
+        @if (model.fringeBenefit.autoAziendaleEnabled) {
+          <fieldset class="mt-2 rounded-lg bg-sunken p-3 ring-1 ring-hair ring-inset">
+            <legend class="sr-only">Auto aziendale</legend>
+            <div class="flex flex-wrap items-end gap-3">
+              <app-field
+                label="Costo km ACI"
+                unit="€ / km"
+                info="Tariffa ufficiale ACI per il modello di auto. Consultare le tabelle ACI pubblicate annualmente. Inserisci le cifre decimali dopo la virgola (es. 0,03)"
+                class="flex-[1_1_130px]"
+              >
+                <input
+                  appControl
+                  type="number"
+                  [formField]="form.fringeBenefit.autoAziendale.costoKmAci"
+                />
+              </app-field>
+              <app-field
+                label="Tipo alimentazione"
+                info="Dal 2025: elettrico 10%, ibrido plug-in 20%, altri 50%. Per auto assegnate prima del 2025 si usa il regime CO2."
+                class="flex-[2_1_200px]"
+              >
+                <select appControl [formField]="form.fringeBenefit.autoAziendale.tipoAlimentazione">
+                  @for (tipo of tipiAlimentazione; track tipo.value) {
+                    <option [value]="tipo.value">{{ tipo.label }}</option>
+                  }
+                </select>
+              </app-field>
+              <app-field label="Mesi di utilizzo" class="flex-[1_1_110px]">
+                <input
+                  appControl
+                  type="number"
+                  [formField]="form.fringeBenefit.autoAziendale.mesiUtilizzo"
+                />
+              </app-field>
+              <app-field
+                label="Trattenuta dipendente"
+                unit="€ / anno"
+                info="Importo eventualmente trattenuto in busta paga per l'uso personale dell'auto. Riduce il fringe benefit imponibile."
+                class="flex-[1_1_150px]"
+              >
+                <input
+                  appControl
+                  type="number"
+                  [formField]="form.fringeBenefit.autoAziendale.trattenutaDipendente"
+                />
+              </app-field>
+            </div>
+
+            <div class="mt-2 flex flex-wrap items-end gap-x-4 gap-y-2">
+              <app-check
+                label="Assegnato prima del 2025 (regime CO2)"
+                info="Le auto assegnate prima del 2025 usano il vecchio regime basato su emissioni CO2: fino a 60 g/km 25%, 61-160 g/km 30%, 161-190 g/km 50%, oltre 60%."
+                class="h-[34px]"
+              >
+                <input
+                  appControl
+                  type="checkbox"
+                  [formField]="form.fringeBenefit.autoAziendale.assegnatoPre2025"
+                />
+              </app-check>
+              @if (model.fringeBenefit.autoAziendale.assegnatoPre2025) {
+                <app-field label="Emissioni CO2" unit="g / km" class="w-[140px]">
+                  <input
+                    appControl
+                    type="number"
+                    [formField]="form.fringeBenefit.autoAziendale.emissioniCO2"
+                  />
+                </app-field>
+              }
+            </div>
+          </fieldset>
+        }
+      }
+    </app-section>
+
+    <!-- Rimborsi trasferta -->
+    <app-section
+      variant="row"
+      heading="Rimborsi trasferta"
+      [active]="attive().rimborsi"
+      [toggle]="form.rimborsiTrasferta.enabled"
+      [summary]="riepilogo.rimborsi"
+      info="Rimborsi per trasferte fuori dal comune di lavoro. Possono essere forfettari (46,48 euro/giorno Italia, 77,47 euro estero) o a pie' di lista."
+    >
+      @if (model.rimborsiTrasferta.enabled) {
+        <div class="flex flex-wrap items-end gap-3">
+          <app-field
+            label="Modalità rimborso"
+            info="Forfettario: indennità fissa giornaliera. Analitico: rimborso a pie' di lista documentato. Misto: forfettario ridotto + rimborso vitto/alloggio."
+            class="flex-[2_1_160px]"
+          >
+            <select appControl [formField]="form.rimborsiTrasferta.modalitaRimborso">
+              @for (modalita of modalitaRimborso; track modalita.value) {
+                <option [value]="modalita.value">{{ modalita.label }}</option>
+              }
+            </select>
+          </app-field>
+          <app-field label="Giorni Italia" class="flex-[1_1_100px]">
+            <input
+              appControl
+              type="number"
+              [formField]="form.rimborsiTrasferta.giorniTrasfertaItalia"
+            />
+          </app-field>
+          <app-field label="Giorni estero" class="flex-[1_1_100px]">
+            <input
+              appControl
+              type="number"
+              [formField]="form.rimborsiTrasferta.giorniTrasfertaEstero"
+            />
+          </app-field>
+        </div>
+
+        <div class="mt-3 flex flex-wrap items-end gap-3">
+          <app-field label="Vitto documentato" unit="€ / anno" class="flex-[1_1_150px]">
+            <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoVitto" />
+          </app-field>
+          <app-field label="Alloggio documentato" unit="€ / anno" class="flex-[1_1_150px]">
+            <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoAlloggio" />
+          </app-field>
+          <app-field label="Viaggio" unit="€ / anno" class="flex-[1_1_150px]">
+            <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoViaggio" />
+          </app-field>
+          <app-field
+            label="Chilometrico fuori comune"
+            unit="€ / anno"
+            info="Indennità chilometrica per l'uso dell'auto propria in trasferte fuori dal comune sede di lavoro, entro le tariffe ACI: esente da imposte e contributi. Non richiede pagamento tracciabile."
+            class="flex-[1_1_150px]"
+          >
+            <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoKm" />
+          </app-field>
+          <app-field
+            label="Chilometrico imponibile"
+            unit="€ / anno"
+            info="Rimborsi chilometrici che concorrono al reddito (art. 51, c. 5, TUIR): spostamenti nel comune sede di lavoro e quota eccedente le tariffe ACI nelle trasferte fuori comune."
+            class="flex-[1_1_150px]"
+          >
+            <input
+              appControl
+              type="number"
+              [formField]="form.rimborsiTrasferta.rimborsoKmImponibile"
+            />
+          </app-field>
+        </div>
+
+        <app-check
+          label="Pagamenti tracciabili"
+          info="Dal 2025 obbligo di tracciabilità per vitto, alloggio e taxi. Senza tracciabilità i rimborsi diventano imponibili."
+          class="mt-2"
+        >
+          <input
+            appControl
+            type="checkbox"
+            [formField]="form.rimborsiTrasferta.pagamentiTracciabili"
+          />
+        </app-check>
+      }
+    </app-section>
+
+    <!-- Benefit non tassati (welfare) -->
+    <app-section
+      variant="row"
+      heading="Benefit non tassati (welfare)"
+      [active]="attive().benefit"
+      [toggle]="form.benefitNonTassati.enabled"
+      [summary]="riepilogo.benefit"
+      info="Voci welfare completamente esenti o con limiti specifici: previdenza, sanità, buoni pasto, trasporto pubblico, servizi familiari."
+    >
+      @if (model.benefitNonTassati.enabled) {
+        <div class="flex flex-wrap items-end gap-3">
+          <app-field
+            label="Buoni pasto"
+            unit="€ / anno"
+            info="Esenti fino a 4 euro/giorno (cartacei) o 10 euro/giorno (elettronici, dal 2026). Il calcolo assume buoni di pari importo giornaliero, per i giorni di erogazione indicati. L'eccedenza è imponibile."
+            class="flex-[2_1_150px]"
+          >
+            <input appControl type="number" [formField]="form.benefitNonTassati.buoniPasto" />
+          </app-field>
+          <app-field
+            label="Giorni di erogazione"
+            info="Numero effettivo di giorni coperti dai buoni pasto nell'anno. Il valore predefinito di 220 giorni è una stima: modificarlo in base ai buoni ricevuti."
+            class="flex-[1_1_110px]"
+          >
+            <input appControl type="number" [formField]="form.benefitNonTassati.giorniBuoniPasto" />
+          </app-field>
+        </div>
+
+        <app-check
+          label="Buoni pasto elettronici (soglia 10 € invece di 4 €)"
+          info="I buoni elettronici hanno soglia di esenzione maggiore (10 euro/giorno dal 2026). Sono tracciabili e preferiti dal fisco."
+          class="mt-1"
+        >
+          <input
+            appControl
+            type="checkbox"
+            [formField]="form.benefitNonTassati.buoniPastoElettronici"
+          />
+        </app-check>
+
+        <div class="mt-2 flex flex-wrap items-end gap-3">
+          <app-field
+            label="Previdenza da welfare"
+            unit="€ / anno"
+            info="Contributi al fondo pensione versati dall'azienda tramite il piano welfare (es. credito welfare convertito in previdenza). Non sono una trattenuta: sono reddito dedotto entro i 5.300 euro/anno, limite condiviso con i contributi di lavoratore e datore. Non riducono i contributi INPS."
+            class="flex-[1_1_150px]"
+          >
+            <input
+              appControl
+              type="number"
+              [formField]="form.benefitNonTassati.previdenzaComplementare"
+              placeholder="Max 5.300"
+            />
+          </app-field>
+          <app-field
+            label="Assistenza sanitaria"
+            unit="€ / anno"
+            info="Contributi a casse/fondi sanitari integrativi. Esenti fino a 3.615,20 euro/anno."
+            class="flex-[1_1_150px]"
+          >
+            <input
+              appControl
+              type="number"
+              [formField]="form.benefitNonTassati.assistenzaSanitaria"
+              placeholder="Max 3.615,20"
+            />
+          </app-field>
+          <app-field
+            label="Abbonamento trasporto"
+            unit="€ / anno"
+            info="Rimborso o erogazione diretta di abbonamenti TPL. Completamente esente, senza limiti di importo."
+            class="flex-[1_1_150px]"
+          >
+            <input
+              appControl
+              type="number"
+              [formField]="form.benefitNonTassati.abbonamentoTrasporto"
+            />
+          </app-field>
+          <app-field
+            label="Servizi welfare"
+            unit="€ / anno"
+            info="Asili nido, borse di studio, colonie estive, assistenza anziani, ecc. Completamente esenti se erogati alla generalità dei dipendenti."
+            class="flex-[1_1_150px]"
+          >
+            <input
+              appControl
+              type="number"
+              [formField]="form.benefitNonTassati.serviziWelfare"
+              placeholder="Asili, borse studio"
+            />
+          </app-field>
+          <app-field label="Altri benefit non tassati" unit="€ / anno" class="flex-[1_1_150px]">
+            <input appControl type="number" [formField]="form.benefitNonTassati.altri" />
+          </app-field>
+        </div>
+      }
+    </app-section>
+
+    <!-- Borsa di studio aggiuntiva -->
+    <app-section
+      variant="row"
+      heading="Borsa di studio"
+      [active]="attive().borsa"
+      [toggle]="form.borsaDiStudio.enabled"
+      [summary]="riepilogo.borsa"
+      description="Borse di studio post-laurea assegnate da università italiane, tassate dal 7 giugno 2025 (D.L. 45/2025, L. 79/2025). Soggette a INPS Gestione Separata e cumulo IRPEF."
+      info="Dal 7/6/2025 le borse post-laurea sono redditi assimilati al lavoro dipendente. INPS Gestione Separata 35,03% (1/3 borsista, 2/3 ente). L'imponibile si cumula con la RAL per IRPEF e addizionali."
+    >
+      @if (model.borsaDiStudio.enabled) {
+        <app-field label="Importo annuo lordo" unit="€ / anno" class="max-w-[220px]">
+          <input
+            appControl
+            type="number"
+            [formField]="form.borsaDiStudio.importoAnnuo"
+            placeholder="Es. 16243"
+          />
+        </app-field>
+      }
+    </app-section>
+
+    <!-- Dipendenti CCNL Commercio -->
+    <app-section
+      variant="row"
+      heading="Dipendenti CCNL Commercio"
+      [active]="attive().commercio"
+      [summary]="riepilogo.commercio"
+      description="Trattenute per i dipendenti non dirigenti del settore commercio, turismo e servizi."
+    >
+      @for (fondo of fondiCommercio; track fondo.id) {
+        <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" [note]="fondo.nota">
+          <input appControl type="checkbox" [formField]="form[fondo.id]" />
+        </app-check>
+      }
+    </app-section>
+
+    <!-- Dirigenti CCNL Terziario -->
+    <app-section
+      variant="row"
+      heading="Dirigenti CCNL Terziario"
+      [active]="attive().dirigenti"
+      [summary]="riepilogo.dirigenti"
+      description="Trattenute obbligatorie per i dirigenti del settore terziario (commercio, distribuzione, servizi)."
+    >
+      @for (fondo of fondiDirigenti; track fondo.id) {
+        <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" [note]="fondo.nota">
+          <input appControl type="checkbox" [formField]="form[fondo.id]" />
+        </app-check>
+      }
+    </app-section>
+  </section>
 </form>

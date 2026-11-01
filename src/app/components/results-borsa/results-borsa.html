@@ -1,142 +1,110 @@
-<aside
-  class="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] flex flex-col rounded-3xl p-2 bg-tray ring-1 ring-ring shadow-tray"
->
-  <div
-    class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-2xl bg-surface ring-1 ring-ring shadow-2xl shadow-black/10"
-  >
-    <h2 class="sr-only">Risultati</h2>
-    @if (hasResult()) {
-      @let r = result()!;
+<h2 class="sr-only">Risultati</h2>
+@if (result(); as r) {
+  <div class="flex flex-col gap-4">
+    <app-tray
+      [kpi]="kpi()"
+      [ripartizione]="ripartizione()!"
+      [aliquota]="r.aliquotaEffettiva"
+      [stats]="stats()"
+      oggetto="della borsa"
+    />
 
-      <!-- Header con risultati principali -->
-      <header
-        class="m-2 rounded-lg p-6 bg-linear-115 from-g1 from-22% via-g2 via-62% to-g3 ring-1 ring-inset ring-ring"
-      >
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div class="flex flex-col gap-1">
-            <span class="font-mono text-xs/5 font-semibold tracking-widest uppercase text-fg"
-              >Netto Mensile</span
-            >
-            <app-amount
-              class="text-4xl font-medium tracking-tight tabular-nums text-fg"
-              [value]="r.nettoMensile"
-            />
-            <span class="text-xs text-fg">su 12 rate mensili</span>
-          </div>
-          <div class="flex flex-col gap-1 sm:items-end">
-            <span class="font-mono text-xs/5 font-semibold tracking-widest uppercase text-fg"
-              >Netto Annuo</span
-            >
-            <app-amount
-              class="text-4xl font-medium tracking-tight tabular-nums text-fg"
-              [value]="r.nettoAnnuo"
-            />
-            <span class="text-xs text-fg">(stipendio netto)</span>
-          </div>
-        </div>
-      </header>
+    @if (r.borsaDiStudio; as borsa) {
+      <div class="flex flex-col gap-2 tabular-nums">
+        <app-ledger-card
+          heading="Riepilogo borsa di studio"
+          hue="ocra"
+          icon="cap"
+          [total]="r.nettoAnnuo"
+        >
+          <dl>
+            <div appLedgerRow label="Importo lordo annuo" [amount]="borsa.importoLordo"></div>
+            <div appLedgerRow label="IRPEF" value="Esente"></div>
+            <div appLedgerRow label="Addizionali" value="Esenti"></div>
+            <div appLedgerRow label="Netto annuo" [amount]="r.nettoAnnuo" level="total"></div>
+            <div
+              appLedgerRow
+              label="Aliquota effettiva"
+              [percent]="r.aliquotaEffettiva"
+              level="detail"
+            ></div>
+          </dl>
+        </app-ledger-card>
 
-      <!-- Contenuto -->
-      <div
-        class="flex-1 overflow-y-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus"
-        tabindex="0"
-      >
-        @if (r.borsaDiStudio) {
-          <!-- Riepilogo Borsa di Studio -->
-          <section class="p-4 border-b border-divider">
-            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-              Riepilogo Borsa di Studio
-            </h3>
-            <dl>
-              <div
-                appLedgerRow
-                label="Importo Lordo Annuo"
-                [amount]="r.borsaDiStudio.importoLordo"
-              ></div>
-              <div appLedgerRow label="IRPEF" value="Esente"></div>
-              <div appLedgerRow label="Addizionali" value="Esenti"></div>
-              <div appLedgerRow label="Netto Annuo" [amount]="r.nettoAnnuo" level="total"></div>
-              <div appLedgerRow label="Aliquota Effettiva" [percent]="r.aliquotaEffettiva"></div>
-            </dl>
-          </section>
+        <app-ledger-card
+          heading="INPS Gestione Separata"
+          hue="arancio"
+          icon="shield"
+          [total]="borsa.contributoGestioneSeparataBorsista"
+          flow="out"
+        >
+          <dl>
+            <div
+              appLedgerRow
+              label="Aliquota totale"
+              [percent]="borsa.aliquotaGestioneSeparata"
+            ></div>
+            <div
+              appLedgerRow
+              label="Contributo totale"
+              [amount]="borsa.contributoGestioneSeparataTotale"
+            ></div>
+            <div
+              appLedgerRow
+              label="A carico borsista (1/3)"
+              [amount]="borsa.contributoGestioneSeparataBorsista"
+              flow="out"
+            ></div>
+            <div
+              appLedgerRow
+              label="A carico ente (2/3)"
+              [amount]="borsa.contributoGestioneSeparataEnte"
+            ></div>
+          </dl>
+        </app-ledger-card>
 
-          <!-- INPS Gestione Separata -->
-          <section class="p-4 border-b border-divider">
-            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-              INPS Gestione Separata
-            </h3>
-            <dl>
-              <div
-                appLedgerRow
-                label="Aliquota Totale"
-                [percent]="r.borsaDiStudio.aliquotaGestioneSeparata"
-              ></div>
-              <div
-                appLedgerRow
-                label="Contributo Totale"
-                [amount]="r.borsaDiStudio.contributoGestioneSeparataTotale"
-              ></div>
-              <div
-                appLedgerRow
-                label="A carico borsista (1/3)"
-                [amount]="r.borsaDiStudio.contributoGestioneSeparataBorsista"
-                flow="out"
-              ></div>
-              <div
-                appLedgerRow
-                label="A carico ente (2/3)"
-                [amount]="r.borsaDiStudio.contributoGestioneSeparataEnte"
-              ></div>
-            </dl>
-          </section>
+        <app-ledger-card
+          heading="Dettaglio mensile"
+          hue="verde"
+          icon="receipt"
+          [total]="r.nettoMensile"
+        >
+          <dl>
+            <div appLedgerRow label="Lordo mensile" [amount]="borsa.importoLordo / 12"></div>
+            <div
+              appLedgerRow
+              label="GS borsista mensile"
+              [amount]="borsa.contributoGestioneSeparataBorsista / 12"
+              flow="out"
+            ></div>
+            <div appLedgerRow label="Netto mensile" [amount]="r.nettoMensile" level="total"></div>
+          </dl>
+        </app-ledger-card>
 
-          <!-- Costo Ente -->
-          <section class="p-4 border-b border-divider">
-            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-              Costo per l'Ente
-            </h3>
-            <dl>
-              @for (voce of r.ripartizione.entrate; track voce.descrizione) {
-                <div appLedgerRow label="{{ voce.descrizione }}" [amount]="voce.importo"></div>
-              }
-              <div
-                appLedgerRow
-                label="Totale Annuo"
-                [amount]="r.costoAziendale"
-                level="total"
-              ></div>
-            </dl>
-          </section>
-
-          <!-- Netto Mensile -->
-          <section class="p-4">
-            <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-              Dettaglio Mensile
-            </h3>
-            <dl>
-              <div
-                appLedgerRow
-                label="Lordo Mensile"
-                [amount]="r.borsaDiStudio.importoLordo / 12"
-              ></div>
-              <div
-                appLedgerRow
-                label="GS Borsista Mensile"
-                [amount]="r.borsaDiStudio.contributoGestioneSeparataBorsista / 12"
-                flow="out"
-              ></div>
-              <div appLedgerRow label="Netto Mensile" [amount]="r.nettoMensile" level="total"></div>
-            </dl>
-          </section>
-        }
-      </div>
-    } @else {
-      <div class="p-8 text-center">
-        <p class="text-subtle mb-2">
-          Compila il form per calcolare il netto della tua borsa di studio.
-        </p>
-        <p class="text-sm text-faint">Inserisci l'importo annuo lordo della borsa.</p>
+        <app-ledger-card
+          heading="Costo per l'ente"
+          hue="terracotta"
+          icon="building"
+          [total]="r.costoAziendale"
+        >
+          <dl>
+            @for (voce of r.ripartizione.entrate; track voce.descrizione) {
+              <div appLedgerRow [label]="voce.descrizione" [amount]="voce.importo"></div>
+            }
+          </dl>
+        </app-ledger-card>
       </div>
     }
   </div>
-</aside>
+} @else {
+  <div
+    class="rounded-[26px] bg-linear-145 from-g1 from-28% via-g2 via-70% to-g3 p-2 ring-1 ring-black/5 ring-inset dark:ring-white/10"
+  >
+    <div class="rounded-[19px] bg-surface p-8 text-center shadow-2xl">
+      <p class="mb-2 text-muted">
+        Compila il form per calcolare il netto della tua borsa di studio.
+      </p>
+      <p class="text-sm text-muted">Inserisci l'importo annuo lordo della borsa.</p>
+    </div>
+  </div>
+}

@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form, FormField, min, validate } from '@angular/forms/signals';
 import { Check, Control, Field } from './field';
+import { Segmented } from '../segmented/segmented';
 
 @Component({
   imports: [Field, Check, Control, FormField],
@@ -82,5 +83,75 @@ describe('Field', () => {
     const { ral, cigs } = render();
     expect(cigs.className).toContain('accent-primary');
     expect(ral.className).toContain('ring-ring-strong');
+  });
+});
+
+@Component({
+  imports: [Field, Check, Control, FormField, Segmented],
+  template: `
+    <app-field label="RAL" unit="€ / anno">
+      <input appControl="lg" type="number" [formField]="f.ral" />
+    </app-field>
+    <app-field label="Età figlio 1" hideLabel>
+      <input appControl type="number" [formField]="f.eta" />
+    </app-field>
+    <app-field label="Mensilità" group>
+      <app-segmented [formField]="f.mensilita" [options]="mensilita" />
+    </app-field>
+    <app-check label="Fondo EST" note="24,00 € / anno">
+      <input appControl type="checkbox" [formField]="f.est" />
+    </app-check>
+  `,
+})
+class UnitHost {
+  readonly model = signal({ ral: 35000, eta: 8, mensilita: '13', est: false });
+  readonly f = form(this.model);
+  readonly mensilita = ['12', '13', '14', '15'].map((m) => ({ value: m, label: m }));
+}
+
+describe('Field with units and groups', () => {
+  function renderUnits() {
+    const fixture = TestBed.createComponent(UnitHost);
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    return { fixture, el, inputs: Array.from(el.querySelectorAll('input')) };
+  }
+
+  it('draws the unit inside the control and reads it as a description', () => {
+    const { el, inputs } = renderUnits();
+    const ral = inputs[0];
+    const unit = el.querySelector(`#${ral.id}-unit`)!;
+    expect(unit.textContent).toBe('€ / anno');
+    expect(ral.getAttribute('aria-describedby')).toBe(unit.id);
+    expect(ral.className).toContain('pr-[4.5rem]');
+    expect(ral.className).toContain('h-10');
+  });
+
+  it('keeps a hidden label available to assistive technology', () => {
+    const { el, inputs } = renderUnits();
+    const label = el.querySelector<HTMLElement>(`label[for="${inputs[1].id}"]`)!;
+    expect(label.textContent).toContain('Età figlio 1');
+    expect(label.parentElement!.classList.contains('sr-only')).toBe(true);
+  });
+
+  it('names a radio group with the field label and moves the value', () => {
+    const { fixture, el } = renderUnits();
+    const group = el.querySelector('[role="radiogroup"]')!;
+    const label = el.querySelector(`#${group.getAttribute('aria-labelledby')}`)!;
+    expect(label.tagName).toBe('SPAN');
+    expect(label.textContent).toContain('Mensilità');
+
+    const radios = Array.from(group.querySelectorAll<HTMLInputElement>('input[type="radio"]'));
+    expect(radios.map((r) => r.checked)).toEqual([false, true, false, false]);
+    expect(new Set(radios.map((r) => r.name)).size).toBe(1);
+
+    radios[2].click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.model().mensilita).toBe('14');
+  });
+
+  it('shows a check note next to its label', () => {
+    const { el } = renderUnits();
+    expect(el.querySelector('app-check')!.textContent).toContain('24,00 € / anno');
   });
 });

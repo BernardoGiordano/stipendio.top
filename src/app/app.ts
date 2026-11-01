@@ -3,18 +3,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
-  Injector,
   signal,
-  viewChild,
 } from '@angular/core';
 import { FormContainer } from './components/form-container/form-container';
 import { FormBorsaContainer } from './components/form-borsa-container/form-borsa-container';
 import { Results } from './components/results/results';
 import { ResultsBorsa } from './components/results-borsa/results-borsa';
 import { Resizer } from './components/resizer/resizer';
-import { Hero } from './components/hero/hero';
 import { Icon } from './components/icon/icon';
 import { AnimatedAmount } from './components/ledger/ledger';
 import { LINKS, NAV_LINKS } from './links';
@@ -39,6 +37,8 @@ import {
 } from '@angular/cdk/menu';
 import buildInfo from '../build.json';
 
+const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus';
+
 @Component({
   selector: 'app-root',
   imports: [
@@ -47,7 +47,6 @@ import buildInfo from '../build.json';
     Results,
     ResultsBorsa,
     Resizer,
-    Hero,
     Icon,
     AnimatedAmount,
     CdkMenu,
@@ -57,18 +56,22 @@ import buildInfo from '../build.json';
     CdkMenuTrigger,
   ],
   templateUrl: './app.html',
-  styleUrl: 'app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'relative block overflow-clip' },
 })
 export class App {
   readonly buildInfo = buildInfo;
+  readonly year = new Date().getFullYear();
+  /** Build date as YYYY-MM-DD, from the YYYYMMDD-HHmm build stamp */
+  readonly version = buildInfo.buildDate.replace(/^(\d{4})(\d{2})(\d{2}).*$/, '$1-$2-$3');
 
   readonly links = LINKS;
   readonly navLinks = NAV_LINKS;
+  readonly licenseHref = `${LINKS.github.href}/blob/main/LICENSE`;
 
   readonly displayOptions = [
-    { mode: 'netto', label: 'Netto', menuLabel: 'Mostra netto' },
-    { mode: 'percepito', label: 'Percepito', menuLabel: 'Mostra percepito' },
+    { mode: 'netto', label: 'Netto' },
+    { mode: 'percepito', label: 'Percepito' },
   ] as const;
 
   readonly themeOptions = [
@@ -76,16 +79,13 @@ export class App {
     { theme: 'dark', label: 'Tema scuro' },
   ] as const;
 
-  /** Desktop bar link: icon only, label slides out on hover */
-  readonly barItem =
-    'hidden lg:flex items-center gap-2 p-2 rounded-lg text-subtle hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus transition-all duration-300 overflow-hidden group';
-  readonly barLabel =
-    'text-sm font-medium whitespace-nowrap max-w-0 group-hover:max-w-xs group-focus-visible:max-w-xs overflow-hidden opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 hover-text-delay';
+  /** Netto/Percepito pill: compact on mobile, Radiant size on desktop */
+  readonly pill = `h-[26px] cursor-pointer rounded-full px-[9px] text-xs font-medium lg:h-[30px] lg:px-3.5 lg:text-sm ${FOCUS}`;
+  readonly navLink = `hidden h-11 items-center rounded-lg px-3.5 text-[15px] font-medium text-fg hover:text-muted lg:flex ${FOCUS}`;
+  readonly iconButton = `size-11 cursor-pointer items-center justify-center rounded-lg text-fg hover:bg-sunken ${FOCUS}`;
+  readonly creditLink = `rounded-sm font-medium text-fg underline decoration-fg/30 underline-offset-4 hover:decoration-fg ${FOCUS}`;
   readonly menuItem =
     'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-fg hover:bg-sunken focus:bg-sunken focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus cursor-pointer';
-
-  private readonly injector = inject(Injector);
-  private readonly results = viewChild(Results);
 
   readonly themeMode = inject(ThemeMode);
   readonly formStateShare = inject(FormStateShare);
@@ -99,8 +99,18 @@ export class App {
   /** Whether the form was loaded from a shared URL */
   readonly loadedFromUrl = signal(false);
 
-  /** Split ratio for desktop layout (0.3 to 0.7, default 0.5) */
-  readonly splitRatio = signal(0.5);
+  /** Width share of the form column on desktop, 0.3 to 0.5; the default matches flex 1 : 1.2 */
+  readonly splitRatio = signal(0.45);
+
+  /** Whether the results fill the upper half of the viewport, for the mobile bar */
+  private readonly resultsInView = signal(false);
+
+  /** Where the mobile bar jumps: down to the results, or back up to the form */
+  readonly barTarget = computed(() =>
+    this.resultsInView()
+      ? ({ href: '#dati', label: 'Modifica dati', icon: 'arrow-up' } as const)
+      : ({ href: '#risultati', label: 'Risultati', icon: 'arrow-down' } as const),
+  );
 
   /** The input model for projections (derived from form) */
   readonly calculationInput = computed<InputCalcoloStipendio | null>(() => {
@@ -130,18 +140,18 @@ export class App {
         this.calculationResult();
       }
     });
-  }
 
-  /** Opens the Flusso tab, scrolls the results to the top and moves focus to the tab */
-  showFlow(): void {
-    this.results()?.setActiveTab('flusso');
-    afterNextRender(
-      () => {
-        document.getElementById('risultati')?.scrollIntoView({ block: 'start' });
-        document.getElementById('tab-flusso')?.focus({ preventScroll: true });
-      },
-      { injector: this.injector },
-    );
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const results = document.getElementById('risultati');
+      if (!results || typeof IntersectionObserver !== 'function') return;
+      const observer = new IntersectionObserver(
+        ([entry]) => this.resultsInView.set(entry.isIntersecting),
+        { rootMargin: '0px 0px -50% 0px' },
+      );
+      observer.observe(results);
+      destroyRef.onDestroy(() => observer.disconnect());
+    });
   }
 
   copyShareableLink(): void {

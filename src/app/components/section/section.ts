@@ -1,133 +1,164 @@
-import {
-  booleanAttribute,
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, linkedSignal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { FieldTree, FormField } from '@angular/forms/signals';
+import { Icon } from '../icon/icon';
 import { InfoTooltip } from '../info-tooltip/info-tooltip';
 
 let nextId = 0;
 
 /**
- * A form section card: heading, optional description, optional enable switch
- * and the projected fields. Collapsible sections start closed unless active,
- * and show an "attivo" badge while they change the result.
+ * A form section in one of two shapes.
+ *
+ * A card holds the always-used fields under a mono heading; the host carries
+ * the bento radius through its class.
+ *
+ * A row is one line of a list: a switch for sections with an enabled flag,
+ * otherwise a disclosure chevron, then the title and a summary while active.
+ * The body opens while the section is active, and the user can open or close
+ * it by hand. A switch row forgets that choice whenever it is switched.
  */
 @Component({
   selector: 'app-section',
-  imports: [FormField, InfoTooltip],
+  imports: [FormField, Icon, InfoTooltip, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },
   template: `
-    <section
-      [attr.aria-labelledby]="id + '-title'"
-      [attr.data-inactive]="active() === false || null"
-      class="rounded-xl bg-surface shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    >
-      @if (collapsible()) {
-        <h4>
-          <button
-            type="button"
-            [id]="id + '-title'"
-            [attr.aria-expanded]="open()"
-            [attr.aria-controls]="id + '-body'"
-            (click)="userOpen.set(!open())"
-            class="flex w-full cursor-pointer items-center gap-3 rounded-xl p-5 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus"
-          >
-            <span class="font-mono text-xs/5 font-semibold tracking-widest text-muted uppercase">
-              {{ heading() }}
-            </span>
-            @if (active()) {
-              <span
-                class="rounded-full bg-sunken px-2 py-0.5 text-xs font-medium text-fg ring-1 ring-ring ring-inset"
-              >
-                attivo
-              </span>
-            }
-            <svg
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-              class="ml-auto size-5 shrink-0 text-subtle transition-transform duration-200"
-              [class.rotate-180]="open()"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </button>
-        </h4>
-      } @else {
-        <h4
+    <ng-template #content><ng-content /></ng-template>
+    @if (variant() === 'card') {
+      <section
+        [attr.aria-labelledby]="id + '-title'"
+        class="rounded-[inherit] bg-surface px-4 pt-[18px] pb-5 shadow-xs ring-1 ring-ring-card sm:px-5"
+      >
+        <h3
           [id]="id + '-title'"
-          class="px-5 pt-5 font-mono text-xs/5 font-semibold tracking-widest text-muted uppercase"
+          class="font-mono text-[11px]/[18px] font-semibold tracking-widest text-faint uppercase"
         >
           {{ heading() }}
-        </h4>
-      }
-
-      <div [id]="id + '-body'" [hidden]="!open()" class="px-5 pb-5" [class.pt-4]="!collapsible()">
-        <fieldset class="min-w-0">
+        </h3>
+        <fieldset class="mt-3.5 min-w-0">
           <legend class="sr-only">{{ heading() }}</legend>
-
           @if (description(); as text) {
-            <p class="mb-4 text-xs text-subtle">{{ text }}</p>
+            <p class="mb-3 text-xs text-muted">{{ text }}</p>
           }
-
-          @if (toggle(); as field) {
-            <div class="mb-4 flex items-center">
-              <label class="group flex cursor-pointer items-center gap-3">
-                <span
-                  class="relative inline-flex h-5 w-9 shrink-0 rounded-full bg-faint transition-colors group-has-checked:bg-primary has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus"
-                >
-                  <input
-                    type="checkbox"
-                    role="switch"
-                    [formField]="field"
-                    class="absolute inset-0 size-full cursor-pointer appearance-none rounded-full focus:outline-none"
-                  />
-                  <span
-                    aria-hidden="true"
-                    class="pointer-events-none absolute top-0.5 left-0.5 size-4 rounded-full bg-surface shadow-sm transition-transform duration-200 group-has-checked:translate-x-4"
-                  ></span>
-                </span>
-                <span class="text-sm font-medium text-title">{{ toggleLabel() }}</span>
-              </label>
-              @if (toggleInfo(); as text) {
-                <app-info-tooltip [tooltipId]="id + '-toggle-info'" [text]="text" />
-              }
-            </div>
-          }
-
-          <ng-content />
+          <ng-container [ngTemplateOutlet]="content" />
         </fieldset>
-      </div>
-    </section>
+      </section>
+    } @else {
+      <section [attr.aria-labelledby]="id + '-title'" class="border-t border-hair">
+        <div class="flex min-h-[46px] items-center gap-3 py-1.5 pr-3 pl-4 sm:pr-4 sm:pl-5">
+          @if (toggle(); as field) {
+            <span
+              class="group/switch relative inline-flex h-[22px] w-9 shrink-0 rounded-full bg-switch-off ring-1 ring-switch-ring ring-inset transition-colors motion-reduce:transition-none has-checked:bg-accent has-checked:ring-black/8 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus"
+            >
+              <input
+                type="checkbox"
+                role="switch"
+                [id]="id + '-switch'"
+                [formField]="field"
+                class="absolute inset-0 size-full cursor-pointer appearance-none rounded-full focus:outline-none"
+              />
+              <span
+                aria-hidden="true"
+                class="pointer-events-none absolute top-[3px] left-[3px] size-4 rounded-full bg-white shadow-sm transition-transform duration-200 motion-reduce:transition-none group-has-checked/switch:translate-x-3.5"
+              ></span>
+            </span>
+            <h4 [id]="id + '-title'" class="flex min-w-0 items-center text-sm font-medium text-fg">
+              <label [for]="id + '-switch'" class="cursor-pointer">{{ heading() }}</label>
+              <ng-container [ngTemplateOutlet]="infoTip" />
+            </h4>
+          } @else {
+            <h4 [id]="id + '-title'" class="flex min-w-0 items-center text-sm font-medium text-fg">
+              <button
+                type="button"
+                [attr.aria-expanded]="open()"
+                [attr.aria-controls]="id + '-body'"
+                (click)="userOpen.set(!open())"
+                class="-my-1 -ml-1 flex cursor-pointer items-center gap-3 rounded-md py-1 pr-1 pl-1 text-left focus-visible:outline-2 focus-visible:outline-focus"
+              >
+                <span class="flex w-9 shrink-0 justify-center">
+                  <app-icon
+                    name="chevron-down"
+                    class="size-5 text-subtle transition-transform duration-200 motion-reduce:transition-none"
+                    [class.-rotate-90]="!open()"
+                  />
+                </span>
+                {{ heading() }}
+              </button>
+              <ng-container [ngTemplateOutlet]="infoTip" />
+            </h4>
+          }
+          <ng-template #infoTip>
+            @if (info(); as text) {
+              <app-info-tooltip [tooltipId]="id + '-info'" [text]="text" />
+            }
+          </ng-template>
+          <span class="ml-auto"></span>
+          @if (active() && summary(); as text) {
+            <span class="text-right text-[13px] text-muted tabular-nums">{{ text }}</span>
+          }
+          @if (toggle() && active()) {
+            <button
+              type="button"
+              [attr.aria-expanded]="open()"
+              [attr.aria-controls]="id + '-body'"
+              [attr.aria-label]="'Campi di ' + heading()"
+              (click)="userOpen.set(!open())"
+              class="-mr-1 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-subtle hover:bg-sunken hover:text-fg focus-visible:outline-2 focus-visible:outline-focus"
+            >
+              <app-icon
+                name="chevron-down"
+                class="size-5 transition-transform duration-200 motion-reduce:transition-none"
+                [class.rotate-180]="open()"
+              />
+            </button>
+          }
+        </div>
+
+        <div
+          [id]="id + '-body'"
+          [hidden]="!open()"
+          class="pr-4 pb-4 pl-4 [--control-h:2.125rem] sm:pr-5 sm:pl-[68px]"
+        >
+          <fieldset class="min-w-0">
+            <legend class="sr-only">{{ heading() }}</legend>
+            @if (description(); as text) {
+              <p class="mb-3 text-xs text-muted">{{ text }}</p>
+            }
+            <ng-container [ngTemplateOutlet]="content" />
+          </fieldset>
+        </div>
+      </section>
+    }
   `,
 })
 export class Section {
   readonly heading = input.required<string>();
+  readonly variant = input<'card' | 'row'>('card');
+  /** Short text at the top of the body */
   readonly description = input<string>();
+  /** Tooltip next to the row title */
+  readonly info = input<string>();
 
-  /** Whether the section changes the result; undefined for sections that are always used */
-  readonly active = input<boolean>();
-  readonly collapsible = input(false, { transform: booleanAttribute });
+  /** Whether the section changes the result */
+  readonly active = input(false);
+  /** Right-aligned figure shown while the row is active */
+  readonly summary = input<string>();
 
-  /** Enable switch shown above the fields */
+  /** Enable switch at the start of the row */
   readonly toggle = input<FieldTree<boolean>>();
-  readonly toggleLabel = input('');
-  readonly toggleInfo = input<string>();
 
   readonly id = `section-${nextId++}`;
 
-  /** Set once the user opens or closes the section by hand */
-  protected readonly userOpen = signal<boolean | null>(null);
-  readonly open = computed(
-    () => this.userOpen() ?? (!this.collapsible() || this.active() === true),
-  );
+  /** Set once the user opens or closes the row by hand */
+  protected readonly userOpen = linkedSignal<boolean, boolean | null>({
+    source: this.active,
+    computation: (_, previous) => (this.toggle() ? null : (previous?.value ?? null)),
+  });
+
+  readonly open = computed(() => {
+    if (this.variant() === 'card') return true;
+    const userOpen = this.userOpen();
+    if (this.toggle()) return this.active() && userOpen !== false;
+    return userOpen ?? this.active();
+  });
 }

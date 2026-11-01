@@ -9,10 +9,15 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { HUE_CLASS, Hue } from '../../services/chart-palette';
 import { formatCurrency, formatPercent } from '../../utils/intl';
+import { Icon, IconName } from '../icon/icon';
 
-/** Money entering ('in') or leaving ('out') the busta; decides sign and tone */
-export type Flow = 'in' | 'out';
+/**
+ * Money entering ('in') or leaving ('out') the busta, or a reduction of a cost
+ * ('reduce', such as detrazioni on IRPEF); decides sign and tone.
+ */
+export type Flow = 'in' | 'out' | 'reduce';
 
 /** Row weight: a regular row, a closing total, or an indented breakdown line */
 export type Level = 'row' | 'total' | 'detail';
@@ -24,24 +29,50 @@ export interface LedgerVoce {
   value?: string;
   flow?: Flow;
   level?: Level;
+  /** Share of the reference amount, drawn as a bar next to the value */
+  share?: number;
+  bar?: string;
+}
+
+/** Signed text and tone of an amount; a zero or missing amount gets neither */
+export function signed(amount: number | undefined, flow?: Flow) {
+  const text = formatCurrency(amount ?? 0);
+  if (!flow || amount === undefined || !(amount > 0)) return { text, tone: null };
+  if (flow === 'in') return { text: `+ ${text}`, tone: 'text-pos' };
+  if (flow === 'out') return { text: `− ${text}`, tone: 'text-neg' };
+  return { text: `− ${text}`, tone: 'text-pos' };
 }
 
 /**
  * One dt/dd pair of a results list. The row owns sign, tone, number format and
- * separators, so templates only say what the value is and which way it flows.
- * A zero amount never gets a sign or a tone.
+ * spacing, so templates only say what the value is and which way it flows.
  */
 @Component({
   selector: '[appLedgerRow]',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'flex justify-between gap-4',
     '[class]': 'rowClass()',
     '[attr.data-level]': 'level()',
   },
   template: `
     <dt [class]="labelClass()">{{ label() }}<ng-content /></dt>
-    <dd [class]="valueClass()">{{ text() }}</dd>
+    <dd [class]="valueClass()">
+      @if (share() !== undefined) {
+        <span
+          aria-hidden="true"
+          class="hidden h-1.5 w-[140px] shrink-0 overflow-hidden rounded-[3px] bg-sunken sm:block"
+        >
+          <span
+            class="block h-full rounded-[3px]"
+            [style.width.%]="barWidth()"
+            [style.background-color]="bar()"
+          ></span>
+        </span>
+        <span class="text-right sm:min-w-[7.5rem]">{{ text() }}</span>
+      } @else {
+        {{ text() }}
+      }
+    </dd>
   `,
 })
 export class LedgerRow {
@@ -51,62 +82,114 @@ export class LedgerRow {
   readonly value = input<string>();
   readonly flow = input<Flow>();
   readonly level = input<Level>('row');
+  readonly share = input<number>();
+  readonly bar = input<string>();
 
-  /** Flow that applies: none when the amount is zero or missing */
-  private readonly activeFlow = computed(() => {
-    if (this.value() !== undefined || this.percent() !== undefined) return undefined;
-    const amount = this.amount();
-    return amount !== undefined && amount > 0 ? this.flow() : undefined;
-  });
+  private readonly amountValue = computed(
+    () => this.value() === undefined && this.percent() === undefined,
+  );
+  private readonly signedAmount = computed(() =>
+    this.amountValue() ? signed(this.amount(), this.flow()) : null,
+  );
 
   readonly text = computed(() => {
     const text = this.value();
     if (text !== undefined) return text;
     const percent = this.percent();
     if (percent !== undefined) return formatPercent(percent);
-    const value = formatCurrency(this.amount() ?? 0);
-    const flow = this.activeFlow();
-    return flow === 'out' ? `− ${value}` : flow === 'in' ? `+ ${value}` : value;
+    return this.signedAmount()!.text;
   });
 
+  readonly barWidth = computed(() => Math.min(1, Math.max(0, this.share() ?? 0)) * 100);
+
   readonly rowClass = computed(() => {
+    const align = this.share() !== undefined ? 'items-center' : 'items-baseline';
+    const base = `flex justify-between gap-4 ${align}`;
     switch (this.level()) {
       case 'total':
-        return 'mt-2 py-2 border-t border-ring-strong font-semibold';
+        return `${base} mt-1.5 border-t border-ring-card pt-2.5 pb-[7px] text-[14.5px]/[21px] font-medium`;
       case 'detail':
-        return 'py-1 pl-3';
+        return `${base} -mt-[3px] pb-1.5 pl-3.5 text-[13px]/[18px]`;
       default:
-        return 'py-1.5 border-b border-dotted border-divider last:border-b-0 has-[+[data-level=total]]:border-b-0 has-[+[data-level=detail]]:border-b-0';
+        return `${base} py-[7px] text-[14.5px]/[21px]`;
     }
   });
 
   readonly labelClass = computed(() => {
     switch (this.level()) {
       case 'total':
-        return 'text-sm text-title';
+        return 'min-w-0 text-fg';
       case 'detail':
-        return 'text-xs text-subtle';
+        return 'min-w-0 text-muted';
       default:
-        return 'text-sm text-muted';
+        return 'min-w-0 text-label';
     }
   });
 
   readonly valueClass = computed(() => {
-    const level = this.level();
-    const flow = this.activeFlow();
     const tone =
-      flow === 'in'
-        ? 'text-pos'
-        : flow === 'out'
-          ? 'text-neg'
-          : level === 'detail'
-            ? 'text-subtle'
-            : 'text-fg';
-    const size = level === 'detail' ? 'text-xs' : 'text-sm';
-    const weight = level === 'row' ? 'font-medium' : '';
+      this.signedAmount()?.tone ?? (this.level() === 'detail' ? 'text-muted' : 'text-fg');
     const wrapping = this.value() === undefined ? 'whitespace-nowrap' : 'min-w-0 break-words';
-    return `${size} text-right tabular-nums ${wrapping} ${tone} ${weight}`;
+    const layout = this.share() !== undefined ? 'flex items-center gap-4' : '';
+    return `text-right tabular-nums ${wrapping} ${tone} ${layout}`;
   });
+}
+
+let nextCardId = 0;
+
+/**
+ * A card of the Dettaglio tab: tinted icon tile, title and the section total
+ * in its sign colour, then the projected rows. Stacked cards share bento corners.
+ */
+@Component({
+  selector: 'app-ledger-card',
+  imports: [Icon],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class:
+      'block rounded-lg bg-surface shadow-xs ring-1 ring-ring-card first:rounded-t-[20px] last:rounded-b-[20px]',
+  },
+  template: `
+    <section [attr.aria-labelledby]="id + '-title'">
+      <div class="flex items-center gap-3.5 px-4 pt-4 pb-3 sm:px-6">
+        <span
+          aria-hidden="true"
+          class="flex size-8 shrink-0 items-center justify-center rounded-[9px]"
+          [class]="tile()"
+        >
+          <app-icon [name]="icon()" class="size-[17px]" />
+        </span>
+        <h3
+          [id]="id + '-title'"
+          class="min-w-0 flex-1 text-base/[22px] font-medium tracking-[-0.01em] text-fg"
+        >
+          {{ heading() }}
+        </h3>
+        @if (total() !== undefined) {
+          <p
+            class="text-base/[22px] font-medium whitespace-nowrap tabular-nums"
+            [class]="totalAmount().tone ?? 'text-fg'"
+          >
+            {{ totalAmount().text }}
+          </p>
+        }
+      </div>
+      <div class="px-4 pb-3.5 sm:pr-6 sm:pl-[70px]">
+        <ng-content />
+      </div>
+    </section>
+  `,
+})
+export class LedgerCard {
+  readonly heading = input.required<string>();
+  readonly hue = input.required<Hue>();
+  readonly icon = input.required<IconName>();
+  readonly total = input<number>();
+  readonly flow = input<Flow>();
+
+  readonly id = `ledger-card-${nextCardId++}`;
+  protected readonly tile = computed(() => HUE_CLASS[this.hue()].tile);
+  protected readonly totalAmount = computed(() => signed(this.total(), this.flow()));
 }
 
 const TWEEN_MS = 450;

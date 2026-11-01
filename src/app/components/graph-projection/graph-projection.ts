@@ -1,531 +1,219 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
-  effect,
   ElementRef,
   inject,
   input,
-  OnDestroy,
   signal,
   viewChild,
 } from '@angular/core';
 import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculator/types';
-import { calcolaStipendioNetto } from '../../../calculator/calculator';
-import { DisplayMode } from '../../services/display-mode';
-import { ChartPalette } from '../../services/chart-palette';
-import type { Config, Layout, PlotData } from 'plotly.js-dist-min';
+import { ChartPalette, HUE } from '../../services/chart-palette';
+import { formatCurrency, formatNumber, formatPercent } from '../../utils/intl';
+import {
+  aumentoNetto,
+  confrontoRal,
+  conRal,
+  grigliaWelfare,
+  serieRal,
+} from '../../utils/proiezione';
 
-type ViewMode = 'monthly' | 'annual';
+type Periodo = 'mensile' | 'annuale';
 
-/** Metric options for the Y-axis (extensible) */
-type MetricType = 'benefitNonTassati';
+const HEIGHT = 236;
+const PAD = { left: 52, right: 12, top: 14, bottom: 24 };
 
-interface MetricConfig {
-  label: string;
-  labelShort: string;
-  getValueFromInput: (input: InputCalcoloStipendio) => number;
-  setValueOnInput: (input: InputCalcoloStipendio, value: number) => InputCalcoloStipendio;
-  min: number;
-  max: number;
-  step: number;
+/** Round step for about `count` axis divisions over `span` */
+function passo(span: number, count: number): number {
+  const raw = span / count;
+  const magnitude = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].find((m) => m * magnitude >= raw)! * magnitude;
+  return step;
 }
 
-const METRIC_CONFIGS: Record<MetricType, MetricConfig> = {
-  benefitNonTassati: {
-    label: 'Altri benefit non tassati (€)',
-    labelShort: 'Welfare (€)',
-    getValueFromInput: (input) => {
-      const bn = input.benefitNonTassati;
-      if (!bn) return 0;
-      return (
-        (bn.assistenzaSanitaria ?? 0) +
-        (bn.buoniPasto ?? 0) +
-        (bn.abbonamentoTrasporto ?? 0) +
-        (bn.serviziWelfare ?? 0) +
-        (bn.altri ?? 0)
-      );
-    },
-    setValueOnInput: (input, value) => ({
-      ...input,
-      benefitNonTassati: value > 0 ? { serviziWelfare: value } : undefined,
-    }),
-    min: 0,
-    max: 5000,
-    step: 200,
-  },
-};
-
-// RAL range configuration defaults
-const RAL_DEFAULT = {
-  min: 20000,
-  max: 80000,
-  step: 2000,
-};
-
-// Metric (benefit) range configuration defaults
-const METRIC_DEFAULT = {
-  min: 0,
-  max: 5000,
-  step: 200,
-};
-
-/** Calculate dynamic metric range based on current value */
-function calculateMetricRange(currentValue: number | undefined): {
-  min: number;
-  max: number;
-  step: number;
-} {
-  if (!currentValue || currentValue <= 0) {
-    return METRIC_DEFAULT;
-  }
-
-  // If within default range, use default
-  if (currentValue <= METRIC_DEFAULT.max) {
-    return METRIC_DEFAULT;
-  }
-
-  // Determine appropriate step based on value magnitude
-  let step: number;
-  if (currentValue <= 5000) {
-    step = 200;
-  } else if (currentValue <= 10000) {
-    step = 500;
-  } else if (currentValue <= 20000) {
-    step = 1000;
-  } else {
-    step = 2000;
-  }
-
-  // Start from 0, extend to cover the current value with margin
-  const min = 0;
-  const max = Math.ceil((currentValue * 1.3) / step) * step;
-
-  // Ensure we have at least 10 data points
-  const numPoints = (max - min) / step;
-  if (numPoints < 10) {
-    return { min, max: min + step * 10, step };
-  }
-
-  return { min, max, step };
+function hex(colour: string): [number, number, number] {
+  const n = parseInt(colour.slice(1), 16);
+  return [n >> 16, (n >> 8) & 255, n & 255];
 }
 
-/** Calculate dynamic RAL range based on current RAL value */
-function calculateRalRange(currentRal: number | undefined): {
-  min: number;
-  max: number;
-  step: number;
-} {
-  if (!currentRal || currentRal <= 0) {
-    return RAL_DEFAULT;
-  }
-
-  // Determine appropriate step based on RAL magnitude
-  let step: number;
-  if (currentRal <= 20000) {
-    step = 1000;
-  } else if (currentRal <= 50000) {
-    step = 2000;
-  } else if (currentRal <= 100000) {
-    step = 5000;
-  } else if (currentRal <= 200000) {
-    step = 10000;
-  } else {
-    step = 20000;
-  }
-
-  // Calculate range: ~30% below to ~30% above current RAL, with minimum extent
-  const rangeExtent = Math.max(currentRal * 0.3, step * 5);
-  let min = Math.floor((currentRal - rangeExtent) / step) * step;
-  let max = Math.ceil((currentRal + rangeExtent) / step) * step;
-
-  // Ensure minimum is positive (RAL can't be negative)
-  min = Math.max(min, 0);
-
-  // Ensure we have at least 10 data points
-  const numPoints = (max - min) / step;
-  if (numPoints < 10) {
-    max = min + step * 10;
-  }
-
-  return { min, max, step };
+/** Colour at `t` (0 to 1) along a scale of [stop, colour] pairs */
+function interpola(scale: [number, string][], t: number): string {
+  const i = Math.max(
+    1,
+    scale.findIndex(([stop]) => stop >= t),
+  );
+  const [s0, c0] = scale[i - 1];
+  const [s1, c1] = scale[Math.min(i, scale.length - 1)];
+  const k = s1 === s0 ? 0 : (t - s0) / (s1 - s0);
+  const [a, b] = [hex(c0), hex(c1)];
+  return `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * k)).join(' ')})`;
 }
 
-// Lazy-loaded Plotly module
-let PlotlyModule: typeof import('plotly.js-dist-min').default | null = null;
-
-async function loadPlotly() {
-  if (!PlotlyModule) {
-    const module = await import('plotly.js-dist-min');
-    PlotlyModule = module.default;
-  }
-  return PlotlyModule;
-}
-
+/**
+ * The Proiezione tab: netto and percepito across RAL as a line chart, the
+ * gain from a raise, a table of nearby RALs and a heat table of RAL against
+ * extra welfare. All figures come from the calculator with the form's options.
+ */
 @Component({
   selector: 'app-graph-projection',
-  imports: [],
   templateUrl: './graph-projection.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'flex flex-col gap-2' },
 })
-export class GraphProjection implements AfterViewInit, OnDestroy {
-  private readonly destroyRef = inject(DestroyRef);
-  readonly displayMode = inject(DisplayMode);
+export class GraphProjection {
   private readonly palette = inject(ChartPalette);
 
-  /** Current calculation result */
   readonly result = input<OutputCalcoloStipendio | null>(null);
-
-  /** Base input to use for projections (without varying parameters) */
   readonly baseInput = input<InputCalcoloStipendio | null>(null);
 
-  /** View mode: monthly or annual */
-  readonly viewMode = signal<ViewMode>('monthly');
+  readonly periodo = signal<Periodo>('mensile');
+  readonly periodi: readonly { id: Periodo; label: string }[] = [
+    { id: 'mensile', label: 'Mensile' },
+    { id: 'annuale', label: 'Annuale' },
+  ];
 
-  /** Active metric type (for future extensibility) */
-  readonly activeMetric = signal<MetricType>('benefitNonTassati');
+  protected readonly euro = (value: number) => formatCurrency(value);
+  protected readonly euroTondi = (value: number) => formatCurrency(value, 0);
+  protected readonly numero = (value: number) => formatNumber(value);
+  protected readonly percent = formatPercent;
+  protected readonly verde = HUE.verde.bar;
+  protected readonly height = HEIGHT;
+  protected readonly eyebrow =
+    'font-mono text-[11px]/[18px] font-semibold tracking-widest text-faint uppercase';
+  protected readonly insight =
+    'flex-[1_1_200px] rounded-[10px] bg-sunken px-3 py-2.5 ring-1 ring-hair ring-inset';
 
-  /** Loading state for Plotly */
-  readonly isLoading = signal(true);
-
-  /** Reference to the chart container */
-  readonly chartContainer = viewChild<ElementRef<HTMLDivElement>>('chartContainer');
-
-  private resizeObserver: ResizeObserver | null = null;
-  private plotInitialized = false;
+  private readonly box = viewChild<ElementRef<HTMLElement>>('chartBox');
+  /** Drawing width in CSS pixels, so the chart text keeps its real size */
+  private readonly width = signal(600);
 
   constructor() {
-    // Reactively update plot when data changes
-    effect(() => {
-      const data = this.heatmapData();
-      // Also track these to trigger re-render
-      this.currentPosition();
-      this.viewMode();
-      this.displayMode.mode();
-      this.palette.theme();
-
-      if (this.plotInitialized && data) {
-        const container = this.chartContainer()?.nativeElement;
-        if (container) {
-          this.renderPlot(container, data);
-        }
-      }
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const el = this.box()?.nativeElement;
+      if (!el || typeof ResizeObserver !== 'function') return;
+      const observer = new ResizeObserver(([entry]) =>
+        this.width.set(Math.max(280, Math.round(entry.contentRect.width))),
+      );
+      observer.observe(el);
+      destroyRef.onDestroy(() => observer.disconnect());
     });
   }
 
-  /** Current metric configuration */
-  readonly metricConfig = computed(() => METRIC_CONFIGS[this.activeMetric()]);
-
-  /** Dynamic RAL range based on current input */
-  readonly ralRange = computed(() => {
+  private readonly serie = computed(() => {
     const base = this.baseInput();
-    return calculateRalRange(base?.ral);
+    return base ? serieRal(base) : [];
   });
 
-  /** Dynamic metric range based on current input */
-  readonly metricRange = computed(() => {
+  readonly chart = computed(() => {
+    const punti = this.serie();
     const base = this.baseInput();
-    const metric = this.metricConfig();
-    const currentValue = base ? metric.getValueFromInput(base) : 0;
-    return calculateMetricRange(currentValue);
-  });
+    if (punti.length < 2 || !base) return null;
 
-  /** Computed heatmap data */
-  readonly heatmapData = computed(() => {
-    const base = this.baseInput();
-    if (!base) return null;
+    const w = this.width();
+    const [x0, x1] = [punti[0].ral, punti.at(-1)!.ral];
+    const valori = punti.flatMap((p) => [p.nettoMensile, p.percepitoMensile]);
+    const stepY = passo(Math.max(...valori) - Math.min(...valori), 6);
+    const y0 = Math.floor(Math.min(...valori) / stepY) * stepY;
+    const y1 = Math.ceil(Math.max(...valori) / stepY) * stepY;
 
-    const metric = this.metricConfig();
-    const isMonthly = this.viewMode() === 'monthly';
-    const isPercepito = this.displayMode.isPercepito();
-    const ralConfig = this.ralRange();
-    const metricConfig = this.metricRange();
+    const x = (ral: number) => PAD.left + ((ral - x0) / (x1 - x0)) * (w - PAD.left - PAD.right);
+    const y = (v: number) =>
+      HEIGHT - PAD.bottom - ((v - y0) / (y1 - y0)) * (HEIGHT - PAD.top - PAD.bottom);
+    const linea = (pick: (p: (typeof punti)[number]) => number) =>
+      punti.map((p) => `${x(p.ral).toFixed(1)},${y(pick(p)).toFixed(1)}`).join(' ');
 
-    // Generate RAL values for Y-axis
-    const ralValues: number[] = [];
-    for (let ral = ralConfig.min; ral <= ralConfig.max; ral += ralConfig.step) {
-      ralValues.push(ral);
+    const yTicks: { y: number; label: string }[] = [];
+    for (let v = y0; v <= y1 + 0.5; v += stepY) yTicks.push({ y: y(v), label: formatNumber(v) });
+
+    const stepX = passo(x1 - x0, Math.max(3, Math.floor(w / 90)));
+    const xTicks: { x: number; label: string }[] = [];
+    for (let v = Math.ceil(x0 / stepX) * stepX; v <= x1; v += stepX) {
+      xTicks.push({ x: x(v), label: `${formatNumber(v / 1000)}k` });
     }
 
-    // Generate metric values for X-axis
-    const metricValues: number[] = [];
-    for (let v = metricConfig.min; v <= metricConfig.max; v += metricConfig.step) {
-      metricValues.push(v);
-    }
-
-    // Calculate Z values (net income) for each combination
-    const zValues: number[][] = [];
-    for (const ral of ralValues) {
-      const row: number[] = [];
-      for (const metricValue of metricValues) {
-        try {
-          const input = metric.setValueOnInput({ ...base, ral }, metricValue);
-          const result = calcolaStipendioNetto(input);
-          let netIncome: number;
-          if (isMonthly) {
-            netIncome = isPercepito ? result.nettoMensilePercepito : result.nettoMensile;
-          } else {
-            netIncome = isPercepito ? result.totalePercepito : result.nettoAnnuo;
-          }
-          row.push(Math.round(netIncome));
-        } catch {
-          row.push(0);
-        }
-      }
-      zValues.push(row);
-    }
+    const tu = punti.find((p) => p.ral === base.ral) ?? punti[0];
+    const tuX = x(tu.ral);
+    const percepito = punti.some((p) => Math.abs(p.percepitoMensile - p.nettoMensile) >= 0.5);
+    const bottom = HEIGHT - PAD.bottom;
 
     return {
-      x: metricValues,
-      y: ralValues,
-      z: zValues,
+      w,
+      left: PAD.left,
+      right: w - PAD.right,
+      top: PAD.top - 2,
+      bottom,
+      yTicks,
+      xTicks,
+      netto: linea((p) => p.nettoMensile),
+      area: `${linea((p) => p.nettoMensile)} ${x(x1).toFixed(1)},${bottom} ${x(x0).toFixed(1)},${bottom}`,
+      percepito: percepito ? linea((p) => p.percepitoMensile) : null,
+      tu: {
+        x: tuX,
+        y: y(tu.nettoMensile),
+        // Labels flip to the left of the marker near the right edge
+        flip: tuX > w - 170,
+        ral: tu.ral,
+        netto: tu.nettoMensile,
+      },
+      label:
+        `Netto mensile da ${formatCurrency(punti[0].nettoMensile, 0)} con RAL ${formatCurrency(x0, 0)} ` +
+        `a ${formatCurrency(punti.at(-1)!.nettoMensile, 0)} con RAL ${formatCurrency(x1, 0)}. ` +
+        `Con RAL ${formatCurrency(tu.ral, 0)} il netto è ${formatCurrency(tu.nettoMensile)}.`,
     };
   });
 
-  /** Current position on the plot (based on form values) */
-  readonly currentPosition = computed(() => {
-    const res = this.result();
+  /** The gain from 1.000 € of RAL, and from the next two 5.000 € steps */
+  readonly aumenti = computed(() => {
     const base = this.baseInput();
-    if (!res || !base) return null;
-
-    const metric = this.metricConfig();
-    const metricValue = metric.getValueFromInput(base);
-    const isMonthly = this.viewMode() === 'monthly';
-    const isPercepito = this.displayMode.isPercepito();
-
-    let zValue: number;
-    if (isMonthly) {
-      zValue = isPercepito ? res.nettoMensilePercepito : res.nettoMensile;
-    } else {
-      zValue = isPercepito ? res.totalePercepito : res.nettoAnnuo;
-    }
-
+    const r = this.result();
+    if (!base || !r) return null;
+    const annuo = aumentoNetto(base);
+    const piu5 = conRal(base, base.ral + 5_000);
+    const piu10 = conRal(base, base.ral + 10_000);
+    if (annuo === null || !piu5 || !piu10) return null;
     return {
-      x: metricValue,
-      y: res.ral,
-      z: zValue,
+      annuo,
+      mensile: annuo / r.mensilita,
+      quota: annuo / 1_000,
+      ral: base.ral,
+      passo1: piu5.nettoMensile - r.nettoMensile,
+      passo2: piu10.nettoMensile - piu5.nettoMensile,
     };
   });
 
-  async ngAfterViewInit(): Promise<void> {
-    await this.initPlot();
+  readonly confronto = computed(() => {
+    const base = this.baseInput();
+    return base ? confrontoRal(base) : [];
+  });
 
-    // Set up resize observer
-    const container = this.chartContainer()?.nativeElement;
-    if (container && PlotlyModule) {
-      this.resizeObserver = new ResizeObserver(() => {
-        if (this.plotInitialized && PlotlyModule) {
-          PlotlyModule.Plots.resize(container);
-        }
-      });
-      this.resizeObserver.observe(container);
-    }
+  private readonly griglia = computed(() => {
+    const base = this.baseInput();
+    return base ? grigliaWelfare(base) : null;
+  });
 
-    this.destroyRef.onDestroy(() => {
-      this.resizeObserver?.disconnect();
-      const el = this.chartContainer()?.nativeElement;
-      if (el && PlotlyModule) {
-        PlotlyModule.purge(el);
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    // Cleanup handled by destroyRef
-  }
-
-  setViewMode(mode: ViewMode): void {
-    this.viewMode.set(mode);
-    // Effect will handle the plot update
-  }
-
-  private getValueLabel(isMonthly: boolean, isPercepito: boolean): string {
-    if (isMonthly) {
-      return isPercepito ? 'Percepito mensile' : 'Netto mensile';
-    }
-    return isPercepito ? 'Totale percepito' : 'Netto annuo';
-  }
-
-  private async initPlot(): Promise<void> {
-    const container = this.chartContainer()?.nativeElement;
-    const data = this.heatmapData();
-    if (!container || !data) {
-      this.isLoading.set(false);
-      return;
-    }
-
-    await loadPlotly();
-    this.renderPlot(container, data);
-    this.plotInitialized = true;
-    this.isLoading.set(false);
-  }
-
-  private renderPlot(
-    container: HTMLDivElement,
-    data: { x: number[]; y: number[]; z: number[][] },
-  ): void {
-    if (!PlotlyModule) return;
-
-    const isMonthly = this.viewMode() === 'monthly';
-    const isPercepito = this.displayMode.isPercepito();
-    const metric = this.metricConfig();
-    const position = this.currentPosition();
-
-    // Calculate min and max Z for color scale
-    const flatZ = data.z.flat();
-    const minZ = Math.min(...flatZ);
-    const maxZ = Math.max(...flatZ);
-
-    // Generate contour levels
-    const numContours = 12;
-    const contourStep = (maxZ - minZ) / numContours;
-
-    const theme = this.palette.theme();
-
-    // Main contour trace
-    const contourTrace: Partial<PlotData> = {
-      type: 'contour',
-      x: data.x,
-      y: data.y,
-      z: data.z,
-      colorscale: theme.scale,
-      contours: {
-        coloring: 'heatmap',
-        showlabels: true,
-        labelfont: {
-          size: 11,
-          color: theme.scaleLabel,
-        },
-        start: minZ,
-        end: maxZ,
-        size: contourStep,
-      },
-      line: {
-        color: theme.scaleLine,
-        width: 1,
-      },
-      colorbar: {
-        title: {
-          text: this.getValueLabel(isMonthly, isPercepito) + ' (€)',
-          side: 'right',
-          font: {
-            size: 12,
-            color: theme.title,
-          },
-        },
-        tickfont: {
-          size: 10,
-          color: theme.muted,
-        },
-        thickness: 15,
-        len: 0.9,
-        outlinewidth: 0,
-        bgcolor: 'transparent',
-      },
-      hovertemplate:
-        `<b>${metric.labelShort}</b>: %{x:,.0f} €<br>` +
-        `<b>RAL</b>: %{y:,.0f} €<br>` +
-        `<b>${this.getValueLabel(isMonthly, isPercepito)}</b>: %{z:,.0f} €` +
-        '<extra></extra>',
-    } as Partial<PlotData>;
-
-    const traces: Partial<PlotData>[] = [contourTrace];
-
-    // Add current position marker if available (always visible since range is dynamic)
-    if (position) {
-      const markerTrace: Partial<PlotData> = {
-        type: 'scatter',
-        x: [position.x],
-        y: [position.y],
-        mode: 'markers+text',
-        marker: {
-          size: 14,
-          color: theme.marker.fill,
-          symbol: 'circle',
-          line: {
-            color: theme.marker.ring,
-            width: 2,
-          },
-        },
-        text: [`${Math.round(position.z).toLocaleString('it-IT')} €`],
-        textposition: 'top center',
-        textfont: {
-          size: 12,
-          color: theme.title,
-          family: theme.font,
-        },
-        hovertemplate:
-          `<b>Posizione attuale</b><br>` +
-          `${metric.labelShort}: %{x:,.0f} €<br>` +
-          `RAL: %{y:,.0f} €<br>` +
-          `${this.getValueLabel(isMonthly, isPercepito)}: ${Math.round(position.z).toLocaleString('it-IT')} €` +
-          '<extra></extra>',
-        showlegend: false,
-      } as Partial<PlotData>;
-      traces.push(markerTrace);
-    }
-
-    const layout: Partial<Layout> = {
-      xaxis: {
-        title: {
-          text: metric.label,
-          font: {
-            size: 12,
-            color: theme.muted,
-          },
-        },
-        tickfont: {
-          size: 10,
-          color: theme.muted,
-        },
-        tickformat: ',.0f',
-        gridcolor: theme.grid,
-        zerolinecolor: theme.zeroline,
-      },
-      yaxis: {
-        title: {
-          text: 'RAL (€)',
-          font: {
-            size: 12,
-            color: theme.muted,
-          },
-        },
-        tickfont: {
-          size: 10,
-          color: theme.muted,
-        },
-        tickformat: ',.0f',
-        gridcolor: theme.grid,
-        zerolinecolor: theme.zeroline,
-      },
-      font: { family: theme.font },
-      paper_bgcolor: 'transparent',
-      plot_bgcolor: 'transparent',
-      margin: {
-        l: 70,
-        r: 80,
-        t: 20,
-        b: 50,
-      },
-      hoverlabel: {
-        bgcolor: theme.hover.bg,
-        bordercolor: theme.hover.border,
-        font: {
-          color: theme.hover.text,
-          size: 12,
-          family: theme.font,
-        },
-      },
+  /** Heat table cells for the chosen period, coloured along the brand scale */
+  readonly heat = computed(() => {
+    const griglia = this.griglia();
+    if (!griglia) return null;
+    const periodo = this.periodo();
+    const { scale, scaleLabel } = this.palette.theme();
+    const valori = griglia.righe.flatMap((riga) => riga.celle.map((cella) => cella[periodo]));
+    const [min, max] = [Math.min(...valori), Math.max(...valori)];
+    return {
+      welfare: griglia.welfare,
+      text: scaleLabel,
+      righe: griglia.righe.map((riga) => ({
+        ...riga,
+        celle: riga.celle.map((cella, i) => ({
+          valore: cella[periodo],
+          colore: interpola(scale, max > min ? (cella[periodo] - min) / (max - min) : 0),
+          attuale: riga.attuale && i === 0,
+        })),
+      })),
     };
-
-    const config: Partial<Config> = {
-      responsive: true,
-      displayModeBar: false,
-      staticPlot: false,
-    };
-
-    PlotlyModule.react(container, traces, layout, config);
-  }
+  });
 }

@@ -1,32 +1,25 @@
-<form class="flex flex-col gap-4">
+<form class="flex flex-col gap-3">
   <h2 class="sr-only">Dati per il calcolo</h2>
   @let form = stipendioForm();
 
-  <!-- Sezione Dati Principali -->
-  <app-section heading="Dati Borsa di Studio">
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <app-section heading="Dati borsa di studio" class="rounded-t-2xl rounded-b-md">
+    <div class="flex flex-wrap gap-4">
       <app-field
-        label="Importo Annuo Lordo"
+        label="Importo annuo lordo"
         required
+        unit="€ / anno"
         info="Importo annuo lordo della borsa di studio prima dei contributi INPS Gestione Separata."
+        class="flex-[1_1_220px]"
       >
-        <input appControl type="number" [formField]="form.ral" placeholder="Es. 16243" />
+        <input appControl="lg" type="number" [formField]="form.ral" placeholder="Es. 16243" />
       </app-field>
 
       <app-field
-        label="Tipo Contratto"
+        label="Anno fiscale"
         required
-        info="Gli apprendisti hanno un'aliquota INPS ridotta (5,84%). I contratti a tempo determinato hanno una detrazione minima garantita inferiore."
+        info="Anno di riferimento per il calcolo."
+        class="flex-[1_1_120px]"
       >
-        <select appControl [formField]="form.tipoContratto">
-          @for (tipo of tipiContratto; track tipo.value) {
-            <option [value]="tipo.value">{{ tipo.label }}</option>
-          }
-        </select>
-      </app-field>
-
-      <app-field label="Anno Fiscale" required info="Anno di riferimento per il calcolo.">
         <select appControl [formField]="form.annoFiscale">
           @for (anno of anniFiscali; track anno) {
             <option [value]="anno">{{ anno }}</option>
@@ -34,11 +27,22 @@
         </select>
       </app-field>
     </div>
+
+    <app-field
+      label="Tipo contratto"
+      required
+      info="Gli apprendisti hanno un'aliquota INPS ridotta (5,84%). I contratti a tempo determinato hanno una detrazione minima garantita inferiore."
+      class="mt-4"
+    >
+      <select appControl [formField]="form.tipoContratto">
+        @for (tipo of tipiContratto; track tipo.value) {
+          <option [value]="tipo.value">{{ tipo.label }}</option>
+        }
+      </select>
+    </app-field>
   </app-section>
 
-  <!-- Sezione Opzioni Borsa di Studio -->
-  <app-section heading="Opzioni Borsa di Studio">
-
+  <app-section heading="Opzioni borsa di studio" class="rounded-t-md rounded-b-2xl">
     <app-check
       label="Ho altra copertura pensionistica obbligatoria"
       info="Se hai un'altra posizione previdenziale obbligatoria (es. iscrizione a una cassa professionale), l'aliquota INPS Gestione Separata si riduce dal 35,03% al 24%."

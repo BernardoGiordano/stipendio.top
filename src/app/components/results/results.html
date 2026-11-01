@@ -1,768 +1,719 @@
-<aside
-  class="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] flex flex-col rounded-3xl p-2 bg-tray ring-1 ring-ring shadow-tray"
->
-  <div
-    class="flex flex-1 min-h-0 flex-col overflow-hidden rounded-2xl bg-surface ring-1 ring-ring shadow-2xl shadow-black/10"
-  >
-    <h2 class="sr-only">Risultati</h2>
-    @if (hasResult()) {
-      @let r = result()!;
+<h2 class="sr-only">Risultati</h2>
+@if (result(); as r) {
+  <div class="flex flex-col gap-4">
+    <app-tray
+      [kpi]="kpi()"
+      [ripartizione]="ripartizione()!"
+      [aliquota]="r.aliquotaEffettiva"
+      [stats]="stats()"
+    />
 
-      <!-- Header con risultati principali -->
-      <header
-        class="m-2 rounded-lg p-6 bg-linear-115 from-g1 from-22% via-g2 via-62% to-g3 ring-1 ring-inset ring-ring"
-      >
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div class="flex flex-col gap-1">
-            <span class="font-mono text-xs/5 font-semibold tracking-widest uppercase text-fg">{{
-              displayMode.isPercepito() ? 'Percepito Mensile' : 'Netto Mensile'
-            }}</span>
-            <app-amount
-              class="text-4xl font-medium tracking-tight tabular-nums text-fg"
-              [value]="displayMode.isPercepito() ? r.nettoMensilePercepito : r.nettoMensile"
-            />
-            <span class="text-xs text-fg">su {{ r.mensilita }} mensilità</span>
-          </div>
-          <div class="flex flex-col gap-1 sm:items-end">
-            <span class="font-mono text-xs/5 font-semibold tracking-widest uppercase text-fg">{{
-              displayMode.isPercepito() ? 'Totale Percepito Annuo' : 'Netto Annuo'
-            }}</span>
-            <app-amount
-              class="text-4xl font-medium tracking-tight tabular-nums text-fg"
-              [value]="displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo"
-            />
-            <span class="text-xs text-fg">{{
-              displayMode.isPercepito()
-                ? '(netto + rimborsi + benefit esenti)'
-                : '(stipendio netto)'
-            }}</span>
-          </div>
-        </div>
-      </header>
-
-      <!-- Tab Navigation -->
-      <nav class="flex border-b border-hair" role="tablist" aria-label="Visualizzazione risultati">
-        <button
-          type="button"
-          role="tab"
-          [attr.aria-selected]="activeTab() === 'cedolino'"
-          id="tab-cedolino"
-          [attr.aria-controls]="'panel-cedolino'"
-          [class]="
-            activeTab() === 'cedolino'
-              ? 'cursor-pointer flex-1 -mb-px px-4 py-3 text-sm font-medium text-fg border-b-2 border-primary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus'
-              : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-subtle hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus'
-          "
-          (click)="setActiveTab('cedolino')"
-        >
-          Riepilogo
-        </button>
-        <button
-          type="button"
-          role="tab"
-          [attr.aria-selected]="activeTab() === 'flusso'"
-          id="tab-flusso"
-          [attr.aria-controls]="'panel-flusso'"
-          [class]="
-            activeTab() === 'flusso'
-              ? 'cursor-pointer flex-1 -mb-px px-4 py-3 text-sm font-medium text-fg border-b-2 border-primary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus'
-              : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-subtle hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus'
-          "
-          (click)="setActiveTab('flusso')"
-        >
-          Flusso
-        </button>
-        <button
-          type="button"
-          role="tab"
-          [attr.aria-selected]="activeTab() === 'proiezione'"
-          id="tab-proiezione"
-          [attr.aria-controls]="'panel-proiezione'"
-          [class]="
-            activeTab() === 'proiezione'
-              ? 'cursor-pointer flex-1 -mb-px px-4 py-3 text-sm font-medium text-fg border-b-2 border-primary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus'
-              : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-subtle hover:text-fg hover:bg-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus'
-          "
-          (click)="setActiveTab('proiezione')"
-        >
-          Proiezione
-        </button>
-      </nav>
-
-      <!-- Tab Panels -->
+    <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
       <div
-        class="flex-1 overflow-y-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus"
-        tabindex="0"
+        role="tablist"
+        aria-label="Visualizzazione risultati"
+        class="flex gap-0.5 rounded-full bg-surface p-1 shadow-xs ring-1 ring-ring-strong"
       >
-        <!-- Cedolino Panel -->
-        @if (activeTab() === 'cedolino') {
-          <div id="panel-cedolino" role="tabpanel" aria-labelledby="tab-cedolino">
-            <!-- Riepilogo Generale -->
-            <section class="p-4 border-b border-divider">
-              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                Riepilogo
-              </h3>
-              <dl>
-                @for (voce of riepilogo(); track voce.label) {
-                  <div
-                    appLedgerRow
-                    [label]="voce.label"
-                    [amount]="voce.amount"
-                    [percent]="voce.percent"
-                    [flow]="voce.flow"
-                    [level]="voce.level ?? 'row'"
-                  ></div>
-                }
-              </dl>
-            </section>
-
-            <!-- Costo Aziendale -->
-            <section class="p-4 border-b border-divider">
-              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                Costo Aziendale
-              </h3>
-              <dl>
-                @for (voce of entrateDatore(); track voce.descrizione) {
-                  <div appLedgerRow [label]="voce.descrizione" [amount]="voce.importo">
-                    @if (voce.aliquota !== undefined) {
-                      ({{ formatPercent(voce.aliquota) }})
-                    }
-                  </div>
-                }
-                <div
-                  appLedgerRow
-                  label="Totale Annuo"
-                  [amount]="r.costoAziendale"
-                  level="total"
-                ></div>
-              </dl>
-            </section>
-
-            <!-- Contributi INPS -->
-            <section class="p-4 border-b border-divider">
-              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                Contributi INPS
-              </h3>
-              <dl>
-                <div
-                  appLedgerRow
-                  label="Imponibile Previdenziale"
-                  [amount]="r.contributiInps.imponibilePrevidenziale"
-                ></div>
-                <div
-                  appLedgerRow
-                  label="Aliquota Applicata"
-                  [percent]="r.contributiInps.aliquotaApplicata"
-                ></div>
-                <div
-                  appLedgerRow
-                  label="Contributi Base"
-                  [amount]="r.contributiInps.contributiBase"
-                  flow="out"
-                ></div>
-                @if (r.contributiInps.contributoAggiuntivo > 0) {
-                  <div
-                    appLedgerRow
-                    label="Contributo Aggiuntivo 1%"
-                    [amount]="r.contributiInps.contributoAggiuntivo"
-                    flow="out"
-                  ></div>
-                }
-                <div
-                  appLedgerRow
-                  label="Totale Contributi"
-                  [amount]="r.contributiInps.totaleContributi"
-                  flow="out"
-                  level="total"
-                ></div>
-              </dl>
-            </section>
-
-            <!-- Regime Impatriati -->
-            @if (r.regimeImpatriati) {
-              <section class="p-4 border-b border-divider">
-                <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                  Regime Impatriati
-                </h3>
-                <dl>
-                  <div
-                    appLedgerRow
-                    label="Esenzione Applicata"
-                    [value]="
-                      formatPercent(r.regimeImpatriati.percentualeEsenzione) +
-                      ' ' +
-                      (r.regimeImpatriati.haFigliMinorenni ? '(figli minorenni)' : '(standard)')
-                    "
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Reddito Agevolabile"
-                    [amount]="r.regimeImpatriati.redditoAgevolabile"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Importo Esente IRPEF"
-                    [amount]="r.regimeImpatriati.importoEsente"
-                  ></div>
-                </dl>
-                <p class="py-1 pl-3 text-xs text-subtle">
-                  (riduce imponibile IRPEF e addizionali, non INPS)
-                </p>
-              </section>
-            }
-
-            <!-- IRPEF -->
-            <section class="p-4 border-b border-divider">
-              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">IRPEF</h3>
-              <dl>
-                <div appLedgerRow label="Imponibile IRPEF" [amount]="r.irpef.imponibileIrpef"></div>
-                <div appLedgerRow label="IRPEF Lorda" [amount]="r.irpef.irpefLorda"></div>
-              </dl>
-
-              <!-- Dettaglio Scaglioni -->
-              <div class="my-2 pl-3 border-l-2 border-hair">
-                <h4 class="text-xs font-semibold text-subtle mb-2">Dettaglio Scaglioni</h4>
-                <dl>
-                  @for (scaglione of r.irpef.dettaglioScaglioni; track scaglione.scaglione) {
-                    @if (scaglione.imponibileScaglione > 0) {
-                      <div
-                        appLedgerRow
-                        label="Scaglione {{ scaglione.scaglione }} ({{
-                          formatPercent(scaglione.aliquota)
-                        }})"
-                        [amount]="scaglione.impostaScaglione"
-                        level="detail"
-                      ></div>
-                    }
-                  }
-                </dl>
-              </div>
-            </section>
-
-            <!-- Detrazioni -->
-            <section class="p-4 border-b border-divider">
-              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                Detrazioni
-              </h3>
-              <dl>
-                <!-- Detrazioni Lavoro -->
-                @if (r.detrazioniLavoro.detrazioneEffettiva > 0) {
-                  <div
-                    appLedgerRow
-                    label="Detrazioni Lavoro Dipendente"
-                    [amount]="r.detrazioniLavoro.detrazioneEffettiva"
-                    flow="in"
-                  ></div>
-                  @if (r.detrazioniLavoro.maggiorazione > 0) {
-                    <div
-                      appLedgerRow
-                      label="di cui maggiorazione €65"
-                      [amount]="r.detrazioniLavoro.maggiorazione"
-                      level="detail"
-                    ></div>
-                  }
-                }
-
-                <!-- Detrazioni Familiari -->
-                @if (r.detrazioniFamiliari.totaleDetrazioniFamiliari > 0) {
-                  <div
-                    appLedgerRow
-                    label="Detrazioni Familiari"
-                    [amount]="r.detrazioniFamiliari.totaleDetrazioniFamiliari"
-                    flow="in"
-                  ></div>
-                  @if (r.detrazioniFamiliari.detrazioneConiuge > 0) {
-                    <div
-                      appLedgerRow
-                      label="Coniuge"
-                      [amount]="r.detrazioniFamiliari.detrazioneConiuge"
-                      level="detail"
-                    ></div>
-                  }
-                  @if (r.detrazioniFamiliari.detrazioneFigli > 0) {
-                    <div
-                      appLedgerRow
-                      label="Figli ({{ r.detrazioniFamiliari.numeroFigliConDetrazione }})"
-                      [amount]="r.detrazioniFamiliari.detrazioneFigli"
-                      level="detail"
-                    ></div>
-                  }
-                  @if (r.detrazioniFamiliari.detrazioneAscendenti > 0) {
-                    <div
-                      appLedgerRow
-                      label="Ascendenti ({{ r.detrazioniFamiliari.numeroAscendentiConDetrazione }})"
-                      [amount]="r.detrazioniFamiliari.detrazioneAscendenti"
-                      level="detail"
-                    ></div>
-                  }
-                }
-
-                <!-- Cuneo Fiscale -->
-                @if (r.cuneoFiscale.indennitaEsente > 0) {
-                  <div
-                    appLedgerRow
-                    label="Indennità Cuneo Fiscale (esente)"
-                    [amount]="r.cuneoFiscale.indennitaEsente"
-                    flow="in"
-                  ></div>
-                }
-                @if (r.cuneoFiscale.detrazioneAggiuntiva > 0) {
-                  <div
-                    appLedgerRow
-                    label="Detrazione Cuneo Fiscale"
-                    [amount]="r.cuneoFiscale.detrazioneAggiuntiva"
-                    flow="in"
-                  ></div>
-                }
-
-                <!-- Altre Detrazioni -->
-                @if (r.riepilogoDetrazioni.altre > 0) {
-                  <div
-                    appLedgerRow
-                    label="Altre Detrazioni"
-                    [amount]="r.riepilogoDetrazioni.altre"
-                    flow="in"
-                  ></div>
-                }
-
-                <div
-                  appLedgerRow
-                  label="Totale Detrazioni"
-                  [amount]="r.riepilogoDetrazioni.totale"
-                  flow="in"
-                  level="total"
-                ></div>
-              </dl>
-            </section>
-
-            <!-- Trattamento Integrativo -->
-            <section class="p-4 border-b border-divider">
-              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                Trattamento Integrativo
-              </h3>
-              <dl>
-                @if (r.trattamentoIntegrativo.spetta) {
-                  <div
-                    appLedgerRow
-                    label="Importo Spettante"
-                    [amount]="r.trattamentoIntegrativo.importo"
-                    flow="in"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Importo"
-                    [value]="r.trattamentoIntegrativo.importoPieno ? 'Pieno' : 'Ridotto'"
-                    level="detail"
-                  ></div>
-                } @else {
-                  <div
-                    appLedgerRow
-                    label="Non spetta"
-                    [value]="r.trattamentoIntegrativo.motivoNonSpettanza || '-'"
-                  ></div>
-                }
-              </dl>
-            </section>
-
-            <!-- IRPEF Netta e Finale -->
-            <section class="p-4 border-b border-divider">
-              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                IRPEF Finale
-              </h3>
-              <dl>
-                <div
-                  appLedgerRow
-                  label="IRPEF Netta (dopo detrazioni)"
-                  [amount]="r.irpefNetta"
-                ></div>
-                <div
-                  appLedgerRow
-                  label="IRPEF Finale"
-                  [amount]="r.irpefFinale"
-                  flow="out"
-                  level="total"
-                ></div>
-              </dl>
-            </section>
-
-            <!-- Addizionali -->
-            <section class="p-4 border-b border-divider">
-              <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                Addizionali
-              </h3>
-              <dl>
-                <div
-                  appLedgerRow
-                  label="Addizionale Regionale ({{
-                    formatPercent(r.addizionali.aliquotaRegionale)
-                  }})"
-                  [amount]="r.addizionali.addizionaleRegionale"
-                  flow="out"
-                ></div>
-                <div
-                  appLedgerRow
-                  label="Addizionale Comunale ({{ formatPercent(r.addizionali.aliquotaComunale) }})"
-                  [amount]="r.addizionali.addizionaleComunale"
-                  flow="out"
-                ></div>
-                @if (r.addizionali.esenzioneComunaleApplicata) {
-                  <div
-                    appLedgerRow
-                    label="Esenzione comunale applicata"
-                    value="Sì"
-                    level="detail"
-                  ></div>
-                }
-                <div
-                  appLedgerRow
-                  label="Totale Addizionali"
-                  [amount]="r.addizionali.totaleAddizionali"
-                  flow="out"
-                  level="total"
-                ></div>
-              </dl>
-            </section>
-
-            <!-- Fondi Contrattuali -->
-            @for (fondo of r.fondiContrattuali; track fondo.id) {
-              <section class="p-4 border-b border-divider">
-                <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                  {{ fondo.nome }}
-                </h3>
-                <dl>
-                  <div
-                    appLedgerRow
-                    label="Contributo Annuo"
-                    [amount]="fondo.contributoAnnuo"
-                    flow="out"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Contributo Mensile"
-                    [amount]="fondo.contributoMensile"
-                  ></div>
-                  @if (fondo.deducibile) {
-                    <div
-                      appLedgerRow
-                      label="Risparmio Fiscale Stimato"
-                      [amount]="fondo.risparmioFiscaleStimato"
-                      flow="in"
-                    ></div>
-                  }
-                </dl>
-                <p class="py-1 pl-3 text-xs text-subtle">
-                  {{
-                    fondo.deducibile
-                      ? '(riduzione imponibile IRPEF)'
-                      : '(trattenuta diretta dal netto, non deducibile)'
-                  }}
-                </p>
-              </section>
-            }
-
-            <!-- Borsa di Studio -->
-            @if (r.borsaDiStudio) {
-              <section class="p-4 border-b border-divider">
-                <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                  Borsa di Studio
-                </h3>
-                <dl>
-                  <div
-                    appLedgerRow
-                    label="Importo Lordo"
-                    [amount]="r.borsaDiStudio.importoLordo"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="INPS Gestione Separata (borsista)"
-                    [amount]="r.borsaDiStudio.contributoGestioneSeparataBorsista"
-                    flow="out"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Imponibile IRPEF Borsa"
-                    [amount]="r.borsaDiStudio.imponibileIrpef"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Netto Annuo Borsa"
-                    [amount]="r.borsaDiStudio.nettoAnnuo"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Netto Mensile Borsa"
-                    [amount]="r.borsaDiStudio.nettoMensile"
-                  ></div>
-                </dl>
-                <p class="py-1 pl-3 text-xs text-subtle">
-                  (INPS GS 35,03%: 1/3 borsista, 2/3 ente. Cumulo IRPEF con reddito da lavoro)
-                </p>
-              </section>
-            }
-
-            <!-- Fondo Pensione Integrativo -->
-            @if (r.fondoPensioneIntegrativo) {
-              <section class="p-4 border-b border-divider">
-                <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                  Previdenza Complementare
-                </h3>
-                <dl>
-                  <div
-                    appLedgerRow
-                    label="Contributo Lavoratore (annuo)"
-                    [amount]="r.fondoPensioneIntegrativo.contributoLavoratoreAnnuo"
-                    flow="out"
-                  ></div>
-                  @if (r.fondoPensioneIntegrativo.contributoDatoreLavoroAnnuo > 0) {
-                    <div
-                      appLedgerRow
-                      label="Contributo Datore (annuo)"
-                      [amount]="r.fondoPensioneIntegrativo.contributoDatoreLavoroAnnuo"
-                    ></div>
-                  }
-                  @if (r.fondoPensioneIntegrativo.contributoEbitempAnnuo > 0) {
-                    <div
-                      appLedgerRow
-                      label="Contributo EBITEMP (annuo)"
-                      [amount]="r.fondoPensioneIntegrativo.contributoEbitempAnnuo"
-                    ></div>
-                  }
-                  @if (r.fondoPensioneIntegrativo.contributoWelfareAnnuo > 0) {
-                    <div
-                      appLedgerRow
-                      label="Contributo welfare azienda (annuo)"
-                      [amount]="r.fondoPensioneIntegrativo.contributoWelfareAnnuo"
-                    ></div>
-                  }
-                  <div
-                    appLedgerRow
-                    label="Contributo Mensile"
-                    [amount]="r.fondoPensioneIntegrativo.contributoLavoratoreMensile"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Deduzione Effettiva"
-                    [amount]="r.fondoPensioneIntegrativo.deduzioneEffettiva"
-                  ></div>
-                  @if (r.fondoPensioneIntegrativo.eccedenzaNonDeducibile > 0) {
-                    <div
-                      appLedgerRow
-                      label="Eccedenza Non Deducibile"
-                      [amount]="r.fondoPensioneIntegrativo.eccedenzaNonDeducibile"
-                    ></div>
-                  }
-                  <div
-                    appLedgerRow
-                    label="Risparmio Fiscale Stimato"
-                    [amount]="r.fondoPensioneIntegrativo.risparmoFiscaleStimato"
-                    flow="in"
-                  ></div>
-                </dl>
-                <p class="py-1 pl-3 text-xs text-subtle">
-                  (deduzione imponibile IRPEF, max 5.300 euro/anno)
-                </p>
-              </section>
-            }
-
-            <!-- Fringe Benefit -->
-            @if (r.fringeBenefit.valoreTotaleLordo > 0) {
-              <section class="p-4 border-b border-divider">
-                <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                  Fringe Benefit
-                </h3>
-                <dl>
-                  <div
-                    appLedgerRow
-                    label="Valore Totale Lordo"
-                    [amount]="r.fringeBenefit.valoreTotaleLordo"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Soglia Esenzione"
-                    [amount]="r.fringeBenefit.sogliaEsenzione"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Soglia Superata"
-                    [value]="r.fringeBenefit.sogliaSuperata ? 'Sì' : 'No'"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Valore Imponibile"
-                    [amount]="r.fringeBenefit.valoreImponibile"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Valore Esente"
-                    [amount]="r.fringeBenefit.valoreEsente"
-                  ></div>
-                </dl>
-                @if (r.fringeBenefit.autoAziendale) {
-                  <div class="my-2 pl-3 border-l-2 border-hair">
-                    <h4 class="text-xs font-semibold text-subtle mb-2">Auto Aziendale</h4>
-                    <dl>
-                      <div
-                        appLedgerRow
-                        label="Valore"
-                        [amount]="r.fringeBenefit.autoAziendale.valore"
-                        level="detail"
-                      ></div>
-                      <div
-                        appLedgerRow
-                        label="Percentuale Applicata"
-                        [percent]="r.fringeBenefit.autoAziendale.percentualeApplicata"
-                        level="detail"
-                      ></div>
-                      <div
-                        appLedgerRow
-                        label="Mesi Utilizzo"
-                        [value]="'' + r.fringeBenefit.autoAziendale.mesiUtilizzo"
-                        level="detail"
-                      ></div>
-                      @if (r.fringeBenefit.trattenutaAutoDipendente > 0) {
-                        <div
-                          appLedgerRow
-                          label="Trattenuta Dipendente"
-                          [amount]="r.fringeBenefit.trattenutaAutoDipendente"
-                          flow="out"
-                          level="detail"
-                        ></div>
-                      }
-                    </dl>
-                  </div>
-                }
-              </section>
-            }
-
-            <!-- Rimborsi Trasferta -->
-            @if (r.rimborsiTrasferta.totaleRimborsi > 0) {
-              <section class="p-4 border-b border-divider">
-                <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                  Rimborsi Trasferta
-                </h3>
-                <dl>
-                  @if (r.rimborsiTrasferta.rimborsoForfettarioEsente > 0) {
-                    <div
-                      appLedgerRow
-                      label="Rimborso Forfettario (esente)"
-                      [amount]="r.rimborsiTrasferta.rimborsoForfettarioEsente"
-                    ></div>
-                  }
-                  @if (r.rimborsiTrasferta.rimborsoDocumentatoEsente > 0) {
-                    <div
-                      appLedgerRow
-                      label="Rimborso Documentato (esente)"
-                      [amount]="r.rimborsiTrasferta.rimborsoDocumentatoEsente"
-                    ></div>
-                  }
-                  @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
-                    <div
-                      appLedgerRow
-                      label="Rimborsi Tassati"
-                      [amount]="r.rimborsiTrasferta.rimborsiTassati"
-                    ></div>
-                  }
-                  <div
-                    appLedgerRow
-                    label="Totale Esente"
-                    [amount]="r.rimborsiTrasferta.totaleEsente"
-                    flow="in"
-                  ></div>
-                  <div
-                    appLedgerRow
-                    label="Totale Rimborsi"
-                    [amount]="r.rimborsiTrasferta.totaleRimborsi"
-                    level="total"
-                  ></div>
-                </dl>
-              </section>
-            }
-
-            <!-- Benefit Non Tassati -->
-            @if (r.benefitNonTassati.totaleEsente > 0 || r.benefitNonTassati.totaleTassato > 0) {
-              <section class="p-4">
-                <h3 class="text-sm font-semibold text-title border-b border-hair pb-2 mb-3">
-                  Benefit Non Tassati (Welfare)
-                </h3>
-                <dl>
-                  @if (r.benefitNonTassati.assistenzaSanitaria > 0) {
-                    <div
-                      appLedgerRow
-                      label="Assistenza Sanitaria"
-                      [amount]="r.benefitNonTassati.assistenzaSanitaria"
-                    ></div>
-                  }
-                  @if (r.benefitNonTassati.buoniPastoEsenti > 0) {
-                    <div
-                      appLedgerRow
-                      label="Buoni Pasto (esenti)"
-                      [amount]="r.benefitNonTassati.buoniPastoEsenti"
-                    ></div>
-                  }
-                  @if (r.benefitNonTassati.buoniPastoTassati > 0) {
-                    <div
-                      appLedgerRow
-                      label="Buoni Pasto (tassati)"
-                      [amount]="r.benefitNonTassati.buoniPastoTassati"
-                    ></div>
-                  }
-                  @if (r.benefitNonTassati.altriWelfare > 0) {
-                    <div
-                      appLedgerRow
-                      label="Altri Welfare"
-                      [amount]="r.benefitNonTassati.altriWelfare"
-                    ></div>
-                  }
-                  <div
-                    appLedgerRow
-                    label="Totale Esente"
-                    [amount]="r.benefitNonTassati.totaleEsente"
-                    flow="in"
-                  ></div>
-                  @if (r.benefitNonTassati.totaleTassato > 0) {
-                    <div
-                      appLedgerRow
-                      label="Totale Tassato (eccedenze)"
-                      [amount]="r.benefitNonTassati.totaleTassato"
-                    ></div>
-                  }
-                </dl>
-              </section>
-            }
-          </div>
-        }
-
-        <!-- Flusso Panel -->
-        @if (activeTab() === 'flusso') {
-          <div
-            id="panel-flusso"
-            role="tabpanel"
-            aria-labelledby="tab-flusso"
-            class="h-[500px] px-2 pb-2"
+        @for (tab of tabs; track tab.id) {
+          <button
+            type="button"
+            role="tab"
+            [id]="'tab-' + tab.id"
+            [attr.aria-selected]="activeTab() === tab.id"
+            [attr.aria-controls]="'panel-' + tab.id"
+            [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
+            (click)="setActiveTab(tab.id)"
+            (keydown)="onTabKeydown($event)"
+            [class]="
+              (activeTab() === tab.id
+                ? 'bg-primary text-on-primary shadow-sm '
+                : 'text-muted hover:bg-sunken hover:text-fg ') +
+              'h-[34px] cursor-pointer rounded-full px-3.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:px-[18px] sm:text-[15px]'
+            "
           >
-            <app-graph-funnel [result]="result()" />
-          </div>
-        }
-
-        <!-- Proiezione Panel -->
-        @if (activeTab() === 'proiezione') {
-          <div
-            id="panel-proiezione"
-            role="tabpanel"
-            aria-labelledby="tab-proiezione"
-            class="h-[500px] px-2 pb-2"
-          >
-            <app-graph-projection [result]="result()" [baseInput]="baseInput()" />
-          </div>
+            {{ tab.label }}
+          </button>
         }
       </div>
-    } @else {
-      <div class="p-8 text-center">
-        <p class="text-subtle mb-2">Compila il form per calcolare il tuo stipendio netto.</p>
-        <p class="text-sm text-faint">
-          La RAL è obbligatoria. Se il risultato non compare, controlla i campi con un errore.
-        </p>
+      <p class="text-sm text-muted">Importi annui</p>
+    </div>
+
+    <!-- Dettaglio -->
+    @if (activeTab() === 'cedolino') {
+      <div
+        id="panel-cedolino"
+        role="tabpanel"
+        aria-labelledby="tab-cedolino"
+        tabindex="0"
+        class="flex flex-col gap-2 rounded-[20px] tabular-nums focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+      >
+        <!-- Riepilogo -->
+        <app-ledger-card
+          heading="Riepilogo"
+          hue="verde"
+          icon="receipt"
+          [total]="displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo"
+        >
+          <dl>
+            @for (voce of riepilogo(); track voce.label) {
+              <div
+                appLedgerRow
+                [label]="voce.label"
+                [amount]="voce.amount"
+                [percent]="voce.percent"
+                [flow]="voce.flow"
+                [level]="voce.level ?? 'row'"
+                [share]="voce.share"
+                [bar]="voce.bar"
+              ></div>
+            }
+          </dl>
+        </app-ledger-card>
+
+        <!-- Contributi INPS -->
+        <app-ledger-card
+          heading="Contributi INPS"
+          hue="arancio"
+          icon="shield"
+          [total]="r.contributiInps.totaleContributi"
+          flow="out"
+        >
+          <dl>
+            <div
+              appLedgerRow
+              label="Imponibile previdenziale"
+              [amount]="r.contributiInps.imponibilePrevidenziale"
+            ></div>
+            <div
+              appLedgerRow
+              label="Aliquota applicata"
+              [percent]="r.contributiInps.aliquotaApplicata"
+            ></div>
+            <div
+              appLedgerRow
+              label="Contributi base"
+              [amount]="r.contributiInps.contributiBase"
+              flow="out"
+            ></div>
+            @if (r.contributiInps.contributoAggiuntivo > 0) {
+              <div
+                appLedgerRow
+                label="Contributo aggiuntivo 1%"
+                [amount]="r.contributiInps.contributoAggiuntivo"
+                flow="out"
+              ></div>
+            }
+          </dl>
+          @if (inpsDatore() > 0) {
+            <p [class]="note">
+              Quota a tuo carico. L'azienda versa altri {{ formatCurrency(inpsDatore()) }}
+            </p>
+          }
+        </app-ledger-card>
+
+        <!-- Regime impatriati -->
+        @if (r.regimeImpatriati) {
+          <app-ledger-card
+            heading="Regime impatriati"
+            hue="blu"
+            icon="plane"
+            [total]="r.regimeImpatriati.importoEsente"
+          >
+            <dl>
+              <div
+                appLedgerRow
+                label="Esenzione applicata"
+                [value]="
+                  formatPercent(r.regimeImpatriati.percentualeEsenzione) +
+                  ' ' +
+                  (r.regimeImpatriati.haFigliMinorenni ? '(figli minorenni)' : '(standard)')
+                "
+              ></div>
+              <div
+                appLedgerRow
+                label="Reddito agevolabile"
+                [amount]="r.regimeImpatriati.redditoAgevolabile"
+              ></div>
+              <div
+                appLedgerRow
+                label="Importo esente IRPEF"
+                [amount]="r.regimeImpatriati.importoEsente"
+              ></div>
+            </dl>
+            <p [class]="note">Riduce imponibile IRPEF e addizionali, non INPS</p>
+          </app-ledger-card>
+        }
+
+        <!-- IRPEF -->
+        <app-ledger-card
+          heading="IRPEF"
+          hue="rosa"
+          icon="landmark"
+          [total]="r.irpefFinale"
+          flow="out"
+        >
+          <dl>
+            <div appLedgerRow label="Imponibile IRPEF" [amount]="r.irpef.imponibileIrpef"></div>
+            @for (scaglione of r.irpef.dettaglioScaglioni; track scaglione.scaglione) {
+              @if (scaglione.imponibileScaglione > 0) {
+                <div
+                  appLedgerRow
+                  label="Scaglione {{ scaglione.scaglione }} · {{
+                    formatPercent(scaglione.aliquota, 0)
+                  }} su {{ formatCurrency(scaglione.imponibileScaglione) }}"
+                  [amount]="scaglione.impostaScaglione"
+                ></div>
+              }
+            }
+            <div appLedgerRow label="IRPEF lorda" [amount]="r.irpef.irpefLorda" level="total"></div>
+            @if (detrazioniIrpef(); as d) {
+              <div
+                appLedgerRow
+                label="Detrazioni applicate"
+                [amount]="d.applicate"
+                flow="reduce"
+              ></div>
+              @if (d.nonUtilizzabili > 0) {
+                <div
+                  appLedgerRow
+                  label="di cui non utilizzabili"
+                  [amount]="d.nonUtilizzabili"
+                  level="detail"
+                ></div>
+              }
+            }
+            <div
+              appLedgerRow
+              label="IRPEF finale"
+              [amount]="r.irpefFinale"
+              flow="out"
+              level="total"
+            ></div>
+          </dl>
+        </app-ledger-card>
+
+        <!-- Detrazioni e trattamento integrativo -->
+        <app-ledger-card
+          heading="Detrazioni"
+          hue="verde"
+          icon="tag"
+          [total]="r.riepilogoDetrazioni.totale"
+          flow="in"
+        >
+          <dl>
+            @if (r.detrazioniLavoro.detrazioneEffettiva > 0) {
+              <div
+                appLedgerRow
+                label="Lavoro dipendente"
+                [amount]="r.detrazioniLavoro.detrazioneEffettiva"
+                flow="in"
+              ></div>
+              @if (r.detrazioniLavoro.maggiorazione > 0) {
+                <div
+                  appLedgerRow
+                  label="di cui maggiorazione"
+                  [amount]="r.detrazioniLavoro.maggiorazione"
+                  level="detail"
+                ></div>
+              }
+            }
+
+            @if (r.detrazioniFamiliari.totaleDetrazioniFamiliari > 0) {
+              <div
+                appLedgerRow
+                label="Carichi familiari"
+                [amount]="r.detrazioniFamiliari.totaleDetrazioniFamiliari"
+                flow="in"
+              ></div>
+              @if (r.detrazioniFamiliari.detrazioneConiuge > 0) {
+                <div
+                  appLedgerRow
+                  label="Coniuge"
+                  [amount]="r.detrazioniFamiliari.detrazioneConiuge"
+                  level="detail"
+                ></div>
+              }
+              @if (r.detrazioniFamiliari.detrazioneFigli > 0) {
+                <div
+                  appLedgerRow
+                  label="Figli ({{ r.detrazioniFamiliari.numeroFigliConDetrazione }})"
+                  [amount]="r.detrazioniFamiliari.detrazioneFigli"
+                  level="detail"
+                ></div>
+              }
+              @if (r.detrazioniFamiliari.detrazioneAscendenti > 0) {
+                <div
+                  appLedgerRow
+                  label="Ascendenti ({{ r.detrazioniFamiliari.numeroAscendentiConDetrazione }})"
+                  [amount]="r.detrazioniFamiliari.detrazioneAscendenti"
+                  level="detail"
+                ></div>
+              }
+            }
+
+            @if (r.cuneoFiscale.indennitaEsente > 0) {
+              <div
+                appLedgerRow
+                label="Indennità cuneo fiscale (esente)"
+                [amount]="r.cuneoFiscale.indennitaEsente"
+                flow="in"
+              ></div>
+            }
+            @if (r.cuneoFiscale.detrazioneAggiuntiva > 0) {
+              <div
+                appLedgerRow
+                label="Cuneo fiscale"
+                [amount]="r.cuneoFiscale.detrazioneAggiuntiva"
+                flow="in"
+              ></div>
+            }
+
+            @if (r.riepilogoDetrazioni.altre > 0) {
+              <div
+                appLedgerRow
+                label="Altre detrazioni"
+                [amount]="r.riepilogoDetrazioni.altre"
+                flow="in"
+              ></div>
+            }
+
+            @if (r.trattamentoIntegrativo.spetta) {
+              <div
+                appLedgerRow
+                label="Trattamento integrativo"
+                [amount]="r.trattamentoIntegrativo.importo"
+                flow="in"
+              ></div>
+              <div
+                appLedgerRow
+                label="Importo"
+                [value]="r.trattamentoIntegrativo.importoPieno ? 'Pieno' : 'Ridotto'"
+                level="detail"
+              ></div>
+            } @else {
+              <div appLedgerRow label="Trattamento integrativo" value="Non spetta"></div>
+              @if (r.trattamentoIntegrativo.motivoNonSpettanza; as motivo) {
+                <div appLedgerRow [label]="motivo" value="" level="detail"></div>
+              }
+            }
+          </dl>
+        </app-ledger-card>
+
+        <!-- Addizionali -->
+        <app-ledger-card
+          heading="Addizionali"
+          hue="ocra"
+          icon="pin"
+          [total]="r.addizionali.totaleAddizionali"
+          flow="out"
+        >
+          <dl>
+            <div
+              appLedgerRow
+              label="Regionale{{ regione() ? ' ' + regione() : '' }} ({{
+                formatPercent(r.addizionali.aliquotaRegionale)
+              }})"
+              [amount]="r.addizionali.addizionaleRegionale"
+              flow="out"
+            ></div>
+            <div
+              appLedgerRow
+              label="Comunale ({{ formatPercent(r.addizionali.aliquotaComunale) }})"
+              [amount]="r.addizionali.addizionaleComunale"
+              flow="out"
+            ></div>
+            @if (r.addizionali.esenzioneComunaleApplicata) {
+              <div
+                appLedgerRow
+                label="Esenzione comunale applicata"
+                value="Sì"
+                level="detail"
+              ></div>
+            }
+          </dl>
+          @if (comuneNonIndicato()) {
+            <p [class]="note">Aliquota comunale di riferimento, comune non indicato</p>
+          }
+        </app-ledger-card>
+
+        <!-- Fondi contrattuali -->
+        @if (r.fondiContrattuali.length) {
+          <app-ledger-card
+            heading="Fondi contrattuali"
+            hue="blu"
+            icon="briefcase"
+            [total]="fondiTotale()"
+            flow="out"
+          >
+            <dl>
+              @for (fondo of r.fondiContrattuali; track fondo.id) {
+                <div
+                  appLedgerRow
+                  [label]="fondo.nome"
+                  [amount]="fondo.contributoAnnuo"
+                  flow="out"
+                ></div>
+                <div
+                  appLedgerRow
+                  [label]="
+                    fondo.deducibile
+                      ? 'al mese, deducibile dall\'imponibile IRPEF'
+                      : 'al mese, trattenuta diretta dal netto'
+                  "
+                  [amount]="fondo.contributoMensile"
+                  level="detail"
+                ></div>
+                @if (fondo.deducibile) {
+                  <div
+                    appLedgerRow
+                    label="risparmio fiscale stimato"
+                    [amount]="fondo.risparmioFiscaleStimato"
+                    flow="in"
+                    level="detail"
+                  ></div>
+                }
+              }
+            </dl>
+          </app-ledger-card>
+        }
+
+        <!-- Borsa di studio aggiuntiva -->
+        @if (r.borsaDiStudio) {
+          <app-ledger-card
+            heading="Borsa di studio"
+            hue="ocra"
+            icon="cap"
+            [total]="r.borsaDiStudio.nettoAnnuo"
+          >
+            <dl>
+              <div appLedgerRow label="Importo lordo" [amount]="r.borsaDiStudio.importoLordo"></div>
+              <div
+                appLedgerRow
+                label="INPS Gestione Separata (borsista)"
+                [amount]="r.borsaDiStudio.contributoGestioneSeparataBorsista"
+                flow="out"
+              ></div>
+              <div
+                appLedgerRow
+                label="Imponibile IRPEF borsa"
+                [amount]="r.borsaDiStudio.imponibileIrpef"
+              ></div>
+              <div
+                appLedgerRow
+                label="Netto annuo borsa"
+                [amount]="r.borsaDiStudio.nettoAnnuo"
+                level="total"
+              ></div>
+              <div
+                appLedgerRow
+                label="al mese"
+                [amount]="r.borsaDiStudio.nettoMensile"
+                level="detail"
+              ></div>
+            </dl>
+            <p [class]="note">
+              INPS GS 35,03%: 1/3 borsista, 2/3 ente. Cumulo IRPEF con il reddito da lavoro
+            </p>
+          </app-ledger-card>
+        }
+
+        <!-- Fondo pensione -->
+        @if (r.fondoPensioneIntegrativo; as fp) {
+          <app-ledger-card
+            heading="Fondo pensione"
+            hue="viola"
+            icon="sprout"
+            [total]="fp.contributoLavoratoreAnnuo"
+            flow="out"
+          >
+            <dl>
+              <div
+                appLedgerRow
+                label="Contributo lavoratore"
+                [amount]="fp.contributoLavoratoreAnnuo"
+                flow="out"
+              ></div>
+              <div
+                appLedgerRow
+                label="al mese"
+                [amount]="fp.contributoLavoratoreMensile"
+                level="detail"
+              ></div>
+              @if (fp.contributoDatoreLavoroAnnuo > 0) {
+                <div
+                  appLedgerRow
+                  label="Contributo datore"
+                  [amount]="fp.contributoDatoreLavoroAnnuo"
+                ></div>
+              }
+              @if (fp.contributoEbitempAnnuo > 0) {
+                <div
+                  appLedgerRow
+                  label="Contributo EBITEMP"
+                  [amount]="fp.contributoEbitempAnnuo"
+                ></div>
+              }
+              @if (fp.contributoWelfareAnnuo > 0) {
+                <div
+                  appLedgerRow
+                  label="Contributo welfare azienda"
+                  [amount]="fp.contributoWelfareAnnuo"
+                ></div>
+              }
+              <div appLedgerRow label="Deduzione effettiva" [amount]="fp.deduzioneEffettiva"></div>
+              <div appLedgerRow label="limite annuo" [amount]="plafond" level="detail"></div>
+              @if (fp.eccedenzaNonDeducibile > 0) {
+                <div
+                  appLedgerRow
+                  label="Eccedenza non deducibile"
+                  [amount]="fp.eccedenzaNonDeducibile"
+                ></div>
+              }
+              <div
+                appLedgerRow
+                label="Risparmio fiscale stimato"
+                [amount]="fp.risparmoFiscaleStimato"
+                flow="in"
+                level="total"
+              ></div>
+            </dl>
+          </app-ledger-card>
+        }
+
+        <!-- Fringe benefit -->
+        @if (r.fringeBenefit.valoreTotaleLordo > 0) {
+          <app-ledger-card
+            heading="Fringe benefit"
+            hue="verde"
+            icon="car"
+            [total]="r.fringeBenefit.valoreTotaleLordo"
+          >
+            <dl>
+              <div
+                appLedgerRow
+                label="Valore totale lordo"
+                [amount]="r.fringeBenefit.valoreTotaleLordo"
+              ></div>
+              <div
+                appLedgerRow
+                label="Soglia esenzione"
+                [amount]="r.fringeBenefit.sogliaEsenzione"
+              ></div>
+              <div
+                appLedgerRow
+                label="Soglia superata"
+                [value]="r.fringeBenefit.sogliaSuperata ? 'Sì' : 'No'"
+              ></div>
+              <div
+                appLedgerRow
+                label="Valore imponibile"
+                [amount]="r.fringeBenefit.valoreImponibile"
+              ></div>
+              <div appLedgerRow label="Valore esente" [amount]="r.fringeBenefit.valoreEsente"></div>
+              @if (r.fringeBenefit.autoAziendale; as auto) {
+                <div appLedgerRow label="Auto aziendale" [amount]="auto.valore"></div>
+                <div
+                  appLedgerRow
+                  label="percentuale applicata"
+                  [percent]="auto.percentualeApplicata"
+                  level="detail"
+                ></div>
+                <div
+                  appLedgerRow
+                  label="mesi di utilizzo"
+                  [value]="'' + auto.mesiUtilizzo"
+                  level="detail"
+                ></div>
+                @if (r.fringeBenefit.trattenutaAutoDipendente > 0) {
+                  <div
+                    appLedgerRow
+                    label="trattenuta dipendente"
+                    [amount]="r.fringeBenefit.trattenutaAutoDipendente"
+                    flow="out"
+                    level="detail"
+                  ></div>
+                }
+              }
+            </dl>
+          </app-ledger-card>
+        }
+
+        <!-- Rimborsi trasferta -->
+        @if (r.rimborsiTrasferta.totaleRimborsi > 0) {
+          <app-ledger-card
+            heading="Rimborsi trasferta"
+            hue="blu"
+            icon="route"
+            [total]="r.rimborsiTrasferta.totaleRimborsi"
+          >
+            <dl>
+              @if (r.rimborsiTrasferta.rimborsoForfettarioEsente > 0) {
+                <div
+                  appLedgerRow
+                  label="Rimborso forfettario (esente)"
+                  [amount]="r.rimborsiTrasferta.rimborsoForfettarioEsente"
+                ></div>
+              }
+              @if (r.rimborsiTrasferta.rimborsoDocumentatoEsente > 0) {
+                <div
+                  appLedgerRow
+                  label="Rimborso documentato (esente)"
+                  [amount]="r.rimborsiTrasferta.rimborsoDocumentatoEsente"
+                ></div>
+              }
+              @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
+                <div
+                  appLedgerRow
+                  label="Rimborsi tassati"
+                  [amount]="r.rimborsiTrasferta.rimborsiTassati"
+                ></div>
+              }
+              <div
+                appLedgerRow
+                label="Totale esente"
+                [amount]="r.rimborsiTrasferta.totaleEsente"
+                flow="in"
+                level="total"
+              ></div>
+            </dl>
+          </app-ledger-card>
+        }
+
+        <!-- Benefit non tassati -->
+        @if (r.benefitNonTassati.totaleEsente > 0 || r.benefitNonTassati.totaleTassato > 0) {
+          <app-ledger-card
+            heading="Benefit non tassati"
+            hue="verde"
+            icon="gift"
+            [total]="r.benefitNonTassati.totaleEsente"
+            flow="in"
+          >
+            <dl>
+              @if (r.benefitNonTassati.assistenzaSanitaria > 0) {
+                <div
+                  appLedgerRow
+                  label="Assistenza sanitaria"
+                  [amount]="r.benefitNonTassati.assistenzaSanitaria"
+                ></div>
+              }
+              @if (r.benefitNonTassati.buoniPastoEsenti > 0) {
+                <div
+                  appLedgerRow
+                  label="Buoni pasto (esenti)"
+                  [amount]="r.benefitNonTassati.buoniPastoEsenti"
+                ></div>
+              }
+              @if (r.benefitNonTassati.buoniPastoTassati > 0) {
+                <div
+                  appLedgerRow
+                  label="Buoni pasto (tassati)"
+                  [amount]="r.benefitNonTassati.buoniPastoTassati"
+                ></div>
+              }
+              @if (buonoPastoGiornaliero(); as buono) {
+                <div
+                  appLedgerRow
+                  label="{{ formatCurrency(buono.importo) }} al giorno × {{ buono.giorni }} giorni"
+                  value=""
+                  level="detail"
+                ></div>
+              }
+              @if (r.benefitNonTassati.altriWelfare > 0) {
+                <div
+                  appLedgerRow
+                  label="Altri welfare"
+                  [amount]="r.benefitNonTassati.altriWelfare"
+                ></div>
+              }
+              @if (r.benefitNonTassati.totaleTassato > 0) {
+                <div
+                  appLedgerRow
+                  label="Totale tassato (eccedenze)"
+                  [amount]="r.benefitNonTassati.totaleTassato"
+                ></div>
+              }
+            </dl>
+          </app-ledger-card>
+        }
+
+        <!-- Costo aziendale -->
+        <app-ledger-card
+          heading="Costo aziendale"
+          hue="terracotta"
+          icon="building"
+          [total]="r.costoAziendale"
+        >
+          <dl>
+            @for (voce of entrateDatore(); track voce.descrizione) {
+              <div appLedgerRow [label]="voce.descrizione" [amount]="voce.importo">
+                @if (voce.aliquota !== undefined) {
+                  ({{ formatPercent(voce.aliquota) }})
+                }
+              </div>
+            }
+          </dl>
+        </app-ledger-card>
+      </div>
+    }
+
+    <!-- Flusso -->
+    @if (activeTab() === 'flusso') {
+      <div
+        id="panel-flusso"
+        role="tabpanel"
+        aria-labelledby="tab-flusso"
+        tabindex="0"
+        class="rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+      >
+        <section
+          aria-labelledby="flusso-title"
+          class="rounded-2xl bg-surface px-4 pt-4 pb-[18px] shadow-xs ring-1 ring-ring-card sm:px-5"
+        >
+          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h3
+              id="flusso-title"
+              class="font-mono text-[11px]/[18px] font-semibold tracking-widest text-faint uppercase"
+            >
+              Flusso annuo
+            </h3>
+            <p class="text-[13px] text-label tabular-nums">
+              Costo aziendale
+              <strong class="font-medium text-fg">{{ formatCurrency(r.costoAziendale) }}</strong>
+              → netto in busta
+              <strong class="font-medium text-fg">{{ formatCurrency(r.nettoAnnuo) }}</strong
+              >, il
+              {{ formatPercent(r.costoAziendale > 0 ? r.nettoAnnuo / r.costoAziendale : 0, 1) }}
+            </p>
+          </div>
+          <div class="-mx-2 mt-2 h-[480px] sm:-mx-3">
+            <app-graph-funnel [result]="result()" />
+          </div>
+        </section>
+      </div>
+    }
+
+    <!-- Proiezione -->
+    @if (activeTab() === 'proiezione') {
+      <div
+        id="panel-proiezione"
+        role="tabpanel"
+        aria-labelledby="tab-proiezione"
+        tabindex="0"
+        class="rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+      >
+        <app-graph-projection [result]="result()" [baseInput]="baseInput()" />
       </div>
     }
   </div>
-</aside>
+} @else {
+  <div
+    class="rounded-[26px] bg-linear-145 from-g1 from-28% via-g2 via-70% to-g3 p-2 ring-1 ring-black/5 ring-inset dark:ring-white/10"
+  >
+    <div class="rounded-[19px] bg-surface p-8 text-center shadow-2xl">
+      <p class="mb-2 text-muted">Compila il form per calcolare il tuo stipendio netto.</p>
+      <p class="text-sm text-muted">
+        La RAL è obbligatoria. Se il risultato non compare, controlla i campi con un errore.
+      </p>
+    </div>
+  </div>
+}
