@@ -961,7 +961,8 @@ describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
     });
 
     expect(fondo(resultCon, 'fondoEst')!.contributoDatore).toBe(156);
-    expect(resultCon.costoAziendale - resultSenza.costoAziendale).toBeCloseTo(156, 2);
+    // Più il contributo di solidarietà del 10% sui contributi di assistenza sanitaria
+    expect(resultCon.costoAziendale - resultSenza.costoAziendale).toBeCloseTo(156 * 1.1, 2);
   });
 });
 
@@ -1718,7 +1719,8 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
         ral: 30_000,
         benefitNonTassati: { previdenzaComplementare: 3_000 },
       });
-      expect(resultCon.costoAziendale).toBeCloseTo(resultSenza.costoAziendale + 3_000, 2);
+      // Più il contributo di solidarietà del 10% sui contributi al fondo pensione
+      expect(resultCon.costoAziendale).toBeCloseTo(resultSenza.costoAziendale + 3_000 * 1.1, 2);
       expect(entrateDi(resultCon, 'welfare')).toBe(0);
       expect(entrateDi(resultCon, 'fondi')).toBeCloseTo(3_000, 2);
     });
@@ -3842,6 +3844,25 @@ describe('Property-based (fuzzy) tests', () => {
           },
         }),
         ...(rng() > 0.8 && { borsaDiStudio: { importoAnnuo: 16_243 } }),
+        tipoContratto: (['indeterminato', 'determinato', 'apprendistato'] as const)[
+          Math.floor(rng() * 3)
+        ],
+        ...(rng() > 0.5 && {
+          opzioniDatore: {
+            tassoInail: Math.round(rng() * 120) / 10,
+            rinnoviTempoDeterminato: Math.floor(rng() * 4),
+            apprendistatoFinoA9Dipendenti: rng() > 0.5,
+            annoApprendistato: 1 + Math.floor(rng() * 3),
+            ...(rng() > 0.5 && {
+              esonero: {
+                tipo: (['giovani', 'donne', 'personalizzato'] as const)[Math.floor(rng() * 3)],
+                percentuale: Math.round(rng() * 100),
+                tettoMensile: Math.round(rng() * 800),
+                mesi: Math.floor(rng() * 13),
+              },
+            }),
+          },
+        }),
       };
     });
 
@@ -3860,6 +3881,31 @@ describe('Property-based (fuzzy) tests', () => {
         expect(entrateVerso('netto') - somma(trattenute)).toBeCloseTo(result.nettoAnnuo, 6);
         expect(result.nettoAnnuo + entrateVerso('esente')).toBeCloseTo(result.totalePercepito, 6);
         expect([...entrate, ...trattenute].every((voce) => voce.importo > 0)).toBe(true);
+      }
+    });
+
+    it('le voci del datore coincidono con il dettaglio dei contributi datore', () => {
+      for (const input of scenari) {
+        const result = calc.calcolaStipendioNetto(input);
+        const d = result.contributiDatore;
+
+        expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(
+          d.contributiInpsLordi - d.esonero + d.addizionaleNaspi + d.contributoSolidarieta,
+          6,
+        );
+        expect(entrateDi(result, 'inail')).toBeCloseTo(d.premioInail, 6);
+        expect(entrateDi(result, 'tfr')).toBeCloseTo(d.tfrLordo - d.riduzioneTfr, 6);
+        expect(d.esonero).toBeLessThanOrEqual(d.contributiInpsLordi + 1e-9);
+      }
+    });
+
+    it('le opzioni datore non cambiano il netto', () => {
+      for (const input of scenari) {
+        const { opzioniDatore, ...senzaOpzioni } = input;
+        if (!opzioniDatore) continue;
+        expect(calc.calcolaStipendioNetto(input).nettoAnnuo).toBe(
+          calc.calcolaStipendioNetto(senzaOpzioni).nettoAnnuo,
+        );
       }
     });
 
@@ -3993,8 +4039,10 @@ describe('Costo aziendale', () => {
       expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(30_000 * 0.2898, 2);
     });
 
-    it('deve calcolare TFR = RAL / 13,5', () => {
-      expect(entrateDi(result, 'tfr')).toBeCloseTo(30_000 / 13.5, 2);
+    it('deve calcolare TFR = RAL / 13,5 meno lo 0,50% IVS recuperato', () => {
+      expect(entrateDi(result, 'tfr')).toBeCloseTo(30_000 / 13.5 - 30_000 * 0.005, 2);
+      expect(result.contributiDatore.tfrLordo).toBeCloseTo(30_000 / 13.5, 2);
+      expect(result.contributiDatore.riduzioneTfr).toBeCloseTo(150, 2);
     });
 
     it('non deve includere fondi dirigenti né Fondo EST', () => {
@@ -4007,8 +4055,15 @@ describe('Costo aziendale', () => {
       expect(entrateDi(result, 'welfare')).toBe(0);
     });
 
+    it('non deve includere addizionale NASpI, INAIL né contributo di solidarietà', () => {
+      expect(result.contributiDatore.addizionaleNaspi).toBe(0);
+      expect(result.contributiDatore.premioInail).toBe(0);
+      expect(result.contributiDatore.contributoSolidarieta).toBe(0);
+      expect(entrateDi(result, 'inail')).toBe(0);
+    });
+
     it('deve calcolare totale annuo = RAL + INPS datore + TFR', () => {
-      const expected = 30_000 + 30_000 * 0.2898 + 30_000 / 13.5;
+      const expected = 30_000 + 30_000 * 0.2898 + 30_000 / 13.5 - 30_000 * 0.005;
       expect(result.costoAziendale).toBeCloseTo(expected, 2);
     });
   });
@@ -4109,14 +4164,16 @@ describe('Costo aziendale', () => {
     });
 
     it('il costo aziendale deve includere tutte le voci', () => {
+      // Solidarietà 10% su Fondo Negri (previdenza) e FASDAC (sanità), non su Pastore e CFMT
       const expected =
         80_000 +
         80_000 * 0.2654 +
-        80_000 / 13.5 +
-        59_224.54 * 0.1538 +
+        80_000 / 13.5 -
+        80_000 * 0.005 +
+        59_224.54 * 0.1538 * 1.1 +
         4_856.45 +
         276 +
-        45_940 * 0.0807;
+        45_940 * 0.0807 * 1.1;
       expect(result.costoAziendale).toBeCloseTo(expected, 0);
     });
   });
@@ -4138,7 +4195,7 @@ describe('Costo aziendale', () => {
     });
 
     it('il totale deve includere il contributo datore', () => {
-      const expected = 35_000 + 35_000 * 0.2898 + 35_000 / 13.5 + 700;
+      const expected = 35_000 + 35_000 * 0.2898 + 35_000 / 13.5 - 35_000 * 0.005 + 700 * 1.1;
       expect(result.costoAziendale).toBeCloseTo(expected, 0);
     });
   });
@@ -4194,8 +4251,334 @@ describe('Costo aziendale', () => {
     });
 
     it('il totale deve includere i benefit non tassati', () => {
-      const baseExpected = 30_000 + 30_000 * 0.2898 + 30_000 / 13.5;
+      const baseExpected = 30_000 + 30_000 * 0.2898 + 30_000 / 13.5 - 30_000 * 0.005;
       expect(result.costoAziendale).toBeCloseTo(baseExpected + 2_600, 0);
+    });
+  });
+
+  describe('Addizionale NASpI tempo determinato (art. 2, c. 28, L. 92/2012)', () => {
+    it("aggiunge l'1,4% dell'imponibile previdenziale ai contributi datore", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        tipoContratto: 'determinato',
+      });
+      expect(result.contributiDatore.aliquotaAddizionaleNaspi).toBeCloseTo(0.014, 10);
+      expect(result.contributiDatore.addizionaleNaspi).toBeCloseTo(420, 2);
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(30_000 * 0.2898 + 420, 2);
+    });
+
+    it('aumenta di 0,5 punti per ogni rinnovo (art. 3, c. 2, D.L. 87/2018)', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        tipoContratto: 'determinato',
+        opzioniDatore: { rinnoviTempoDeterminato: 2 },
+      });
+      expect(result.contributiDatore.aliquotaAddizionaleNaspi).toBeCloseTo(0.024, 10);
+      expect(result.contributiDatore.addizionaleNaspi).toBeCloseTo(720, 2);
+    });
+
+    it("si applica all'intero imponibile, senza massimale", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 150_000,
+        tipoContratto: 'determinato',
+      });
+      expect(result.contributiDatore.addizionaleNaspi).toBeCloseTo(150_000 * 0.014, 2);
+    });
+
+    it.each(['indeterminato', 'apprendistato'] as const)('non è dovuta per %s', (tipoContratto) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        tipoContratto,
+        opzioniDatore: { rinnoviTempoDeterminato: 3 },
+      });
+      expect(result.contributiDatore.addizionaleNaspi).toBe(0);
+    });
+
+    it('non cambia il netto', () => {
+      const input = { ...baseInput, ral: 30_000, tipoContratto: 'determinato' as const };
+      const senza = calc.calcolaStipendioNetto(input);
+      const con = calc.calcolaStipendioNetto({
+        ...input,
+        opzioniDatore: { rinnoviTempoDeterminato: 4 },
+      });
+      expect(con.nettoAnnuo).toBe(senza.nettoAnnuo);
+      expect(con.costoAziendale - senza.costoAziendale).toBeCloseTo(30_000 * 0.02, 2);
+    });
+  });
+
+  describe('Premio INAIL', () => {
+    it("applica il tasso per mille all'imponibile previdenziale", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        opzioniDatore: { tassoInail: 4 },
+      });
+      expect(result.contributiDatore.tassoInail).toBeCloseTo(0.004, 10);
+      expect(result.contributiDatore.premioInail).toBeCloseTo(120, 2);
+      const voce = result.ripartizione.entrate.find((v) => v.categoria === 'inail');
+      expect(voce).toEqual({
+        descrizione: 'Premio INAIL',
+        importo: expect.closeTo(120, 2),
+        categoria: 'inail',
+        pagatore: 'datore',
+        destinazione: 'accantonata',
+        aliquota: expect.closeTo(0.004, 10),
+      });
+    });
+
+    it('comprende i fringe benefit imponibili e non ha massimale', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 150_000,
+        fringeBenefit: { buoniAcquisto: 1_500 },
+        opzioniDatore: { tassoInail: 10 },
+      });
+      expect(result.contributiDatore.premioInail).toBeCloseTo(151_500 * 0.01, 2);
+    });
+
+    it("per gli apprendisti è compreso nell'aliquota INPS (art. 1, c. 773, L. 296/2006)", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 20_000,
+        tipoContratto: 'apprendistato',
+        opzioniDatore: { tassoInail: 4 },
+      });
+      expect(result.contributiDatore.tassoInail).toBe(0);
+      expect(entrateDi(result, 'inail')).toBe(0);
+    });
+
+    it('non cambia il netto', () => {
+      const senza = calc.calcolaStipendioNetto({ ...baseInput, ral: 40_000 });
+      const con = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        opzioniDatore: { tassoInail: 12.5 },
+      });
+      expect(con.nettoAnnuo).toBe(senza.nettoAnnuo);
+      expect(con.costoAziendale - senza.costoAziendale).toBeCloseTo(500, 2);
+    });
+  });
+
+  describe('Contributo di solidarietà 10% (art. 16 D.Lgs. 252/2005)', () => {
+    it('grava sui contributi datore e welfare al fondo pensione, non su quelli del lavoratore', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        fondoPensioneIntegrativo: {
+          contributoLavoratore: 1,
+          ralLavoratore: 30_000,
+          contributoDatoreLavoro: 2,
+          ralDatoreLavoro: 30_000,
+        },
+        benefitNonTassati: { previdenzaComplementare: 1_000 },
+      });
+      expect(result.contributiDatore.baseContributoSolidarieta).toBeCloseTo(1_600, 2);
+      expect(result.contributiDatore.contributoSolidarieta).toBeCloseTo(160, 2);
+    });
+
+    it("grava sull'assistenza sanitaria esente pagata come welfare, non sull'eccedenza", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        benefitNonTassati: { assistenzaSanitaria: 4_000 },
+      });
+      expect(result.contributiDatore.contributoSolidarieta).toBeCloseTo(361.52, 2);
+    });
+
+    it('non grava su buoni pasto, trasporto e servizi welfare', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        benefitNonTassati: { buoniPasto: 1_500, abbonamentoTrasporto: 300, serviziWelfare: 800 },
+      });
+      expect(result.contributiDatore.contributoSolidarieta).toBe(0);
+    });
+
+    it('rientra nei contributi datore', () => {
+      const input = { ...baseInput, ral: 30_000, fondoEst: true };
+      const result = calc.calcolaStipendioNetto(input);
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(30_000 * 0.2898 + 15.6, 2);
+    });
+  });
+
+  describe('TFR al netto dello 0,50% IVS (art. 3, c. 15-16, L. 297/1982)', () => {
+    it("recupera lo 0,50% sull'imponibile entro il massimale", () => {
+      const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 150_000 });
+      expect(result.contributiDatore.riduzioneTfr).toBeCloseTo(122_295 * 0.005, 2);
+      expect(entrateDi(result, 'tfr')).toBeCloseTo(150_000 / 13.5 - 122_295 * 0.005, 2);
+    });
+
+    it('senza massimale per gli iscritti prima del 1996', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 150_000,
+        iscrittoPost1996: false,
+      });
+      expect(result.contributiDatore.riduzioneTfr).toBeCloseTo(150_000 * 0.005, 2);
+    });
+
+    it("comprende l'imponibile dei fringe benefit, mentre il TFR resta sulla RAL", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        fringeBenefit: { buoniAcquisto: 1_500 },
+      });
+      expect(result.contributiDatore.tfrLordo).toBeCloseTo(30_000 / 13.5, 2);
+      expect(result.contributiDatore.riduzioneTfr).toBeCloseTo(31_500 * 0.005, 2);
+    });
+
+    it('non si applica agli apprendisti', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 20_000,
+        tipoContratto: 'apprendistato',
+      });
+      expect(result.contributiDatore.riduzioneTfr).toBe(0);
+      expect(entrateDi(result, 'tfr')).toBeCloseTo(20_000 / 13.5, 2);
+    });
+  });
+
+  describe('Esoneri contributivi (D.L. 60/2024)', () => {
+    const inps30k = 30_000 * 0.2898;
+
+    it('Bonus Giovani: 100% dei contributi INPS datore fino a €500 al mese', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        opzioniDatore: { esonero: { tipo: 'giovani' } },
+      });
+      expect(result.contributiDatore.contributiInpsLordi).toBeCloseTo(inps30k, 2);
+      expect(result.contributiDatore.esonero).toBeCloseTo(6_000, 2);
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(inps30k - 6_000, 2);
+    });
+
+    it.each(['giovaniZes', 'donne', 'zes'] as const)('%s: tetto di €650 al mese', (tipo) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        opzioniDatore: { esonero: { tipo } },
+      });
+      expect(result.contributiDatore.esonero).toBeCloseTo(7_800, 2);
+    });
+
+    it('sotto il tetto esonera tutti i contributi INPS datore', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 15_000,
+        opzioniDatore: { esonero: { tipo: 'donne' } },
+      });
+      expect(result.contributiDatore.esonero).toBeCloseTo(15_000 * 0.2898, 2);
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(0, 2);
+      // Lo 0,50% IVS non è versato, quindi non si recupera sul TFR (Messaggio INPS 1817/2019)
+      expect(result.contributiDatore.riduzioneTfr).toBeCloseTo(0, 6);
+    });
+
+    it('rapporta quota e tetto ai mesi di esonero', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        opzioniDatore: { esonero: { tipo: 'giovani', mesi: 6 } },
+      });
+      expect(result.contributiDatore.esonero).toBeCloseTo(3_000, 2);
+    });
+
+    it('personalizzato: quota e tetto liberi, senza tetto se non indicato', () => {
+      const senzaTetto = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        opzioniDatore: { esonero: { tipo: 'personalizzato', percentuale: 50 } },
+      });
+      expect(senzaTetto.contributiDatore.esonero).toBeCloseTo(inps30k * 0.5, 2);
+
+      const conTetto = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        opzioniDatore: {
+          esonero: { tipo: 'personalizzato', percentuale: 70, tettoMensile: 300 },
+        },
+      });
+      expect(conTetto.contributiDatore.esonero).toBeCloseTo(3_600, 2);
+    });
+
+    it('riduce il recupero dello 0,50% sul TFR in proporzione alla quota esonerata', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        opzioniDatore: { esonero: { tipo: 'giovani' } },
+      });
+      expect(result.contributiDatore.riduzioneTfr).toBeCloseTo(150 * (1 - 6_000 / inps30k), 6);
+    });
+
+    it('non riduce addizionale NASpI, INAIL e contributo di solidarietà', () => {
+      const input: InputCalcoloStipendio = {
+        ...baseInput,
+        ral: 15_000,
+        tipoContratto: 'determinato',
+        fondoEst: true,
+        opzioniDatore: { tassoInail: 4 },
+      };
+      const senza = calc.calcolaStipendioNetto(input);
+      const con = calc.calcolaStipendioNetto({
+        ...input,
+        opzioniDatore: { tassoInail: 4, esonero: { tipo: 'personalizzato', percentuale: 100 } },
+      });
+      expect(con.contributiDatore.addizionaleNaspi).toBeCloseTo(15_000 * 0.014, 6);
+      expect(con.contributiDatore.premioInail).toBeCloseTo(senza.contributiDatore.premioInail, 6);
+      expect(con.contributiDatore.contributoSolidarieta).toBeCloseTo(15.6, 6);
+      expect(entrateDi(con, 'contributiDatore')).toBeCloseTo(15_000 * 0.014 + 15.6, 6);
+    });
+
+    it('non cambia il netto', () => {
+      const senza = calc.calcolaStipendioNetto({ ...baseInput, ral: 30_000 });
+      const con = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        opzioniDatore: { esonero: { tipo: 'giovani' } },
+      });
+      expect(con.nettoAnnuo).toBe(senza.nettoAnnuo);
+      expect(con.costoAziendale).toBeLessThan(senza.costoAziendale);
+    });
+  });
+
+  describe('Apprendistato in aziende fino a 9 dipendenti (art. 1, c. 773, L. 296/2006)', () => {
+    it.each([
+      [1, 0.0311],
+      [2, 0.0461],
+      [3, 0.1161],
+      [undefined, 0.1161],
+    ])('anno %s: aliquota datore %s', (annoApprendistato, aliquota) => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 20_000,
+        tipoContratto: 'apprendistato',
+        opzioniDatore: { apprendistatoFinoA9Dipendenti: true, annoApprendistato },
+      });
+      expect(aliquotaInpsDatore(result)).toBe(aliquota);
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(20_000 * aliquota, 2);
+    });
+
+    it('non cambia il netto né la quota del lavoratore', () => {
+      const input = { ...baseInput, ral: 20_000, tipoContratto: 'apprendistato' as const };
+      const senza = calc.calcolaStipendioNetto(input);
+      const con = calc.calcolaStipendioNetto({
+        ...input,
+        opzioniDatore: { apprendistatoFinoA9Dipendenti: true, annoApprendistato: 1 },
+      });
+      expect(con.contributiInps.totaleContributi).toBe(senza.contributiInps.totaleContributi);
+      expect(con.nettoAnnuo).toBe(senza.nettoAnnuo);
+    });
+
+    it('non si applica agli altri contratti', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 20_000,
+        opzioniDatore: { apprendistatoFinoA9Dipendenti: true, annoApprendistato: 1 },
+      });
+      expect(aliquotaInpsDatore(result)).toBe(0.2898);
     });
   });
 

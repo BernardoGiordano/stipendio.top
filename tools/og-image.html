@@ -1,0 +1,67 @@
+<!--
+  Source of public/og-image.png (1200x630). Render with:
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars \
+    --force-device-scale-factor=1 --window-size=1200,630 --virtual-time-budget=8000 \
+    --screenshot=public/og-image.png "file://$PWD/tools/og-image.html"
+-->
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    font-family: 'Switzer', system-ui, sans-serif; color: #1c1917; background: #fafaf9;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    position: absolute; inset: 16px; border-radius: 40px;
+    background: linear-gradient(115deg, #fdf0d5 28%, #f2a383 70%, #ca6680);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.05);
+  }
+  .content { position: absolute; inset: 16px; display: flex; align-items: center; gap: 56px; padding: 0 64px; }
+  .left { flex: 1; }
+  .pill { display: inline-block; padding: 6px 14px; border-radius: 999px; background: rgb(255 255 255 / 0.5);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.05), inset 0 0 2px 1px rgb(255 255 255 / 0.3); font-size: 18px; font-weight: 500; }
+  .brand { margin-top: 36px; font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+  h1 { margin-top: 10px; font-size: 68px; line-height: 1.02; font-weight: 500; letter-spacing: -0.045em; }
+  .sub { margin-top: 24px; font-size: 22px; line-height: 1.45; max-width: 520px; }
+  .tray { width: 440px; padding: 8px; border-radius: 28px; background: rgb(255 255 255 / 0.5);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.05), inset 0 0 2px 1px rgb(255 255 255 / 0.3), 0 4px 6px -1px rgb(0 0 0 / 0.05); }
+  .card { border-radius: 20px; background: #fff; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05), 0 25px 50px -12px rgb(0 0 0 / 0.25); padding: 28px; }
+  .eyebrow { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #57534e; }
+  .big { margin-top: 6px; font-size: 54px; font-weight: 500; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  dl { margin-top: 20px; border-top: 1px solid rgb(0 0 0 / 0.08); }
+  .row { display: flex; justify-content: space-between; padding: 11px 0; font-size: 18px; border-bottom: 1px dotted #e7e5e4; font-variant-numeric: tabular-nums; }
+  .row:last-child { border-bottom: 0; }
+  dt { color: #57534e; } dd { font-weight: 500; }
+  .neg { color: #b42318; }
+  .tot dt, .tot dd { color: #1c1917; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="frame"></div>
+  <div class="content">
+    <div class="left">
+      <span class="pill">Aggiornato alla legge di bilancio 2026</span>
+      <p class="brand">Stipendio.top</p>
+      <h1>Dal lordo al netto, voce per voce.</h1>
+      <p class="sub">IRPEF, contributi INPS, detrazioni e bonus. Gratuito e open source.</p>
+    </div>
+    <div class="tray">
+      <div class="card">
+        <p class="eyebrow">Percepito mensile · RAL 35.000 €</p>
+        <p class="big">1.993,15 €</p>
+        <dl>
+          <div class="row"><dt>RAL</dt><dd>35.000,00 €</dd></div>
+          <div class="row"><dt>Trattenute</dt><dd class="neg">− 9.088,99 €</dd></div>
+          <div class="row tot"><dt>Netto annuo</dt><dd>25.911,01 €</dd></div>
+          <div class="row"><dt>Aliquota effettiva</dt><dd>25,97%</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

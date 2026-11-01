@@ -1,1018 +1,698 @@
-<aside
-  class="bg-white border border-stone-200 rounded-lg overflow-hidden lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] flex flex-col dark:bg-stone-800 dark:border-stone-700"
->
-  @if (hasResult()) {
-    @let r = result()!;
+<h2 class="sr-only">Risultati</h2>
+@if (result(); as r) {
+  <div class="flex flex-col gap-4">
+    <app-tray
+      [kpi]="kpi()"
+      [ripartizione]="ripartizione()!"
+      [aliquota]="r.aliquotaEffettiva"
+      [stats]="stats()"
+    />
 
-    <!-- Header con risultati principali -->
-    <header
-      class="bg-stone-100 border-b border-stone-200 p-6 dark:bg-stone-900 dark:border-stone-700"
+    <!-- On desktop the bar pins to the top once the tray has scrolled away -->
+    <div
+      #bar
+      class="group/bar @container z-20 -mx-2 p-2 transition-[background-color,box-shadow] duration-200 lg:sticky lg:top-0"
+      [attr.data-stuck]="barStuck() || null"
+      [class]="barStuck() ? pinnedBar : ''"
     >
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div class="flex flex-col gap-1">
-          <span class="text-sm text-stone-500 dark:text-stone-400">{{
-            displayMode.isPercepito() ? 'Percepito Mensile' : 'Netto Mensile'
-          }}</span>
-          <span class="text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">{{
-            formatCurrency(displayMode.isPercepito() ? r.nettoMensilePercepito : r.nettoMensile)
-          }}</span>
-          <span class="text-xs text-stone-400">su {{ r.mensilita }} mensilità</span>
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div
+          role="tablist"
+          aria-label="Visualizzazione risultati"
+          class="flex gap-0.5 rounded-full bg-surface p-1 shadow-xs ring-1 ring-ring-strong"
+        >
+          @for (tab of tabs; track tab.id) {
+            <button
+              type="button"
+              role="tab"
+              [id]="'tab-' + tab.id"
+              [attr.aria-selected]="activeTab() === tab.id"
+              [attr.aria-controls]="'panel-' + tab.id"
+              [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
+              (click)="setActiveTab(tab.id)"
+              (keydown)="onTabKeydown($event)"
+              [class]="
+                (activeTab() === tab.id
+                  ? 'bg-primary text-on-primary shadow-sm '
+                  : 'text-muted hover:bg-sunken hover:text-fg ') +
+                'h-[34px] cursor-pointer rounded-full px-3.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:px-[18px] sm:text-[15px]'
+              "
+            >
+              {{ tab.label }}
+            </button>
+          }
         </div>
-        <div class="flex flex-col gap-1 sm:items-end">
-          <span class="text-sm text-stone-500 dark:text-stone-400">{{
-            displayMode.isPercepito() ? 'Totale Percepito Annuo' : 'Netto Annuo'
-          }}</span>
-          <span class="text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">{{
-            formatCurrency(displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo)
-          }}</span>
-          <span class="text-xs text-stone-400">{{
-            displayMode.isPercepito() ? '(netto + rimborsi + benefit esenti)' : '(stipendio netto)'
-          }}</span>
+        <div class="ml-auto flex items-center gap-3">
+          @if (barStuck()) {
+            <!-- Repeats the tray's first figure, which is out of view while the bar is pinned -->
+            <p aria-hidden="true" class="hidden text-right whitespace-nowrap lg:@lg:block">
+              <span
+                class="block font-mono text-[10px]/3 font-semibold tracking-widest text-muted uppercase"
+              >
+                {{ kpi()[0].label }}
+              </span>
+              <span
+                class="mt-1 block text-lg/5 font-medium tracking-[-0.03em] text-fg tabular-nums"
+              >
+                {{ formatCurrency(kpi()[0].value) }}
+              </span>
+            </p>
+          }
+          <ng-content select="app-share-link" />
         </div>
       </div>
-    </header>
+    </div>
 
-    <!-- Tab Navigation -->
-    <nav
-      class="flex border-b border-stone-200 dark:border-stone-700"
-      role="tablist"
-      aria-label="Visualizzazione risultati"
-    >
-      <button
-        type="button"
-        role="tab"
-        [attr.aria-selected]="activeTab() === 'cedolino'"
-        [attr.aria-controls]="'panel-cedolino'"
-        [class]="
-          activeTab() === 'cedolino'
-            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
-            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
-        "
-        (click)="setActiveTab('cedolino')"
+    <!-- Dettaglio -->
+    @if (activeTab() === 'cedolino') {
+      <div
+        id="panel-cedolino"
+        role="tabpanel"
+        aria-labelledby="tab-cedolino"
+        tabindex="0"
+        [class]="panel"
+        class="overflow-hidden rounded-[20px] bg-surface tabular-nums shadow-xs ring-1 ring-ring-card"
       >
-        Riepilogo
-      </button>
-      <button
-        type="button"
-        role="tab"
-        [attr.aria-selected]="activeTab() === 'flusso'"
-        [attr.aria-controls]="'panel-flusso'"
-        [class]="
-          activeTab() === 'flusso'
-            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
-            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
-        "
-        (click)="setActiveTab('flusso')"
-      >
-        Flusso
-      </button>
-      <button
-        type="button"
-        role="tab"
-        [attr.aria-selected]="activeTab() === 'proiezione'"
-        [attr.aria-controls]="'panel-proiezione'"
-        [class]="
-          activeTab() === 'proiezione'
-            ? 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-900 bg-white border-b-2 border-stone-900 dark:text-stone-100 dark:bg-stone-800 dark:border-stone-100'
-            : 'cursor-pointer flex-1 px-4 py-3 text-sm font-medium text-stone-500 bg-stone-50 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:bg-stone-900 dark:hover:text-stone-300 dark:hover:bg-stone-800'
-        "
-        (click)="setActiveTab('proiezione')"
-      >
-        Proiezione
-      </button>
-    </nav>
+        <p
+          class="flex justify-between px-4 pt-3 pb-2.5 font-mono text-[11px]/4 font-semibold tracking-widest text-faint uppercase sm:px-6"
+        >
+          <span>Voce</span>
+          <span>Importo annuo</span>
+        </p>
+        <!-- Riepilogo -->
+        <app-ledger-card heading="Riepilogo" [total]="r.totalePercepito">
+          <dl>
+            @for (voce of riepilogo(); track voce.label) {
+              <div
+                appLedgerRow
+                [label]="voce.label"
+                [amount]="voce.amount"
+                [percent]="voce.percent"
+                [flow]="voce.flow"
+                [level]="voce.level ?? 'row'"
+              ></div>
+            }
+          </dl>
+        </app-ledger-card>
 
-    <!-- Tab Panels -->
-    <div class="flex-1 overflow-y-auto">
-      <!-- Cedolino Panel -->
-      @if (activeTab() === 'cedolino') {
-        <div id="panel-cedolino" role="tabpanel" aria-labelledby="tab-cedolino">
-          <!-- Riepilogo Generale -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
-              Riepilogo
-            </h3>
-            <dl>
-              @for (voce of entrateInBusta(); track voce.descrizione) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">{{ voce.descrizione }}</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(voce.importo) }}
-                  </dd>
-                </div>
-              }
+        <!-- Contributi INPS -->
+        <app-ledger-card
+          heading="Contributi INPS"
+          [total]="r.contributiInps.totaleContributi"
+          flow="out"
+        >
+          <dl>
+            <div
+              appLedgerRow
+              label="Imponibile previdenziale"
+              [amount]="r.contributiInps.imponibilePrevidenziale"
+            ></div>
+            <div
+              appLedgerRow
+              label="Aliquota applicata"
+              [percent]="r.contributiInps.aliquotaApplicata"
+            ></div>
+            <div
+              appLedgerRow
+              label="Contributi base"
+              [amount]="r.contributiInps.contributiBase"
+              flow="out"
+            ></div>
+            @if (r.contributiInps.contributoAggiuntivo > 0) {
               <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Totale Trattenute</dt>
-                <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                  - {{ formatCurrency(r.totaleTrattenute) }}
-                </dd>
-              </div>
-              <div class="flex justify-between py-1.5">
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Totale Bonus</dt>
-                <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                  + {{ formatCurrency(r.totaleBonus) }}
-                </dd>
-              </div>
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">Netto Annuo</dt>
-                <dd class="text-sm text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.nettoAnnuo) }}
-                </dd>
-              </div>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Aliquota Effettiva</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatPercent(r.aliquotaEffettiva) }}
-                </dd>
-              </div>
-              <div class="flex justify-between py-1.5">
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Totale Percepito</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.totalePercepito) }}
-                </dd>
-              </div>
-            </dl>
-          </section>
-
-          <!-- Costo Aziendale -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
-              Costo Aziendale
-            </h3>
-            <dl>
-              @for (voce of entrateDatore(); track voce.descrizione) {
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    {{ voce.descrizione }}
-                    @if (voce.aliquota !== undefined) {
-                      ({{ formatPercent(voce.aliquota) }})
-                    }
-                  </dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(voce.importo) }}
-                  </dd>
-                </div>
-              }
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Annuo</dt>
-                <dd class="text-sm text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.costoAziendale) }}
-                </dd>
-              </div>
-            </dl>
-          </section>
-
-          <!-- Contributi INPS -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
-              Contributi INPS
-            </h3>
-            <dl>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Imponibile Previdenziale</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.contributiInps.imponibilePrevidenziale) }}
-                </dd>
-              </div>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Aliquota Applicata</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatPercent(r.contributiInps.aliquotaApplicata) }}
-                </dd>
-              </div>
-              <div
-                class="flex justify-between py-1.5"
-                [class.border-b]="r.contributiInps.contributoAggiuntivo > 0"
-                [class.border-dotted]="r.contributiInps.contributoAggiuntivo > 0"
-                [class.border-stone-100]="r.contributiInps.contributoAggiuntivo > 0"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Contributi Base</dt>
-                <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                  - {{ formatCurrency(r.contributiInps.contributiBase) }}
-                </dd>
-              </div>
-              @if (r.contributiInps.contributoAggiuntivo > 0) {
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Contributo Aggiuntivo 1%
-                  </dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                    - {{ formatCurrency(r.contributiInps.contributoAggiuntivo) }}
-                  </dd>
-                </div>
-              }
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Contributi</dt>
-                <dd class="text-sm text-red-600 dark:text-red-400">
-                  - {{ formatCurrency(r.contributiInps.totaleContributi) }}
-                </dd>
-              </div>
-            </dl>
-          </section>
-
-          <!-- Regime Impatriati -->
-          @if (r.regimeImpatriati) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
-                Regime Impatriati
-              </h3>
-              <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Esenzione Applicata</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatPercent(r.regimeImpatriati.percentualeEsenzione) }}
-                    {{ r.regimeImpatriati.haFigliMinorenni ? '(figli minorenni)' : '(standard)' }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Reddito Agevolabile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.regimeImpatriati.redditoAgevolabile) }}
-                  </dd>
-                </div>
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Importo Esente IRPEF</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    {{ formatCurrency(r.regimeImpatriati.importoEsente) }}
-                  </dd>
-                </div>
-                <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
-                    (riduce imponibile IRPEF e addizionali, non INPS)
-                  </dt>
-                </div>
-              </dl>
-            </section>
+                appLedgerRow
+                label="Contributo aggiuntivo 1%"
+                [amount]="r.contributiInps.contributoAggiuntivo"
+                flow="out"
+              ></div>
+            }
+          </dl>
+          @if (inpsDatore() > 0) {
+            <p [class]="note">
+              Quota a tuo carico. L'azienda versa altri {{ formatCurrency(inpsDatore()) }}
+            </p>
           }
+        </app-ledger-card>
 
-          <!-- IRPEF -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
-              IRPEF
-            </h3>
+        <!-- Regime impatriati -->
+        @if (r.regimeImpatriati) {
+          <app-ledger-card heading="Regime impatriati" [total]="r.regimeImpatriati.importoEsente">
             <dl>
               <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">Imponibile IRPEF</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.irpef.imponibileIrpef) }}
-                </dd>
-              </div>
+                appLedgerRow
+                label="Esenzione applicata"
+                [value]="
+                  formatPercent(r.regimeImpatriati.percentualeEsenzione) +
+                  ' ' +
+                  (r.regimeImpatriati.haFigliMinorenni ? '(figli minorenni)' : '(standard)')
+                "
+              ></div>
               <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">IRPEF Lorda</dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.irpef.irpefLorda) }}
-                </dd>
-              </div>
-
-              <!-- Dettaglio Scaglioni -->
-              <div class="my-2 pl-3 border-l-2 border-stone-200 dark:border-stone-600">
-                <h4 class="text-xs font-semibold text-stone-500 mb-2 dark:text-stone-400">
-                  Dettaglio Scaglioni
-                </h4>
-                @for (scaglione of r.irpef.dettaglioScaglioni; track scaglione.scaglione) {
-                  @if (scaglione.imponibileScaglione > 0) {
-                    <div class="flex justify-between py-1">
-                      <dt class="text-xs text-stone-500 dark:text-stone-400">
-                        Scaglione {{ scaglione.scaglione }} ({{
-                          formatPercent(scaglione.aliquota)
-                        }})
-                      </dt>
-                      <dd class="text-xs text-stone-500 dark:text-stone-400">
-                        {{ formatCurrency(scaglione.impostaScaglione) }}
-                      </dd>
-                    </div>
-                  }
-                }
-              </div>
+                appLedgerRow
+                label="Reddito agevolabile"
+                [amount]="r.regimeImpatriati.redditoAgevolabile"
+              ></div>
+              <div
+                appLedgerRow
+                label="Importo esente IRPEF"
+                [amount]="r.regimeImpatriati.importoEsente"
+              ></div>
             </dl>
-          </section>
+            <p [class]="note">Riduce imponibile IRPEF e addizionali, non INPS</p>
+          </app-ledger-card>
+        }
 
-          <!-- Detrazioni -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
-              Detrazioni
-            </h3>
-            <dl>
-              <!-- Detrazioni Lavoro -->
-              @if (r.detrazioniLavoro.detrazioneEffettiva > 0) {
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Detrazioni Lavoro Dipendente
-                  </dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    + {{ formatCurrency(r.detrazioniLavoro.detrazioneEffettiva) }}
-                  </dd>
-                </div>
-                @if (r.detrazioniLavoro.maggiorazione > 0) {
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">
-                      di cui maggiorazione €65
-                    </dt>
-                    <dd class="text-xs text-stone-500 dark:text-stone-400">
-                      {{ formatCurrency(r.detrazioniLavoro.maggiorazione) }}
-                    </dd>
-                  </div>
-                }
-              }
-
-              <!-- Detrazioni Familiari -->
-              @if (r.detrazioniFamiliari.totaleDetrazioniFamiliari > 0) {
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Detrazioni Familiari</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    + {{ formatCurrency(r.detrazioniFamiliari.totaleDetrazioniFamiliari) }}
-                  </dd>
-                </div>
-                @if (r.detrazioniFamiliari.detrazioneConiuge > 0) {
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">Coniuge</dt>
-                    <dd class="text-xs text-stone-500 dark:text-stone-400">
-                      {{ formatCurrency(r.detrazioniFamiliari.detrazioneConiuge) }}
-                    </dd>
-                  </div>
-                }
-                @if (r.detrazioniFamiliari.detrazioneFigli > 0) {
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">
-                      Figli ({{ r.detrazioniFamiliari.numeroFigliConDetrazione }})
-                    </dt>
-                    <dd class="text-xs text-stone-500 dark:text-stone-400">
-                      {{ formatCurrency(r.detrazioniFamiliari.detrazioneFigli) }}
-                    </dd>
-                  </div>
-                }
-                @if (r.detrazioniFamiliari.detrazioneAscendenti > 0) {
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">
-                      Ascendenti ({{ r.detrazioniFamiliari.numeroAscendentiConDetrazione }})
-                    </dt>
-                    <dd class="text-xs text-stone-500 dark:text-stone-400">
-                      {{ formatCurrency(r.detrazioniFamiliari.detrazioneAscendenti) }}
-                    </dd>
-                  </div>
-                }
-              }
-
-              <!-- Cuneo Fiscale -->
-              @if (r.cuneoFiscale.indennitaEsente > 0) {
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Indennità Cuneo Fiscale (esente)
-                  </dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    + {{ formatCurrency(r.cuneoFiscale.indennitaEsente) }}
-                  </dd>
-                </div>
-              }
-              @if (r.cuneoFiscale.detrazioneAggiuntiva > 0) {
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Detrazione Cuneo Fiscale
-                  </dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    + {{ formatCurrency(r.cuneoFiscale.detrazioneAggiuntiva) }}
-                  </dd>
-                </div>
-              }
-
-              <!-- Altre Detrazioni -->
-              @if (r.riepilogoDetrazioni.altre > 0) {
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Altre Detrazioni</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    + {{ formatCurrency(r.riepilogoDetrazioni.altre) }}
-                  </dd>
-                </div>
-              }
-
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Detrazioni</dt>
-                <dd class="text-sm text-green-600 dark:text-green-400">
-                  + {{ formatCurrency(r.riepilogoDetrazioni.totale) }}
-                </dd>
-              </div>
-            </dl>
-          </section>
-
-          <!-- Trattamento Integrativo -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
-              Trattamento Integrativo
-            </h3>
-            <dl>
-              @if (r.trattamentoIntegrativo.spetta) {
+        <!-- IRPEF -->
+        <app-ledger-card heading="IRPEF" [total]="r.irpefFinale" flow="out">
+          <dl>
+            <div appLedgerRow label="Imponibile IRPEF" [amount]="r.irpef.imponibileIrpef"></div>
+            @for (scaglione of r.irpef.dettaglioScaglioni; track scaglione.scaglione) {
+              @if (scaglione.imponibileScaglione > 0) {
                 <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Importo Spettante</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    + {{ formatCurrency(r.trattamentoIntegrativo.importo) }}
-                  </dd>
-                </div>
-                <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">Importo</dt>
-                  <dd class="text-xs text-stone-500 dark:text-stone-400">
-                    {{ r.trattamentoIntegrativo.importoPieno ? 'Pieno' : 'Ridotto' }}
-                  </dd>
-                </div>
-              } @else {
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Non spetta</dt>
-                  <dd class="text-sm text-stone-500">
-                    {{ r.trattamentoIntegrativo.motivoNonSpettanza || '-' }}
-                  </dd>
-                </div>
+                  appLedgerRow
+                  label="Scaglione {{ scaglione.scaglione }} · {{
+                    formatPercent(scaglione.aliquota, 0)
+                  }} su {{ formatCurrency(scaglione.imponibileScaglione) }}"
+                  [amount]="scaglione.impostaScaglione"
+                ></div>
               }
-            </dl>
-          </section>
-
-          <!-- IRPEF Netta e Finale -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
-              IRPEF Finale
-            </h3>
-            <dl>
-              <div class="flex justify-between py-1.5">
-                <dt class="text-sm text-stone-600 dark:text-stone-400">
-                  IRPEF Netta (dopo detrazioni)
-                </dt>
-                <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                  {{ formatCurrency(r.irpefNetta) }}
-                </dd>
-              </div>
+            }
+            <div appLedgerRow label="IRPEF lorda" [amount]="r.irpef.irpefLorda" level="total"></div>
+            @if (detrazioniIrpef(); as d) {
               <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">IRPEF Finale</dt>
-                <dd class="text-sm text-red-600 dark:text-red-400">
-                  - {{ formatCurrency(r.irpefFinale) }}
-                </dd>
-              </div>
-            </dl>
-          </section>
-
-          <!-- Addizionali -->
-          <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-            <h3
-              class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-            >
-              Addizionali
-            </h3>
-            <dl>
-              <div
-                class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">
-                  Addizionale Regionale ({{ formatPercent(r.addizionali.aliquotaRegionale) }})
-                </dt>
-                <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                  - {{ formatCurrency(r.addizionali.addizionaleRegionale) }}
-                </dd>
-              </div>
-              <div
-                class="flex justify-between py-1.5"
-                [class.border-b]="r.addizionali.esenzioneComunaleApplicata"
-                [class.border-dotted]="r.addizionali.esenzioneComunaleApplicata"
-                [class.border-stone-100]="r.addizionali.esenzioneComunaleApplicata"
-              >
-                <dt class="text-sm text-stone-600 dark:text-stone-400">
-                  Addizionale Comunale ({{ formatPercent(r.addizionali.aliquotaComunale) }})
-                </dt>
-                <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                  - {{ formatCurrency(r.addizionali.addizionaleComunale) }}
-                </dd>
-              </div>
-              @if (r.addizionali.esenzioneComunaleApplicata) {
-                <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
-                    Esenzione comunale applicata
-                  </dt>
-                  <dd class="text-xs text-stone-500 dark:text-stone-400">Sì</dd>
-                </div>
+                appLedgerRow
+                label="Detrazioni applicate"
+                [amount]="d.applicate"
+                flow="reduce"
+              ></div>
+              @if (d.nonUtilizzabili > 0) {
+                <div
+                  appLedgerRow
+                  label="di cui non utilizzabili"
+                  [amount]="d.nonUtilizzabili"
+                  level="detail"
+                ></div>
               }
-              <div
-                class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-              >
-                <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Addizionali</dt>
-                <dd class="text-sm text-red-600 dark:text-red-400">
-                  - {{ formatCurrency(r.addizionali.totaleAddizionali) }}
-                </dd>
-              </div>
-            </dl>
-          </section>
+            }
+            <div
+              appLedgerRow
+              label="IRPEF finale"
+              [amount]="r.irpefFinale"
+              flow="out"
+              level="total"
+            ></div>
+          </dl>
+        </app-ledger-card>
 
-          <!-- Fondi Contrattuali -->
-          @for (fondo of r.fondiContrattuali; track fondo.id) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
-                {{ fondo.nome }}
-              </h3>
-              <dl>
+        <!-- Detrazioni e trattamento integrativo -->
+        <app-ledger-card heading="Detrazioni" [total]="r.riepilogoDetrazioni.totale" flow="in">
+          <dl>
+            @if (r.detrazioniLavoro.detrazioneEffettiva > 0) {
+              <div
+                appLedgerRow
+                label="Lavoro dipendente"
+                [amount]="r.detrazioniLavoro.detrazioneEffettiva"
+                flow="in"
+              ></div>
+              @if (r.detrazioniLavoro.maggiorazione > 0) {
                 <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Annuo</dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                    - {{ formatCurrency(fondo.contributoAnnuo) }}
-                  </dd>
-                </div>
+                  appLedgerRow
+                  label="di cui maggiorazione"
+                  [amount]="r.detrazioniLavoro.maggiorazione"
+                  level="detail"
+                ></div>
+              }
+            }
+
+            @if (r.detrazioniFamiliari.totaleDetrazioniFamiliari > 0) {
+              <div
+                appLedgerRow
+                label="Carichi familiari"
+                [amount]="r.detrazioniFamiliari.totaleDetrazioniFamiliari"
+                flow="in"
+              ></div>
+              @if (r.detrazioniFamiliari.detrazioneConiuge > 0) {
                 <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Mensile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(fondo.contributoMensile) }}
-                  </dd>
-                </div>
+                  appLedgerRow
+                  label="Coniuge"
+                  [amount]="r.detrazioniFamiliari.detrazioneConiuge"
+                  level="detail"
+                ></div>
+              }
+              @if (r.detrazioniFamiliari.detrazioneFigli > 0) {
+                <div
+                  appLedgerRow
+                  label="Figli ({{ r.detrazioniFamiliari.numeroFigliConDetrazione }})"
+                  [amount]="r.detrazioniFamiliari.detrazioneFigli"
+                  level="detail"
+                ></div>
+              }
+              @if (r.detrazioniFamiliari.detrazioneAscendenti > 0) {
+                <div
+                  appLedgerRow
+                  label="Ascendenti ({{ r.detrazioniFamiliari.numeroAscendentiConDetrazione }})"
+                  [amount]="r.detrazioniFamiliari.detrazioneAscendenti"
+                  level="detail"
+                ></div>
+              }
+            }
+
+            @if (r.cuneoFiscale.indennitaEsente > 0) {
+              <div
+                appLedgerRow
+                label="Indennità cuneo fiscale (esente)"
+                [amount]="r.cuneoFiscale.indennitaEsente"
+                flow="in"
+              ></div>
+            }
+            @if (r.cuneoFiscale.detrazioneAggiuntiva > 0) {
+              <div
+                appLedgerRow
+                label="Cuneo fiscale"
+                [amount]="r.cuneoFiscale.detrazioneAggiuntiva"
+                flow="in"
+              ></div>
+            }
+
+            @if (r.riepilogoDetrazioni.altre > 0) {
+              <div
+                appLedgerRow
+                label="Altre detrazioni"
+                [amount]="r.riepilogoDetrazioni.altre"
+                flow="in"
+              ></div>
+            }
+
+            @if (r.trattamentoIntegrativo.spetta) {
+              <div
+                appLedgerRow
+                label="Trattamento integrativo"
+                [amount]="r.trattamentoIntegrativo.importo"
+                flow="in"
+              ></div>
+              <div
+                appLedgerRow
+                label="Importo"
+                [value]="r.trattamentoIntegrativo.importoPieno ? 'Pieno' : 'Ridotto'"
+                level="detail"
+              ></div>
+            } @else {
+              <div appLedgerRow label="Trattamento integrativo" value="Non spetta"></div>
+              @if (r.trattamentoIntegrativo.motivoNonSpettanza; as motivo) {
+                <div appLedgerRow [label]="motivo" value="" level="detail"></div>
+              }
+            }
+          </dl>
+        </app-ledger-card>
+
+        <!-- Addizionali -->
+        <app-ledger-card heading="Addizionali" [total]="r.addizionali.totaleAddizionali" flow="out">
+          <dl>
+            <div
+              appLedgerRow
+              label="Regionale{{ regione() ? ' ' + regione() : '' }} ({{
+                formatPercent(r.addizionali.aliquotaRegionale)
+              }})"
+              [amount]="r.addizionali.addizionaleRegionale"
+              flow="out"
+            ></div>
+            <div
+              appLedgerRow
+              label="Comunale ({{ formatPercent(r.addizionali.aliquotaComunale) }})"
+              [amount]="r.addizionali.addizionaleComunale"
+              flow="out"
+            ></div>
+            @if (r.addizionali.esenzioneComunaleApplicata) {
+              <div
+                appLedgerRow
+                label="Esenzione comunale applicata"
+                value="Sì"
+                level="detail"
+              ></div>
+            }
+          </dl>
+          @if (comuneNonIndicato()) {
+            <p [class]="note">Aliquota comunale di riferimento, comune non indicato</p>
+          }
+        </app-ledger-card>
+
+        <!-- Fondi contrattuali -->
+        @if (r.fondiContrattuali.length) {
+          <app-ledger-card heading="Fondi contrattuali" [total]="fondiTotale()" flow="out">
+            <dl>
+              @for (fondo of r.fondiContrattuali; track fondo.id) {
+                <div
+                  appLedgerRow
+                  [label]="fondo.nome"
+                  [amount]="fondo.contributoAnnuo"
+                  flow="out"
+                ></div>
+                <div
+                  appLedgerRow
+                  [label]="
+                    fondo.deducibile
+                      ? 'al mese, deducibile dall\'imponibile IRPEF'
+                      : 'al mese, trattenuta diretta dal netto'
+                  "
+                  [amount]="fondo.contributoMensile"
+                  level="detail"
+                ></div>
                 @if (fondo.deducibile) {
-                  <div class="flex justify-between py-1.5">
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Risparmio Fiscale Stimato
-                    </dt>
-                    <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                      + {{ formatCurrency(fondo.risparmioFiscaleStimato) }}
-                    </dd>
-                  </div>
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">
-                      (riduzione imponibile IRPEF)
-                    </dt>
-                  </div>
-                } @else {
-                  <div class="flex justify-between py-1 pl-3">
-                    <dt class="text-xs text-stone-500 dark:text-stone-400">
-                      (trattenuta diretta dal netto, non deducibile)
-                    </dt>
-                  </div>
+                  <div
+                    appLedgerRow
+                    label="risparmio fiscale stimato"
+                    [amount]="fondo.risparmioFiscaleStimato"
+                    flow="in"
+                    level="detail"
+                  ></div>
                 }
-              </dl>
-            </section>
-          }
+              }
+            </dl>
+          </app-ledger-card>
+        }
 
-          <!-- Borsa di Studio -->
-          @if (r.borsaDiStudio) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
+        <!-- Borsa di studio aggiuntiva -->
+        @if (r.borsaDiStudio) {
+          <app-ledger-card heading="Borsa di studio" [total]="r.borsaDiStudio.nettoAnnuo">
+            <dl>
+              <div appLedgerRow label="Importo lordo" [amount]="r.borsaDiStudio.importoLordo"></div>
+              <div
+                appLedgerRow
+                label="INPS Gestione Separata (borsista)"
+                [amount]="r.borsaDiStudio.contributoGestioneSeparataBorsista"
+                flow="out"
+              ></div>
+              <div
+                appLedgerRow
+                label="Imponibile IRPEF borsa"
+                [amount]="r.borsaDiStudio.imponibileIrpef"
+              ></div>
+              <div
+                appLedgerRow
+                label="Netto annuo borsa"
+                [amount]="r.borsaDiStudio.nettoAnnuo"
+                level="total"
+              ></div>
+              <div
+                appLedgerRow
+                label="al mese"
+                [amount]="r.borsaDiStudio.nettoMensile"
+                level="detail"
+              ></div>
+            </dl>
+            <p [class]="note">
+              INPS GS 35,03%: 1/3 borsista, 2/3 ente. Cumulo IRPEF con il reddito da lavoro
+            </p>
+          </app-ledger-card>
+        }
+
+        <!-- Fondo pensione -->
+        @if (r.fondoPensioneIntegrativo; as fp) {
+          <app-ledger-card
+            heading="Fondo pensione"
+            [total]="fp.contributoLavoratoreAnnuo"
+            flow="out"
+          >
+            <dl>
+              <div
+                appLedgerRow
+                label="Contributo lavoratore"
+                [amount]="fp.contributoLavoratoreAnnuo"
+                flow="out"
+              ></div>
+              <div
+                appLedgerRow
+                label="al mese"
+                [amount]="fp.contributoLavoratoreMensile"
+                level="detail"
+              ></div>
+              @if (fp.contributoDatoreLavoroAnnuo > 0) {
+                <div
+                  appLedgerRow
+                  label="Contributo datore"
+                  [amount]="fp.contributoDatoreLavoroAnnuo"
+                ></div>
+              }
+              @if (fp.contributoEbitempAnnuo > 0) {
+                <div
+                  appLedgerRow
+                  label="Contributo EBITEMP"
+                  [amount]="fp.contributoEbitempAnnuo"
+                ></div>
+              }
+              @if (fp.contributoWelfareAnnuo > 0) {
+                <div
+                  appLedgerRow
+                  label="Contributo welfare azienda"
+                  [amount]="fp.contributoWelfareAnnuo"
+                ></div>
+              }
+              <div appLedgerRow label="Deduzione effettiva" [amount]="fp.deduzioneEffettiva"></div>
+              <div appLedgerRow label="limite annuo" [amount]="plafond" level="detail"></div>
+              @if (fp.eccedenzaNonDeducibile > 0) {
+                <div
+                  appLedgerRow
+                  label="Eccedenza non deducibile"
+                  [amount]="fp.eccedenzaNonDeducibile"
+                ></div>
+              }
+              <div
+                appLedgerRow
+                label="Risparmio fiscale stimato"
+                [amount]="fp.risparmoFiscaleStimato"
+                flow="in"
+                level="total"
+              ></div>
+            </dl>
+          </app-ledger-card>
+        }
+
+        <!-- Fringe benefit -->
+        @if (r.fringeBenefit.valoreTotaleLordo > 0) {
+          <app-ledger-card heading="Fringe benefit" [total]="r.fringeBenefit.valoreTotaleLordo">
+            <dl>
+              <div
+                appLedgerRow
+                label="Valore totale lordo"
+                [amount]="r.fringeBenefit.valoreTotaleLordo"
+              ></div>
+              <div
+                appLedgerRow
+                label="Soglia esenzione"
+                [amount]="r.fringeBenefit.sogliaEsenzione"
+              ></div>
+              <div
+                appLedgerRow
+                label="Soglia superata"
+                [value]="r.fringeBenefit.sogliaSuperata ? 'Sì' : 'No'"
+              ></div>
+              <div
+                appLedgerRow
+                label="Valore imponibile"
+                [amount]="r.fringeBenefit.valoreImponibile"
+              ></div>
+              <div appLedgerRow label="Valore esente" [amount]="r.fringeBenefit.valoreEsente"></div>
+              @if (r.fringeBenefit.autoAziendale; as auto) {
+                <div appLedgerRow label="Auto aziendale" [amount]="auto.valore"></div>
+                <div
+                  appLedgerRow
+                  label="percentuale applicata"
+                  [percent]="auto.percentualeApplicata"
+                  level="detail"
+                ></div>
+                <div
+                  appLedgerRow
+                  label="mesi di utilizzo"
+                  [value]="'' + auto.mesiUtilizzo"
+                  level="detail"
+                ></div>
+                @if (r.fringeBenefit.trattenutaAutoDipendente > 0) {
+                  <div
+                    appLedgerRow
+                    label="trattenuta dipendente"
+                    [amount]="r.fringeBenefit.trattenutaAutoDipendente"
+                    flow="out"
+                    level="detail"
+                  ></div>
+                }
+              }
+            </dl>
+          </app-ledger-card>
+        }
+
+        <!-- Rimborsi trasferta -->
+        @if (r.rimborsiTrasferta.totaleRimborsi > 0) {
+          <app-ledger-card
+            heading="Rimborsi trasferta"
+            [total]="r.rimborsiTrasferta.totaleRimborsi"
+          >
+            <dl>
+              @if (r.rimborsiTrasferta.rimborsoForfettarioEsente > 0) {
+                <div
+                  appLedgerRow
+                  label="Rimborso forfettario (esente)"
+                  [amount]="r.rimborsiTrasferta.rimborsoForfettarioEsente"
+                ></div>
+              }
+              @if (r.rimborsiTrasferta.rimborsoDocumentatoEsente > 0) {
+                <div
+                  appLedgerRow
+                  label="Rimborso documentato (esente)"
+                  [amount]="r.rimborsiTrasferta.rimborsoDocumentatoEsente"
+                ></div>
+              }
+              @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
+                <div
+                  appLedgerRow
+                  label="Rimborsi tassati"
+                  [amount]="r.rimborsiTrasferta.rimborsiTassati"
+                ></div>
+              }
+              <div
+                appLedgerRow
+                label="Totale esente"
+                [amount]="r.rimborsiTrasferta.totaleEsente"
+                flow="in"
+                level="total"
+              ></div>
+            </dl>
+          </app-ledger-card>
+        }
+
+        <!-- Benefit non tassati -->
+        @if (r.benefitNonTassati.totaleEsente > 0 || r.benefitNonTassati.totaleTassato > 0) {
+          <app-ledger-card
+            heading="Benefit non tassati"
+            [total]="r.benefitNonTassati.totaleEsente"
+            flow="in"
+          >
+            <dl>
+              @if (r.benefitNonTassati.assistenzaSanitaria > 0) {
+                <div
+                  appLedgerRow
+                  label="Assistenza sanitaria"
+                  [amount]="r.benefitNonTassati.assistenzaSanitaria"
+                ></div>
+              }
+              @if (r.benefitNonTassati.buoniPastoEsenti > 0) {
+                <div
+                  appLedgerRow
+                  label="Buoni pasto (esenti)"
+                  [amount]="r.benefitNonTassati.buoniPastoEsenti"
+                ></div>
+              }
+              @if (r.benefitNonTassati.buoniPastoTassati > 0) {
+                <div
+                  appLedgerRow
+                  label="Buoni pasto (tassati)"
+                  [amount]="r.benefitNonTassati.buoniPastoTassati"
+                ></div>
+              }
+              @if (buonoPastoGiornaliero(); as buono) {
+                <div
+                  appLedgerRow
+                  label="{{ formatCurrency(buono.importo) }} al giorno × {{ buono.giorni }} giorni"
+                  value=""
+                  level="detail"
+                ></div>
+              }
+              @if (r.benefitNonTassati.altriWelfare > 0) {
+                <div
+                  appLedgerRow
+                  label="Altri welfare"
+                  [amount]="r.benefitNonTassati.altriWelfare"
+                ></div>
+              }
+              @if (r.benefitNonTassati.totaleTassato > 0) {
+                <div
+                  appLedgerRow
+                  label="Totale tassato (eccedenze)"
+                  [amount]="r.benefitNonTassati.totaleTassato"
+                ></div>
+              }
+            </dl>
+          </app-ledger-card>
+        }
+
+        <!-- Costo aziendale -->
+        <app-ledger-card heading="Costo aziendale" [total]="r.costoAziendale">
+          <dl>
+            @for (riga of righeCostoAziendale(); track riga.label) {
+              <div
+                appLedgerRow
+                [label]="riga.label"
+                [amount]="riga.amount"
+                [flow]="riga.flow"
+                [level]="riga.level ?? 'row'"
               >
-                Borsa di Studio
-              </h3>
-              <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Importo Lordo</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.borsaDiStudio.importoLordo) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    INPS Gestione Separata (borsista)
-                  </dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                    - {{ formatCurrency(r.borsaDiStudio.contributoGestioneSeparataBorsista) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Imponibile IRPEF Borsa</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.borsaDiStudio.imponibileIrpef) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Netto Annuo Borsa</dt>
-                  <dd class="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    {{ formatCurrency(r.borsaDiStudio.nettoAnnuo) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Netto Mensile Borsa</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.borsaDiStudio.nettoMensile) }}
-                  </dd>
-                </div>
-                <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
-                    (INPS GS 35,03%: 1/3 borsista, 2/3 ente. Cumulo IRPEF con reddito da lavoro)
-                  </dt>
-                </div>
-              </dl>
-            </section>
-          }
+                @if (riga.nota) {
+                  ({{ riga.nota }})
+                }
+              </div>
+            }
+          </dl>
+        </app-ledger-card>
+      </div>
+    }
 
-          <!-- Fondo Pensione Integrativo -->
-          @if (r.fondoPensioneIntegrativo) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
-                Previdenza Complementare
-              </h3>
-              <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Contributo Lavoratore (annuo)
-                  </dt>
-                  <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                    - {{ formatCurrency(r.fondoPensioneIntegrativo.contributoLavoratoreAnnuo) }}
-                  </dd>
-                </div>
-                @if (r.fondoPensioneIntegrativo.contributoDatoreLavoroAnnuo > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Contributo Datore (annuo)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.fondoPensioneIntegrativo.contributoDatoreLavoroAnnuo) }}
-                    </dd>
-                  </div>
-                }
-                @if (r.fondoPensioneIntegrativo.contributoEbitempAnnuo > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Contributo EBITEMP (annuo)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.fondoPensioneIntegrativo.contributoEbitempAnnuo) }}
-                    </dd>
-                  </div>
-                }
-                @if (r.fondoPensioneIntegrativo.contributoWelfareAnnuo > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Contributo welfare azienda (annuo)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.fondoPensioneIntegrativo.contributoWelfareAnnuo) }}
-                    </dd>
-                  </div>
-                }
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Contributo Mensile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.fondoPensioneIntegrativo.contributoLavoratoreMensile) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Deduzione Effettiva</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.fondoPensioneIntegrativo.deduzioneEffettiva) }}
-                  </dd>
-                </div>
-                @if (r.fondoPensioneIntegrativo.eccedenzaNonDeducibile > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Eccedenza Non Deducibile
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-500 dark:text-stone-400">
-                      {{ formatCurrency(r.fondoPensioneIntegrativo.eccedenzaNonDeducibile) }}
-                    </dd>
-                  </div>
-                }
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">
-                    Risparmio Fiscale Stimato
-                  </dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    + {{ formatCurrency(r.fondoPensioneIntegrativo.risparmoFiscaleStimato) }}
-                  </dd>
-                </div>
-                <div class="flex justify-between py-1 pl-3">
-                  <dt class="text-xs text-stone-500 dark:text-stone-400">
-                    (deduzione imponibile IRPEF, max 5.300 euro/anno)
-                  </dt>
-                </div>
-              </dl>
-            </section>
-          }
-
-          <!-- Fringe Benefit -->
-          @if (r.fringeBenefit.valoreTotaleLordo > 0) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
-                Fringe Benefit
-              </h3>
-              <dl>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Valore Totale Lordo</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.fringeBenefit.valoreTotaleLordo) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Soglia Esenzione</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.fringeBenefit.sogliaEsenzione) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Soglia Superata</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ r.fringeBenefit.sogliaSuperata ? 'Sì' : 'No' }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Valore Imponibile</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.fringeBenefit.valoreImponibile) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Valore Esente</dt>
-                  <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.fringeBenefit.valoreEsente) }}
-                  </dd>
-                </div>
-                @if (r.fringeBenefit.autoAziendale) {
-                  <div class="my-2 pl-3 border-l-2 border-stone-200 dark:border-stone-600">
-                    <h4 class="text-xs font-semibold text-stone-500 mb-2 dark:text-stone-400">
-                      Auto Aziendale
-                    </h4>
-                    <div class="flex justify-between py-1">
-                      <dt class="text-xs text-stone-500 dark:text-stone-400">Valore</dt>
-                      <dd class="text-xs text-stone-500 dark:text-stone-400">
-                        {{ formatCurrency(r.fringeBenefit.autoAziendale.valore) }}
-                      </dd>
-                    </div>
-                    <div class="flex justify-between py-1">
-                      <dt class="text-xs text-stone-500 dark:text-stone-400">
-                        Percentuale Applicata
-                      </dt>
-                      <dd class="text-xs text-stone-500 dark:text-stone-400">
-                        {{ formatPercent(r.fringeBenefit.autoAziendale.percentualeApplicata) }}
-                      </dd>
-                    </div>
-                    <div class="flex justify-between py-1">
-                      <dt class="text-xs text-stone-500 dark:text-stone-400">Mesi Utilizzo</dt>
-                      <dd class="text-xs text-stone-500 dark:text-stone-400">
-                        {{ r.fringeBenefit.autoAziendale.mesiUtilizzo }}
-                      </dd>
-                    </div>
-                    @if (r.fringeBenefit.trattenutaAutoDipendente > 0) {
-                      <div class="flex justify-between py-1">
-                        <dt class="text-xs text-stone-500 dark:text-stone-400">
-                          Trattenuta Dipendente
-                        </dt>
-                        <dd class="text-xs text-stone-500 dark:text-stone-400">
-                          -{{ formatCurrency(r.fringeBenefit.trattenutaAutoDipendente) }}
-                        </dd>
-                      </div>
-                    }
-                  </div>
-                }
-              </dl>
-            </section>
-          }
-
-          <!-- Rimborsi Trasferta -->
-          @if (r.rimborsiTrasferta.totaleRimborsi > 0) {
-            <section class="p-4 border-b border-stone-100 dark:border-stone-700">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
-                Rimborsi Trasferta
-              </h3>
-              <dl>
-                @if (r.rimborsiTrasferta.rimborsoForfettarioEsente > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Rimborso Forfettario (esente)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.rimborsiTrasferta.rimborsoForfettarioEsente) }}
-                    </dd>
-                  </div>
-                }
-                @if (r.rimborsiTrasferta.rimborsoDocumentatoEsente > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Rimborso Documentato (esente)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.rimborsiTrasferta.rimborsoDocumentatoEsente) }}
-                    </dd>
-                  </div>
-                }
-                @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">Rimborsi Tassati</dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.rimborsiTrasferta.rimborsiTassati) }}
-                    </dd>
-                  </div>
-                }
-                <div class="flex justify-between py-1.5">
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Totale Esente</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    + {{ formatCurrency(r.rimborsiTrasferta.totaleEsente) }}
-                  </dd>
-                </div>
-                <div
-                  class="flex justify-between py-2 mt-2 border-t border-stone-300 font-semibold dark:border-stone-600"
-                >
-                  <dt class="text-sm text-stone-800 dark:text-stone-200">Totale Rimborsi</dt>
-                  <dd class="text-sm text-stone-900 dark:text-stone-100">
-                    {{ formatCurrency(r.rimborsiTrasferta.totaleRimborsi) }}
-                  </dd>
-                </div>
-              </dl>
-            </section>
-          }
-
-          <!-- Benefit Non Tassati -->
-          @if (r.benefitNonTassati.totaleEsente > 0 || r.benefitNonTassati.totaleTassato > 0) {
-            <section class="p-4">
-              <h3
-                class="text-sm font-semibold text-stone-800 border-b border-stone-200 pb-2 mb-3 dark:text-stone-200 dark:border-stone-600"
-              >
-                Benefit Non Tassati (Welfare)
-              </h3>
-              <dl>
-                @if (r.benefitNonTassati.assistenzaSanitaria > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">Assistenza Sanitaria</dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.benefitNonTassati.assistenzaSanitaria) }}
-                    </dd>
-                  </div>
-                }
-                @if (r.benefitNonTassati.buoniPastoEsenti > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">Buoni Pasto (esenti)</dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.benefitNonTassati.buoniPastoEsenti) }}
-                    </dd>
-                  </div>
-                }
-                @if (r.benefitNonTassati.buoniPastoTassati > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Buoni Pasto (tassati)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.benefitNonTassati.buoniPastoTassati) }}
-                    </dd>
-                  </div>
-                }
-                @if (r.benefitNonTassati.altriWelfare > 0) {
-                  <div
-                    class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                  >
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">Altri Welfare</dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.benefitNonTassati.altriWelfare) }}
-                    </dd>
-                  </div>
-                }
-                <div
-                  class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
-                >
-                  <dt class="text-sm text-stone-600 dark:text-stone-400">Totale Esente</dt>
-                  <dd class="text-sm font-medium text-green-600 dark:text-green-400">
-                    + {{ formatCurrency(r.benefitNonTassati.totaleEsente) }}
-                  </dd>
-                </div>
-                @if (r.benefitNonTassati.totaleTassato > 0) {
-                  <div class="flex justify-between py-1.5">
-                    <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Totale Tassato (eccedenze)
-                    </dt>
-                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
-                      {{ formatCurrency(r.benefitNonTassati.totaleTassato) }}
-                    </dd>
-                  </div>
-                }
-              </dl>
-            </section>
-          }
-        </div>
-      }
-
-      <!-- Flusso Panel -->
-      @if (activeTab() === 'flusso') {
-        <div
-          id="panel-flusso"
-          role="tabpanel"
-          aria-labelledby="tab-flusso"
-          class="h-[500px] px-2 pb-2"
+    <!-- Flusso -->
+    @if (activeTab() === 'flusso') {
+      <div
+        id="panel-flusso"
+        role="tabpanel"
+        aria-labelledby="tab-flusso"
+        tabindex="0"
+        [class]="panel"
+      >
+        <section
+          aria-labelledby="flusso-title"
+          class="rounded-2xl bg-surface px-4 pt-4 pb-[18px] shadow-xs ring-1 ring-ring-card sm:px-5"
         >
-          <app-graph-funnel [result]="result()" />
-        </div>
-      }
+          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h3
+              id="flusso-title"
+              class="font-mono text-[11px]/[18px] font-semibold tracking-widest text-faint uppercase"
+            >
+              Flusso annuo
+            </h3>
+            <p class="text-[13px] text-label tabular-nums">
+              Costo aziendale
+              <strong class="font-medium text-fg">{{ formatCurrency(r.costoAziendale) }}</strong>
+              → netto in busta
+              <strong class="font-medium text-fg">{{ formatCurrency(r.nettoAnnuo) }}</strong
+              >, il
+              {{ formatPercent(r.costoAziendale > 0 ? r.nettoAnnuo / r.costoAziendale : 0, 1) }}
+            </p>
+          </div>
+          <div class="-mx-2 mt-2 h-[480px] sm:-mx-3">
+            <app-graph-funnel [result]="result()" />
+          </div>
+        </section>
+      </div>
+    }
 
-      <!-- Proiezione Panel -->
-      @if (activeTab() === 'proiezione') {
-        <div
-          id="panel-proiezione"
-          role="tabpanel"
-          aria-labelledby="tab-proiezione"
-          class="h-[500px] px-2 pb-2"
-        >
-          <app-graph-projection [result]="result()" [baseInput]="baseInput()" />
-        </div>
-      }
-    </div>
-  } @else {
-    <div class="p-8 text-center">
-      <p class="text-stone-500 mb-2 dark:text-stone-400">
-        Compila il form per calcolare il tuo stipendio netto.
-      </p>
-      <p class="text-sm text-stone-400 dark:text-stone-500">
-        I campi obbligatori sono: RAL, Regione e Comune.
+    <!-- Proiezione -->
+    @if (activeTab() === 'proiezione') {
+      <div
+        id="panel-proiezione"
+        role="tabpanel"
+        aria-labelledby="tab-proiezione"
+        tabindex="0"
+        [class]="panel"
+      >
+        <app-graph-projection [result]="result()" [baseInput]="baseInput()" />
+      </div>
+    }
+  </div>
+} @else {
+  <div
+    class="rounded-[26px] bg-linear-145 from-g1 from-28% via-g2 via-70% to-g3 p-2 ring-1 ring-black/5 ring-inset dark:ring-white/10"
+  >
+    <div class="rounded-[19px] bg-surface p-8 text-center shadow-2xl">
+      <p class="mb-2 text-muted">Compila il form per calcolare il tuo stipendio netto.</p>
+      <p class="text-sm text-muted">
+        La RAL è obbligatoria. Se il risultato non compare, controlla i campi con un errore.
       </p>
     </div>
-  }
-</aside>
+  </div>
+}

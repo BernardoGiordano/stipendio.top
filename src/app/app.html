@@ -1,469 +1,302 @@
-<header
-  class="border-b border-stone-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50 dark:border-stone-700 dark:bg-stone-900/80"
->
-  <div class="max-w-7xl mx-auto px-4 lg:px-8 py-3 flex items-center justify-between">
-    <!-- Left side: Logo -->
-    <div class="flex items-center gap-2">
-      <h1 class="text-xl font-semibold tracking-tight text-stone-900 dark:text-stone-100 mr-4">
-        Stipendio.🔝
-      </h1>
+<!-- Radiant gradient glow behind the header -->
+<div
+  aria-hidden="true"
+  class="pointer-events-none absolute -top-[150px] right-[6%] h-[260px] w-[620px] -rotate-10 rounded-full bg-linear-115 from-g1 from-28% via-g2 via-70% to-g3 opacity-75 blur-3xl dark:opacity-35"
+></div>
+
+<header class="relative mt-2 py-[9px] lg:mt-4">
+  <!-- Two full-width hairlines above and below the row; plus marks sit where they cross the logo -->
+  <div aria-hidden="true" class="absolute inset-x-0 top-0 border-t border-hair"></div>
+  <div aria-hidden="true" class="absolute inset-x-0 top-2 border-t border-hair"></div>
+  <div aria-hidden="true" class="absolute inset-x-0 bottom-0 border-b border-hair"></div>
+  <div aria-hidden="true" class="absolute inset-x-0 bottom-2 border-b border-hair"></div>
+
+  <div
+    class="relative mx-auto flex max-w-[1376px] items-center justify-between gap-x-4 pr-3 pl-4 lg:px-8"
+  >
+    <div class="relative min-w-0 py-1.5 pr-2.5 lg:py-3 lg:pr-[18px]">
+      <app-icon name="plus" class="absolute -top-2 -left-2 hidden size-[15px] text-plus lg:block" />
+      <app-icon name="plus" class="absolute -top-2 -right-2 size-[15px] text-plus" />
+      <app-icon
+        name="plus"
+        class="absolute -bottom-2 -left-2 hidden size-[15px] text-plus lg:block"
+      />
+      <app-icon name="plus" class="absolute -right-2 -bottom-2 size-[15px] text-plus" />
       <a
-        href="https://www.linkedin.com/in/bernardogiordano"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="hidden lg:flex items-center gap-2 p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-all duration-300 overflow-hidden group"
-        aria-label="LinkedIn"
+        href="/"
+        class="flex items-center gap-2 rounded-lg text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus lg:gap-2.5"
       >
-        <svg
-          class="size-5 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
+        <svg viewBox="0 0 32 32" aria-hidden="true" class="size-[26px] shrink-0 lg:size-[30px]">
+          <rect width="32" height="32" rx="9" class="fill-fg" />
           <path
-            d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
-          />
-        </svg>
-        <span
-          class="text-sm font-medium whitespace-nowrap max-w-0 group-hover:max-w-xs overflow-hidden opacity-0 group-hover:opacity-100 hover-text-delay"
-          >LinkedIn</span
-        >
-      </a>
-      <a
-        href="https://github.com/BernardoGiordano/stipendio.top"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="hidden lg:flex items-center gap-2 p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-all duration-300 overflow-hidden group"
-        aria-label="GitHub"
-      >
-        <svg
-          class="size-5 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        <span
-          class="text-sm font-medium whitespace-nowrap max-w-0 group-hover:max-w-xs overflow-hidden opacity-0 group-hover:opacity-100 hover-text-delay"
-          >GitHub</span
-        >
-      </a>
-      <a
-        href="https://www.paypal.com/paypalme/BernardoGiordano"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="hidden lg:flex items-center gap-2 p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-all duration-300 overflow-hidden group"
-        aria-label="PayPal"
-      >
-        <svg
-          class="size-5 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.77.77 0 0 1 .757-.649h6.403c2.12 0 3.804.482 4.873 1.392.996.849 1.39 2.063 1.174 3.617l-.005.023c-.42 2.72-2.043 4.461-4.732 5.085-.608.14-1.275.212-1.988.212H9.042l-.934 6.072a.77.77 0 0 1-.757.649H7.35l.001-.001h-.275z"
-          />
-          <path
-            d="M19.873 8.38c-.064.418-.163.86-.3 1.327-.89 3.043-3.266 4.607-7.064 4.607h-.477l-1.017 6.598a.642.642 0 0 1-.632.551H7.42l.234-1.519.094-.609.934-6.072h2.384c.713 0 1.38-.072 1.988-.212 2.689-.624 4.312-2.365 4.732-5.085l.005-.023c.09-.594.085-1.109-.026-1.563h.025c.627.292 1.06.733 1.324 1.35.235.55.336 1.22.286 2.011l-.001.013a8.073 8.073 0 0 1-.527 1.626z"
-            opacity="0.7"
-          />
-        </svg>
-        <span
-          class="text-sm font-medium whitespace-nowrap max-w-0 group-hover:max-w-xs overflow-hidden opacity-0 group-hover:opacity-100 hover-text-delay"
-          >Supporta</span
-        >
-      </a>
-      <button
-        type="button"
-        class="hidden lg:flex items-center gap-2 p-2 cursor-pointer rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-all duration-300 overflow-hidden group"
-        aria-label="Cambia tema"
-        (click)="themeMode.toggle()"
-      >
-        @if (themeMode.isDark()) {
-          <svg
-            class="size-5 flex-shrink-0"
+            d="M10 18.5 16 12.5l6 6"
             fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-            />
-          </svg>
-          <span
-            class="text-sm font-medium whitespace-nowrap max-w-0 group-hover:max-w-xs overflow-hidden opacity-0 group-hover:opacity-100 hover-text-delay"
-            >Tema chiaro</span
-          >
-        } @else {
-          <svg
-            class="size-5 flex-shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
-            />
-          </svg>
-          <span
-            class="text-sm font-medium whitespace-nowrap max-w-0 group-hover:max-w-xs overflow-hidden opacity-0 group-hover:opacity-100 hover-text-delay"
-            >Tema scuro</span
-          >
-        }
-      </button>
+            stroke-width="2.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="stroke-[#f2a383] dark:stroke-[#b54a2a]"
+          />
+          <path
+            d="M10.5 23h11"
+            stroke-width="2.6"
+            stroke-linecap="round"
+            class="stroke-[#fdf0d5] dark:stroke-[#ca6680]"
+          />
+        </svg>
+        <span class="truncate text-base font-semibold tracking-[-0.03em] lg:text-lg">
+          stipendio.top
+        </span>
+      </a>
     </div>
 
-    <!-- Right side: Amounts (mobile only) + Menu -->
-    <div class="flex items-center gap-2">
-      <!-- Netto/Percepito Toggle (hidden on small screens) -->
-      <div
-        class="hidden lg:flex rounded-lg overflow-hidden text-xs"
-        role="group"
-        aria-label="Modalità visualizzazione importi"
-      >
-        <button
-          type="button"
-          [class]="
-            displayMode.isNetto()
-              ? 'px-2.5 py-1.5 font-medium cursor-pointer bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
-              : 'px-2.5 py-1.5 font-medium cursor-pointer bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
-          "
-          [attr.aria-pressed]="displayMode.isNetto()"
-          (click)="displayMode.setMode('netto')"
+    <nav aria-label="Principale" class="flex shrink-0 items-center gap-1">
+      @for (link of headerLinks; track link.href) {
+        <a
+          [href]="link.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          [attr.aria-label]="link.menuLabel"
+          [class]="barItem"
         >
-          Netto
-        </button>
-        <button
-          type="button"
-          [class]="
-            displayMode.isPercepito()
-              ? 'px-2.5 py-1.5 font-medium cursor-pointer bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
-              : 'px-2.5 py-1.5 font-medium cursor-pointer bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700'
-          "
-          [attr.aria-pressed]="displayMode.isPercepito()"
-          (click)="displayMode.setMode('percepito')"
-        >
-          Percepito
-        </button>
-      </div>
-
-      @if (calculationResult(); as r) {
-        <div
-          class="flex items-center gap-4 text-right lg:hidden mr-2 pr-2 border-r border-stone-200 dark:border-stone-700"
-        >
-          <div class="flex flex-col">
-            <span class="text-[10px] text-stone-400 uppercase tracking-wide">Mensile</span>
-            <span class="text-sm font-semibold text-stone-900 dark:text-stone-100">{{
-              formatCurrency(displayMode.isPercepito() ? r.nettoMensilePercepito : r.nettoMensile)
-            }}</span>
-          </div>
-          <div class="flex flex-col">
-            <span class="text-[10px] text-stone-400 uppercase tracking-wide">Annuo</span>
-            <span class="text-sm font-semibold text-stone-900 dark:text-stone-100">{{
-              formatCurrency(displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo)
-            }}</span>
-          </div>
-        </div>
+          <app-icon [name]="link.icon" class="size-5 shrink-0" />
+          <span [class]="barLabel">{{ link.label }}</span>
+        </a>
       }
-
-      <!-- Menu trigger button (visible only on small screens) -->
       <button
         type="button"
-        class="lg:hidden p-2 cursor-pointer rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800 transition-colors"
+        [class]="barItem + ' cursor-pointer'"
+        [attr.aria-label]="themeMode.isDark() ? 'Passa al tema chiaro' : 'Passa al tema scuro'"
+        (click)="themeMode.toggle()"
+      >
+        <app-icon [name]="themeMode.isDark() ? 'sun' : 'moon'" class="size-5 shrink-0" />
+        <span [class]="barLabel">{{ themeMode.isDark() ? 'Tema chiaro' : 'Tema scuro' }}</span>
+      </button>
+
+      <button
+        type="button"
+        [class]="iconButton + ' flex lg:hidden'"
         aria-label="Menu"
         [cdkMenuTriggerFor]="menu"
       >
-        <svg
-          class="size-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-          />
-        </svg>
+        <app-icon name="menu" class="size-[22px]" />
       </button>
 
-      <!-- CDK Menu -->
       <ng-template #menu>
         <div
           cdkMenu
-          class="min-w-[200px] rounded-lg bg-white dark:bg-stone-800 shadow-lg ring-1 ring-stone-200 dark:ring-stone-700 py-1 focus:outline-none"
+          class="min-w-[200px] rounded-xl bg-surface p-1 shadow-lg ring-1 ring-ring focus:outline-none"
         >
-          <!-- Display mode group -->
           <div cdkMenuGroup>
-            <button
-              cdkMenuItemRadio
-              [cdkMenuItemChecked]="displayMode.isNetto()"
-              (cdkMenuItemTriggered)="displayMode.setMode('netto')"
-              class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
-            >
-              <span class="size-4 flex items-center justify-center">
-                @if (displayMode.isNetto()) {
-                  <svg class="size-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                }
-              </span>
-              Mostra netto
-            </button>
-            <button
-              cdkMenuItemRadio
-              [cdkMenuItemChecked]="displayMode.isPercepito()"
-              (cdkMenuItemTriggered)="displayMode.setMode('percepito')"
-              class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
-            >
-              <span class="size-4 flex items-center justify-center">
-                @if (displayMode.isPercepito()) {
-                  <svg class="size-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                }
-              </span>
-              Mostra percepito
-            </button>
+            @for (option of themeOptions; track option.theme) {
+              <button
+                cdkMenuItemRadio
+                [cdkMenuItemChecked]="themeMode.isDark() === (option.theme === 'dark')"
+                (cdkMenuItemTriggered)="themeMode.setTheme(option.theme)"
+                [class]="menuItem"
+              >
+                <span class="size-4">
+                  @if (themeMode.isDark() === (option.theme === 'dark')) {
+                    <app-icon name="check" class="size-4" />
+                  }
+                </span>
+                {{ option.label }}
+              </button>
+            }
           </div>
 
-          <!-- Divider -->
-          <div class="my-1 border-t border-stone-200 dark:border-stone-700"></div>
+          <div class="my-1 border-t border-hair"></div>
 
-          <!-- Theme mode group -->
-          <div cdkMenuGroup>
-            <button
-              cdkMenuItemRadio
-              [cdkMenuItemChecked]="themeMode.isLight()"
-              (cdkMenuItemTriggered)="themeMode.setTheme('light')"
-              class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
+          @for (link of navLinks; track link.href) {
+            <a
+              cdkMenuItem
+              [href]="link.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              [class]="menuItem"
             >
-              <span class="size-4 flex items-center justify-center">
-                @if (themeMode.isLight()) {
-                  <svg class="size-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                }
-              </span>
-              Tema chiaro
-            </button>
-            <button
-              cdkMenuItemRadio
-              [cdkMenuItemChecked]="themeMode.isDark()"
-              (cdkMenuItemTriggered)="themeMode.setTheme('dark')"
-              class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
-            >
-              <span class="size-4 flex items-center justify-center">
-                @if (themeMode.isDark()) {
-                  <svg class="size-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                }
-              </span>
-              Tema scuro
-            </button>
-          </div>
+              <app-icon [name]="link.icon" class="size-4" />
+              {{ link.menuLabel }}
+            </a>
+          }
 
-          <!-- Divider -->
-          <div class="my-1 border-t border-stone-200 dark:border-stone-700"></div>
+          <div class="my-1 border-t border-hair"></div>
 
-          <!-- Links -->
-          <a
-            cdkMenuItem
-            href="https://github.com/BernardoGiordano/stipendio.top"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
-          >
-            <svg class="size-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                fill-rule="evenodd"
-                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            Sorgente su GitHub
-          </a>
-          <a
-            cdkMenuItem
-            href="https://www.paypal.com/paypalme/BernardoGiordano"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
-          >
-            <svg class="size-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.77.77 0 0 1 .757-.649h6.403c2.12 0 3.804.482 4.873 1.392.996.849 1.39 2.063 1.174 3.617l-.005.023c-.42 2.72-2.043 4.461-4.732 5.085-.608.14-1.275.212-1.988.212H9.042l-.934 6.072a.77.77 0 0 1-.757.649H7.35l.001-.001h-.275z"
-              />
-              <path
-                d="M19.873 8.38c-.064.418-.163.86-.3 1.327-.89 3.043-3.266 4.607-7.064 4.607h-.477l-1.017 6.598a.642.642 0 0 1-.632.551H7.42l.234-1.519.094-.609.934-6.072h2.384c.713 0 1.38-.072 1.988-.212 2.689-.624 4.312-2.365 4.732-5.085l.005-.023c.09-.594.085-1.109-.026-1.563h.025c.627.292 1.06.733 1.324 1.35.235.55.336 1.22.286 2.011l-.001.013a8.073 8.073 0 0 1-.527 1.626z"
-                opacity="0.7"
-              />
-            </svg>
-            Supporta con PayPal
-          </a>
-          <a
-            cdkMenuItem
-            href="https://www.linkedin.com/in/bernardogiordano"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex w-full items-center gap-3 px-4 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 focus:bg-stone-100 dark:focus:bg-stone-700 focus:outline-none cursor-pointer"
-          >
-            <svg class="size-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
-              />
-            </svg>
-            LinkedIn
-          </a>
-
-          <!-- Divider -->
-          <div class="my-1 border-t border-stone-200 dark:border-stone-700"></div>
-
-          <!-- Build info -->
           <div
-            class="flex w-full items-center gap-3 px-4 py-2 text-xs text-stone-400 dark:text-stone-500 cursor-default select-none"
+            class="flex w-full cursor-default items-center gap-3 px-3 py-2 text-xs text-faint select-none"
           >
-            <svg
-              class="size-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-              />
-            </svg>
+            <app-icon name="info" class="size-4" />
             v: {{ buildInfo.buildDate }} ({{ buildInfo.gitCommit }})
           </div>
         </div>
       </ng-template>
-    </div>
+    </nav>
   </div>
 </header>
 
-<main
-  class="flex flex-col lg:flex-row gap-6 lg:gap-0 p-4 lg:p-8 max-w-7xl mx-auto"
-  [style.--split-ratio]="splitRatio()"
->
-  <div class="w-full lg:w-auto lg:flex-[var(--split-ratio)]">
-    @if (isBorsaDiStudio()) {
-      <app-form-borsa-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
-    } @else {
-      <app-form-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
+<main class="relative mx-auto max-w-[1376px] px-3 sm:px-4 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4 pt-6 pb-5 lg:pt-10 lg:pb-8">
+    <div>
+      <p
+        class="inline-flex items-center gap-2 font-mono text-xs/5 font-semibold tracking-widest text-muted uppercase"
+      >
+        <span aria-hidden="true" class="size-2 rounded-full bg-accent"></span>
+        Legge di bilancio 2026 · dipendenti privati
+      </p>
+      <h1
+        class="mt-1.5 text-[28px]/tight font-medium tracking-[-0.045em] text-fg lg:text-[40px]/[1.1]"
+      >
+        Calcolo dello stipendio netto
+      </h1>
+    </div>
+    @if (loadedFromUrl()) {
+      <p class="text-sm text-muted">Configurazione caricata da link condiviso.</p>
     }
   </div>
-  <app-resizer (resize)="onResize($event)" />
-  <div class="w-full lg:w-auto lg:flex-[calc(1-var(--split-ratio))]">
-    @if (isBorsaDiStudio()) {
-      <app-results-borsa [result]="calculationResult()" />
-    } @else {
-      <app-results [result]="calculationResult()" [baseInput]="calculationInput()" />
-    }
+
+  <div class="flex flex-col gap-4 lg:flex-row lg:gap-0" [style.--split-ratio]="splitRatio()">
+    <div id="dati" class="min-w-0 scroll-mt-4 lg:flex-[var(--split-ratio)_1_0%]">
+      @if (isBorsaDiStudio()) {
+        <app-form-borsa-container [stipendioForm]="stipendioForm" [formModel]="formModel" />
+      } @else {
+        <app-form-container
+          [stipendioForm]="stipendioForm"
+          [formModel]="formModel"
+          [result]="calculationResult()"
+        />
+      }
+    </div>
+    <app-resizer [value]="splitRatio()" (resize)="onResize($event)" />
+    <div
+      id="risultati"
+      role="region"
+      aria-label="Risultati del calcolo"
+      tabindex="-1"
+      class="min-w-0 scroll-mt-4 rounded-[26px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus lg:flex-[calc(1-var(--split-ratio))_1_0%]"
+    >
+      @if (isBorsaDiStudio()) {
+        <app-results-borsa [result]="calculationResult()">
+          <app-share-link [copied]="formStateShare.linkCopied()" (share)="copyShareableLink()" />
+        </app-results-borsa>
+      } @else {
+        <app-results [result]="calculationResult()" [baseInput]="calculationInput()">
+          <app-share-link [copied]="formStateShare.linkCopied()" (share)="copyShareableLink()" />
+        </app-results>
+      }
+    </div>
   </div>
 </main>
 
-<div class="bg-stone-100 dark:bg-stone-800">
-  <div class="max-w-7xl mx-auto px-4 lg:px-8 py-2.5 flex items-center justify-between gap-4">
-    <p class="text-sm text-stone-600 dark:text-stone-300">
-      @if (loadedFromUrl()) {
-        <span class="font-medium text-emerald-600 dark:text-emerald-400"
-          >Configurazione caricata da link condiviso.</span
-        >
-      } @else {
-        Condividi questa configurazione con un link.
-      }
-    </p>
-    <button
-      type="button"
-      class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-colors bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500 focus-visible:ring-offset-2"
-      (click)="copyShareableLink()"
-    >
-      @if (formStateShare.linkCopied()) {
-        <svg
-          class="size-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="2"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-        </svg>
-        Copiato!
-      } @else {
-        <svg
-          class="size-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
-          />
-        </svg>
-        Copia link
-      }
-    </button>
-  </div>
-</div>
-
-<footer class="bg-white dark:bg-gray-900/30">
+<!-- Gradient frame with a frosted panel: call to action, then credits -->
+<footer id="sostieni" class="relative mt-16 scroll-mt-4 p-2 lg:mt-[72px]">
   <div
-    class="max-w-7xl mx-auto px-4 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-green-800 dark:text-green-200"
+    class="relative overflow-hidden rounded-[28px] bg-linear-145 from-g1 from-28% via-g2 via-70% to-g3"
   >
-    <p class="text-gray-400 text-center md:text-left">
-      Il calcolatore dello stipendio netto per lavoratori dipendenti privati in Italia.
-    </p>
-    <p>
-      Realizzato con <span class="text-red-500" aria-label="amore">&#10084;</span> da
-      <a
-        href="https://github.com/BernardoGiordano"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="font-bold hover:text-blue-600 dark:hover:text-white"
-        >Bernardo Giordano</a
+    <div aria-hidden="true" class="absolute inset-2 rounded-[21px] bg-surface/78"></div>
+    <div class="relative mx-auto max-w-[1376px] px-6 pt-10 pb-8 sm:px-12 sm:pt-12">
+      <section
+        aria-labelledby="cta-title"
+        class="flex flex-wrap items-center justify-between gap-x-10 gap-y-5"
       >
-    </p>
+        <div>
+          <p class="font-mono text-xs/5 font-semibold tracking-widest text-muted uppercase">
+            Gratuito e open source
+          </p>
+          <h2
+            id="cta-title"
+            class="mt-1.5 text-[32px]/[1.15] font-medium tracking-[-0.04em] text-fg"
+          >
+            Ti è stato utile?
+          </h2>
+          <p class="mt-2 text-[15px]/[23px] text-label">
+            Senza pubblicità, aggiornato a ogni legge di bilancio.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <a
+            [href]="links.paypal.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 rounded-full bg-primary px-[18px] py-2 text-[15px] font-medium text-on-primary shadow-md transition-colors hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >
+            <app-icon [name]="links.paypal.icon" class="size-4" />
+            Fai una donazione
+          </a>
+          <a
+            [href]="links.github.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 rounded-full bg-tray px-[18px] py-2 text-[15px] font-medium text-fg shadow-glow ring-1 ring-ring-card ring-inset transition-colors hover:bg-surface/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >
+            <app-icon [name]="links.github.icon" class="size-4" />
+            Stella su GitHub
+          </a>
+        </div>
+      </section>
+
+      <div
+        class="mt-8 flex flex-wrap justify-between gap-x-6 gap-y-2 border-t border-ring-card pt-[18px] text-[13.5px]/5 text-label"
+      >
+        <p>
+          © {{ year }}
+          <a
+            href="https://github.com/BernardoGiordano"
+            target="_blank"
+            rel="noopener noreferrer"
+            [class]="creditLink"
+            >Bernardo Giordano</a
+          >
+          ·
+          <a [href]="licenseHref" target="_blank" rel="noopener noreferrer" [class]="creditLink"
+            >GPLv3</a
+          >
+          ·
+          <a
+            [href]="links.linkedin.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            [class]="creditLink"
+            >LinkedIn</a
+          >
+          ·
+          <a
+            [href]="links.github.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            [class]="creditLink"
+            >GitHub</a
+          >
+        </p>
+        <p>Stima informativa, non sostituisce la busta paga. Versione {{ version }}</p>
+      </div>
+    </div>
   </div>
 </footer>
+
+@if (calculationResult(); as r) {
+  @let percepito = !isBorsaDiStudio();
+  <!-- Reserve room for the bar and device safe area at the end of the page. -->
+  <div aria-hidden="true" class="h-[calc(5rem+env(safe-area-inset-bottom))] lg:hidden"></div>
+  <aside
+    aria-label="Risultato mensile"
+    class="fixed inset-x-0 bottom-0 z-40 border-t border-hair bg-surface/95 px-3.5 pt-2.5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-sm lg:hidden"
+  >
+    <div class="mx-auto flex max-w-[1376px] items-center justify-between gap-3">
+      <div class="min-w-0">
+        <p class="font-mono text-[10px]/4 font-semibold tracking-widest text-muted uppercase">
+          {{ percepito ? 'Percepito mensile' : 'Netto mensile' }}
+        </p>
+        <app-amount
+          class="mt-0.5 block text-[22px]/7 font-medium tracking-[-0.035em] text-fg tabular-nums"
+          [value]="percepito ? r.nettoMensilePercepito : r.nettoMensile"
+        />
+      </div>
+      <a
+        [href]="barTarget().href"
+        class="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-primary px-3.5 text-sm font-medium text-on-primary shadow-sm hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+      >
+        <app-icon [name]="barTarget().icon" class="size-3.5" />
+        {{ barTarget().label }}
+      </a>
+    </div>
+  </aside>
+}
