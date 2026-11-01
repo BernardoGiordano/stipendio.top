@@ -32,7 +32,7 @@ describe('proiezione', () => {
     const r = conRal(riferimento, 35_000)!;
     expect(r.nettoMensilePercepito).toBeCloseTo(2_138.92, 2);
     expect(r.nettoAnnuo).toBeCloseTo(25_899.25, 2);
-    expect(r.costoAziendale).toBeCloseTo(50_020.59, 2);
+    expect(r.costoAziendale).toBeCloseTo(49_898.09, 2);
   });
 
   it('gives the netto of 1.000 € more RAL', () => {

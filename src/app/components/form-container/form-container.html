@@ -873,5 +873,130 @@
         </app-check>
       }
     </app-section>
+
+    <!-- Costo aziendale -->
+    <app-section
+      variant="row"
+      heading="Costo aziendale"
+      [active]="attive().datore"
+      [toggle]="form.opzioniDatore.enabled"
+      [summary]="riepilogo.datore"
+      description="Voci a carico dell'azienda: cambiano il costo aziendale, non il netto."
+      info="Premio INAIL, rinnovi del tempo determinato, esoneri contributivi per l'assunzione e aliquote agevolate dell'apprendistato. Contributo addizionale NASpI del tempo determinato, contributo di solidarietà su previdenza e sanità integrative e recupero dello 0,50% sul TFR sono calcolati sempre."
+    >
+      @if (model.opzioniDatore.enabled) {
+        <div class="flex flex-col gap-3">
+          @if (model.tipoContratto === 'apprendistato') {
+            <p class="text-xs text-muted">
+              Per gli apprendisti il premio INAIL è compreso nell'aliquota INPS del datore.
+            </p>
+            <app-check
+              label="Azienda fino a 9 dipendenti"
+              info="Nelle aziende fino a 9 dipendenti il contributo del datore per gli apprendisti scende dal 10% all'1,5% il primo anno e al 3% il secondo (art. 1, c. 773, L. 296/2006), più NASpI e formazione: 3,11% e 4,61% invece di 11,61%."
+            >
+              <input
+                appControl
+                type="checkbox"
+                [formField]="form.opzioniDatore.apprendistatoFinoA9Dipendenti"
+              />
+            </app-check>
+            @if (model.opzioniDatore.apprendistatoFinoA9Dipendenti) {
+              <app-field label="Anno di apprendistato" group class="max-w-[220px]">
+                <app-segmented
+                  [formField]="form.opzioniDatore.annoApprendistato"
+                  [options]="anniApprendistato"
+                />
+              </app-field>
+            }
+          } @else {
+            <div class="flex flex-wrap items-end gap-3">
+              <app-field
+                label="Tasso INAIL"
+                unit="‰"
+                info="Tasso del premio INAIL per mille, dalla tariffa della voce di rischio dell'azienda: da pochi punti per mille per le attività d'ufficio a oltre 100‰ per le lavorazioni più rischiose. Si applica all'imponibile previdenziale, senza massimale, ed è interamente a carico del datore."
+                class="flex-[1_1_130px]"
+              >
+                <input
+                  appControl
+                  type="number"
+                  step="0.1"
+                  [formField]="form.opzioniDatore.tassoInail"
+                  placeholder="Es. 4"
+                />
+              </app-field>
+              @if (model.tipoContratto === 'determinato') {
+                <app-field
+                  label="Rinnovi del contratto"
+                  info="Il contributo addizionale NASpI dell'1,4% sui contratti a tempo determinato aumenta di 0,5 punti a ogni rinnovo (art. 3, c. 2, D.L. 87/2018). Le proroghe non contano."
+                  class="flex-[1_1_130px]"
+                >
+                  <input
+                    appControl
+                    type="number"
+                    step="1"
+                    [formField]="form.opzioniDatore.rinnoviTempoDeterminato"
+                    placeholder="0"
+                  />
+                </app-field>
+              }
+            </div>
+          }
+
+          <div class="flex flex-wrap items-end gap-3">
+            <app-field label="Esonero contributivo" [info]="infoEsoneri" class="flex-[2_1_220px]">
+              <select appControl [formField]="form.opzioniDatore.esonero">
+                @for (esonero of esoneri; track esonero.value) {
+                  <option [value]="esonero.value">{{ esonero.label }}</option>
+                }
+              </select>
+            </app-field>
+            @if (model.opzioniDatore.esonero !== 'nessuno') {
+              <app-field
+                label="Mesi di esonero"
+                info="Mesi dell'anno coperti dall'esonero (es. 12 per l'intero anno). Quota e tetto mensile si applicano a questi mesi."
+                class="flex-[1_1_110px]"
+              >
+                <input
+                  appControl
+                  type="number"
+                  step="1"
+                  [formField]="form.opzioniDatore.esoneroMesi"
+                />
+              </app-field>
+            }
+          </div>
+
+          @if (model.opzioniDatore.esonero === 'personalizzato') {
+            <div class="flex flex-wrap items-end gap-3">
+              <app-field
+                label="Quota esonerata"
+                unit="%"
+                info="Percentuale dei contributi INPS a carico del datore coperta dall'esonero."
+                class="flex-[1_1_130px]"
+              >
+                <input
+                  appControl
+                  type="number"
+                  [formField]="form.opzioniDatore.esoneroPercentuale"
+                />
+              </app-field>
+              <app-field
+                label="Tetto mensile"
+                unit="€ / mese"
+                info="Importo massimo dell'esonero per ogni mese. Lascia 0 per un esonero senza tetto."
+                class="flex-[1_1_130px]"
+              >
+                <input
+                  appControl
+                  type="number"
+                  [formField]="form.opzioniDatore.esoneroTettoMensile"
+                  placeholder="0"
+                />
+              </app-field>
+            </div>
+          }
+        </div>
+      }
+    </app-section>
   </section>
 </form>

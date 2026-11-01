@@ -38,6 +38,7 @@ describe('calcolaFondi', () => {
       fondoPensioneIntegrativo: null,
       redditoFondoPensione: 0,
       deduzione: 0,
+      baseContributoSolidarieta: 0,
       entrate: [],
       trattenute: [],
       isDirigente: false,
@@ -73,6 +74,12 @@ describe('calcolaFondi', () => {
       expect(calcolo.isDirigente).toBe(fondo.categoria === 'dirigentiTerziario');
     });
 
+    it('assoggetta a solidarietà il contributo datore solo se previdenziale o sanitario', () => {
+      expect(calcolo.baseContributoSolidarieta).toBe(
+        fondo.soggettoSolidarieta ? fondo.contributoDatore : 0,
+      );
+    });
+
     it('compare nel dettaglio', () => {
       expect(calcolo.fondiContrattuali).toEqual([
         {
@@ -103,6 +110,29 @@ describe('calcolaFondi', () => {
       6,
     );
     expect(calcolo.deduzione).toBeCloseTo(contributoDeducibile, 6);
+  });
+});
+
+describe('Base del contributo di solidarietà', () => {
+  it('comprende Fondo Negri, FASDAC e Fondo EST, non Pastore e CFMT', () => {
+    const soggetti = FONDI_CONTRATTUALI.filter((fondo) => fondo.soggettoSolidarieta).map(
+      (fondo) => fondo.id,
+    );
+    expect(soggetti).toEqual(['fondoMarioNegri', 'fasdac', 'fondoEst']);
+  });
+
+  it('comprende i contributi datore e welfare al fondo pensione, non quelli del lavoratore', () => {
+    const calcolo = calcolaFondi({
+      ...nessunFondo,
+      contributoWelfare: 500,
+      fondoPensioneIntegrativo: {
+        contributoLavoratore: 1,
+        ralLavoratore: 30_000,
+        contributoDatoreLavoro: 2,
+        ralDatoreLavoro: 30_000,
+      },
+    });
+    expect(calcolo.baseContributoSolidarieta).toBeCloseTo(600 + 500, 6);
   });
 });
 

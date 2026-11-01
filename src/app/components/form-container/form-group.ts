@@ -23,9 +23,11 @@ import {
   FondoPensioneIntegrativo,
   FringeBenefit,
   InputCalcoloStipendio,
+  OpzioniDatore,
   RimborsiTrasferta,
   TipoAlimentazioneAuto,
   TipoContratto,
+  TipoEsoneroContributivo,
 } from '../../../calculator/types';
 import { haRedditiSostitutiviInSoglia } from '../../../calculator/addizionali/2026';
 import { FONDI_CONTRATTUALI } from '../../../calculator/fondi/2026';
@@ -87,6 +89,21 @@ export interface FondoPensioneIntegrativoFormModel {
   ripartizionePerMensilita: boolean;
 }
 
+export interface OpzioniDatoreFormModel {
+  enabled: boolean;
+  /** Per mille */
+  tassoInail: number;
+  rinnoviTempoDeterminato: number;
+  esonero: TipoEsoneroContributivo | 'nessuno';
+  /** Solo per l'esonero personalizzato */
+  esoneroPercentuale: number;
+  /** Solo per l'esonero personalizzato; 0 = senza tetto */
+  esoneroTettoMensile: number;
+  esoneroMesi: number;
+  apprendistatoFinoA9Dipendenti: boolean;
+  annoApprendistato: number;
+}
+
 export interface BorsaDiStudioFormModel {
   enabled: boolean;
   importoAnnuo: number;
@@ -140,6 +157,7 @@ export interface StipendioFormModel extends Record<FondoContrattualeId, boolean>
   fringeBenefit: FringeBenefitFormModel;
   rimborsiTrasferta: RimborsiTrasfertaFormModel;
   benefitNonTassati: BenefitNonTassatiFormModel;
+  opzioniDatore: OpzioniDatoreFormModel;
 
   // Dynamic arrays
   figli: FiglioACaricoFormModel[];
@@ -213,6 +231,20 @@ function createDefaultFondoPensioneIntegrativo(): FondoPensioneIntegrativoFormMo
   };
 }
 
+function createDefaultOpzioniDatore(): OpzioniDatoreFormModel {
+  return {
+    enabled: false,
+    tassoInail: 0,
+    rinnoviTempoDeterminato: 0,
+    esonero: 'nessuno',
+    esoneroPercentuale: 100,
+    esoneroTettoMensile: 0,
+    esoneroMesi: 12,
+    apprendistatoFinoA9Dipendenti: false,
+    annoApprendistato: 1,
+  };
+}
+
 function createDefaultBorsaDiStudio(): BorsaDiStudioFormModel {
   return {
     enabled: false,
@@ -279,6 +311,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     fringeBenefit: createDefaultFringeBenefit(),
     rimborsiTrasferta: createDefaultRimborsiTrasferta(),
     benefitNonTassati: createDefaultBenefitNonTassati(),
+    opzioniDatore: createDefaultOpzioniDatore(),
     figli: [],
     ascendenti: [],
   };
@@ -374,13 +407,29 @@ const borsaDiStudioSchema = schema<BorsaDiStudioFormModel>((path) => {
   min(path.importoAnnuo, 0, { message: "L'importo non può essere negativo" });
 });
 
-function validaMesiCarico({ value }: { value: () => number }) {
+function validaMesi({ value }: { value: () => number }) {
   const v = value();
   if (!Number.isInteger(v) || v < 0 || v > 12) {
     return { kind: 'range', message: 'Valore intero tra 0 e 12' };
   }
   return null;
 }
+
+const opzioniDatoreSchema = schema<OpzioniDatoreFormModel>((path) => {
+  min(path.tassoInail, 0, { message: 'Valore tra 0 e 200 ‰' });
+  max(path.tassoInail, 200, { message: 'Valore tra 0 e 200 ‰' });
+  validate(path.rinnoviTempoDeterminato, ({ value }) => {
+    const v = value();
+    if (!Number.isInteger(v) || v < 0) {
+      return { kind: 'min', message: 'Valore intero non negativo' };
+    }
+    return null;
+  });
+  min(path.esoneroPercentuale, 0, { message: 'La percentuale deve essere tra 0 e 100' });
+  max(path.esoneroPercentuale, 100, { message: 'La percentuale deve essere tra 0 e 100' });
+  min(path.esoneroTettoMensile, 0, { message: 'Valore non valido' });
+  validate(path.esoneroMesi, validaMesi);
+});
 
 const coniugeSchema = schema<ConiugeACaricoFormModel>((path) => {
   validate(path.redditoAnnuo, ({ value, valueOf }) => {
@@ -392,7 +441,7 @@ const coniugeSchema = schema<ConiugeACaricoFormModel>((path) => {
 
   min(path.percentualeCarico, 0, { message: 'La percentuale deve essere tra 0 e 100' });
   max(path.percentualeCarico, 100, { message: 'La percentuale deve essere tra 0 e 100' });
-  validate(path.mesiCarico, validaMesiCarico);
+  validate(path.mesiCarico, validaMesi);
 });
 
 const figlioSchema = schema<FiglioACaricoFormModel>((path) => {
@@ -400,12 +449,12 @@ const figlioSchema = schema<FiglioACaricoFormModel>((path) => {
 
   min(path.percentualeCarico, 0, { message: 'La percentuale deve essere tra 0 e 100' });
   max(path.percentualeCarico, 100, { message: 'La percentuale deve essere tra 0 e 100' });
-  validate(path.mesiCarico, validaMesiCarico);
+  validate(path.mesiCarico, validaMesi);
 });
 
 const ascendenteSchema = schema<AscendenteACaricoFormModel>((path) => {
   min(path.redditoAnnuo, 0, { message: 'Valore non valido' });
-  validate(path.mesiCarico, validaMesiCarico);
+  validate(path.mesiCarico, validaMesi);
 });
 
 export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
@@ -453,6 +502,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   apply(path.fringeBenefit, fringeBenefitSchema);
   apply(path.rimborsiTrasferta, rimborsiTrasfertaSchema);
   apply(path.benefitNonTassati, benefitNonTassatiSchema);
+  apply(path.opzioniDatore, opzioniDatoreSchema);
 
   // Arrays
   applyEach(path.figli, figlioSchema);
@@ -566,6 +616,38 @@ function toFondoPensioneIntegrativo(
     }),
     ...(model.ripartizionePerMensilita && { ripartizionePerMensilita: true }),
   };
+}
+
+/** Keeps only the options that apply to the contract */
+function toOpzioniDatore(
+  model: OpzioniDatoreFormModel,
+  tipoContratto: TipoContratto,
+): OpzioniDatore | undefined {
+  if (!model.enabled) return undefined;
+
+  const result: OpzioniDatore = {};
+  const apprendista = tipoContratto === 'apprendistato';
+
+  if (!apprendista && model.tassoInail > 0) result.tassoInail = model.tassoInail;
+  if (tipoContratto === 'determinato' && model.rinnoviTempoDeterminato > 0) {
+    result.rinnoviTempoDeterminato = model.rinnoviTempoDeterminato;
+  }
+  if (model.esonero !== 'nessuno') {
+    result.esonero = {
+      tipo: model.esonero,
+      ...(model.esonero === 'personalizzato' && {
+        percentuale: model.esoneroPercentuale,
+        ...(model.esoneroTettoMensile > 0 && { tettoMensile: model.esoneroTettoMensile }),
+      }),
+      ...(model.esoneroMesi !== 12 && { mesi: model.esoneroMesi }),
+    };
+  }
+  if (apprendista && model.apprendistatoFinoA9Dipendenti) {
+    result.apprendistatoFinoA9Dipendenti = true;
+    result.annoApprendistato = model.annoApprendistato;
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
 }
 
 function toBorsaDiStudio(model: BorsaDiStudioFormModel): BorsaDiStudio | undefined {
@@ -683,6 +765,10 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
     ...(() => {
       const benefitNonTassati = toBenefitNonTassati(model.benefitNonTassati);
       return benefitNonTassati ? { benefitNonTassati } : {};
+    })(),
+    ...(() => {
+      const opzioniDatore = toOpzioniDatore(model.opzioniDatore, model.tipoContratto);
+      return opzioniDatore ? { opzioniDatore } : {};
     })(),
 
     // Arrays

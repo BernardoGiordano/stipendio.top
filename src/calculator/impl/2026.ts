@@ -31,6 +31,7 @@ import {
 import { StipendioCalculator } from '../calculator';
 import { calcolaAddizionali } from '../addizionali/2026';
 import { calcolaFondi, dettagliFondi } from '../fondi/2026';
+import { calcolaCostiDatore } from '../datore/2026';
 import { ripartisci, totali } from '../ripartizione';
 
 /** Scaglioni IRPEF 2026 (aliquota intermedia ridotta) */
@@ -153,27 +154,6 @@ const BENEFIT_ESENTI = {
   buoniPastoCartacei: 4.0,
   /** Giorni di erogazione buoni pasto se non indicati */
   giorniBuoniPastoDefault: 220,
-} as const;
-
-/** Aliquote contributive INPS a carico del datore di lavoro (Commercio/Terziario 2026) */
-const ALIQUOTE_INPS_DATORE = {
-  /** Quota IVS (FPLD) inclusa nelle aliquote, l'unica soggetta al massimale contributivo */
-  ivs: 0.2381,
-  /** Operai/impiegati senza CIGS (≤50 dip. commercio) */
-  base: 0.2898,
-  /** Con CIGS */
-  conCigs: 0.2968,
-  /** Apprendistato (aliquota agevolata) */
-  apprendista: 0.1161,
-  /** Dirigenti senza CIGS */
-  dirigente: 0.2654,
-  /** Dirigenti con CIGS */
-  dirigenteConCigs: 0.2724,
-} as const;
-
-/** Parametri TFR (Art. 2120 c.c.) */
-const TFR = {
-  divisore: 13.5,
 } as const;
 
 /** Parametri Regime Impatriati (D.Lgs. 209/2023, art. 5) */
@@ -795,39 +775,6 @@ function calcolaTrattamentoIntegrativo(
   };
 }
 
-function calcolaAliquotaInpsDatore(
-  tipoContratto: TipoContratto,
-  aziendaConCigs: boolean,
-  isDirigente: boolean,
-): number {
-  if (tipoContratto === 'apprendistato') {
-    return ALIQUOTE_INPS_DATORE.apprendista;
-  }
-  if (isDirigente) {
-    return aziendaConCigs ? ALIQUOTE_INPS_DATORE.dirigenteConCigs : ALIQUOTE_INPS_DATORE.dirigente;
-  }
-  return aziendaConCigs ? ALIQUOTE_INPS_DATORE.conCigs : ALIQUOTE_INPS_DATORE.base;
-}
-
-/**
- * Contributi INPS a carico del datore. Il massimale contributivo (art. 2, c. 18, L. 335/1995)
- * limita la sola quota IVS: le contribuzioni minori (NASpI, CUAF, malattia, maternità, CIG,
- * Fondo di garanzia TFR) restano dovute sull'intero imponibile. L'aliquota apprendisti è
- * forfettaria e si applica per intero all'imponibile entro il massimale.
- */
-function calcolaContributiInpsDatore(
-  imponibileLordo: number,
-  imponibileEntroMassimale: number,
-  aliquota: number,
-  tipoContratto: TipoContratto,
-): number {
-  if (tipoContratto === 'apprendistato') {
-    return imponibileEntroMassimale * aliquota;
-  }
-  const quotaIvs = Math.min(aliquota, ALIQUOTE_INPS_DATORE.ivs);
-  return imponibileEntroMassimale * quotaIvs + imponibileLordo * (aliquota - quotaIvs);
-}
-
 /** Fringe benefit, rimborsi e welfare pagati dal datore, divisi per trattamento fiscale */
 function vociBenefit(
   fringeBenefit: DettaglioFringeBenefit,
@@ -1008,6 +955,20 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     regimeImpatriati: null,
     borsaDiStudio,
     ripartizione,
+    // L'ente versa solo la sua quota di Gestione Separata: niente TFR, INAIL o addizionali
+    contributiDatore: {
+      aliquotaInps: aliquotaGS * GESTIONE_SEPARATA_BORSE.quotaEnte,
+      contributiInpsLordi: contributoGSEnte,
+      esonero: 0,
+      aliquotaAddizionaleNaspi: 0,
+      addizionaleNaspi: 0,
+      tassoInail: 0,
+      premioInail: 0,
+      baseContributoSolidarieta: 0,
+      contributoSolidarieta: 0,
+      tfrLordo: 0,
+      riduzioneTfr: 0,
+    },
     costoAziendale,
     irpef: { imponibileIrpef: 0, irpefLorda: 0, dettaglioScaglioni: [] },
     detrazioniLavoro: {
@@ -1387,12 +1348,19 @@ export class Calculator2026 implements StipendioCalculator {
     );
 
     // 16. RIPARTIZIONE
-    // Costo aziendale, trattenute, bonus, netto e percepito sono somme di queste voci
-    const aliquotaInpsDatore = calcolaAliquotaInpsDatore(
+    // Costo aziendale, trattenute, bonus, netto e percepito sono somme di queste voci.
+    // Il contributo di solidarietà grava anche sull'assistenza sanitaria esente pagata come welfare
+    const costiDatore = calcolaCostiDatore({
+      ral,
       tipoContratto,
       aziendaConCigs,
-      fondi.isDirigente,
-    );
+      isDirigente: fondi.isDirigente,
+      imponibilePrevidenziale,
+      imponibileEntroMassimale: contributiInps.imponibilePrevidenziale,
+      baseContributoSolidarieta:
+        fondi.baseContributoSolidarieta + benefitNonTassati.assistenzaSanitaria,
+      opzioni: input.opzioniDatore,
+    });
     const entrate: VoceEntrata[] = [
       {
         descrizione: 'RAL',
@@ -1401,26 +1369,7 @@ export class Calculator2026 implements StipendioCalculator {
         pagatore: 'datore',
         destinazione: 'netto',
       },
-      {
-        descrizione: 'Contributi INPS Datore',
-        importo: calcolaContributiInpsDatore(
-          imponibilePrevidenziale,
-          contributiInps.imponibilePrevidenziale,
-          aliquotaInpsDatore,
-          tipoContratto,
-        ),
-        aliquota: aliquotaInpsDatore,
-        categoria: 'contributiDatore',
-        pagatore: 'datore',
-        destinazione: 'accantonata',
-      },
-      {
-        descrizione: 'TFR (RAL / 13,5)',
-        importo: ral / TFR.divisore,
-        categoria: 'tfr',
-        pagatore: 'datore',
-        destinazione: 'accantonata',
-      },
+      ...costiDatore.entrate,
       ...fondi.entrate,
       ...vociBenefit(fringeBenefit, rimborsiTrasferta, benefitNonTassati),
       {
@@ -1520,6 +1469,7 @@ export class Calculator2026 implements StipendioCalculator {
       regimeImpatriati: dettaglioRegimeImpatriati,
       borsaDiStudio: dettaglioBorsaDiStudio,
       ripartizione,
+      contributiDatore: costiDatore.dettaglio,
       costoAziendale,
       irpef,
       detrazioniLavoro,

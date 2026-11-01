@@ -16,6 +16,7 @@ export const SERIE = {
   // what the datore pays for
   retribuzione: '#78716c',
   contributiDatore: '#c4643e',
+  inail: '#6f8a6a',
   tfr: '#9c7a45',
   fondiDatore: '#7a5c8a',
   fringeBenefit: '#4f8a8b',
