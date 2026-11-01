@@ -15,6 +15,7 @@ import {
 import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculator/types';
 import { calcolaStipendioNetto } from '../../../calculator/calculator';
 import { DisplayMode } from '../../services/display-mode';
+import { ChartPalette } from '../../services/chart-palette';
 import type { Config, Layout, PlotData } from 'plotly.js-dist-min';
 
 type ViewMode = 'monthly' | 'annual';
@@ -172,6 +173,7 @@ async function loadPlotly() {
 export class GraphProjection implements AfterViewInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   readonly displayMode = inject(DisplayMode);
+  private readonly palette = inject(ChartPalette);
 
   /** Current calculation result */
   readonly result = input<OutputCalcoloStipendio | null>(null);
@@ -202,6 +204,7 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
       this.currentPosition();
       this.viewMode();
       this.displayMode.mode();
+      this.palette.theme();
 
       if (this.plotInitialized && data) {
         const container = this.chartContainer()?.nativeElement;
@@ -379,8 +382,7 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
     const numContours = 12;
     const contourStep = (maxZ - minZ) / numContours;
 
-    // Detect dark mode
-    const isDark = document.documentElement.classList.contains('dark');
+    const theme = this.palette.theme();
 
     // Main contour trace
     const contourTrace: Partial<PlotData> = {
@@ -388,20 +390,20 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
       x: data.x,
       y: data.y,
       z: data.z,
-      colorscale: 'Viridis',
+      colorscale: theme.scale,
       contours: {
         coloring: 'heatmap',
         showlabels: true,
         labelfont: {
           size: 11,
-          color: 'white',
+          color: theme.scaleLabel,
         },
         start: minZ,
         end: maxZ,
         size: contourStep,
       },
       line: {
-        color: 'rgba(255, 255, 255, 0.4)',
+        color: theme.scaleLine,
         width: 1,
       },
       colorbar: {
@@ -410,12 +412,12 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
           side: 'right',
           font: {
             size: 12,
-            color: isDark ? '#e7e5e4' : '#292524',
+            color: theme.title,
           },
         },
         tickfont: {
           size: 10,
-          color: isDark ? '#a8a29e' : '#57534e',
+          color: theme.muted,
         },
         thickness: 15,
         len: 0.9,
@@ -440,10 +442,10 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
         mode: 'markers+text',
         marker: {
           size: 14,
-          color: '#ef4444',
+          color: theme.marker.fill,
           symbol: 'circle',
           line: {
-            color: 'white',
+            color: theme.marker.ring,
             width: 2,
           },
         },
@@ -451,8 +453,8 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
         textposition: 'top center',
         textfont: {
           size: 12,
-          color: isDark ? '#fafaf9' : '#1c1917',
-          family: 'system-ui, sans-serif',
+          color: theme.title,
+          family: theme.font,
         },
         hovertemplate:
           `<b>Posizione attuale</b><br>` +
@@ -471,33 +473,34 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
           text: metric.label,
           font: {
             size: 12,
-            color: isDark ? '#a8a29e' : '#57534e',
+            color: theme.muted,
           },
         },
         tickfont: {
           size: 10,
-          color: isDark ? '#a8a29e' : '#57534e',
+          color: theme.muted,
         },
         tickformat: ',.0f',
-        gridcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-        zerolinecolor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+        gridcolor: theme.grid,
+        zerolinecolor: theme.zeroline,
       },
       yaxis: {
         title: {
           text: 'RAL (€)',
           font: {
             size: 12,
-            color: isDark ? '#a8a29e' : '#57534e',
+            color: theme.muted,
           },
         },
         tickfont: {
           size: 10,
-          color: isDark ? '#a8a29e' : '#57534e',
+          color: theme.muted,
         },
         tickformat: ',.0f',
-        gridcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-        zerolinecolor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+        gridcolor: theme.grid,
+        zerolinecolor: theme.zeroline,
       },
+      font: { family: theme.font },
       paper_bgcolor: 'transparent',
       plot_bgcolor: 'transparent',
       margin: {
@@ -507,11 +510,12 @@ export class GraphProjection implements AfterViewInit, OnDestroy {
         b: 50,
       },
       hoverlabel: {
-        bgcolor: isDark ? '#292524' : '#fafaf9',
-        bordercolor: isDark ? '#57534e' : '#d6d3d1',
+        bgcolor: theme.hover.bg,
+        bordercolor: theme.hover.border,
         font: {
-          color: isDark ? '#e7e5e4' : '#1c1917',
+          color: theme.hover.text,
           size: 12,
+          family: theme.font,
         },
       },
     };

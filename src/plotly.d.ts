@@ -75,6 +75,7 @@ declare module 'plotly.js-dist-min' {
           x: number;
           y: number;
         }>;
+    font: Partial<Font>;
     xaxis: Partial<Axis>;
     yaxis: Partial<Axis>;
     paper_bgcolor: string;
