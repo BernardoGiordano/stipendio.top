@@ -23,7 +23,7 @@
       </button>
     </div>
 
-    <!-- Right side: Netto/Percepito switch (desktop), amounts and menu (mobile) -->
+    <!-- Right side: Netto/Percepito switch (desktop) and menu (mobile) -->
     <div class="flex items-center gap-2">
       <div
         class="hidden lg:flex gap-0.5 rounded-full p-0.5 text-xs bg-sunken ring-1 ring-inset ring-ring shadow-glow"
@@ -45,23 +45,6 @@
           </button>
         }
       </div>
-
-      @if (calculationResult(); as r) {
-        <div class="flex items-center gap-4 text-right lg:hidden mr-2 pr-2 border-r border-hair">
-          <div class="flex flex-col">
-            <span class="text-[10px] text-subtle uppercase tracking-wide">Mensile</span>
-            <span class="text-sm font-semibold text-fg">{{
-              formatCurrency(displayMode.isPercepito() ? r.nettoMensilePercepito : r.nettoMensile)
-            }}</span>
-          </div>
-          <div class="flex flex-col">
-            <span class="text-[10px] text-subtle uppercase tracking-wide">Annuo</span>
-            <span class="text-sm font-semibold text-fg">{{
-              formatCurrency(displayMode.isPercepito() ? r.totalePercepito : r.nettoAnnuo)
-            }}</span>
-          </div>
-        </div>
-      }
 
       <button
         type="button"
@@ -165,7 +148,13 @@
     }
   </div>
   <app-resizer [value]="splitRatio()" (resize)="onResize($event)" />
-  <div id="risultati" class="w-full lg:w-auto lg:flex-[calc(1-var(--split-ratio))] scroll-mt-20">
+  <div
+    id="risultati"
+    role="region"
+    aria-label="Risultati del calcolo"
+    tabindex="-1"
+    class="w-full lg:w-auto lg:flex-[calc(1-var(--split-ratio))] scroll-mt-20 rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+  >
     @if (isBorsaDiStudio()) {
       <app-results-borsa [result]="calculationResult()" />
     } @else {
@@ -248,3 +237,30 @@
     </div>
   </div>
 </footer>
+
+@if (calculationResult(); as r) {
+  @let percepito = !isBorsaDiStudio() && displayMode.isPercepito();
+  <!-- Reserve room for the bar and device safe area at the end of the page. -->
+  <div aria-hidden="true" class="h-[calc(6rem+env(safe-area-inset-bottom))] lg:hidden"></div>
+  <aside
+    aria-label="Risultato mensile"
+    class="fixed inset-x-0 bottom-0 z-40 border-t border-hair bg-surface/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-sm lg:hidden"
+  >
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
+      <div>
+        <p class="text-xs text-muted">{{ percepito ? 'Percepito mensile' : 'Netto mensile' }}</p>
+        <app-amount
+          class="block text-xl font-semibold tracking-tight text-fg tabular-nums"
+          [value]="percepito ? r.nettoMensilePercepito : r.nettoMensile"
+        />
+      </div>
+      <a
+        href="#risultati"
+        class="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-on-primary shadow-sm hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+      >
+        Risultati
+        <app-icon name="arrow-right" class="size-4" />
+      </a>
+    </div>
+  </aside>
+}

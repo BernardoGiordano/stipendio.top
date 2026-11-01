@@ -16,6 +16,7 @@ import { ResultsBorsa } from './components/results-borsa/results-borsa';
 import { Resizer } from './components/resizer/resizer';
 import { Hero } from './components/hero/hero';
 import { Icon } from './components/icon/icon';
+import { AnimatedAmount } from './components/ledger/ledger';
 import { LINKS, NAV_LINKS } from './links';
 import {
   createDefaultFormModel,
@@ -36,7 +37,6 @@ import {
   CdkMenuItemRadio,
   CdkMenuTrigger,
 } from '@angular/cdk/menu';
-import { formatCurrency } from './utils/intl';
 import buildInfo from '../build.json';
 
 @Component({
@@ -49,6 +49,7 @@ import buildInfo from '../build.json';
     Resizer,
     Hero,
     Icon,
+    AnimatedAmount,
     CdkMenu,
     CdkMenuItem,
     CdkMenuItemRadio,
@@ -60,7 +61,6 @@ import buildInfo from '../build.json';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
-  readonly formatCurrency = formatCurrency;
   readonly buildInfo = buildInfo;
 
   readonly links = LINKS;

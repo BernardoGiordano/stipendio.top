@@ -122,6 +122,12 @@ html {
   @apply antialiased;
 }
 
+@media (width < 64rem) {
+  html {
+    scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+  }
+}
+
 body {
   @apply bg-page text-fg min-h-screen;
 }
