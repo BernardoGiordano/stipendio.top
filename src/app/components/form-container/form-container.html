@@ -10,134 +10,67 @@
     </legend>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="flex flex-col gap-1">
-        <label for="ral" class="text-sm text-muted flex items-center"
-          >RAL *<app-info-tooltip
-            tooltipId="ral-info"
-            text="Retribuzione Annua Lorda: il compenso totale annuo lordo previsto dal contratto, prima di contributi e imposte."
-          />
-        </label>
-        <input
-          id="ral"
-          type="number"
-          [formField]="form.ral"
-          placeholder="Es. 24000"
-          aria-required="true"
-          [attr.aria-invalid]="form.ral().invalid()"
-          [attr.aria-describedby]="form.ral().invalid() ? 'ral-error' : null"
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.ral().invalid()) {
-          @for (error of form.ral().errors(); track error.kind) {
-            <span id="ral-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field
+        label="RAL"
+        required
+        info="Retribuzione Annua Lorda: il compenso totale annuo lordo previsto dal contratto, prima di contributi e imposte."
+      >
+        <input appControl type="number" [formField]="form.ral" placeholder="Es. 24000" />
+      </app-field>
 
-      <div class="flex flex-col gap-1">
-        <label for="mensilita" class="text-sm text-muted flex items-center"
-          >Mensilità *<app-info-tooltip
-            tooltipId="mensilita-info"
-            text="Numero di mensilità annue. La 13a e 14a sono erogate come tredicesima e quattordicesima. La RAL viene divisa per questo numero."
-          />
-        </label>
-        <select
-          id="mensilita"
-          [formField]="form.mensilita"
-          aria-required="true"
-          [attr.aria-invalid]="form.mensilita().invalid()"
-          [attr.aria-describedby]="form.mensilita().invalid() ? 'mensilita-error' : null"
-          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        >
+      <app-field
+        label="Mensilità"
+        required
+        info="Numero di mensilità annue. La 13a e 14a sono erogate come tredicesima e quattordicesima. La RAL viene divisa per questo numero."
+      >
+        <select appControl [formField]="form.mensilita">
           @for (m of mensilita; track m) {
             <option [value]="m">{{ m }}</option>
           }
         </select>
-        @if (form.mensilita().invalid()) {
-          @for (error of form.mensilita().errors(); track error.kind) {
-            <span id="mensilita-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      </app-field>
 
-      <div class="flex flex-col gap-1">
-        <label for="tipoContratto" class="text-sm text-muted flex items-center"
-          >Tipo Contratto *<app-info-tooltip
-            tooltipId="tipoContratto-info"
-            text="Gli apprendisti hanno un'aliquota INPS ridotta (5,84%). I contratti a tempo determinato hanno una detrazione minima garantita inferiore."
-          />
-        </label>
-        <select
-          id="tipoContratto"
-          [formField]="form.tipoContratto"
-          aria-required="true"
-          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus"
-        >
+      <app-field
+        label="Tipo Contratto"
+        required
+        info="Gli apprendisti hanno un'aliquota INPS ridotta (5,84%). I contratti a tempo determinato hanno una detrazione minima garantita inferiore."
+      >
+        <select appControl [formField]="form.tipoContratto">
           @for (tipo of tipiContratto; track tipo.value) {
             <option [value]="tipo.value">{{ tipo.label }}</option>
           }
         </select>
-      </div>
+      </app-field>
 
-      <div class="flex flex-col gap-1">
-        <label for="annoFiscale" class="text-sm text-muted flex items-center"
-          >Anno Fiscale *<app-info-tooltip
-            tooltipId="annoFiscale-info"
-            text="Dal 2026 l'aliquota IRPEF del 2° scaglione scende dal 35% al 33%. Possono variare anche soglie e limiti."
-          />
-        </label>
-        <select
-          id="annoFiscale"
-          [formField]="form.annoFiscale"
-          aria-required="true"
-          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus"
-        >
+      <app-field
+        label="Anno Fiscale"
+        required
+        info="Dal 2026 l'aliquota IRPEF del 2° scaglione scende dal 35% al 33%. Possono variare anche soglie e limiti."
+      >
+        <select appControl [formField]="form.annoFiscale">
           @for (anno of anniFiscali; track anno) {
             <option [value]="anno">{{ anno }}</option>
           }
         </select>
-      </div>
+      </app-field>
 
-      <div class="flex flex-col gap-1">
-        <label for="regione" class="text-sm text-muted flex items-center"
-          >Regione *<app-info-tooltip
-            tooltipId="regione-info"
-            text="Determina l'addizionale regionale IRPEF, che varia da 1,23% a 3,33% a seconda della regione e del reddito."
-          />
-        </label>
-        <select
-          id="regione"
-          [formField]="form.regione"
-          (change)="onRegioneChange()"
-          aria-required="true"
-          [attr.aria-invalid]="form.regione().invalid()"
-          [attr.aria-describedby]="form.regione().invalid() ? 'regione-error' : null"
-          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        >
+      <app-field
+        label="Regione"
+        required
+        info="Determina l'addizionale regionale IRPEF, che varia da 1,23% a 3,33% a seconda della regione e del reddito."
+      >
+        <select appControl [formField]="form.regione" (change)="onRegioneChange()">
           @for (regione of regioniDisponibili; track regione.value) {
             <option [value]="regione.value">{{ regione.label }}</option>
           }
         </select>
-        @if (form.regione().invalid()) {
-          @for (error of form.regione().errors(); track error.kind) {
-            <span id="regione-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      </app-field>
 
-      <div class="flex flex-col gap-1">
-        <label for="comune" class="text-sm text-muted flex items-center"
-          >Comune<app-info-tooltip
-            tooltipId="comune-info"
-            text="Determina l'addizionale comunale IRPEF (0-0,8%). Alcuni comuni prevedono esenzioni per redditi bassi."
-          />
-        </label>
+      <app-field
+        label="Comune"
+        controlId="comune"
+        info="Determina l'addizionale comunale IRPEF (0-0,8%). Alcuni comuni prevedono esenzioni per redditi bassi."
+      >
         <ng-select
           [items]="comuniFiltrati()"
           bindValue="value"
@@ -151,7 +84,7 @@
           placeholder="Cerca un comune..."
           labelForId="comune"
         ></ng-select>
-      </div>
+      </app-field>
     </div>
   </fieldset>
 
@@ -161,91 +94,51 @@
       Opzioni Contrattuali
     </legend>
 
-    <div class="flex flex-col gap-1 mb-4">
-      <label for="giorniLavorati" class="text-sm text-muted flex items-center"
-        >Giorni Lavorati (opzionale)<app-info-tooltip
-          tooltipId="giorniLavorati-info"
-          text="Le detrazioni lavoro dipendente sono rapportate ai giorni effettivi. Utile per chi non lavora l'intero anno."
-        />
-      </label>
+    <app-field
+      label="Giorni Lavorati (opzionale)"
+      info="Le detrazioni lavoro dipendente sono rapportate ai giorni effettivi. Utile per chi non lavora l'intero anno."
+      class="mb-4"
+    >
       <input
-        id="giorniLavorati"
+        appControl
         type="number"
         [formField]="form.giorniLavorati"
         placeholder="Default: 365"
-        [attr.aria-invalid]="form.giorniLavorati().invalid()"
-        [attr.aria-describedby]="form.giorniLavorati().invalid() ? 'giorniLavorati-error' : null"
-        class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
       />
-      @if (form.giorniLavorati().invalid()) {
-        @for (error of form.giorniLavorati().errors(); track error.kind) {
-          <span id="giorniLavorati-error" class="text-xs text-neg mt-1" role="alert">{{
-            error.message
-          }}</span>
-        }
-      }
-    </div>
+    </app-field>
 
-    <div class="flex items-center gap-2 mb-3">
-      <input
-        id="aziendaConCigs"
-        type="checkbox"
-        [formField]="form.aziendaConCigs"
-        class="size-4 shrink-0 cursor-pointer accent-primary"
-      />
-      <label for="aziendaConCigs" class="text-sm text-muted flex items-center"
-        >Azienda con più di 15 dipendenti (CIGS)<app-info-tooltip
-          tooltipId="aziendaConCigs-info"
-          text="CIGS = Cassa Integrazione Guadagni Straordinaria. Le aziende con oltre 15 dipendenti versano un contributo aggiuntivo, portando l'aliquota INPS dal 9,19% al 9,49%."
-        />
-      </label>
-    </div>
+    <app-check
+      label="Azienda con più di 15 dipendenti (CIGS)"
+      info="CIGS = Cassa Integrazione Guadagni Straordinaria. Le aziende con oltre 15 dipendenti versano un contributo aggiuntivo, portando l'aliquota INPS dal 9,19% al 9,49%."
+      class="mb-3"
+    >
+      <input appControl type="checkbox" [formField]="form.aziendaConCigs" />
+    </app-check>
 
-    <div class="flex items-center gap-2 mb-3">
-      <input
-        id="iscrittoPost1996"
-        type="checkbox"
-        [formField]="form.iscrittoPost1996"
-        class="size-4 shrink-0 cursor-pointer accent-primary"
-      />
-      <label for="iscrittoPost1996" class="text-sm text-muted flex items-center"
-        >Iscritto alla previdenza dal 1996 in poi<app-info-tooltip
-          tooltipId="iscrittoPost1996-info"
-          text="Chi si è iscritto alla previdenza dopo il 1995 ha un massimale contributivo di 122.295 euro (2026)."
-        />
-      </label>
-    </div>
+    <app-check
+      label="Iscritto alla previdenza dal 1996 in poi"
+      info="Chi si è iscritto alla previdenza dopo il 1995 ha un massimale contributivo di 122.295 euro (2026)."
+      class="mb-3"
+    >
+      <input appControl type="checkbox" [formField]="form.iscrittoPost1996" />
+    </app-check>
 
-    <div class="flex items-center gap-2 mb-3">
-      <input
-        id="regimeImpatriati"
-        type="checkbox"
-        [formField]="form.regimeImpatriati"
-        class="size-4 shrink-0 cursor-pointer accent-primary"
-      />
-      <label for="regimeImpatriati" class="text-sm text-muted flex items-center"
-        >Regime impatriati (rientro cervelli)<app-info-tooltip
-          tooltipId="regimeImpatriati-info"
-          text="D.Lgs. 209/2023, art. 5. Per lavoratori che trasferiscono la residenza fiscale in Italia. Il 50% del reddito da lavoro dipendente è esente IRPEF (60% con figli minorenni). Tetto: 600.000 euro. Non riduce i contributi INPS."
-        />
-      </label>
-    </div>
+    <app-check
+      label="Regime impatriati (rientro cervelli)"
+      info="D.Lgs. 209/2023, art. 5. Per lavoratori che trasferiscono la residenza fiscale in Italia. Il 50% del reddito da lavoro dipendente è esente IRPEF (60% con figli minorenni). Tetto: 600.000 euro. Non riduce i contributi INPS."
+      class="mb-3"
+    >
+      <input appControl type="checkbox" [formField]="form.regimeImpatriati" />
+    </app-check>
 
     @if (model.regimeImpatriati) {
-      <div class="flex items-center gap-2 mb-3 ml-6">
-        <input
-          id="regimeImpatriatiMinorenni"
-          type="checkbox"
-          [formField]="form.regimeImpatriatiMinorenni"
-          class="size-4 shrink-0 cursor-pointer accent-primary"
-        />
-        <label for="regimeImpatriatiMinorenni" class="text-sm text-muted flex items-center"
-          >Ho almeno un figlio minorenne residente in Italia<app-info-tooltip
-            tooltipId="regimeImpatriatiMinorenni-info"
-            text="Se hai almeno un figlio minorenne residente in Italia, l'esenzione sale dal 50% al 60% del reddito agevolabile."
-          />
-        </label>
-      </div>
+      <app-check
+        label="Ho almeno un figlio minorenne residente in Italia"
+        info="Se hai almeno un figlio minorenne residente in Italia, l'esenzione sale dal 50% al 60% del reddito agevolabile."
+        class="mb-3 ml-6"
+      >
+        <input appControl type="checkbox" [formField]="form.regimeImpatriatiMinorenni" />
+      </app-check>
     }
   </fieldset>
 
@@ -256,90 +149,38 @@
     </legend>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="flex flex-col gap-1">
-        <label for="altriRedditi" class="text-sm text-muted flex items-center"
-          >Altri Redditi (€/anno)<app-info-tooltip
-            tooltipId="altriRedditi-info"
-            text="Redditi non da lavoro dipendente (es. affitti, rendite). Concorrono al reddito complessivo per IRPEF e detrazioni."
-          />
-        </label>
+      <app-field
+        label="Altri Redditi (€/anno)"
+        info="Redditi non da lavoro dipendente (es. affitti, rendite). Concorrono al reddito complessivo per IRPEF e detrazioni."
+      >
         <input
-          id="altriRedditi"
+          appControl
           type="number"
           [formField]="form.altriRedditi"
           placeholder="Es. redditi fondiari"
-          [attr.aria-invalid]="form.altriRedditi().invalid()"
-          [attr.aria-describedby]="form.altriRedditi().invalid() ? 'altriRedditi-error' : null"
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
-        @if (form.altriRedditi().invalid()) {
-          @for (error of form.altriRedditi().errors(); track error.kind) {
-            <span id="altriRedditi-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      </app-field>
 
       @if (mostraRedditiSostitutivi()) {
-        <div class="flex flex-col gap-1">
-          <label for="altriRedditiSogliaAddizionale" class="text-sm text-muted flex items-center"
-            >Redditi con imposta sostitutiva (€/anno)<app-info-tooltip
-              tooltipId="altriRedditiSogliaAddizionale-info"
-              text="Redditi da cedolare secca, mance con imposta sostitutiva e regime forfettario. Rilevano per il limite di 90.000 euro delle detrazioni regionali di Bolzano. Non inserirli anche in Altri Redditi."
-            />
-          </label>
-          <input
-            id="altriRedditiSogliaAddizionale"
-            type="number"
-            [formField]="form.altriRedditiSogliaAddizionale"
-            [attr.aria-invalid]="form.altriRedditiSogliaAddizionale().invalid()"
-            [attr.aria-describedby]="
-              form.altriRedditiSogliaAddizionale().invalid()
-                ? 'altriRedditiSogliaAddizionale-error'
-                : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-          />
-          @if (form.altriRedditiSogliaAddizionale().invalid()) {
-            @for (error of form.altriRedditiSogliaAddizionale().errors(); track error.kind) {
-              <span
-                id="altriRedditiSogliaAddizionale-error"
-                class="text-xs text-neg mt-1"
-                role="alert"
-                >{{ error.message }}</span
-              >
-            }
-          }
-        </div>
+        <app-field
+          label="Redditi con imposta sostitutiva (€/anno)"
+          info="Redditi da cedolare secca, mance con imposta sostitutiva e regime forfettario. Rilevano per il limite di 90.000 euro delle detrazioni regionali di Bolzano. Non inserirli anche in Altri Redditi."
+        >
+          <input appControl type="number" [formField]="form.altriRedditiSogliaAddizionale" />
+        </app-field>
       }
 
-      <div class="flex flex-col gap-1">
-        <label for="altreDetrazioni" class="text-sm text-muted flex items-center"
-          >Altre Detrazioni (€/anno)<app-info-tooltip
-            tooltipId="altreDetrazioni-info"
-            text="Detrazioni extra non calcolate automaticamente (es. 19% interessi mutuo prima casa, spese mediche, ristrutturazioni)."
-          />
-        </label>
+      <app-field
+        label="Altre Detrazioni (€/anno)"
+        info="Detrazioni extra non calcolate automaticamente (es. 19% interessi mutuo prima casa, spese mediche, ristrutturazioni)."
+      >
         <input
-          id="altreDetrazioni"
+          appControl
           type="number"
           [formField]="form.altreDetrazioni"
           placeholder="Es. interessi mutuo"
-          [attr.aria-invalid]="form.altreDetrazioni().invalid()"
-          [attr.aria-describedby]="
-            form.altreDetrazioni().invalid() ? 'altreDetrazioni-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
-        @if (form.altreDetrazioni().invalid()) {
-          @for (error of form.altreDetrazioni().errors(); track error.kind) {
-            <span id="altreDetrazioni-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      </app-field>
     </div>
   </fieldset>
 
@@ -352,20 +193,13 @@
       Previdenza Complementare
     </legend>
 
-    <div class="flex items-center gap-2 mb-3">
-      <input
-        id="fondoPensioneEnabled"
-        type="checkbox"
-        [formField]="form.fondoPensioneIntegrativo.enabled"
-        class="size-4 shrink-0 cursor-pointer accent-primary"
-      />
-      <label for="fondoPensioneEnabled" class="text-sm text-muted flex items-center"
-        >Fondo pensione integrativo<app-info-tooltip
-          tooltipId="fondoPensione-info"
-          text="Previdenza complementare (D.Lgs. 252/2005). I contributi del lavoratore e del datore sono deducibili dall'imponibile IRPEF fino a un massimo di 5.300 euro/anno (dal 2026, L. 199/2025). Non riducono i contributi INPS."
-        />
-      </label>
-    </div>
+    <app-check
+      label="Fondo pensione integrativo"
+      info="Previdenza complementare (D.Lgs. 252/2005). I contributi del lavoratore e del datore sono deducibili dall'imponibile IRPEF fino a un massimo di 5.300 euro/anno (dal 2026, L. 199/2025). Non riducono i contributi INPS."
+      class="mb-3"
+    >
+      <input appControl type="checkbox" [formField]="form.fondoPensioneIntegrativo.enabled" />
+    </app-check>
 
     @if (model.fondoPensioneIntegrativo.enabled) {
       <p class="text-xs text-subtle mb-4">
@@ -375,219 +209,103 @@
 
       <!-- Riga contributo lavoratore -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div class="flex flex-col gap-1">
-          <label for="contributoLavoratore" class="text-sm text-muted flex items-center"
-            >Contributo lavoratore (%)<app-info-tooltip
-              tooltipId="contributoLavoratore-info"
-              text="Percentuale della RAL versata dal lavoratore al fondo pensione. Trattenuta dalla busta paga. Valore tipico: 0,55% - 2% a seconda del CCNL."
-            />
-          </label>
+        <app-field
+          label="Contributo lavoratore (%)"
+          info="Percentuale della RAL versata dal lavoratore al fondo pensione. Trattenuta dalla busta paga. Valore tipico: 0,55% - 2% a seconda del CCNL."
+        >
           <input
-            id="contributoLavoratore"
+            appControl
             type="number"
             step="0.01"
             [formField]="form.fondoPensioneIntegrativo.contributoLavoratore"
             placeholder="Es. 1.0"
-            [attr.aria-invalid]="form.fondoPensioneIntegrativo.contributoLavoratore().invalid()"
-            [attr.aria-describedby]="
-              form.fondoPensioneIntegrativo.contributoLavoratore().invalid()
-                ? 'contributoLavoratore-error'
-                : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
-          @if (form.fondoPensioneIntegrativo.contributoLavoratore().invalid()) {
-            @for (
-              error of form.fondoPensioneIntegrativo.contributoLavoratore().errors();
-              track error.kind
-            ) {
-              <span id="contributoLavoratore-error" class="text-xs text-neg mt-1" role="alert">{{
-                error.message
-              }}</span>
-            }
-          }
-        </div>
+        </app-field>
 
-        <div class="flex flex-col gap-1">
-          <label for="ralLavoratore" class="text-sm text-muted flex items-center"
-            >RAL di riferimento (€)<app-info-tooltip
-              tooltipId="ralLavoratore-info"
-              text="RAL sulla quale calcolare il contributo del lavoratore."
-            />
-          </label>
+        <app-field
+          label="RAL di riferimento (€)"
+          info="RAL sulla quale calcolare il contributo del lavoratore."
+        >
           <input
-            id="ralLavoratore"
+            appControl
             type="number"
             step="1"
             [formField]="form.fondoPensioneIntegrativo.ralLavoratore"
             placeholder="RAL di riferimento"
-            [attr.aria-invalid]="form.fondoPensioneIntegrativo.ralLavoratore().invalid()"
-            [attr.aria-describedby]="
-              form.fondoPensioneIntegrativo.ralLavoratore().invalid() ? 'ralLavoratore-error' : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
-          @if (form.fondoPensioneIntegrativo.ralLavoratore().invalid()) {
-            @for (
-              error of form.fondoPensioneIntegrativo.ralLavoratore().errors();
-              track error.kind
-            ) {
-              <span id="ralLavoratore-error" class="text-xs text-neg mt-1" role="alert">{{
-                error.message
-              }}</span>
-            }
-          }
-        </div>
+        </app-field>
       </div>
 
       <!-- Riga contributo datore di lavoro -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex flex-col gap-1">
-          <label for="contributoDatoreLavoro" class="text-sm text-muted flex items-center"
-            >Contributo datore di lavoro (%)<app-info-tooltip
-              tooltipId="contributoDatoreLavoro-info"
-              text="Percentuale della RAL versata dal datore di lavoro al fondo pensione. Non è una trattenuta dalla busta paga ma concorre al limite di deducibilità di 5.300 euro. Valore tipico: 1% - 2%."
-            />
-          </label>
+        <app-field
+          label="Contributo datore di lavoro (%)"
+          info="Percentuale della RAL versata dal datore di lavoro al fondo pensione. Non è una trattenuta dalla busta paga ma concorre al limite di deducibilità di 5.300 euro. Valore tipico: 1% - 2%."
+        >
           <input
-            id="contributoDatoreLavoro"
+            appControl
             type="number"
             step="0.01"
             [formField]="form.fondoPensioneIntegrativo.contributoDatoreLavoro"
             placeholder="Es. 1.5"
-            [attr.aria-invalid]="form.fondoPensioneIntegrativo.contributoDatoreLavoro().invalid()"
-            [attr.aria-describedby]="
-              form.fondoPensioneIntegrativo.contributoDatoreLavoro().invalid()
-                ? 'contributoDatoreLavoro-error'
-                : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
-          @if (form.fondoPensioneIntegrativo.contributoDatoreLavoro().invalid()) {
-            @for (
-              error of form.fondoPensioneIntegrativo.contributoDatoreLavoro().errors();
-              track error.kind
-            ) {
-              <span id="contributoDatoreLavoro-error" class="text-xs text-neg mt-1" role="alert">{{
-                error.message
-              }}</span>
-            }
-          }
-        </div>
+        </app-field>
 
-        <div class="flex flex-col gap-1">
-          <label for="ralDatoreLavoro" class="text-sm text-muted flex items-center"
-            >RAL di riferimento (€)<app-info-tooltip
-              tooltipId="ralDatoreLavoro-info"
-              text="RAL sulla quale calcolare il contributo del datore di lavoro."
-            />
-          </label>
+        <app-field
+          label="RAL di riferimento (€)"
+          info="RAL sulla quale calcolare il contributo del datore di lavoro."
+        >
           <input
-            id="ralDatoreLavoro"
+            appControl
             type="number"
             step="1"
             [formField]="form.fondoPensioneIntegrativo.ralDatoreLavoro"
             placeholder="RAL di riferimento"
-            [attr.aria-invalid]="form.fondoPensioneIntegrativo.ralDatoreLavoro().invalid()"
-            [attr.aria-describedby]="
-              form.fondoPensioneIntegrativo.ralDatoreLavoro().invalid()
-                ? 'ralDatoreLavoro-error'
-                : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
-          @if (form.fondoPensioneIntegrativo.ralDatoreLavoro().invalid()) {
-            @for (
-              error of form.fondoPensioneIntegrativo.ralDatoreLavoro().errors();
-              track error.kind
-            ) {
-              <span id="ralDatoreLavoro-error" class="text-xs text-neg mt-1" role="alert">{{
-                error.message
-              }}</span>
-            }
-          }
-        </div>
+        </app-field>
       </div>
 
       <!-- Riga contributo EBITEMP (lavoratori somministrati) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div class="flex flex-col gap-1">
-          <label for="contributoEbitemp" class="text-sm text-muted flex items-center"
-            >Contributo EBITEMP (%)<app-info-tooltip
-              tooltipId="contributoEbitemp-info"
-              text="Contributo dell'ente bilaterale EBITEMP al fondo pensione, previsto per i lavoratori somministrati. Non è una trattenuta dalla busta paga ma concorre al limite di deducibilità di 5.300 euro. Valore tipico: 2%."
-            />
-          </label>
+        <app-field
+          label="Contributo EBITEMP (%)"
+          info="Contributo dell'ente bilaterale EBITEMP al fondo pensione, previsto per i lavoratori somministrati. Non è una trattenuta dalla busta paga ma concorre al limite di deducibilità di 5.300 euro. Valore tipico: 2%."
+        >
           <input
-            id="contributoEbitemp"
+            appControl
             type="number"
             step="0.01"
             [formField]="form.fondoPensioneIntegrativo.contributoEbitemp"
             placeholder="Es. 2.0"
-            [attr.aria-invalid]="form.fondoPensioneIntegrativo.contributoEbitemp().invalid()"
-            [attr.aria-describedby]="
-              form.fondoPensioneIntegrativo.contributoEbitemp().invalid()
-                ? 'contributoEbitemp-error'
-                : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
-          @if (form.fondoPensioneIntegrativo.contributoEbitemp().invalid()) {
-            @for (
-              error of form.fondoPensioneIntegrativo.contributoEbitemp().errors();
-              track error.kind
-            ) {
-              <span id="contributoEbitemp-error" class="text-xs text-neg mt-1" role="alert">{{
-                error.message
-              }}</span>
-            }
-          }
-        </div>
+        </app-field>
 
-        <div class="flex flex-col gap-1">
-          <label for="ralEbitemp" class="text-sm text-muted flex items-center"
-            >RAL di riferimento (€)<app-info-tooltip
-              tooltipId="ralEbitemp-info"
-              text="RAL sulla quale calcolare il contributo EBITEMP."
-            />
-          </label>
+        <app-field
+          label="RAL di riferimento (€)"
+          info="RAL sulla quale calcolare il contributo EBITEMP."
+        >
           <input
-            id="ralEbitemp"
+            appControl
             type="number"
             step="1"
             [formField]="form.fondoPensioneIntegrativo.ralEbitemp"
             placeholder="RAL di riferimento"
-            [attr.aria-invalid]="form.fondoPensioneIntegrativo.ralEbitemp().invalid()"
-            [attr.aria-describedby]="
-              form.fondoPensioneIntegrativo.ralEbitemp().invalid() ? 'ralEbitemp-error' : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
-          @if (form.fondoPensioneIntegrativo.ralEbitemp().invalid()) {
-            @for (error of form.fondoPensioneIntegrativo.ralEbitemp().errors(); track error.kind) {
-              <span id="ralEbitemp-error" class="text-xs text-neg mt-1" role="alert">{{
-                error.message
-              }}</span>
-            }
-          }
-        </div>
+        </app-field>
       </div>
 
       <!-- Opzione ripartizione per mensilità -->
-      <div class="flex items-center gap-2 mt-4">
+      <app-check
+        label="Dividi contributo per numero mensilità"
+        info="Se attivo, il contributo mensile del lavoratore viene diviso per il numero di mensilità (es. 13 o 14) anziché per 12. Alcune aziende ripartiscono il contributo su tutte le mensilità, inclusa la tredicesima."
+        class="mt-4"
+      >
         <input
-          id="ripartizionePerMensilita"
+          appControl
           type="checkbox"
           [formField]="form.fondoPensioneIntegrativo.ripartizionePerMensilita"
-          class="size-4 shrink-0 cursor-pointer accent-primary"
         />
-        <label for="ripartizionePerMensilita" class="text-sm text-title flex items-center"
-          >Dividi contributo per numero mensilità<app-info-tooltip
-            tooltipId="ripartizionePerMensilita-info"
-            text="Se attivo, il contributo mensile del lavoratore viene diviso per il numero di mensilità (es. 13 o 14) anziché per 12. Alcune aziende ripartiscono il contributo su tutte le mensilità, inclusa la tredicesima."
-          />
-        </label>
-      </div>
+      </app-check>
     }
   </fieldset>
 
@@ -617,85 +335,31 @@
 
     @if (model.coniuge.enabled) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex flex-col gap-1">
-          <label for="coniugeReddito" class="text-sm text-muted flex items-center"
-            >Reddito annuo coniuge (€)<app-info-tooltip
-              tooltipId="coniugeReddito-info"
-              text="Limite massimo 2.840,51 euro per essere considerato a carico. Include tutti i redditi, anche quelli esenti."
-            />
-          </label>
+        <app-field
+          label="Reddito annuo coniuge (€)"
+          info="Limite massimo 2.840,51 euro per essere considerato a carico. Include tutti i redditi, anche quelli esenti."
+        >
           <input
-            id="coniugeReddito"
+            appControl
             type="number"
             [formField]="form.coniuge.redditoAnnuo"
             placeholder="Max €2.840,51 per detrazione"
-            [attr.aria-invalid]="form.coniuge.redditoAnnuo().invalid()"
-            [attr.aria-describedby]="
-              form.coniuge.redditoAnnuo().invalid() ? 'coniugeReddito-error' : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
-          @if (form.coniuge.redditoAnnuo().invalid()) {
-            @for (error of form.coniuge.redditoAnnuo().errors(); track error.kind) {
-              <span id="coniugeReddito-error" class="text-xs text-neg mt-1" role="alert">{{
-                error.message
-              }}</span>
-            }
-          }
-        </div>
+        </app-field>
 
-        <div class="flex flex-col gap-1">
-          <label for="coniugePercentuale" class="text-sm text-muted flex items-center"
-            >Percentuale a carico (%)<app-info-tooltip
-              tooltipId="coniugePercentuale-info"
-              text="Di norma 100%, ma in casi particolari la detrazione può essere ripartita."
-            />
-          </label>
-          <input
-            id="coniugePercentuale"
-            type="number"
-            [formField]="form.coniuge.percentualeCarico"
-            [attr.aria-invalid]="form.coniuge.percentualeCarico().invalid()"
-            [attr.aria-describedby]="
-              form.coniuge.percentualeCarico().invalid() ? 'coniugePercentuale-error' : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-          />
-          @if (form.coniuge.percentualeCarico().invalid()) {
-            @for (error of form.coniuge.percentualeCarico().errors(); track error.kind) {
-              <span id="coniugePercentuale-error" class="text-xs text-neg mt-1" role="alert">{{
-                error.message
-              }}</span>
-            }
-          }
-        </div>
+        <app-field
+          label="Percentuale a carico (%)"
+          info="Di norma 100%, ma in casi particolari la detrazione può essere ripartita."
+        >
+          <input appControl type="number" [formField]="form.coniuge.percentualeCarico" />
+        </app-field>
 
-        <div class="flex flex-col gap-1">
-          <label for="coniugeMesi" class="text-sm text-muted flex items-center"
-            >Mesi a carico<app-info-tooltip
-              tooltipId="coniugeMesi-info"
-              text="La detrazione è rapportata a mese: contano i mesi dell'anno in cui il coniuge è stato a carico (es. 12 per l'intero anno)."
-            />
-          </label>
-          <input
-            id="coniugeMesi"
-            type="number"
-            step="1"
-            [formField]="form.coniuge.mesiCarico"
-            [attr.aria-invalid]="form.coniuge.mesiCarico().invalid()"
-            [attr.aria-describedby]="
-              form.coniuge.mesiCarico().invalid() ? 'coniugeMesi-error' : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-          />
-          @if (form.coniuge.mesiCarico().invalid()) {
-            @for (error of form.coniuge.mesiCarico().errors(); track error.kind) {
-              <span id="coniugeMesi-error" class="text-xs text-neg mt-1" role="alert">{{
-                error.message
-              }}</span>
-            }
-          }
-        </div>
+        <app-field
+          label="Mesi a carico"
+          info="La detrazione è rapportata a mese: contano i mesi dell'anno in cui il coniuge è stato a carico (es. 12 per l'intero anno)."
+        >
+          <input appControl type="number" step="1" [formField]="form.coniuge.mesiCarico" />
+        </app-field>
       </div>
     }
   </fieldset>
@@ -709,20 +373,13 @@
       Figli a Carico
     </legend>
 
-    <div class="flex items-center gap-2 mb-4">
-      <input
-        id="haFigliACarico"
-        type="checkbox"
-        [formField]="form.haFigliACarico"
-        class="size-4 shrink-0 cursor-pointer accent-primary"
-      />
-      <label for="haFigliACarico" class="text-sm text-muted flex items-center"
-        >Ho figli a carico (per soglia fringe benefit)<app-info-tooltip
-          tooltipId="haFigliACarico-info"
-          text="Chi ha figli a carico beneficia di una soglia fringe benefit raddoppiata: 2.000 euro invece di 1.000 euro."
-        />
-      </label>
-    </div>
+    <app-check
+      label="Ho figli a carico (per soglia fringe benefit)"
+      info="Chi ha figli a carico beneficia di una soglia fringe benefit raddoppiata: 2.000 euro invece di 1.000 euro."
+      class="mb-4"
+    >
+      <input appControl type="checkbox" [formField]="form.haFigliACarico" />
+    </app-check>
 
     @for (figlio of model.figli; track $index) {
       <div class="rounded-lg p-4 mb-3 bg-page ring-1 ring-inset ring-ring">
@@ -750,108 +407,32 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-          <div class="flex flex-col gap-1">
-            <label [for]="'figlioEta' + $index" class="text-sm text-muted flex items-center"
-              >Età<app-info-tooltip
-                [tooltipId]="'figlioEta' + $index + '-info'"
-                text="Detrazione IRPEF solo per figli 21-30 anni. Sotto i 21 anni spetta l'Assegno Unico INPS (non calcolato qui)."
-              />
-            </label>
-            <input
-              [id]="'figlioEta' + $index"
-              type="number"
-              [formField]="form.figli[$index].eta"
-              [attr.aria-invalid]="form.figli[$index].eta().invalid()"
-              [attr.aria-describedby]="
-                form.figli[$index].eta().invalid() ? 'figlioEta' + $index + '-error' : null
-              "
-              class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-            />
-            @if (form.figli[$index].eta().invalid()) {
-              @for (error of form.figli[$index].eta().errors(); track error.kind) {
-                <span
-                  [id]="'figlioEta' + $index + '-error'"
-                  class="text-xs text-neg mt-1"
-                  role="alert"
-                  >{{ error.message }}</span
-                >
-              }
-            }
-          </div>
+          <app-field
+            label="Età"
+            info="Detrazione IRPEF solo per figli 21-30 anni. Sotto i 21 anni spetta l'Assegno Unico INPS (non calcolato qui)."
+          >
+            <input appControl type="number" [formField]="form.figli[$index].eta" />
+          </app-field>
 
-          <div class="flex flex-col gap-1">
-            <label [for]="'figlioPercentuale' + $index" class="text-sm text-muted"
-              >Percentuale a carico (%)</label
-            >
-            <input
-              [id]="'figlioPercentuale' + $index"
-              type="number"
-              [formField]="form.figli[$index].percentualeCarico"
-              [attr.aria-invalid]="form.figli[$index].percentualeCarico().invalid()"
-              [attr.aria-describedby]="
-                form.figli[$index].percentualeCarico().invalid()
-                  ? 'figlioPercentuale' + $index + '-error'
-                  : null
-              "
-              class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-            />
-            @if (form.figli[$index].percentualeCarico().invalid()) {
-              @for (error of form.figli[$index].percentualeCarico().errors(); track error.kind) {
-                <span
-                  [id]="'figlioPercentuale' + $index + '-error'"
-                  class="text-xs text-neg mt-1"
-                  role="alert"
-                  >{{ error.message }}</span
-                >
-              }
-            }
-          </div>
+          <app-field label="Percentuale a carico (%)">
+            <input appControl type="number" [formField]="form.figli[$index].percentualeCarico" />
+          </app-field>
         </div>
 
-        <div class="flex flex-col gap-1 mb-3">
-          <label [for]="'figlioMesi' + $index" class="text-sm text-muted flex items-center"
-            >Mesi a carico<app-info-tooltip
-              [tooltipId]="'figlioMesi' + $index + '-info'"
-              text="Le detrazioni IRPEF e regionali sono rapportate a mese: contano i mesi dell'anno in cui il figlio è stato a carico (es. 12 per l'intero anno)."
-            />
-          </label>
-          <input
-            [id]="'figlioMesi' + $index"
-            type="number"
-            step="1"
-            [formField]="form.figli[$index].mesiCarico"
-            [attr.aria-invalid]="form.figli[$index].mesiCarico().invalid()"
-            [attr.aria-describedby]="
-              form.figli[$index].mesiCarico().invalid() ? 'figlioMesi' + $index + '-error' : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-          />
-          @if (form.figli[$index].mesiCarico().invalid()) {
-            @for (error of form.figli[$index].mesiCarico().errors(); track error.kind) {
-              <span
-                [id]="'figlioMesi' + $index + '-error'"
-                class="text-xs text-neg mt-1"
-                role="alert"
-                >{{ error.message }}</span
-              >
-            }
-          }
-        </div>
+        <app-field
+          label="Mesi a carico"
+          info="Le detrazioni IRPEF e regionali sono rapportate a mese: contano i mesi dell'anno in cui il figlio è stato a carico (es. 12 per l'intero anno)."
+          class="mb-3"
+        >
+          <input appControl type="number" step="1" [formField]="form.figli[$index].mesiCarico" />
+        </app-field>
 
-        <div class="flex items-center gap-2">
-          <input
-            [id]="'figlioDisabile' + $index"
-            type="checkbox"
-            [formField]="form.figli[$index].disabile"
-            class="size-4 shrink-0 cursor-pointer accent-primary"
-          />
-          <label [for]="'figlioDisabile' + $index" class="text-sm text-muted flex items-center"
-            >Disabile<app-info-tooltip
-              [tooltipId]="'figlioDisabile' + $index + '-info'"
-              text="I figli disabili danno diritto alla detrazione fiscale a qualsiasi età, non solo tra 21 e 30 anni."
-            />
-          </label>
-        </div>
+        <app-check
+          label="Disabile"
+          info="I figli disabili danno diritto alla detrazione fiscale a qualsiasi età, non solo tra 21 e 30 anni."
+        >
+          <input appControl type="checkbox" [formField]="form.figli[$index].disabile" />
+        </app-check>
       </div>
     }
 
@@ -898,85 +479,33 @@
           </button>
         </div>
 
-        <div class="flex flex-col gap-1 mb-3">
-          <label [for]="'ascendenteReddito' + $index" class="text-sm text-muted flex items-center"
-            >Reddito annuo (€)<app-info-tooltip
-              [tooltipId]="'ascendenteReddito' + $index + '-info'"
-              text="Limite massimo 2.840,51 euro per essere a carico. La detrazione massima è 750 euro e decresce col reddito."
-            />
-          </label>
-          <input
-            [id]="'ascendenteReddito' + $index"
-            type="number"
-            [formField]="form.ascendenti[$index].redditoAnnuo"
-            [attr.aria-invalid]="form.ascendenti[$index].redditoAnnuo().invalid()"
-            [attr.aria-describedby]="
-              form.ascendenti[$index].redditoAnnuo().invalid()
-                ? 'ascendenteReddito' + $index + '-error'
-                : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-          />
-          @if (form.ascendenti[$index].redditoAnnuo().invalid()) {
-            @for (error of form.ascendenti[$index].redditoAnnuo().errors(); track error.kind) {
-              <span
-                [id]="'ascendenteReddito' + $index + '-error'"
-                class="text-xs text-neg mt-1"
-                role="alert"
-                >{{ error.message }}</span
-              >
-            }
-          }
-        </div>
+        <app-field
+          label="Reddito annuo (€)"
+          info="Limite massimo 2.840,51 euro per essere a carico. La detrazione massima è 750 euro e decresce col reddito."
+          class="mb-3"
+        >
+          <input appControl type="number" [formField]="form.ascendenti[$index].redditoAnnuo" />
+        </app-field>
 
-        <div class="flex flex-col gap-1 mb-3">
-          <label [for]="'ascendenteMesi' + $index" class="text-sm text-muted flex items-center"
-            >Mesi a carico<app-info-tooltip
-              [tooltipId]="'ascendenteMesi' + $index + '-info'"
-              text="La detrazione è rapportata a mese: contano i mesi dell'anno in cui l'ascendente è stato a carico (es. 12 per l'intero anno)."
-            />
-          </label>
+        <app-field
+          label="Mesi a carico"
+          info="La detrazione è rapportata a mese: contano i mesi dell'anno in cui l'ascendente è stato a carico (es. 12 per l'intero anno)."
+          class="mb-3"
+        >
           <input
-            [id]="'ascendenteMesi' + $index"
+            appControl
             type="number"
             step="1"
             [formField]="form.ascendenti[$index].mesiCarico"
-            [attr.aria-invalid]="form.ascendenti[$index].mesiCarico().invalid()"
-            [attr.aria-describedby]="
-              form.ascendenti[$index].mesiCarico().invalid()
-                ? 'ascendenteMesi' + $index + '-error'
-                : null
-            "
-            class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
           />
-          @if (form.ascendenti[$index].mesiCarico().invalid()) {
-            @for (error of form.ascendenti[$index].mesiCarico().errors(); track error.kind) {
-              <span
-                [id]="'ascendenteMesi' + $index + '-error'"
-                class="text-xs text-neg mt-1"
-                role="alert"
-                >{{ error.message }}</span
-              >
-            }
-          }
-        </div>
+        </app-field>
 
-        <div class="flex items-center gap-2">
-          <input
-            [id]="'ascendenteConvivente' + $index"
-            type="checkbox"
-            [formField]="form.ascendenti[$index].convivente"
-            class="size-4 shrink-0 cursor-pointer accent-primary"
-          />
-          <label
-            [for]="'ascendenteConvivente' + $index"
-            class="text-sm text-muted flex items-center"
-            >Convivente<app-info-tooltip
-              [tooltipId]="'ascendenteConvivente' + $index + '-info'"
-              text="La detrazione per ascendenti spetta solo se conviventi. Richiesta residenza nello stesso nucleo familiare."
-            />
-          </label>
-        </div>
+        <app-check
+          label="Convivente"
+          info="La detrazione per ascendenti spetta solo se conviventi. Richiesta residenza nello stesso nucleo familiare."
+        >
+          <input appControl type="checkbox" [formField]="form.ascendenti[$index].convivente" />
+        </app-check>
       </div>
     }
 
@@ -1014,146 +543,33 @@
     </div>
 
     @if (model.fringeBenefit.enabled) {
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="buoniAcquisto" class="text-sm text-muted flex items-center"
-          >Buoni acquisto/spesa (€/anno)<app-info-tooltip
-            tooltipId="buoniAcquisto-info"
-            text="Buoni spendibili per acquisti. Concorrono alla soglia fringe benefit complessiva."
-          />
-        </label>
-        <input
-          id="buoniAcquisto"
-          type="number"
-          [formField]="form.fringeBenefit.buoniAcquisto"
-          [attr.aria-invalid]="form.fringeBenefit.buoniAcquisto().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.buoniAcquisto().invalid() ? 'buoniAcquisto-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.fringeBenefit.buoniAcquisto().invalid()) {
-          @for (error of form.fringeBenefit.buoniAcquisto().errors(); track error.kind) {
-            <span id="buoniAcquisto-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field
+        label="Buoni acquisto/spesa (€/anno)"
+        info="Buoni spendibili per acquisti. Concorrono alla soglia fringe benefit complessiva."
+        class="mb-4"
+      >
+        <input appControl type="number" [formField]="form.fringeBenefit.buoniAcquisto" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="buoniCarburante" class="text-sm text-muted">Buoni carburante (€/anno)</label>
-        <input
-          id="buoniCarburante"
-          type="number"
-          [formField]="form.fringeBenefit.buoniCarburante"
-          [attr.aria-invalid]="form.fringeBenefit.buoniCarburante().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.buoniCarburante().invalid() ? 'buoniCarburante-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.fringeBenefit.buoniCarburante().invalid()) {
-          @for (error of form.fringeBenefit.buoniCarburante().errors(); track error.kind) {
-            <span id="buoniCarburante-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field label="Buoni carburante (€/anno)" class="mb-4">
+        <input appControl type="number" [formField]="form.fringeBenefit.buoniCarburante" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="rimborsoUtenze" class="text-sm text-muted"
-          >Rimborso utenze domestiche (€/anno)</label
-        >
-        <input
-          id="rimborsoUtenze"
-          type="number"
-          [formField]="form.fringeBenefit.rimborsoUtenze"
-          [attr.aria-invalid]="form.fringeBenefit.rimborsoUtenze().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.rimborsoUtenze().invalid() ? 'rimborsoUtenze-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.fringeBenefit.rimborsoUtenze().invalid()) {
-          @for (error of form.fringeBenefit.rimborsoUtenze().errors(); track error.kind) {
-            <span id="rimborsoUtenze-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field label="Rimborso utenze domestiche (€/anno)" class="mb-4">
+        <input appControl type="number" [formField]="form.fringeBenefit.rimborsoUtenze" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="rimborsoAffitto" class="text-sm text-muted"
-          >Rimborso affitto prima casa (€/anno)</label
-        >
-        <input
-          id="rimborsoAffitto"
-          type="number"
-          [formField]="form.fringeBenefit.rimborsoAffitto"
-          [attr.aria-invalid]="form.fringeBenefit.rimborsoAffitto().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.rimborsoAffitto().invalid() ? 'rimborsoAffitto-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.fringeBenefit.rimborsoAffitto().invalid()) {
-          @for (error of form.fringeBenefit.rimborsoAffitto().errors(); track error.kind) {
-            <span id="rimborsoAffitto-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field label="Rimborso affitto prima casa (€/anno)" class="mb-4">
+        <input appControl type="number" [formField]="form.fringeBenefit.rimborsoAffitto" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="rimborsoInteressiMutuo" class="text-sm text-muted"
-          >Rimborso interessi mutuo (€/anno)</label
-        >
-        <input
-          id="rimborsoInteressiMutuo"
-          type="number"
-          [formField]="form.fringeBenefit.rimborsoInteressiMutuo"
-          [attr.aria-invalid]="form.fringeBenefit.rimborsoInteressiMutuo().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.rimborsoInteressiMutuo().invalid()
-              ? 'rimborsoInteressiMutuo-error'
-              : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.fringeBenefit.rimborsoInteressiMutuo().invalid()) {
-          @for (error of form.fringeBenefit.rimborsoInteressiMutuo().errors(); track error.kind) {
-            <span id="rimborsoInteressiMutuo-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field label="Rimborso interessi mutuo (€/anno)" class="mb-4">
+        <input appControl type="number" [formField]="form.fringeBenefit.rimborsoInteressiMutuo" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="fringeBenefitAltri" class="text-sm text-muted"
-          >Altri fringe benefit (€/anno)</label
-        >
-        <input
-          id="fringeBenefitAltri"
-          type="number"
-          [formField]="form.fringeBenefit.altri"
-          [attr.aria-invalid]="form.fringeBenefit.altri().invalid()"
-          [attr.aria-describedby]="
-            form.fringeBenefit.altri().invalid() ? 'fringeBenefitAltri-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.fringeBenefit.altri().invalid()) {
-          @for (error of form.fringeBenefit.altri().errors(); track error.kind) {
-            <span id="fringeBenefitAltri-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field label="Altri fringe benefit (€/anno)" class="mb-4">
+        <input appControl type="number" [formField]="form.fringeBenefit.altri" />
+      </app-field>
 
       <!-- Auto Aziendale -->
       <div class="flex items-center gap-2 mb-4">
@@ -1175,153 +591,70 @@
         <div class="rounded-lg p-4 bg-page ring-1 ring-inset ring-ring">
           <h3 class="text-sm font-semibold text-title mb-3">Auto Aziendale</h3>
 
-          <div class="flex flex-col gap-1 mb-3">
-            <label for="costoKmAci" class="text-sm text-muted flex items-center"
-              >Costo km ACI (€/km)<app-info-tooltip
-                tooltipId="costoKmAci-info"
-                text="Tariffa ufficiale ACI per il modello di auto. Consultare le tabelle ACI pubblicate annualmente. Inserisci le cifre decimali dopo la virgola (es. 0,03)"
-              />
-            </label>
+          <app-field
+            label="Costo km ACI (€/km)"
+            info="Tariffa ufficiale ACI per il modello di auto. Consultare le tabelle ACI pubblicate annualmente. Inserisci le cifre decimali dopo la virgola (es. 0,03)"
+            class="mb-3"
+          >
             <input
-              id="costoKmAci"
+              appControl
               type="number"
               [formField]="form.fringeBenefit.autoAziendale.costoKmAci"
-              [attr.aria-invalid]="form.fringeBenefit.autoAziendale.costoKmAci().invalid()"
-              [attr.aria-describedby]="
-                form.fringeBenefit.autoAziendale.costoKmAci().invalid() ? 'costoKmAci-error' : null
-              "
-              class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
             />
-            @if (form.fringeBenefit.autoAziendale.costoKmAci().invalid()) {
-              @for (
-                error of form.fringeBenefit.autoAziendale.costoKmAci().errors();
-                track error.kind
-              ) {
-                <span id="costoKmAci-error" class="text-xs text-neg mt-1" role="alert">{{
-                  error.message
-                }}</span>
-              }
-            }
-          </div>
+          </app-field>
 
-          <div class="flex flex-col gap-1 mb-3">
-            <label for="tipoAlimentazione" class="text-sm text-muted flex items-center"
-              >Tipo alimentazione<app-info-tooltip
-                tooltipId="tipoAlimentazione-info"
-                text="Dal 2025: elettrico 10%, ibrido plug-in 20%, altri 50%. Per auto assegnate prima del 2025 si usa il regime CO2."
-              />
-            </label>
-            <select
-              id="tipoAlimentazione"
-              [formField]="form.fringeBenefit.autoAziendale.tipoAlimentazione"
-              class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus"
-            >
+          <app-field
+            label="Tipo alimentazione"
+            info="Dal 2025: elettrico 10%, ibrido plug-in 20%, altri 50%. Per auto assegnate prima del 2025 si usa il regime CO2."
+            class="mb-3"
+          >
+            <select appControl [formField]="form.fringeBenefit.autoAziendale.tipoAlimentazione">
               @for (tipo of tipiAlimentazione; track tipo.value) {
                 <option [value]="tipo.value">{{ tipo.label }}</option>
               }
             </select>
-          </div>
+          </app-field>
 
-          <div class="flex flex-col gap-1 mb-3">
-            <label for="mesiUtilizzo" class="text-sm text-muted">Mesi di utilizzo</label>
+          <app-field label="Mesi di utilizzo" class="mb-3">
             <input
-              id="mesiUtilizzo"
+              appControl
               type="number"
               [formField]="form.fringeBenefit.autoAziendale.mesiUtilizzo"
-              [attr.aria-invalid]="form.fringeBenefit.autoAziendale.mesiUtilizzo().invalid()"
-              [attr.aria-describedby]="
-                form.fringeBenefit.autoAziendale.mesiUtilizzo().invalid()
-                  ? 'mesiUtilizzo-error'
-                  : null
-              "
-              class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
             />
-            @if (form.fringeBenefit.autoAziendale.mesiUtilizzo().invalid()) {
-              @for (
-                error of form.fringeBenefit.autoAziendale.mesiUtilizzo().errors();
-                track error.kind
-              ) {
-                <span id="mesiUtilizzo-error" class="text-xs text-neg mt-1" role="alert">{{
-                  error.message
-                }}</span>
-              }
-            }
-          </div>
+          </app-field>
 
-          <div class="flex flex-col gap-1 mb-3">
-            <label for="trattenutaDipendente" class="text-sm text-muted flex items-center"
-              >Trattenuta dipendente (€/anno)<app-info-tooltip
-                tooltipId="trattenutaDipendente-info"
-                text="Importo eventualmente trattenuto in busta paga per l'uso personale dell'auto. Riduce il fringe benefit imponibile."
-              />
-            </label>
+          <app-field
+            label="Trattenuta dipendente (€/anno)"
+            info="Importo eventualmente trattenuto in busta paga per l'uso personale dell'auto. Riduce il fringe benefit imponibile."
+            class="mb-3"
+          >
             <input
-              id="trattenutaDipendente"
+              appControl
               type="number"
               [formField]="form.fringeBenefit.autoAziendale.trattenutaDipendente"
-              [attr.aria-invalid]="
-                form.fringeBenefit.autoAziendale.trattenutaDipendente().invalid()
-              "
-              [attr.aria-describedby]="
-                form.fringeBenefit.autoAziendale.trattenutaDipendente().invalid()
-                  ? 'trattenutaDipendente-error'
-                  : null
-              "
-              class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
             />
-            @if (form.fringeBenefit.autoAziendale.trattenutaDipendente().invalid()) {
-              @for (
-                error of form.fringeBenefit.autoAziendale.trattenutaDipendente().errors();
-                track error.kind
-              ) {
-                <span id="trattenutaDipendente-error" class="text-xs text-neg mt-1" role="alert">{{
-                  error.message
-                }}</span>
-              }
-            }
-          </div>
+          </app-field>
 
-          <div class="flex items-center gap-2 mb-3">
+          <app-check
+            label="Assegnato prima del 2025 (regime CO2)"
+            info="Le auto assegnate prima del 2025 usano il vecchio regime basato su emissioni CO2: fino a 60 g/km 25%, 61-160 g/km 30%, 161-190 g/km 50%, oltre 60%."
+            class="mb-3"
+          >
             <input
-              id="assegnatoPre2025"
+              appControl
               type="checkbox"
               [formField]="form.fringeBenefit.autoAziendale.assegnatoPre2025"
-              class="size-4 shrink-0 cursor-pointer accent-primary"
             />
-            <label for="assegnatoPre2025" class="text-sm text-muted flex items-center"
-              >Assegnato prima del 2025 (regime CO2)<app-info-tooltip
-                tooltipId="assegnatoPre2025-info"
-                text="Le auto assegnate prima del 2025 usano il vecchio regime basato su emissioni CO2: fino a 60 g/km 25%, 61-160 g/km 30%, 161-190 g/km 50%, oltre 60%."
-              />
-            </label>
-          </div>
+          </app-check>
 
           @if (model.fringeBenefit.autoAziendale.assegnatoPre2025) {
-            <div class="flex flex-col gap-1">
-              <label for="emissioniCO2" class="text-sm text-muted">Emissioni CO2 (g/km)</label>
+            <app-field label="Emissioni CO2 (g/km)">
               <input
-                id="emissioniCO2"
+                appControl
                 type="number"
                 [formField]="form.fringeBenefit.autoAziendale.emissioniCO2"
-                [attr.aria-invalid]="form.fringeBenefit.autoAziendale.emissioniCO2().invalid()"
-                [attr.aria-describedby]="
-                  form.fringeBenefit.autoAziendale.emissioniCO2().invalid()
-                    ? 'emissioniCO2-error'
-                    : null
-                "
-                class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
               />
-              @if (form.fringeBenefit.autoAziendale.emissioniCO2().invalid()) {
-                @for (
-                  error of form.fringeBenefit.autoAziendale.emissioniCO2().errors();
-                  track error.kind
-                ) {
-                  <span id="emissioniCO2-error" class="text-xs text-neg mt-1" role="alert">{{
-                    error.message
-                  }}</span>
-                }
-              }
-            </div>
+            </app-field>
           }
         </div>
       }
@@ -1353,215 +686,72 @@
     </div>
 
     @if (model.rimborsiTrasferta.enabled) {
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="modalitaRimborso" class="text-sm text-muted flex items-center"
-          >Modalità rimborso<app-info-tooltip
-            tooltipId="modalitaRimborso-info"
-            text="Forfettario: indennità fissa giornaliera. Analitico: rimborso a pie' di lista documentato. Misto: forfettario ridotto + rimborso vitto/alloggio."
-          />
-        </label>
-        <select
-          id="modalitaRimborso"
-          [formField]="form.rimborsiTrasferta.modalitaRimborso"
-          class="h-[42px] px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus"
-        >
+      <app-field
+        label="Modalità rimborso"
+        info="Forfettario: indennità fissa giornaliera. Analitico: rimborso a pie' di lista documentato. Misto: forfettario ridotto + rimborso vitto/alloggio."
+        class="mb-4"
+      >
+        <select appControl [formField]="form.rimborsiTrasferta.modalitaRimborso">
           @for (modalita of modalitaRimborso; track modalita.value) {
             <option [value]="modalita.value">{{ modalita.label }}</option>
           }
         </select>
-      </div>
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="giorniTrasfertaItalia" class="text-sm text-muted"
-          >Giorni trasferta Italia</label
-        >
+      <app-field label="Giorni trasferta Italia" class="mb-4">
         <input
-          id="giorniTrasfertaItalia"
+          appControl
           type="number"
           [formField]="form.rimborsiTrasferta.giorniTrasfertaItalia"
-          [attr.aria-invalid]="form.rimborsiTrasferta.giorniTrasfertaItalia().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.giorniTrasfertaItalia().invalid()
-              ? 'giorniTrasfertaItalia-error'
-              : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
-        @if (form.rimborsiTrasferta.giorniTrasfertaItalia().invalid()) {
-          @for (
-            error of form.rimborsiTrasferta.giorniTrasfertaItalia().errors();
-            track error.kind
-          ) {
-            <span id="giorniTrasfertaItalia-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="giorniTrasfertaEstero" class="text-sm text-muted"
-          >Giorni trasferta Estero</label
-        >
+      <app-field label="Giorni trasferta Estero" class="mb-4">
         <input
-          id="giorniTrasfertaEstero"
+          appControl
           type="number"
           [formField]="form.rimborsiTrasferta.giorniTrasfertaEstero"
-          [attr.aria-invalid]="form.rimborsiTrasferta.giorniTrasfertaEstero().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.giorniTrasfertaEstero().invalid()
-              ? 'giorniTrasfertaEstero-error'
-              : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
-        @if (form.rimborsiTrasferta.giorniTrasfertaEstero().invalid()) {
-          @for (
-            error of form.rimborsiTrasferta.giorniTrasfertaEstero().errors();
-            track error.kind
-          ) {
-            <span id="giorniTrasfertaEstero-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="rimborsoVitto" class="text-sm text-muted"
-          >Rimborso vitto documentato (€/anno)</label
-        >
-        <input
-          id="rimborsoVitto"
-          type="number"
-          [formField]="form.rimborsiTrasferta.rimborsoVitto"
-          [attr.aria-invalid]="form.rimborsiTrasferta.rimborsoVitto().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.rimborsoVitto().invalid() ? 'rimborsoVitto-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.rimborsiTrasferta.rimborsoVitto().invalid()) {
-          @for (error of form.rimborsiTrasferta.rimborsoVitto().errors(); track error.kind) {
-            <span id="rimborsoVitto-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field label="Rimborso vitto documentato (€/anno)" class="mb-4">
+        <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoVitto" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="rimborsoAlloggio" class="text-sm text-muted"
-          >Rimborso alloggio documentato (€/anno)</label
-        >
-        <input
-          id="rimborsoAlloggio"
-          type="number"
-          [formField]="form.rimborsiTrasferta.rimborsoAlloggio"
-          [attr.aria-invalid]="form.rimborsiTrasferta.rimborsoAlloggio().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.rimborsoAlloggio().invalid() ? 'rimborsoAlloggio-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.rimborsiTrasferta.rimborsoAlloggio().invalid()) {
-          @for (error of form.rimborsiTrasferta.rimborsoAlloggio().errors(); track error.kind) {
-            <span id="rimborsoAlloggio-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field label="Rimborso alloggio documentato (€/anno)" class="mb-4">
+        <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoAlloggio" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="rimborsoViaggio" class="text-sm text-muted">Rimborso viaggio (€/anno)</label>
-        <input
-          id="rimborsoViaggio"
-          type="number"
-          [formField]="form.rimborsiTrasferta.rimborsoViaggio"
-          [attr.aria-invalid]="form.rimborsiTrasferta.rimborsoViaggio().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.rimborsoViaggio().invalid() ? 'rimborsoViaggio-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.rimborsiTrasferta.rimborsoViaggio().invalid()) {
-          @for (error of form.rimborsiTrasferta.rimborsoViaggio().errors(); track error.kind) {
-            <span id="rimborsoViaggio-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field label="Rimborso viaggio (€/anno)" class="mb-4">
+        <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoViaggio" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="rimborsoKm" class="text-sm text-muted flex items-center"
-          >Rimborso chilometrico fuori comune (€/anno)<app-info-tooltip
-            tooltipId="rimborsoKm-info"
-            text="Indennità chilometrica per l'uso dell'auto propria in trasferte fuori dal comune sede di lavoro, entro le tariffe ACI: esente da imposte e contributi. Non richiede pagamento tracciabile."
-          />
-        </label>
-        <input
-          id="rimborsoKm"
-          type="number"
-          [formField]="form.rimborsiTrasferta.rimborsoKm"
-          [attr.aria-invalid]="form.rimborsiTrasferta.rimborsoKm().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.rimborsoKm().invalid() ? 'rimborsoKm-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.rimborsiTrasferta.rimborsoKm().invalid()) {
-          @for (error of form.rimborsiTrasferta.rimborsoKm().errors(); track error.kind) {
-            <span id="rimborsoKm-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field
+        label="Rimborso chilometrico fuori comune (€/anno)"
+        info="Indennità chilometrica per l'uso dell'auto propria in trasferte fuori dal comune sede di lavoro, entro le tariffe ACI: esente da imposte e contributi. Non richiede pagamento tracciabile."
+        class="mb-4"
+      >
+        <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoKm" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="rimborsoKmImponibile" class="text-sm text-muted flex items-center"
-          >Rimborso chilometrico imponibile (€/anno)<app-info-tooltip
-            tooltipId="rimborsoKmImponibile-info"
-            text="Rimborsi chilometrici che concorrono al reddito (art. 51, c. 5, TUIR): spostamenti nel comune sede di lavoro e quota eccedente le tariffe ACI nelle trasferte fuori comune."
-          />
-        </label>
-        <input
-          id="rimborsoKmImponibile"
-          type="number"
-          [formField]="form.rimborsiTrasferta.rimborsoKmImponibile"
-          [attr.aria-invalid]="form.rimborsiTrasferta.rimborsoKmImponibile().invalid()"
-          [attr.aria-describedby]="
-            form.rimborsiTrasferta.rimborsoKmImponibile().invalid()
-              ? 'rimborsoKmImponibile-error'
-              : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.rimborsiTrasferta.rimborsoKmImponibile().invalid()) {
-          @for (error of form.rimborsiTrasferta.rimborsoKmImponibile().errors(); track error.kind) {
-            <span id="rimborsoKmImponibile-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field
+        label="Rimborso chilometrico imponibile (€/anno)"
+        info="Rimborsi chilometrici che concorrono al reddito (art. 51, c. 5, TUIR): spostamenti nel comune sede di lavoro e quota eccedente le tariffe ACI nelle trasferte fuori comune."
+        class="mb-4"
+      >
+        <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoKmImponibile" />
+      </app-field>
 
-      <div class="flex items-center gap-2">
+      <app-check
+        label="Pagamenti tracciabili"
+        info="Dal 2025 obbligo di tracciabilità per vitto, alloggio e taxi. Senza tracciabilità i rimborsi diventano imponibili."
+      >
         <input
-          id="pagamentiTracciabili"
+          appControl
           type="checkbox"
           [formField]="form.rimborsiTrasferta.pagamentiTracciabili"
-          class="size-4 shrink-0 cursor-pointer accent-primary"
         />
-        <label for="pagamentiTracciabili" class="text-sm text-muted flex items-center"
-          >Pagamenti tracciabili<app-info-tooltip
-            tooltipId="pagamentiTracciabili-info"
-            text="Dal 2025 obbligo di tracciabilità per vitto, alloggio e taxi. Senza tracciabilità i rimborsi diventano imponibili."
-          />
-        </label>
-      </div>
+      </app-check>
     }
   </fieldset>
 
@@ -1590,211 +780,84 @@
     </div>
 
     @if (model.benefitNonTassati.enabled) {
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="previdenzaComplementare" class="text-sm text-muted flex items-center"
-          >Previdenza complementare da welfare (€/anno)<app-info-tooltip
-            tooltipId="previdenzaComplementare-info"
-            text="Contributi al fondo pensione versati dall'azienda tramite il piano welfare (es. credito welfare convertito in previdenza). Non sono una trattenuta: sono reddito dedotto entro i 5.300 euro/anno, limite condiviso con i contributi di lavoratore e datore. Non riducono i contributi INPS."
-          />
-        </label>
+      <app-field
+        label="Previdenza complementare da welfare (€/anno)"
+        info="Contributi al fondo pensione versati dall'azienda tramite il piano welfare (es. credito welfare convertito in previdenza). Non sono una trattenuta: sono reddito dedotto entro i 5.300 euro/anno, limite condiviso con i contributi di lavoratore e datore. Non riducono i contributi INPS."
+        class="mb-4"
+      >
         <input
-          id="previdenzaComplementare"
+          appControl
           type="number"
           [formField]="form.benefitNonTassati.previdenzaComplementare"
           placeholder="Max €5.300 deducibile"
-          [attr.aria-invalid]="form.benefitNonTassati.previdenzaComplementare().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.previdenzaComplementare().invalid()
-              ? 'previdenzaComplementare-error'
-              : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
-        @if (form.benefitNonTassati.previdenzaComplementare().invalid()) {
-          @for (
-            error of form.benefitNonTassati.previdenzaComplementare().errors();
-            track error.kind
-          ) {
-            <span id="previdenzaComplementare-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="assistenzaSanitaria" class="text-sm text-muted flex items-center"
-          >Assistenza sanitaria (€/anno)<app-info-tooltip
-            tooltipId="assistenzaSanitaria-info"
-            text="Contributi a casse/fondi sanitari integrativi. Esenti fino a 3.615,20 euro/anno."
-          />
-        </label>
+      <app-field
+        label="Assistenza sanitaria (€/anno)"
+        info="Contributi a casse/fondi sanitari integrativi. Esenti fino a 3.615,20 euro/anno."
+        class="mb-4"
+      >
         <input
-          id="assistenzaSanitaria"
+          appControl
           type="number"
           [formField]="form.benefitNonTassati.assistenzaSanitaria"
           placeholder="Max €3.615,20 esente"
-          [attr.aria-invalid]="form.benefitNonTassati.assistenzaSanitaria().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.assistenzaSanitaria().invalid()
-              ? 'assistenzaSanitaria-error'
-              : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
-        @if (form.benefitNonTassati.assistenzaSanitaria().invalid()) {
-          @for (error of form.benefitNonTassati.assistenzaSanitaria().errors(); track error.kind) {
-            <span id="assistenzaSanitaria-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="buoniPasto" class="text-sm text-muted flex items-center"
-          >Buoni pasto (€/anno)<app-info-tooltip
-            tooltipId="buoniPasto-info"
-            text="Esenti fino a 4 euro/giorno (cartacei) o 10 euro/giorno (elettronici, dal 2026). Il calcolo assume buoni di pari importo giornaliero, per i giorni di erogazione indicati. L'eccedenza è imponibile."
-          />
-        </label>
-        <input
-          id="buoniPasto"
-          type="number"
-          [formField]="form.benefitNonTassati.buoniPasto"
-          [attr.aria-invalid]="form.benefitNonTassati.buoniPasto().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.buoniPasto().invalid() ? 'buoniPasto-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.benefitNonTassati.buoniPasto().invalid()) {
-          @for (error of form.benefitNonTassati.buoniPasto().errors(); track error.kind) {
-            <span id="buoniPasto-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field
+        label="Buoni pasto (€/anno)"
+        info="Esenti fino a 4 euro/giorno (cartacei) o 10 euro/giorno (elettronici, dal 2026). Il calcolo assume buoni di pari importo giornaliero, per i giorni di erogazione indicati. L'eccedenza è imponibile."
+        class="mb-4"
+      >
+        <input appControl type="number" [formField]="form.benefitNonTassati.buoniPasto" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="giorniBuoniPasto" class="text-sm text-muted flex items-center"
-          >Giorni di erogazione buoni pasto<app-info-tooltip
-            tooltipId="giorniBuoniPasto-info"
-            text="Numero effettivo di giorni coperti dai buoni pasto nell'anno. Il valore predefinito di 220 giorni è una stima: modificarlo in base ai buoni ricevuti."
-          />
-        </label>
-        <input
-          id="giorniBuoniPasto"
-          type="number"
-          [formField]="form.benefitNonTassati.giorniBuoniPasto"
-          [attr.aria-invalid]="form.benefitNonTassati.giorniBuoniPasto().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.giorniBuoniPasto().invalid() ? 'giorniBuoniPasto-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.benefitNonTassati.giorniBuoniPasto().invalid()) {
-          @for (error of form.benefitNonTassati.giorniBuoniPasto().errors(); track error.kind) {
-            <span id="giorniBuoniPasto-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field
+        label="Giorni di erogazione buoni pasto"
+        info="Numero effettivo di giorni coperti dai buoni pasto nell'anno. Il valore predefinito di 220 giorni è una stima: modificarlo in base ai buoni ricevuti."
+        class="mb-4"
+      >
+        <input appControl type="number" [formField]="form.benefitNonTassati.giorniBuoniPasto" />
+      </app-field>
 
-      <div class="flex items-center gap-2 mb-4">
+      <app-check
+        label="Buoni pasto elettronici (soglia 10 euro invece di 4 euro)"
+        info="I buoni elettronici hanno soglia di esenzione maggiore (10 euro/giorno dal 2026). Sono tracciabili e preferiti dal fisco."
+        class="mb-4"
+      >
         <input
-          id="buoniPastoElettronici"
+          appControl
           type="checkbox"
           [formField]="form.benefitNonTassati.buoniPastoElettronici"
-          class="size-4 shrink-0 cursor-pointer accent-primary"
         />
-        <label for="buoniPastoElettronici" class="text-sm text-muted flex items-center"
-          >Buoni pasto elettronici (soglia 10 euro invece di 4 euro)<app-info-tooltip
-            tooltipId="buoniPastoElettronici-info"
-            text="I buoni elettronici hanno soglia di esenzione maggiore (10 euro/giorno dal 2026). Sono tracciabili e preferiti dal fisco."
-          />
-        </label>
-      </div>
+      </app-check>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="abbonamentoTrasporto" class="text-sm text-muted flex items-center"
-          >Abbonamento trasporto pubblico (€/anno)<app-info-tooltip
-            tooltipId="abbonamentoTrasporto-info"
-            text="Rimborso o erogazione diretta di abbonamenti TPL. Completamente esente, senza limiti di importo."
-          />
-        </label>
-        <input
-          id="abbonamentoTrasporto"
-          type="number"
-          [formField]="form.benefitNonTassati.abbonamentoTrasporto"
-          [attr.aria-invalid]="form.benefitNonTassati.abbonamentoTrasporto().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.abbonamentoTrasporto().invalid()
-              ? 'abbonamentoTrasporto-error'
-              : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.benefitNonTassati.abbonamentoTrasporto().invalid()) {
-          @for (error of form.benefitNonTassati.abbonamentoTrasporto().errors(); track error.kind) {
-            <span id="abbonamentoTrasporto-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field
+        label="Abbonamento trasporto pubblico (€/anno)"
+        info="Rimborso o erogazione diretta di abbonamenti TPL. Completamente esente, senza limiti di importo."
+        class="mb-4"
+      >
+        <input appControl type="number" [formField]="form.benefitNonTassati.abbonamentoTrasporto" />
+      </app-field>
 
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="serviziWelfare" class="text-sm text-muted flex items-center"
-          >Servizi welfare (€/anno)<app-info-tooltip
-            tooltipId="serviziWelfare-info"
-            text="Asili nido, borse di studio, colonie estive, assistenza anziani, ecc. Completamente esenti se erogati alla generalità dei dipendenti."
-          />
-        </label>
+      <app-field
+        label="Servizi welfare (€/anno)"
+        info="Asili nido, borse di studio, colonie estive, assistenza anziani, ecc. Completamente esenti se erogati alla generalità dei dipendenti."
+        class="mb-4"
+      >
         <input
-          id="serviziWelfare"
+          appControl
           type="number"
           [formField]="form.benefitNonTassati.serviziWelfare"
           placeholder="Asili, borse studio, ecc."
-          [attr.aria-invalid]="form.benefitNonTassati.serviziWelfare().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.serviziWelfare().invalid() ? 'serviziWelfare-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
-        @if (form.benefitNonTassati.serviziWelfare().invalid()) {
-          @for (error of form.benefitNonTassati.serviziWelfare().errors(); track error.kind) {
-            <span id="serviziWelfare-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      </app-field>
 
-      <div class="flex flex-col gap-1">
-        <label for="benefitNonTassatiAltri" class="text-sm text-muted"
-          >Altri benefit non tassati (€/anno)</label
-        >
-        <input
-          id="benefitNonTassatiAltri"
-          type="number"
-          [formField]="form.benefitNonTassati.altri"
-          [attr.aria-invalid]="form.benefitNonTassati.altri().invalid()"
-          [attr.aria-describedby]="
-            form.benefitNonTassati.altri().invalid() ? 'benefitNonTassatiAltri-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
-        />
-        @if (form.benefitNonTassati.altri().invalid()) {
-          @for (error of form.benefitNonTassati.altri().errors(); track error.kind) {
-            <span id="benefitNonTassatiAltri-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      <app-field label="Altri benefit non tassati (€/anno)">
+        <input appControl type="number" [formField]="form.benefitNonTassati.altri" />
+      </app-field>
     }
   </fieldset>
 
@@ -1812,45 +875,23 @@
       (D.L. 45/2025, L. 79/2025). Soggette a INPS Gestione Separata e cumulo IRPEF.
     </p>
 
-    <div class="flex items-center gap-2 mb-3">
-      <input
-        id="borsaDiStudioEnabled"
-        type="checkbox"
-        [formField]="form.borsaDiStudio.enabled"
-        class="size-4 shrink-0 cursor-pointer accent-primary"
-      />
-      <label for="borsaDiStudioEnabled" class="text-sm text-muted flex items-center"
-        >Ho una borsa di studio<app-info-tooltip
-          tooltipId="borsaDiStudio-info"
-          text="Dal 7/6/2025 le borse post-laurea sono redditi assimilati al lavoro dipendente. INPS Gestione Separata 35,03% (1/3 borsista, 2/3 ente). L'imponibile si cumula con la RAL per IRPEF e addizionali."
-        />
-      </label>
-    </div>
+    <app-check
+      label="Ho una borsa di studio"
+      info="Dal 7/6/2025 le borse post-laurea sono redditi assimilati al lavoro dipendente. INPS Gestione Separata 35,03% (1/3 borsista, 2/3 ente). L'imponibile si cumula con la RAL per IRPEF e addizionali."
+      class="mb-3"
+    >
+      <input appControl type="checkbox" [formField]="form.borsaDiStudio.enabled" />
+    </app-check>
 
     @if (model.borsaDiStudio.enabled) {
-      <div class="flex flex-col gap-1 mb-4">
-        <label for="borsaDiStudioImporto" class="text-sm text-muted flex items-center"
-          >Importo annuo lordo (&euro;/anno)</label
-        >
+      <app-field label="Importo annuo lordo (&euro;/anno)" class="mb-4">
         <input
-          id="borsaDiStudioImporto"
+          appControl
           type="number"
           [formField]="form.borsaDiStudio.importoAnnuo"
           placeholder="Es. 16243"
-          [attr.aria-invalid]="form.borsaDiStudio.importoAnnuo().invalid()"
-          [attr.aria-describedby]="
-            form.borsaDiStudio.importoAnnuo().invalid() ? 'borsaDiStudioImporto-error' : null
-          "
-          class="px-3 py-2 rounded-lg border border-transparent bg-field text-fg shadow-xs ring-1 ring-ring-strong focus:outline-2 focus:-outline-offset-1 focus:outline-focus placeholder:text-faint aria-[invalid=true]:ring-danger aria-[invalid=true]:focus:outline-danger"
         />
-        @if (form.borsaDiStudio.importoAnnuo().invalid()) {
-          @for (error of form.borsaDiStudio.importoAnnuo().errors(); track error.kind) {
-            <span id="borsaDiStudioImporto-error" class="text-xs text-neg mt-1" role="alert">{{
-              error.message
-            }}</span>
-          }
-        }
-      </div>
+      </app-field>
     }
   </fieldset>
 
@@ -1868,18 +909,9 @@
     </p>
 
     @for (fondo of fondiCommercio; track fondo.id) {
-      <div class="flex items-center gap-2 mb-3">
-        <input
-          [id]="fondo.id"
-          type="checkbox"
-          [formField]="form[fondo.id]"
-          class="size-4 shrink-0 cursor-pointer accent-primary"
-        />
-        <label [for]="fondo.id" class="text-sm text-muted flex items-center"
-          >{{ fondo.nome
-          }}<app-info-tooltip [tooltipId]="fondo.id + '-info'" [text]="fondo.tooltip" />
-        </label>
-      </div>
+      <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" class="mb-3">
+        <input appControl type="checkbox" [formField]="form[fondo.id]" />
+      </app-check>
     }
   </fieldset>
 
@@ -1898,18 +930,9 @@
     </p>
 
     @for (fondo of fondiDirigenti; track fondo.id) {
-      <div class="flex items-center gap-2 mb-3">
-        <input
-          [id]="fondo.id"
-          type="checkbox"
-          [formField]="form[fondo.id]"
-          class="size-4 shrink-0 cursor-pointer accent-primary"
-        />
-        <label [for]="fondo.id" class="text-sm text-muted flex items-center"
-          >{{ fondo.nome
-          }}<app-info-tooltip [tooltipId]="fondo.id + '-info'" [text]="fondo.tooltip" />
-        </label>
-      </div>
+      <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" class="mb-3">
+        <input appControl type="checkbox" [formField]="form[fondo.id]" />
+      </app-check>
     }
   </fieldset>
 </form>

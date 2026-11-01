@@ -10,6 +10,7 @@ import {
 } from './form-group';
 import { TipoAlimentazioneAuto, TipoContratto } from '../../../calculator/types';
 import { InfoTooltip } from '../info-tooltip/info-tooltip';
+import { Check, Control, Field } from '../field/field';
 import {
   elencoComuni,
   elencoRegioni,
@@ -38,7 +39,7 @@ function tooltipFondo(fondo: FondoContrattuale): string {
 
 @Component({
   selector: 'app-form-container',
-  imports: [FormField, FormsModule, NgSelectComponent, InfoTooltip],
+  imports: [FormField, FormsModule, NgSelectComponent, InfoTooltip, Field, Check, Control],
   templateUrl: './form-container.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
