@@ -113,7 +113,7 @@ interface SankeyLink {
   templateUrl: './graph-funnel.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'block w-full h-full',
+    class: '@container block w-full h-full min-w-0',
   },
 })
 export class GraphFunnel implements AfterViewInit, OnDestroy {
@@ -160,7 +160,8 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
   ): { nodes: SankeyNode[]; links: SankeyLink[]; width: number; height: number } {
     const padding = { top: 30, right: 10, bottom: 30, left: 10 };
     const nodeWidth = 18;
-    const nodePadding = 10;
+    // Each node has a two-line label; even the smallest flows need room for both lines.
+    const nodePadding = 26;
 
     const innerWidth = width - padding.left - padding.right;
     const innerHeight = height - padding.top - padding.bottom;
