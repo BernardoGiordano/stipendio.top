@@ -113,6 +113,8 @@ const DETRAZIONI_FAMILIARI = {
   etaMassimaFigli: 30,
   etaMinimaFigli: 21,
   importoTeoricoFigli: 950,
+  maggiorazioneFiglioDisabile: 400,
+  maggiorazioneOltreTreFigli: 200,
   coefficienteBaseFigli: 95_000,
   incrementoPerFiglio: 15_000,
   importoTeoricoAltri: 750,
@@ -581,12 +583,26 @@ function calcolaDetrazioneFigli(
   }
 
   const params = DETRAZIONI_FAMILIARI;
+
+  // Il numero di figli a carico (art. 12, c. 1, lett. c, TUIR) determina il coefficiente e la
+  // maggiorazione oltre tre figli; vi rientrano anche i figli minori di 21 anni, per i quali la
+  // detrazione non spetta (Circ. AdE 4/E/2022, par. 1.1)
+  const figliACarico = figli.filter(isFiglioACarico);
+  const numeroFigliACarico = figliACarico.length;
+  if (numeroFigliACarico === 0) {
+    return { detrazione: 0, numeroFigli: 0 };
+  }
+
+  // "L'importo di 95.000 euro è aumentato per tutti di 15.000 euro per ogni figlio successivo al primo"
+  const coefficiente =
+    params.coefficienteBaseFigli + (numeroFigliACarico - 1) * params.incrementoPerFiglio;
+  const rapporto = Math.max(0, (coefficiente - redditoComplessivo) / coefficiente);
+  const maggiorazioneOltreTreFigli = numeroFigliACarico > 3 ? params.maggiorazioneOltreTreFigli : 0;
+
   let detrazioneTotale = 0;
   let numeroFigliConDetrazione = 0;
 
-  for (const figlio of figli) {
-    if (!isFiglioACarico(figlio)) continue;
-
+  for (const figlio of figliACarico) {
     const haDetrazione =
       figlio.disabile ||
       (figlio.eta >= params.etaMinimaFigli && figlio.eta < params.etaMassimaFigli);
@@ -595,14 +611,12 @@ function calcolaDetrazioneFigli(
 
     numeroFigliConDetrazione++;
     const percentuale = (figlio.percentualeCarico ?? 100) / 100;
+    const importoTeorico =
+      params.importoTeoricoFigli +
+      (figlio.disabile ? params.maggiorazioneFiglioDisabile : 0) +
+      maggiorazioneOltreTreFigli;
 
-    const coefficienteBase =
-      params.coefficienteBaseFigli + (numeroFigliConDetrazione - 1) * params.incrementoPerFiglio;
-
-    if (redditoComplessivo < coefficienteBase) {
-      const rapporto = (coefficienteBase - redditoComplessivo) / coefficienteBase;
-      detrazioneTotale += params.importoTeoricoFigli * rapporto * percentuale;
-    }
+    detrazioneTotale += importoTeorico * rapporto * percentuale;
   }
 
   return { detrazione: detrazioneTotale, numeroFigli: numeroFigliConDetrazione };

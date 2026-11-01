@@ -2210,6 +2210,87 @@ describe('Detrazioni carichi familiari', () => {
         result1.detrazioniFamiliari.detrazioneFigli,
       );
     });
+
+    it('il coefficiente aumentato vale per tutti i figli, non solo dal secondo', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [
+          { eta: 25, disabile: false },
+          { eta: 27, disabile: false },
+        ],
+      });
+      const reddito = result.irpef.imponibileIrpef;
+      const attesa = 2 * 950 * ((110_000 - reddito) / 110_000);
+      expect(result.detrazioniFamiliari.detrazioneFigli).toBeCloseTo(attesa, 2);
+    });
+
+    it('i figli minori di 21 anni contano nel coefficiente anche senza detrazione', () => {
+      const soloMaggiorenne = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 25, disabile: false }],
+      });
+      const conMinore = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [
+          { eta: 25, disabile: false },
+          { eta: 15, disabile: false },
+        ],
+      });
+      const reddito = conMinore.irpef.imponibileIrpef;
+      expect(conMinore.detrazioniFamiliari.numeroFigliConDetrazione).toBe(1);
+      expect(conMinore.detrazioniFamiliari.detrazioneFigli).toBeCloseTo(
+        950 * ((110_000 - reddito) / 110_000),
+        2,
+      );
+      expect(conMinore.detrazioniFamiliari.detrazioneFigli).toBeGreaterThan(
+        soloMaggiorenne.detrazioniFamiliari.detrazioneFigli,
+      );
+    });
+
+    it('figlio disabile: importo teorico maggiorato di €400 (€1.350)', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [{ eta: 25, disabile: true }],
+      });
+      const reddito = result.irpef.imponibileIrpef;
+      expect(result.detrazioniFamiliari.detrazioneFigli).toBeCloseTo(
+        1_350 * ((95_000 - reddito) / 95_000),
+        2,
+      );
+    });
+
+    it('più di tre figli a carico: +€200 per ciascun figlio con detrazione', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        figli: [
+          { eta: 25, disabile: false },
+          { eta: 23, disabile: false },
+          { eta: 18, disabile: false },
+          { eta: 12, disabile: false },
+        ],
+      });
+      const reddito = result.irpef.imponibileIrpef;
+      const coefficiente = 95_000 + 15_000 * 3;
+      expect(result.detrazioniFamiliari.numeroFigliConDetrazione).toBe(2);
+      expect(result.detrazioniFamiliari.detrazioneFigli).toBeCloseTo(
+        2 * 1_150 * ((coefficiente - reddito) / coefficiente),
+        2,
+      );
+    });
+
+    it('reddito oltre il coefficiente: detrazione zero, mai negativa', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 120_000,
+        figli: [{ eta: 25, disabile: false }],
+      });
+      expect(result.detrazioniFamiliari.detrazioneFigli).toBe(0);
+    });
   });
 
   describe('Ascendenti a carico', () => {

@@ -171,11 +171,16 @@ Se RC > €50.000:
 Spetta solo per figli dai 21 ai 29 anni (compiuti) non disabili, oppure figli disabili di qualsiasi età.
 
 ```
-Detrazione = €950 × [(Coefficiente − RC) / Coefficiente]
+Detrazione per figlio = Importo Teorico × [(Coefficiente − RC) / Coefficiente]
 
-Coefficiente Base = €95.000
-Coefficiente = €95.000 + €15.000 × (N. figli − 1)
+Importo Teorico = €950
+                + €400 se il figlio è disabile
+                + €200 per ciascun figlio, se i figli a carico sono più di tre
+
+Coefficiente = €95.000 + €15.000 × (N. figli a carico − 1)
 ```
+
+Il coefficiente è lo stesso per tutti i figli. Nel numero di figli a carico rientrano anche quelli con meno di 21 anni, per i quali la detrazione non spetta ma che rilevano per il coefficiente e per la maggiorazione oltre tre figli (art. 12, c. 1, lett. c, TUIR; Circ. AdE 4/E/2022, par. 1.1).
 
 ###### Ascendenti a Carico (conviventi)
 
