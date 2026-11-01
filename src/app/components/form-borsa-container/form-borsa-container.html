@@ -3,10 +3,7 @@
   @let form = stipendioForm();
 
   <!-- Sezione Dati Principali -->
-  <fieldset class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring">
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Dati Borsa di Studio
-    </legend>
+  <app-section heading="Dati Borsa di Studio">
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <app-field
@@ -37,13 +34,10 @@
         </select>
       </app-field>
     </div>
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Opzioni Borsa di Studio -->
-  <fieldset class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring">
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Opzioni Borsa di Studio
-    </legend>
+  <app-section heading="Opzioni Borsa di Studio">
 
     <app-check
       label="Ho altra copertura pensionistica obbligatoria"
@@ -51,5 +45,5 @@
     >
       <input appControl type="checkbox" [formField]="form.altraCoperturaPensionistica" />
     </app-check>
-  </fieldset>
+  </app-section>
 </form>

@@ -126,16 +126,6 @@ body {
   @apply bg-page text-fg min-h-screen;
 }
 
-/* Legends read as eyebrows inside the card instead of sitting on its edge. */
-fieldset > legend {
-  float: left;
-  width: 100%;
-}
-
-fieldset > legend + * {
-  clear: both;
-}
-
 /* Hide number input spinboxes */
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {

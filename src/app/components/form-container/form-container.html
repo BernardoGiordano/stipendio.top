@@ -4,11 +4,8 @@
   @let model = formModel()();
 
   <!-- Sezione Dati Principali -->
-  <fieldset class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring">
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Dati Contrattuali
-    </legend>
-
+  <h3 class="mt-2 text-sm font-semibold text-title">Essenziali</h3>
+  <app-section heading="Dati Contrattuali">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <app-field
         label="RAL"
@@ -86,14 +83,10 @@
         ></ng-select>
       </app-field>
     </div>
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Opzioni Contrattuali -->
-  <fieldset class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring">
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Opzioni Contrattuali
-    </legend>
-
+  <app-section heading="Opzioni Contrattuali">
     <app-field
       label="Giorni Lavorati (opzionale)"
       info="Le detrazioni lavoro dipendente sono rapportate ai giorni effettivi. Utile per chi non lavora l'intero anno."
@@ -140,14 +133,11 @@
         <input appControl type="checkbox" [formField]="form.regimeImpatriatiMinorenni" />
       </app-check>
     }
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Altri Redditi e Detrazioni -->
-  <fieldset class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring">
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Altri Redditi e Detrazioni
-    </legend>
-
+  <h3 class="mt-2 text-sm font-semibold text-title">Avanzate</h3>
+  <app-section heading="Altri Redditi e Detrazioni" collapsible [active]="altriRedditiAttivi()">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <app-field
         label="Altri Redditi (€/anno)"
@@ -182,25 +172,17 @@
         />
       </app-field>
     </div>
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Previdenza Complementare -->
-  <fieldset
-    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    [attr.data-inactive]="!model.fondoPensioneIntegrativo.enabled || null"
+  <app-section
+    heading="Previdenza Complementare"
+    collapsible
+    [active]="model.fondoPensioneIntegrativo.enabled"
+    [toggle]="form.fondoPensioneIntegrativo.enabled"
+    toggleLabel="Fondo pensione integrativo"
+    toggleInfo="Previdenza complementare (D.Lgs. 252/2005). I contributi del lavoratore e del datore sono deducibili dall'imponibile IRPEF fino a un massimo di 5.300 euro/anno (dal 2026, L. 199/2025). Non riducono i contributi INPS."
   >
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Previdenza Complementare
-    </legend>
-
-    <app-check
-      label="Fondo pensione integrativo"
-      info="Previdenza complementare (D.Lgs. 252/2005). I contributi del lavoratore e del datore sono deducibili dall'imponibile IRPEF fino a un massimo di 5.300 euro/anno (dal 2026, L. 199/2025). Non riducono i contributi INPS."
-      class="mb-3"
-    >
-      <input appControl type="checkbox" [formField]="form.fondoPensioneIntegrativo.enabled" />
-    </app-check>
-
     @if (model.fondoPensioneIntegrativo.enabled) {
       <p class="text-xs text-subtle mb-4">
         Inserisci le percentuali di contribuzione e la RAL di riferimento. Il limite di deducibilità
@@ -307,32 +289,17 @@
         />
       </app-check>
     }
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Coniuge a Carico -->
-  <fieldset
-    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    [attr.data-inactive]="!model.coniuge.enabled || null"
+  <app-section
+    heading="Coniuge a Carico"
+    collapsible
+    [active]="model.coniuge.enabled"
+    [toggle]="form.coniuge.enabled"
+    toggleLabel="Ho un coniuge a carico"
+    toggleInfo="Il coniuge con reddito fino a 2.840,51 euro annui da diritto a una detrazione fiscale da 0 a 800 euro, in base al tuo reddito."
   >
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Coniuge a Carico
-    </legend>
-
-    <div class="flex items-center gap-2 mb-4">
-      <input
-        id="coniugeEnabled"
-        type="checkbox"
-        [formField]="form.coniuge.enabled"
-        class="size-4 shrink-0 cursor-pointer accent-primary"
-      />
-      <label for="coniugeEnabled" class="text-sm text-title font-medium flex items-center"
-        >Ho un coniuge a carico<app-info-tooltip
-          tooltipId="coniugeEnabled-info"
-          text="Il coniuge con reddito fino a 2.840,51 euro annui da diritto a una detrazione fiscale da 0 a 800 euro, in base al tuo reddito."
-        />
-      </label>
-    </div>
-
     @if (model.coniuge.enabled) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <app-field
@@ -362,17 +329,14 @@
         </app-field>
       </div>
     }
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Figli a Carico -->
-  <fieldset
-    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    [attr.data-inactive]="(!model.haFigliACarico && model.figli.length === 0) || null"
+  <app-section
+    heading="Figli a Carico"
+    collapsible
+    [active]="model.haFigliACarico || model.figli.length > 0"
   >
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Figli a Carico
-    </legend>
-
     <app-check
       label="Ho figli a carico (per soglia fringe benefit)"
       info="Chi ha figli a carico beneficia di una soglia fringe benefit raddoppiata: 2.000 euro invece di 1.000 euro."
@@ -384,7 +348,7 @@
     @for (figlio of model.figli; track $index) {
       <div class="rounded-lg p-4 mb-3 bg-page ring-1 ring-inset ring-ring">
         <div class="flex items-center justify-between mb-3">
-          <h3 class="text-sm font-semibold text-title">Figlio {{ $index + 1 }}</h3>
+          <h5 class="text-sm font-semibold text-title">Figlio {{ $index + 1 }}</h5>
           <button
             type="button"
             (click)="removeFiglio($index)"
@@ -443,21 +407,18 @@
     >
       Aggiungi figlio
     </button>
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Ascendenti a Carico -->
-  <fieldset
-    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    [attr.data-inactive]="model.ascendenti.length === 0 || null"
+  <app-section
+    heading="Ascendenti a Carico (genitori/nonni)"
+    collapsible
+    [active]="model.ascendenti.length > 0"
   >
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Ascendenti a Carico (genitori/nonni)
-    </legend>
-
     @for (ascendente of model.ascendenti; track $index) {
       <div class="rounded-lg p-4 mb-3 bg-page ring-1 ring-inset ring-ring">
         <div class="flex items-center justify-between mb-3">
-          <h3 class="text-sm font-semibold text-title">Ascendente {{ $index + 1 }}</h3>
+          <h5 class="text-sm font-semibold text-title">Ascendente {{ $index + 1 }}</h5>
           <button
             type="button"
             (click)="removeAscendente($index)"
@@ -516,32 +477,17 @@
     >
       Aggiungi ascendente
     </button>
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Fringe Benefit -->
-  <fieldset
-    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    [attr.data-inactive]="!model.fringeBenefit.enabled || null"
+  <app-section
+    heading="Fringe Benefit"
+    collapsible
+    [active]="model.fringeBenefit.enabled"
+    [toggle]="form.fringeBenefit.enabled"
+    toggleLabel="Ho fringe benefit"
+    toggleInfo="Compensi in natura. Esenti fino a 1.000 euro all'anno (2.000 con figli a carico) per il triennio 2025-2027. ATTENZIONE: sistema a soglia secca - se superi anche di 1 centesimo, tutto diventa imponibile!"
   >
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Fringe Benefit
-    </legend>
-
-    <div class="flex items-center gap-2 mb-4">
-      <input
-        id="fringeBenefitEnabled"
-        type="checkbox"
-        [formField]="form.fringeBenefit.enabled"
-        class="size-4 shrink-0 cursor-pointer accent-primary"
-      />
-      <label for="fringeBenefitEnabled" class="text-sm text-title font-medium flex items-center"
-        >Ho fringe benefit<app-info-tooltip
-          tooltipId="fringeBenefitEnabled-info"
-          text="Compensi in natura. Esenti fino a 1.000 euro all'anno (2.000 con figli a carico) per il triennio 2025-2027. ATTENZIONE: sistema a soglia secca - se superi anche di 1 centesimo, tutto diventa imponibile!"
-        />
-      </label>
-    </div>
-
     @if (model.fringeBenefit.enabled) {
       <app-field
         label="Buoni acquisto/spesa (€/anno)"
@@ -572,24 +518,17 @@
       </app-field>
 
       <!-- Auto Aziendale -->
-      <div class="flex items-center gap-2 mb-4">
-        <input
-          id="autoAziendaleEnabled"
-          type="checkbox"
-          [formField]="form.fringeBenefit.autoAziendaleEnabled"
-          class="size-4 shrink-0 cursor-pointer accent-primary"
-        />
-        <label for="autoAziendaleEnabled" class="text-sm text-title font-medium flex items-center"
-          >Ho auto aziendale<app-info-tooltip
-            tooltipId="autoAziendaleEnabled-info"
-            text="Il valore si calcola: (costo ACI x 15.000 km x percentuale) x mesi/12. Non rientra nella soglia fringe benefit."
-          />
-        </label>
-      </div>
+      <app-check
+        label="Ho auto aziendale"
+        info="Il valore si calcola: (costo ACI x 15.000 km x percentuale) x mesi/12. Non rientra nella soglia fringe benefit."
+        class="mb-4"
+      >
+        <input appControl type="checkbox" [formField]="form.fringeBenefit.autoAziendaleEnabled" />
+      </app-check>
 
       @if (model.fringeBenefit.autoAziendaleEnabled) {
         <div class="rounded-lg p-4 bg-page ring-1 ring-inset ring-ring">
-          <h3 class="text-sm font-semibold text-title mb-3">Auto Aziendale</h3>
+          <h5 class="text-sm font-semibold text-title mb-3">Auto Aziendale</h5>
 
           <app-field
             label="Costo km ACI (€/km)"
@@ -659,32 +598,17 @@
         </div>
       }
     }
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Rimborsi Trasferta -->
-  <fieldset
-    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    [attr.data-inactive]="!model.rimborsiTrasferta.enabled || null"
+  <app-section
+    heading="Rimborsi Trasferta"
+    collapsible
+    [active]="model.rimborsiTrasferta.enabled"
+    [toggle]="form.rimborsiTrasferta.enabled"
+    toggleLabel="Ho rimborsi trasferta"
+    toggleInfo="Rimborsi per trasferte fuori dal comune di lavoro. Possono essere forfettari (46,48 euro/giorno Italia, 77,47 euro estero) o a pie' di lista."
   >
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Rimborsi Trasferta
-    </legend>
-
-    <div class="flex items-center gap-2 mb-4">
-      <input
-        id="rimborsiTrasfertaEnabled"
-        type="checkbox"
-        [formField]="form.rimborsiTrasferta.enabled"
-        class="size-4 shrink-0 cursor-pointer accent-primary"
-      />
-      <label for="rimborsiTrasfertaEnabled" class="text-sm text-title font-medium flex items-center"
-        >Ho rimborsi trasferta<app-info-tooltip
-          tooltipId="rimborsiTrasfertaEnabled-info"
-          text="Rimborsi per trasferte fuori dal comune di lavoro. Possono essere forfettari (46,48 euro/giorno Italia, 77,47 euro estero) o a pie' di lista."
-        />
-      </label>
-    </div>
-
     @if (model.rimborsiTrasferta.enabled) {
       <app-field
         label="Modalità rimborso"
@@ -753,32 +677,17 @@
         />
       </app-check>
     }
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Benefit Non Tassati (Welfare) -->
-  <fieldset
-    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    [attr.data-inactive]="!model.benefitNonTassati.enabled || null"
+  <app-section
+    heading="Benefit Non Tassati (Welfare)"
+    collapsible
+    [active]="model.benefitNonTassati.enabled"
+    [toggle]="form.benefitNonTassati.enabled"
+    toggleLabel="Ho benefit non tassati"
+    toggleInfo="Voci welfare completamente esenti o con limiti specifici: previdenza, sanità, buoni pasto, trasporto pubblico, servizi familiari."
   >
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Benefit Non Tassati (Welfare)
-    </legend>
-
-    <div class="flex items-center gap-2 mb-4">
-      <input
-        id="benefitNonTassatiEnabled"
-        type="checkbox"
-        [formField]="form.benefitNonTassati.enabled"
-        class="size-4 shrink-0 cursor-pointer accent-primary"
-      />
-      <label for="benefitNonTassatiEnabled" class="text-sm text-title font-medium flex items-center"
-        >Ho benefit non tassati<app-info-tooltip
-          tooltipId="benefitNonTassatiEnabled-info"
-          text="Voci welfare completamente esenti o con limiti specifici: previdenza, sanità, buoni pasto, trasporto pubblico, servizi familiari."
-        />
-      </label>
-    </div>
-
     @if (model.benefitNonTassati.enabled) {
       <app-field
         label="Previdenza complementare da welfare (€/anno)"
@@ -859,30 +768,18 @@
         <input appControl type="number" [formField]="form.benefitNonTassati.altri" />
       </app-field>
     }
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Borsa di Studio -->
-  <fieldset
-    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    [attr.data-inactive]="!model.borsaDiStudio.enabled || null"
+  <app-section
+    heading="Borsa di Studio"
+    collapsible
+    [active]="model.borsaDiStudio.enabled"
+    description="Borse di studio post-laurea assegnate da universit&agrave; italiane, tassate dal 7 giugno 2025 (D.L. 45/2025, L. 79/2025). Soggette a INPS Gestione Separata e cumulo IRPEF."
+    [toggle]="form.borsaDiStudio.enabled"
+    toggleLabel="Ho una borsa di studio"
+    toggleInfo="Dal 7/6/2025 le borse post-laurea sono redditi assimilati al lavoro dipendente. INPS Gestione Separata 35,03% (1/3 borsista, 2/3 ente). L'imponibile si cumula con la RAL per IRPEF e addizionali."
   >
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Borsa di Studio
-    </legend>
-
-    <p class="text-xs text-subtle mb-4">
-      Borse di studio post-laurea assegnate da universit&agrave; italiane, tassate dal 7 giugno 2025
-      (D.L. 45/2025, L. 79/2025). Soggette a INPS Gestione Separata e cumulo IRPEF.
-    </p>
-
-    <app-check
-      label="Ho una borsa di studio"
-      info="Dal 7/6/2025 le borse post-laurea sono redditi assimilati al lavoro dipendente. INPS Gestione Separata 35,03% (1/3 borsista, 2/3 ente). L'imponibile si cumula con la RAL per IRPEF e addizionali."
-      class="mb-3"
-    >
-      <input appControl type="checkbox" [formField]="form.borsaDiStudio.enabled" />
-    </app-check>
-
     @if (model.borsaDiStudio.enabled) {
       <app-field label="Importo annuo lordo (&euro;/anno)" class="mb-4">
         <input
@@ -893,46 +790,33 @@
         />
       </app-field>
     }
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Dipendenti CCNL Commercio -->
-  <fieldset
-    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    [attr.data-inactive]="!fondoCommercioSelezionato() || null"
+  <app-section
+    heading="Dipendenti CCNL Commercio"
+    collapsible
+    [active]="fondoCommercioSelezionato()"
+    description="Trattenute per i dipendenti non dirigenti del settore commercio, turismo e servizi."
   >
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Dipendenti CCNL Commercio
-    </legend>
-
-    <p class="text-xs text-subtle mb-4">
-      Trattenute per i dipendenti non dirigenti del settore commercio, turismo e servizi.
-    </p>
-
     @for (fondo of fondiCommercio; track fondo.id) {
       <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" class="mb-3">
         <input appControl type="checkbox" [formField]="form[fondo.id]" />
       </app-check>
     }
-  </fieldset>
+  </app-section>
 
   <!-- Sezione Dirigenti CCNL Terziario -->
-  <fieldset
-    class="bg-surface rounded-xl p-5 shadow-xs ring-1 ring-ring transition-colors duration-200 data-inactive:bg-page data-inactive:shadow-none"
-    [attr.data-inactive]="!fondoDirigentiSelezionato() || null"
+  <app-section
+    heading="Dirigenti CCNL Terziario"
+    collapsible
+    [active]="fondoDirigentiSelezionato()"
+    description="Trattenute obbligatorie per i dirigenti del settore terziario (commercio, distribuzione, servizi)."
   >
-    <legend class="mb-4 font-mono text-xs/5 font-semibold tracking-widest uppercase text-muted">
-      Dirigenti CCNL Terziario
-    </legend>
-
-    <p class="text-xs text-subtle mb-4">
-      Trattenute obbligatorie per i dirigenti del settore terziario (commercio, distribuzione,
-      servizi).
-    </p>
-
     @for (fondo of fondiDirigenti; track fondo.id) {
       <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" class="mb-3">
         <input appControl type="checkbox" [formField]="form[fondo.id]" />
       </app-check>
     }
-  </fieldset>
+  </app-section>
 </form>

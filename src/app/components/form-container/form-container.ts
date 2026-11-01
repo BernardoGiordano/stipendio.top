@@ -9,8 +9,8 @@ import {
   StipendioFormModel,
 } from './form-group';
 import { TipoAlimentazioneAuto, TipoContratto } from '../../../calculator/types';
-import { InfoTooltip } from '../info-tooltip/info-tooltip';
 import { Check, Control, Field } from '../field/field';
+import { Section } from '../section/section';
 import {
   elencoComuni,
   elencoRegioni,
@@ -39,7 +39,7 @@ function tooltipFondo(fondo: FondoContrattuale): string {
 
 @Component({
   selector: 'app-form-container',
-  imports: [FormField, FormsModule, NgSelectComponent, InfoTooltip, Field, Check, Control],
+  imports: [FormField, FormsModule, NgSelectComponent, Field, Check, Control, Section],
   templateUrl: './form-container.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -58,6 +58,11 @@ export class FormContainer {
     ALTRO_OPTION,
     ...elencoComuni(this.selectedRegione()).map((c) => ({ value: c.codice, label: c.nome })),
   ]);
+
+  readonly altriRedditiAttivi = computed(() => {
+    const m = this.formModel()();
+    return m.altriRedditi > 0 || m.altreDetrazioni > 0 || m.altriRedditiSogliaAddizionale > 0;
+  });
 
   readonly mostraRedditiSostitutivi = computed(() =>
     haRedditiSostitutiviInSoglia(this.selectedRegione()),
