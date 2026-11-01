@@ -3,6 +3,7 @@ export function formatCurrency(value: number | null | undefined): string {
   return new Intl.NumberFormat('it-IT', {
     style: 'currency',
     currency: 'EUR',
+    useGrouping: 'always',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);

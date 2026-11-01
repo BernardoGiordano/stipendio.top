@@ -117,9 +117,15 @@
                 </div>
                 <div class="flex justify-between py-1.5">
                   <dt class="text-sm text-muted">Totale Bonus</dt>
-                  <dd class="text-sm font-medium text-pos">
-                    + {{ formatCurrency(r.totaleBonus) }}
-                  </dd>
+                  @if (r.totaleBonus > 0) {
+                    <dd class="text-sm font-medium text-pos">
+                      + {{ formatCurrency(r.totaleBonus) }}
+                    </dd>
+                  } @else {
+                    <dd class="text-sm font-medium text-fg">
+                      {{ formatCurrency(r.totaleBonus) }}
+                    </dd>
+                  }
                 </div>
                 <div
                   class="flex justify-between py-2 mt-2 border-t border-ring-strong font-semibold"
@@ -860,7 +866,9 @@
     } @else {
       <div class="p-8 text-center">
         <p class="text-subtle mb-2">Compila il form per calcolare il tuo stipendio netto.</p>
-        <p class="text-sm text-faint">I campi obbligatori sono: RAL, Regione e Comune.</p>
+        <p class="text-sm text-faint">
+          La RAL è obbligatoria. Se il risultato non compare, controlla i campi con un errore.
+        </p>
       </div>
     }
   </div>

@@ -248,6 +248,9 @@ export function createDefaultAscendente(): AscendenteACaricoFormModel {
 
 const currentYear = new Date().getFullYear() as AnnoFiscale;
 
+/** RAL shown on first load, so the page opens on a result instead of an empty form */
+export const RAL_ESEMPIO = 35000;
+
 export function createDefaultFormModel(): StipendioFormModel {
   return {
     ral: 0,

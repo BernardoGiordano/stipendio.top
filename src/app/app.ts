@@ -14,6 +14,7 @@ import { Resizer } from './components/resizer/resizer';
 import {
   createDefaultFormModel,
   createStipendioForm,
+  RAL_ESEMPIO,
   StipendioFormModel,
   toInputCalcoloStipendio,
 } from './components/form-container/form-group';
@@ -119,6 +120,6 @@ export class App {
       });
       return this.formStateShare.mergeWithDefaults(urlState);
     }
-    return createDefaultFormModel();
+    return { ...createDefaultFormModel(), ral: RAL_ESEMPIO };
   }
 }

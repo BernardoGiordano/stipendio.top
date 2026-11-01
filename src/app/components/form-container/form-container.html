@@ -191,7 +191,7 @@
         id="aziendaConCigs"
         type="checkbox"
         [formField]="form.aziendaConCigs"
-        class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+        class="size-4 shrink-0 cursor-pointer accent-primary"
       />
       <label for="aziendaConCigs" class="text-sm text-muted flex items-center"
         >Azienda con più di 15 dipendenti (CIGS)<app-info-tooltip
@@ -206,7 +206,7 @@
         id="iscrittoPost1996"
         type="checkbox"
         [formField]="form.iscrittoPost1996"
-        class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+        class="size-4 shrink-0 cursor-pointer accent-primary"
       />
       <label for="iscrittoPost1996" class="text-sm text-muted flex items-center"
         >Iscritto alla previdenza dal 1996 in poi<app-info-tooltip
@@ -221,7 +221,7 @@
         id="regimeImpatriati"
         type="checkbox"
         [formField]="form.regimeImpatriati"
-        class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+        class="size-4 shrink-0 cursor-pointer accent-primary"
       />
       <label for="regimeImpatriati" class="text-sm text-muted flex items-center"
         >Regime impatriati (rientro cervelli)<app-info-tooltip
@@ -237,7 +237,7 @@
           id="regimeImpatriatiMinorenni"
           type="checkbox"
           [formField]="form.regimeImpatriatiMinorenni"
-          class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+          class="size-4 shrink-0 cursor-pointer accent-primary"
         />
         <label for="regimeImpatriatiMinorenni" class="text-sm text-muted flex items-center"
           >Ho almeno un figlio minorenne residente in Italia<app-info-tooltip
@@ -357,7 +357,7 @@
         id="fondoPensioneEnabled"
         type="checkbox"
         [formField]="form.fondoPensioneIntegrativo.enabled"
-        class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+        class="size-4 shrink-0 cursor-pointer accent-primary"
       />
       <label for="fondoPensioneEnabled" class="text-sm text-muted flex items-center"
         >Fondo pensione integrativo<app-info-tooltip
@@ -579,7 +579,7 @@
           id="ripartizionePerMensilita"
           type="checkbox"
           [formField]="form.fondoPensioneIntegrativo.ripartizionePerMensilita"
-          class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+          class="size-4 shrink-0 cursor-pointer accent-primary"
         />
         <label for="ripartizionePerMensilita" class="text-sm text-title flex items-center"
           >Dividi contributo per numero mensilità<app-info-tooltip
@@ -605,7 +605,7 @@
         id="coniugeEnabled"
         type="checkbox"
         [formField]="form.coniuge.enabled"
-        class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+        class="size-4 shrink-0 cursor-pointer accent-primary"
       />
       <label for="coniugeEnabled" class="text-sm text-title font-medium flex items-center"
         >Ho un coniuge a carico<app-info-tooltip
@@ -714,7 +714,7 @@
         id="haFigliACarico"
         type="checkbox"
         [formField]="form.haFigliACarico"
-        class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+        class="size-4 shrink-0 cursor-pointer accent-primary"
       />
       <label for="haFigliACarico" class="text-sm text-muted flex items-center"
         >Ho figli a carico (per soglia fringe benefit)<app-info-tooltip
@@ -843,7 +843,7 @@
             [id]="'figlioDisabile' + $index"
             type="checkbox"
             [formField]="form.figli[$index].disabile"
-            class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+            class="size-4 shrink-0 cursor-pointer accent-primary"
           />
           <label [for]="'figlioDisabile' + $index" class="text-sm text-muted flex items-center"
             >Disabile<app-info-tooltip
@@ -966,7 +966,7 @@
             [id]="'ascendenteConvivente' + $index"
             type="checkbox"
             [formField]="form.ascendenti[$index].convivente"
-            class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+            class="size-4 shrink-0 cursor-pointer accent-primary"
           />
           <label
             [for]="'ascendenteConvivente' + $index"
@@ -1003,7 +1003,7 @@
         id="fringeBenefitEnabled"
         type="checkbox"
         [formField]="form.fringeBenefit.enabled"
-        class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+        class="size-4 shrink-0 cursor-pointer accent-primary"
       />
       <label for="fringeBenefitEnabled" class="text-sm text-title font-medium flex items-center"
         >Ho fringe benefit<app-info-tooltip
@@ -1161,7 +1161,7 @@
           id="autoAziendaleEnabled"
           type="checkbox"
           [formField]="form.fringeBenefit.autoAziendaleEnabled"
-          class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+          class="size-4 shrink-0 cursor-pointer accent-primary"
         />
         <label for="autoAziendaleEnabled" class="text-sm text-title font-medium flex items-center"
           >Ho auto aziendale<app-info-tooltip
@@ -1286,7 +1286,7 @@
               id="assegnatoPre2025"
               type="checkbox"
               [formField]="form.fringeBenefit.autoAziendale.assegnatoPre2025"
-              class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+              class="size-4 shrink-0 cursor-pointer accent-primary"
             />
             <label for="assegnatoPre2025" class="text-sm text-muted flex items-center"
               >Assegnato prima del 2025 (regime CO2)<app-info-tooltip
@@ -1342,7 +1342,7 @@
         id="rimborsiTrasfertaEnabled"
         type="checkbox"
         [formField]="form.rimborsiTrasferta.enabled"
-        class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+        class="size-4 shrink-0 cursor-pointer accent-primary"
       />
       <label for="rimborsiTrasfertaEnabled" class="text-sm text-title font-medium flex items-center"
         >Ho rimborsi trasferta<app-info-tooltip
@@ -1553,7 +1553,7 @@
           id="pagamentiTracciabili"
           type="checkbox"
           [formField]="form.rimborsiTrasferta.pagamentiTracciabili"
-          class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+          class="size-4 shrink-0 cursor-pointer accent-primary"
         />
         <label for="pagamentiTracciabili" class="text-sm text-muted flex items-center"
           >Pagamenti tracciabili<app-info-tooltip
@@ -1579,7 +1579,7 @@
         id="benefitNonTassatiEnabled"
         type="checkbox"
         [formField]="form.benefitNonTassati.enabled"
-        class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+        class="size-4 shrink-0 cursor-pointer accent-primary"
       />
       <label for="benefitNonTassatiEnabled" class="text-sm text-title font-medium flex items-center"
         >Ho benefit non tassati<app-info-tooltip
@@ -1708,7 +1708,7 @@
           id="buoniPastoElettronici"
           type="checkbox"
           [formField]="form.benefitNonTassati.buoniPastoElettronici"
-          class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+          class="size-4 shrink-0 cursor-pointer accent-primary"
         />
         <label for="buoniPastoElettronici" class="text-sm text-muted flex items-center"
           >Buoni pasto elettronici (soglia 10 euro invece di 4 euro)<app-info-tooltip
@@ -1817,7 +1817,7 @@
         id="borsaDiStudioEnabled"
         type="checkbox"
         [formField]="form.borsaDiStudio.enabled"
-        class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+        class="size-4 shrink-0 cursor-pointer accent-primary"
       />
       <label for="borsaDiStudioEnabled" class="text-sm text-muted flex items-center"
         >Ho una borsa di studio<app-info-tooltip
@@ -1873,7 +1873,7 @@
           [id]="fondo.id"
           type="checkbox"
           [formField]="form[fondo.id]"
-          class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+          class="size-4 shrink-0 cursor-pointer accent-primary"
         />
         <label [for]="fondo.id" class="text-sm text-muted flex items-center"
           >{{ fondo.nome
@@ -1903,7 +1903,7 @@
           [id]="fondo.id"
           type="checkbox"
           [formField]="form[fondo.id]"
-          class="w-4 h-4 rounded border-ring-strong text-stone-600 focus:ring-focus focus:ring-offset-0 bg-field dark:checked:bg-stone-500"
+          class="size-4 shrink-0 cursor-pointer accent-primary"
         />
         <label [for]="fondo.id" class="text-sm text-muted flex items-center"
           >{{ fondo.nome
