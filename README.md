@@ -359,9 +359,13 @@ Fringe Benefit = (Costo €/km ACI × 15.000 km × Percentuale) × (Mesi / 12) �
 **Rimborso Analitico:**
 Totalmente esente se documentato e con pagamento tracciabile (dal 2025).
 
+##### Rimborso Chilometrico
+
+L'indennità chilometrica per l'uso dell'auto propria è esente solo per le trasferte **fuori** dal comune sede di lavoro ed entro i limiti delle tariffe ACI (art. 51, c. 5, TUIR). Concorrono invece al reddito, e all'imponibile previdenziale, i rimborsi chilometrici per gli spostamenti nel comune e la quota eccedente le tariffe ACI: nel calcolo vanno indicati come "rimborso chilometrico imponibile".
+
 ##### Trasferte nel Comune
 
-Dal 2025: rimborso km e trasporto esenti se documentati.
+Dal 2025: spese di viaggio e trasporto (trasporto pubblico, taxi, NCC) esenti se documentate. Il rimborso chilometrico nel comune resta imponibile.
 
 ##### Obbligo Tracciabilità (dal 2025)
 

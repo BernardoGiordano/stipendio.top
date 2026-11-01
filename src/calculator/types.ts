@@ -52,8 +52,13 @@ export interface RimborsiTrasferta {
   rimborsoAlloggio?: number;
   /** Rimborso viaggio/trasporto documentato */
   rimborsoViaggio?: number;
-  /** Rimborso chilometrico auto propria */
+  /** Rimborso chilometrico auto propria per trasferte fuori comune, entro le tariffe ACI (esente) */
   rimborsoKm?: number;
+  /**
+   * Rimborso chilometrico imponibile: spostamenti nel comune sede di lavoro, o quota eccedente
+   * le tariffe ACI fuori comune (art. 51, c. 5, TUIR)
+   */
+  rimborsoKmImponibile?: number;
   /** Indica se i pagamenti sono tracciabili (obbligatorio dal 2025 per vitto/alloggio/taxi) */
   pagamentiTracciabili?: boolean;
 }

@@ -60,6 +60,7 @@ export interface RimborsiTrasfertaFormModel {
   rimborsoAlloggio: number;
   rimborsoViaggio: number;
   rimborsoKm: number;
+  rimborsoKmImponibile: number;
   pagamentiTracciabili: boolean;
 }
 
@@ -180,6 +181,7 @@ function createDefaultRimborsiTrasferta(): RimborsiTrasfertaFormModel {
     rimborsoAlloggio: 0,
     rimborsoViaggio: 0,
     rimborsoKm: 0,
+    rimborsoKmImponibile: 0,
     pagamentiTracciabili: true,
   };
 }
@@ -332,6 +334,7 @@ const rimborsiTrasfertaSchema = schema<RimborsiTrasfertaFormModel>((path) => {
   min(path.rimborsoAlloggio, 0, { message: 'Valore non valido' });
   min(path.rimborsoViaggio, 0, { message: 'Valore non valido' });
   min(path.rimborsoKm, 0, { message: 'Valore non valido' });
+  min(path.rimborsoKmImponibile, 0, { message: 'Valore non valido' });
 });
 
 const benefitNonTassatiSchema = schema<BenefitNonTassatiFormModel>((path) => {
@@ -516,6 +519,7 @@ function toRimborsiTrasferta(model: RimborsiTrasfertaFormModel): RimborsiTrasfer
   if (model.rimborsoAlloggio > 0) result.rimborsoAlloggio = model.rimborsoAlloggio;
   if (model.rimborsoViaggio > 0) result.rimborsoViaggio = model.rimborsoViaggio;
   if (model.rimborsoKm > 0) result.rimborsoKm = model.rimborsoKm;
+  if (model.rimborsoKmImponibile > 0) result.rimborsoKmImponibile = model.rimborsoKmImponibile;
   if (!model.pagamentiTracciabili) result.pagamentiTracciabili = false;
 
   return Object.keys(result).length > 0 ? result : undefined;

@@ -1683,9 +1683,12 @@
       </div>
 
       <div class="flex flex-col gap-1 mb-4">
-        <label for="rimborsoKm" class="text-sm text-stone-600 dark:text-stone-400"
-          >Rimborso chilometrico (€/anno)</label
-        >
+        <label for="rimborsoKm" class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Rimborso chilometrico fuori comune (€/anno)<app-info-tooltip
+            tooltipId="rimborsoKm-info"
+            text="Indennità chilometrica per l'uso dell'auto propria in trasferte fuori dal comune sede di lavoro, entro le tariffe ACI: esente da imposte e contributi. Non richiede pagamento tracciabile."
+          />
+        </label>
         <input
           id="rimborsoKm"
           type="number"
@@ -1700,6 +1703,39 @@
           @for (error of form.rimborsiTrasferta.rimborsoKm().errors(); track error.kind) {
             <span
               id="rimborsoKm-error"
+              class="text-xs text-red-600 mt-1 dark:text-red-400"
+              role="alert"
+              >{{ error.message }}</span
+            >
+          }
+        }
+      </div>
+
+      <div class="flex flex-col gap-1 mb-4">
+        <label
+          for="rimborsoKmImponibile"
+          class="text-sm text-stone-600 dark:text-stone-400 flex items-center"
+          >Rimborso chilometrico imponibile (€/anno)<app-info-tooltip
+            tooltipId="rimborsoKmImponibile-info"
+            text="Rimborsi chilometrici che concorrono al reddito (art. 51, c. 5, TUIR): spostamenti nel comune sede di lavoro e quota eccedente le tariffe ACI nelle trasferte fuori comune."
+          />
+        </label>
+        <input
+          id="rimborsoKmImponibile"
+          type="number"
+          [formField]="form.rimborsiTrasferta.rimborsoKmImponibile"
+          [attr.aria-invalid]="form.rimborsiTrasferta.rimborsoKmImponibile().invalid()"
+          [attr.aria-describedby]="
+            form.rimborsiTrasferta.rimborsoKmImponibile().invalid()
+              ? 'rimborsoKmImponibile-error'
+              : null
+          "
+          class="px-3 py-2 border border-stone-300 rounded-md text-stone-900 bg-white placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-100 dark:placeholder:text-stone-500"
+        />
+        @if (form.rimborsiTrasferta.rimborsoKmImponibile().invalid()) {
+          @for (error of form.rimborsiTrasferta.rimborsoKmImponibile().errors(); track error.kind) {
+            <span
+              id="rimborsoKmImponibile-error"
               class="text-xs text-red-600 mt-1 dark:text-red-400"
               role="alert"
               >{{ error.message }}</span

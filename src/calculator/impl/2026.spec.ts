@@ -3343,6 +3343,36 @@ describe('Rimborsi trasferta', () => {
     expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(200, 2);
   });
 
+  it('rimborso km fuori comune esente, rimborso km imponibile tassato anche se tracciabile', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'analitico',
+        rimborsoKm: 1_000,
+        rimborsoKmImponibile: 400,
+        pagamentiTracciabili: true,
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(1_000, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(400, 2);
+    expect(result.contributiInps.imponibilePrevidenziale).toBeCloseTo(baseInput.ral + 400, 2);
+  });
+
+  it('rimborso km imponibile si somma a vitto e alloggio non tracciabili', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'analitico',
+        rimborsoVitto: 500,
+        rimborsoKm: 1_000,
+        rimborsoKmImponibile: 400,
+        pagamentiTracciabili: false,
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(900, 2);
+    expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(1_000, 2);
+  });
+
   it('totaleRimborsi = totaleEsente + rimborsiTassati', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,

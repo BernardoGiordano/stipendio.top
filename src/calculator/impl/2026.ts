@@ -348,13 +348,16 @@ function calcolaRimborsiTrasferta(
   const rimborsoAlloggio = rimborsi.rimborsoAlloggio ?? 0;
   const rimborsoViaggio = rimborsi.rimborsoViaggio ?? 0;
   const rimborsoKm = rimborsi.rimborsoKm ?? 0;
+  // Il rimborso km è esente solo fuori comune ed entro le tariffe ACI (art. 51, c. 5, TUIR)
+  const rimborsoKmImponibile = rimborsi.rimborsoKmImponibile ?? 0;
 
   const pagamentiTracciabili = rimborsi.pagamentiTracciabili ?? true;
 
   if (pagamentiTracciabili) {
     rimborsoDocumentatoEsente = rimborsoVitto + rimborsoAlloggio + rimborsoViaggio + rimborsoKm;
+    rimborsiTassati = rimborsoKmImponibile;
   } else {
-    rimborsiTassati = rimborsoVitto + rimborsoAlloggio;
+    rimborsiTassati = rimborsoVitto + rimborsoAlloggio + rimborsoKmImponibile;
     rimborsoDocumentatoEsente = rimborsoViaggio + rimborsoKm;
   }
 
