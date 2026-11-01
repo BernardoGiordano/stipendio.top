@@ -244,6 +244,24 @@ describe('Fringe benefit auto aziendale', () => {
       expect(result.fringeBenefit.sogliaSuperata).toBe(false);
     });
 
+    it('figlio inserito ma oltre il limite di reddito: soglia resta €1000', () => {
+      const fringeBenefit = { buoniAcquisto: 1_500 };
+      const aCarico = calc.calcolaStipendioNetto({
+        ...baseInput,
+        figli: [{ eta: 25, disabile: false, redditoAnnuo: 2_000 }],
+        fringeBenefit,
+      });
+      const nonACarico = calc.calcolaStipendioNetto({
+        ...baseInput,
+        figli: [{ eta: 25, disabile: false, redditoAnnuo: 5_000 }],
+        fringeBenefit,
+      });
+      expect(aCarico.fringeBenefit.sogliaEsenzione).toBe(2_000);
+      expect(aCarico.fringeBenefit.sogliaSuperata).toBe(false);
+      expect(nonACarico.fringeBenefit.sogliaEsenzione).toBe(1_000);
+      expect(nonACarico.fringeBenefit.sogliaSuperata).toBe(true);
+    });
+
     it('con figli a carico, benefit sopra 1000 ma sotto 2000 resta esente', () => {
       const result = calc.calcolaStipendioNetto({
         ...baseInput,

@@ -1066,7 +1066,8 @@ export class Calculator2026 implements StipendioCalculator {
     } = input;
 
     // 1. CALCOLO FRINGE BENEFIT
-    const haFigliPerFringeBenefit = haFigliACarico || (figli !== undefined && figli.length > 0);
+    // Contano solo i figli entro il limite di reddito dell'art. 12, c. 2, TUIR
+    const haFigliPerFringeBenefit = haFigliACarico || (figli ?? []).some(isFiglioACarico);
     const fringeBenefit = calcolaFringeBenefit(fringeBenefitInput, haFigliPerFringeBenefit);
 
     // 2. CALCOLO RIMBORSI TRASFERTA
