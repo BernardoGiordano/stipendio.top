@@ -29,6 +29,11 @@ export interface FondoContrattuale {
    * Un fondo non deducibile è una trattenuta diretta dal netto.
    */
   deducibile: boolean;
+  /**
+   * Il contributo datore finanzia previdenza complementare o assistenza sanitaria ed è soggetto
+   * al contributo di solidarietà del 10% (art. 16 D.Lgs. 252/2005, art. 9-bis D.L. 103/1991)
+   */
+  soggettoSolidarieta: boolean;
 }
 
 /** Fondi contrattuali 2026 */
@@ -43,6 +48,7 @@ export const FONDI_CONTRATTUALI: readonly FondoContrattuale[] = [
     // Ordinario 12,86% + integrativo 2,52% della retribuzione convenzionale
     contributoDatore: 0.1538 * 59_224.54,
     deducibile: true,
+    soggettoSolidarieta: true,
   },
   {
     id: 'fondoPastore',
@@ -52,6 +58,7 @@ export const FONDI_CONTRATTUALI: readonly FondoContrattuale[] = [
     contributoLavoratore: 464.81,
     contributoDatore: 4_856.45,
     deducibile: false,
+    soggettoSolidarieta: false,
   },
   {
     id: 'cfmt',
@@ -63,6 +70,7 @@ export const FONDI_CONTRATTUALI: readonly FondoContrattuale[] = [
     // €258 formazione + €18 piattaforma welfare
     contributoDatore: 276,
     deducibile: false,
+    soggettoSolidarieta: false,
   },
   {
     id: 'fasdac',
@@ -74,6 +82,7 @@ export const FONDI_CONTRATTUALI: readonly FondoContrattuale[] = [
     // Dirigenti in servizio 5,29% + gestione pensionati 2,78% della retribuzione convenzionale
     contributoDatore: 0.0807 * 45_940,
     deducibile: false,
+    soggettoSolidarieta: true,
   },
   {
     id: 'fondoEst',
@@ -85,6 +94,7 @@ export const FONDI_CONTRATTUALI: readonly FondoContrattuale[] = [
     // €13/mese
     contributoDatore: 156,
     deducibile: false,
+    soggettoSolidarieta: true,
   },
 ];
 
@@ -111,6 +121,8 @@ export interface CalcoloFondi {
   redditoFondoPensione: number;
   /** Deduzione dall'imponibile IRPEF */
   deduzione: number;
+  /** Contributi datore soggetti al contributo di solidarietà del 10% */
+  baseContributoSolidarieta: number;
   /** Contributi a carico del datore, accantonati per il lavoratore */
   entrate: VoceEntrata[];
   /** Contributi a carico del lavoratore, trattenuti dal netto */
@@ -181,6 +193,14 @@ export function calcolaFondi(input: InputFondi): CalcoloFondi {
         previdenza.contributoWelfareAnnuo
       : 0,
     deduzione: deduzioneFondiContrattuali + (previdenza?.deduzioneEffettiva ?? 0),
+    // I contributi datore e welfare al fondo pensione, non il TFR conferito
+    baseContributoSolidarieta:
+      somma(
+        selezionati
+          .filter((fondo) => fondo.soggettoSolidarieta)
+          .map((fondo) => fondo.contributoDatore),
+      ) +
+      (previdenza ? previdenza.contributoDatoreLavoroAnnuo + previdenza.contributoWelfareAnnuo : 0),
     entrate,
     trattenute,
     isDirigente: selezionati.some((fondo) => fondo.categoria === 'dirigentiTerziario'),

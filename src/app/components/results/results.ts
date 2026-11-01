@@ -14,15 +14,19 @@ import {
 import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculator/types';
 import { REGIONE_LABELS } from '../../../calculator/addizionali/2026.regionali';
 import { PLAFOND_PREVIDENZA_COMPLEMENTARE } from '../../../calculator/fondi/2026';
+import { VOCE_INPS_DATORE } from '../../../calculator/datore/2026';
 import { GraphFunnel } from '../graph-funnel/graph-funnel';
 import { GraphProjection } from '../graph-projection/graph-projection';
 import { LedgerCard, LedgerRow, LedgerVoce } from '../ledger/ledger';
 import { Kpi, Stat, Tray } from '../tray/tray';
 import { ripartizioneRal } from '../tray/breakdown';
 import { aumentoNetto } from '../../utils/proiezione';
-import { formatCurrency, formatPercent } from '../../utils/intl';
+import { formatCurrency, formatNumber, formatPercent } from '../../utils/intl';
 
 type TabId = 'cedolino' | 'flusso' | 'proiezione';
+
+/** A row of the costo aziendale card, with the rate it applies in brackets */
+type RigaCosto = LedgerVoce & { nota?: string };
 
 /** Tailwind's lg breakpoint, where the tab bar pins to the top */
 const PINNED_BAR_QUERY = '(min-width: 64rem)';
@@ -175,9 +179,65 @@ export class Results {
     return { applicate, nonUtilizzabili: nonUtilizzabili >= 0.005 ? nonUtilizzabili : 0 };
   });
 
-  readonly entrateDatore = computed(
-    () => this.result()?.ripartizione.entrate.filter((voce) => voce.pagatore === 'datore') ?? [],
-  );
+  /**
+   * The datore's voci, with INPS before the exemption and TFR before the 0,50% IVS recovery,
+   * each followed by its reduction, so the rows still add up to the costo aziendale
+   */
+  readonly righeCostoAziendale = computed<RigaCosto[]>(() => {
+    const r = this.result();
+    if (!r) return [];
+    const d = r.contributiDatore;
+    const inps: RigaCosto[] = [
+      {
+        label: VOCE_INPS_DATORE,
+        amount: d.contributiInpsLordi,
+        nota: formatPercent(d.aliquotaInps),
+      },
+      ...(d.esonero > 0
+        ? [
+            {
+              label: 'Esonero contributivo',
+              amount: d.esonero,
+              flow: 'reduce',
+              level: 'detail',
+            } as const,
+          ]
+        : []),
+    ];
+    const datore = r.ripartizione.entrate.filter((voce) => voce.pagatore === 'datore');
+
+    const righe = datore.flatMap((voce): RigaCosto[] => {
+      if (voce.descrizione === VOCE_INPS_DATORE) return inps;
+      if (voce.categoria === 'tfr') {
+        return [
+          { label: 'TFR (RAL / 13,5)', amount: d.tfrLordo },
+          ...(d.riduzioneTfr > 0
+            ? [
+                {
+                  label: 'Recupero 0,50% IVS',
+                  amount: d.riduzioneTfr,
+                  flow: 'reduce',
+                  level: 'detail',
+                } as const,
+              ]
+            : []),
+        ];
+      }
+      const nota =
+        voce.categoria === 'inail'
+          ? `${formatNumber(d.tassoInail * 1000, 1)}‰`
+          : voce.aliquota !== undefined
+            ? formatPercent(voce.aliquota)
+            : undefined;
+      return [{ label: voce.descrizione, amount: voce.importo, nota }];
+    });
+
+    // A full exemption leaves no INPS voce: show the contributions and the exemption after the RAL
+    if (d.esonero > 0 && !datore.some((voce) => voce.descrizione === VOCE_INPS_DATORE)) {
+      righe.splice(1, 0, ...inps);
+    }
+    return righe;
+  });
 
   /** INPS the employer pays on top of the worker's share */
   readonly inpsDatore = computed(

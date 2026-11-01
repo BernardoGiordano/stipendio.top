@@ -116,6 +116,37 @@ export interface DettaglioFondoContrattuale {
   risparmioFiscaleStimato: number;
 }
 
+/** Esoneri contributivi per le nuove assunzioni, con quota e tetto mensile predefiniti */
+export type TipoEsoneroContributivo = 'giovani' | 'giovaniZes' | 'donne' | 'zes' | 'personalizzato';
+
+/** Esonero dai contributi INPS a carico del datore, esclusi i premi INAIL */
+export interface EsoneroContributivo {
+  tipo: TipoEsoneroContributivo;
+  /** Quota esonerata dei contributi INPS datore (es. 100 = 100%), solo per 'personalizzato' */
+  percentuale?: number;
+  /** Tetto mensile dell'esonero (€), solo per 'personalizzato'; 0 o assente = senza tetto */
+  tettoMensile?: number;
+  /** Mesi di esonero nell'anno (default 12) */
+  mesi?: number;
+}
+
+/** Voci a carico del datore che spostano il costo aziendale, non il netto */
+export interface OpzioniDatore {
+  /** Tasso INAIL in per mille (es. 4 = 4‰), applicato all'imponibile previdenziale */
+  tassoInail?: number;
+  /**
+   * Rinnovi del contratto a tempo determinato: ciascuno aumenta di 0,5 punti il contributo
+   * addizionale NASpI (art. 3, c. 2, D.L. 87/2018)
+   */
+  rinnoviTempoDeterminato?: number;
+  /** Esonero contributivo per l'assunzione */
+  esonero?: EsoneroContributivo;
+  /** Apprendistato in azienda fino a 9 dipendenti: aliquota ridotta nei primi due anni */
+  apprendistatoFinoA9Dipendenti?: boolean;
+  /** Anno del contratto di apprendistato (1, 2, 3 o più; default 3) */
+  annoApprendistato?: number;
+}
+
 /** Informazioni su un figlio a carico */
 export interface FiglioACarico {
   /** Età del figlio */
@@ -223,6 +254,9 @@ export interface InputCalcoloStipendio extends Partial<Record<FondoContrattualeI
   /** Indica se il borsista ha altra copertura pensionistica obbligatoria (riduce GS da 35,03% a 24%).
    *  Rilevante solo quando tipoContratto = 'borsaDiStudio'. */
   altraCoperturaPensionistica?: boolean;
+
+  /** INAIL, rinnovi, esoneri e aliquote agevolate a carico del datore */
+  opzioniDatore?: OpzioniDatore;
 }
 
 /** Dettaglio dei contributi INPS */
@@ -237,6 +271,32 @@ export interface DettaglioContributiInps {
   contributoAggiuntivo: number;
   /** Totale contributi a carico del lavoratore */
   totaleContributi: number;
+}
+
+/** Dettaglio dei contributi, premi e accantonamenti a carico del datore */
+export interface DettaglioContributiDatore {
+  /** Aliquota INPS datore applicata */
+  aliquotaInps: number;
+  /** Contributi INPS datore prima dell'esonero */
+  contributiInpsLordi: number;
+  /** Esonero contributivo sottratto ai contributi INPS datore */
+  esonero: number;
+  /** Aliquota del contributo addizionale NASpI (tempo determinato), 0 se non dovuto */
+  aliquotaAddizionaleNaspi: number;
+  /** Contributo addizionale NASpI (art. 2, c. 28, L. 92/2012) */
+  addizionaleNaspi: number;
+  /** Tasso INAIL applicato (es. 0,004 = 4‰), 0 se non indicato o compreso nell'aliquota INPS */
+  tassoInail: number;
+  /** Premio INAIL */
+  premioInail: number;
+  /** Contributi datore a previdenza complementare e assistenza sanitaria */
+  baseContributoSolidarieta: number;
+  /** Contributo di solidarietà 10% (art. 16 D.Lgs. 252/2005, art. 9-bis D.L. 103/1991) */
+  contributoSolidarieta: number;
+  /** TFR maturato (retribuzione / 13,5) */
+  tfrLordo: number;
+  /** Contributo aggiuntivo IVS 0,50% recuperato sul TFR (art. 3, c. 15-16, L. 297/1982) */
+  riduzioneTfr: number;
 }
 
 /** Dettaglio del calcolo IRPEF */
@@ -474,6 +534,7 @@ export type DestinazioneVoce = 'netto' | 'esente' | 'inNatura' | 'accantonata';
 export type CategoriaEntrata =
   | 'retribuzione'
   | 'contributiDatore'
+  | 'inail'
   | 'tfr'
   | 'fondi'
   | 'fringeBenefit'
@@ -577,6 +638,9 @@ export interface OutputCalcoloStipendio {
 
   /** Voci di entrata e di trattenuta da cui derivano i totali */
   ripartizione: Ripartizione;
+
+  /** Contributi, premi e accantonamenti a carico del datore */
+  contributiDatore: DettaglioContributiDatore;
 
   /** Costo aziendale annuo (entrate pagate dal datore) */
   costoAziendale: number;

@@ -617,10 +617,16 @@
         <!-- Costo aziendale -->
         <app-ledger-card heading="Costo aziendale" [total]="r.costoAziendale">
           <dl>
-            @for (voce of entrateDatore(); track voce.descrizione) {
-              <div appLedgerRow [label]="voce.descrizione" [amount]="voce.importo">
-                @if (voce.aliquota !== undefined) {
-                  ({{ formatPercent(voce.aliquota) }})
+            @for (riga of righeCostoAziendale(); track riga.label) {
+              <div
+                appLedgerRow
+                [label]="riga.label"
+                [amount]="riga.amount"
+                [flow]="riga.flow"
+                [level]="riga.level ?? 'row'"
+              >
+                @if (riga.nota) {
+                  ({{ riga.nota }})
                 }
               </div>
             }

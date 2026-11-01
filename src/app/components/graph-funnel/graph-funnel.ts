@@ -43,6 +43,7 @@ const PAGATORI: Record<PagatoreVoce, NodeStyle> = {
 const ENTRATE: Record<CategoriaEntrata, NodeStyle> = {
   retribuzione: { label: 'RAL (Lordo)', color: SERIE.retribuzione },
   contributiDatore: { label: 'INPS Datore', color: SERIE.contributiDatore },
+  inail: { label: 'INAIL', color: SERIE.inail },
   tfr: { label: 'TFR', color: SERIE.tfr },
   fondi: { label: 'Fondi Datore', color: SERIE.fondiDatore },
   fringeBenefit: { label: 'Fringe Benefit', color: SERIE.fringeBenefit },

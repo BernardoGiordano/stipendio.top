@@ -12,6 +12,7 @@ import {
   OutputCalcoloStipendio,
   TipoAlimentazioneAuto,
   TipoContratto,
+  TipoEsoneroContributivo,
 } from '../../../calculator/types';
 import { Check, Control, Field } from '../field/field';
 import { Icon } from '../icon/icon';
@@ -27,6 +28,7 @@ import {
   FondoContrattuale,
   PLAFOND_PREVIDENZA_COMPLEMENTARE,
 } from '../../../calculator/fondi/2026';
+import { ESONERI_CONTRIBUTIVI } from '../../../calculator/datore/2026';
 import { HUE } from '../../services/chart-palette';
 import { formatCurrency } from '../../utils/intl';
 
@@ -44,7 +46,8 @@ type Riga =
   | 'benefit'
   | 'borsa'
   | 'commercio'
-  | 'dirigenti';
+  | 'dirigenti'
+  | 'datore';
 
 function vociFondi(categoria: FondoContrattuale['categoria']) {
   return FONDI_CONTRATTUALI.filter((fondo) => fondo.categoria === categoria).map((fondo) => ({
@@ -150,6 +153,7 @@ export class FormContainer {
       borsa: m.borsaDiStudio.enabled,
       commercio: this.fondoCommercioSelezionato(),
       dirigenti: this.fondoDirigentiSelezionato(),
+      datore: m.opzioniDatore.enabled,
     };
   });
 
@@ -170,6 +174,7 @@ export class FormContainer {
     const fp = r.fondoPensioneIntegrativo;
     const fringe = r.fringeBenefit;
     const famiglia = r.detrazioniFamiliari;
+    const datore = r.contributiDatore;
     return {
       altriRedditi: [
         m.altriRedditi > 0 ? `+ ${eur(m.altriRedditi)} redditi` : '',
@@ -202,6 +207,13 @@ export class FormContainer {
       borsa: r.borsaDiStudio ? `+ ${eur(r.borsaDiStudio.nettoAnnuo)} netti` : undefined,
       commercio: `− ${eur(contaFondi(this.fondiCommercio))} / anno`,
       dirigenti: `− ${eur(contaFondi(this.fondiDirigenti))} / anno`,
+      datore:
+        [
+          datore.premioInail > 0 ? `INAIL ${eur(datore.premioInail)}` : '',
+          datore.esonero > 0 ? `esonero − ${eur(datore.esonero)}` : '',
+        ]
+          .filter(Boolean)
+          .join(' · ') || `costo ${eur(r.costoAziendale)}`,
     };
   });
 
@@ -222,6 +234,28 @@ export class FormContainer {
     'ml-auto flex size-[34px] shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors hover:bg-sunken hover:text-neg focus-visible:outline-2 focus-visible:outline-focus';
   readonly addButton =
     'mt-2 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full bg-field px-3 text-[13px] font-medium text-fg shadow-xs ring-1 ring-ring-strong transition-colors hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus';
+
+  readonly esoneri: { value: TipoEsoneroContributivo | 'nessuno'; label: string }[] = [
+    { value: 'nessuno', label: 'Nessuno' },
+    ...ESONERI_CONTRIBUTIVI.map((esonero) => ({
+      value: esonero.id,
+      label: `${esonero.nome} (fino a ${formatCurrency(esonero.tettoMensile, 0)} / mese)`,
+    })),
+    { value: 'personalizzato', label: 'Personalizzato' },
+  ];
+
+  /** Tooltip of the exemption select, listing what each preset covers */
+  readonly infoEsoneri = [
+    'Esonero dai contributi INPS a carico del datore per alcune assunzioni, per un massimo di 24 mesi. Non riduce il premio INAIL, il contributo addizionale NASpI e il contributo di solidarietà.',
+    ...ESONERI_CONTRIBUTIVI.map((esonero) => `${esonero.nome}: ${esonero.descrizione}`),
+    'Verifica i requisiti e le finestre di assunzione con le circolari INPS: per esoneri diversi, proroghe o quote ridotte usa Personalizzato.',
+  ].join(' ');
+
+  readonly anniApprendistato: SegmentedOption<number>[] = [
+    { value: 1, label: '1°' },
+    { value: 2, label: '2°' },
+    { value: 3, label: 'Dal 3°' },
+  ];
 
   readonly modalitaRimborso: {
     value: 'nessuna' | 'forfettario' | 'misto' | 'analitico';
