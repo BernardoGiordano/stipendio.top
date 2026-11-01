@@ -6,88 +6,83 @@
 
   <!-- Dati contrattuali -->
   <app-section heading="Dati contrattuali" class="rounded-t-2xl rounded-b-md">
-    <div class="flex flex-wrap gap-4">
-      <app-field
-        label="RAL"
-        required
-        unit="€ / anno"
-        info="Retribuzione Annua Lorda: il compenso totale annuo lordo previsto dal contratto, prima di contributi e imposte."
-        class="flex-[1_1_220px]"
-      >
-        <input appControl="lg" type="number" [formField]="form.ral" placeholder="Es. 24000" />
-      </app-field>
+    <!-- One grid for the three rows, so the columns line up and the gaps match -->
+    <div class="@container">
+      <div class="grid grid-cols-1 gap-4 @min-[26rem]:grid-cols-2">
+        <app-field
+          label="RAL"
+          required
+          unit="€ / anno"
+          info="Retribuzione Annua Lorda: il compenso totale annuo lordo previsto dal contratto, prima di contributi e imposte."
+        >
+          <input appControl="lg" type="number" [formField]="form.ral" placeholder="Es. 24000" />
+        </app-field>
 
-      <app-field
-        label="Mensilità"
-        required
-        group
-        info="Numero di mensilità annue. La 13a e 14a sono erogate come tredicesima e quattordicesima. La RAL viene divisa per questo numero."
-        class="flex-[1_1_200px]"
-      >
-        <app-segmented [formField]="form.mensilita" [options]="mensilita" />
-      </app-field>
-    </div>
+        <app-field
+          label="Mensilità"
+          required
+          group
+          info="Numero di mensilità annue. La 13a e 14a sono erogate come tredicesima e quattordicesima. La RAL viene divisa per questo numero."
+        >
+          <app-segmented [formField]="form.mensilita" [options]="mensilita" />
+        </app-field>
 
-    <div class="mt-4 flex flex-wrap gap-4">
-      <app-field
-        label="Tipo contratto"
-        required
-        info="Gli apprendisti hanno un'aliquota INPS ridotta (5,84%). I contratti a tempo determinato hanno una detrazione minima garantita inferiore."
-        class="flex-[2_1_220px]"
-      >
-        <select appControl [formField]="form.tipoContratto">
-          @for (tipo of tipiContratto; track tipo.value) {
-            <option [value]="tipo.value">{{ tipo.label }}</option>
-          }
-        </select>
-      </app-field>
+        <app-field
+          label="Anno fiscale"
+          required
+          info="Dal 2026 l'aliquota IRPEF del 2° scaglione scende dal 35% al 33%. Possono variare anche soglie e limiti."
+        >
+          <select appControl [formField]="form.annoFiscale">
+            @for (anno of anniFiscali; track anno) {
+              <option [value]="anno">{{ anno }}</option>
+            }
+          </select>
+        </app-field>
 
-      <app-field
-        label="Anno fiscale"
-        required
-        info="Dal 2026 l'aliquota IRPEF del 2° scaglione scende dal 35% al 33%. Possono variare anche soglie e limiti."
-        class="flex-[1_1_100px]"
-      >
-        <select appControl [formField]="form.annoFiscale">
-          @for (anno of anniFiscali; track anno) {
-            <option [value]="anno">{{ anno }}</option>
-          }
-        </select>
-      </app-field>
+        <app-field
+          label="Tipo contratto"
+          required
+          info="Gli apprendisti hanno un'aliquota INPS ridotta (5,84%). I contratti a tempo determinato hanno una detrazione minima garantita inferiore."
+        >
+          <select appControl [formField]="form.tipoContratto">
+            @for (tipo of tipiContratto; track tipo.value) {
+              <option [value]="tipo.value">{{ tipo.label }}</option>
+            }
+          </select>
+        </app-field>
 
-      <app-field
-        label="Regione"
-        required
-        info="Determina l'addizionale regionale IRPEF, che varia da 1,23% a 3,33% a seconda della regione e del reddito."
-        class="flex-[1_1_150px]"
-      >
-        <select appControl [formField]="form.regione" (change)="onRegioneChange()">
-          @for (regione of regioniDisponibili; track regione.value) {
-            <option [value]="regione.value">{{ regione.label }}</option>
-          }
-        </select>
-      </app-field>
+        <app-field
+          label="Regione"
+          required
+          info="Determina l'addizionale regionale IRPEF, che varia da 1,23% a 3,33% a seconda della regione e del reddito."
+        >
+          <select appControl [formField]="form.regione" (change)="onRegioneChange()">
+            @for (regione of regioniDisponibili; track regione.value) {
+              <option [value]="regione.value">{{ regione.label }}</option>
+            }
+          </select>
+        </app-field>
 
-      <app-field
-        label="Comune"
-        controlId="comune"
-        info="Determina l'addizionale comunale IRPEF (0-0,8%). Alcuni comuni prevedono esenzioni per redditi bassi."
-        class="flex-[1_1_170px]"
-      >
-        <ng-select
-          [items]="comuniFiltrati()"
-          bindValue="value"
-          bindLabel="label"
-          [ngModel]="model.comune"
-          (ngModelChange)="onComuneChange($event)"
-          [ngModelOptions]="{ standalone: true }"
-          [searchable]="true"
-          [clearable]="false"
-          notFoundText="Nessun comune trovato"
-          placeholder="Cerca un comune..."
-          labelForId="comune"
-        ></ng-select>
-      </app-field>
+        <app-field
+          label="Comune"
+          controlId="comune"
+          info="Determina l'addizionale comunale IRPEF (0-0,8%). Alcuni comuni prevedono esenzioni per redditi bassi."
+        >
+          <ng-select
+            [items]="comuniFiltrati()"
+            bindValue="value"
+            bindLabel="label"
+            [ngModel]="model.comune"
+            (ngModelChange)="onComuneChange($event)"
+            [ngModelOptions]="{ standalone: true }"
+            [searchable]="true"
+            [clearable]="false"
+            notFoundText="Nessun comune trovato"
+            placeholder="Cerca un comune..."
+            labelForId="comune"
+          ></ng-select>
+        </app-field>
+      </div>
     </div>
   </app-section>
 

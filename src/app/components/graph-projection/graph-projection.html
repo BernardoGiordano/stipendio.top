@@ -24,12 +24,28 @@
 
   <div #chartBox class="mt-2.5">
     @if (chart(); as c) {
+      @let k = cursore();
+      <p id="proiezione-sommario" class="sr-only">{{ c.label }}</p>
+      <!-- A slider over RAL: pointer and arrow keys move a cursor; your RAL stays marked -->
       <svg
         [attr.viewBox]="'0 0 ' + c.w + ' ' + height"
         [attr.height]="height"
-        class="block w-full tabular-nums"
-        role="img"
-        [attr.aria-label]="c.label"
+        class="block w-full cursor-crosshair touch-pan-y rounded-sm tabular-nums select-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus"
+        tabindex="0"
+        role="slider"
+        aria-labelledby="proiezione-linea"
+        aria-describedby="proiezione-sommario"
+        aria-orientation="horizontal"
+        [attr.aria-valuemin]="c.x0"
+        [attr.aria-valuemax]="c.x1"
+        [attr.aria-valuenow]="k?.ral ?? c.tu.ral"
+        [attr.aria-valuetext]="valueText()"
+        (pointerdown)="punta($event)"
+        (pointermove)="punta($event)"
+        (pointerleave)="lascia($event)"
+        (focus)="mostra()"
+        (blur)="cursorRal.set(null)"
+        (keydown)="tasto($event)"
       >
         @for (tick of c.yTicks; track tick.label; let first = $first) {
           <line
@@ -77,6 +93,16 @@
           class="stroke-accent"
         />
 
+        @if (k) {
+          <line
+            [attr.x1]="k.x"
+            [attr.x2]="k.x"
+            [attr.y1]="c.top"
+            [attr.y2]="c.bottom"
+            class="stroke-faint/50"
+          />
+        }
+
         <line
           [attr.x1]="c.tu.x"
           [attr.x2]="c.tu.x"
@@ -103,6 +129,45 @@
             {{ euro(c.tu.netto) }} netti al mese
           </tspan>
         </text>
+
+        @if (k) {
+          @if (k.yPercepito !== null) {
+            <circle
+              [attr.cx]="k.x"
+              [attr.cy]="k.yPercepito"
+              r="3.5"
+              stroke-width="2"
+              class="fill-surface"
+              [attr.stroke]="verde"
+            />
+          }
+          <circle
+            [attr.cx]="k.x"
+            [attr.cy]="k.y"
+            r="4"
+            stroke-width="2"
+            class="fill-surface stroke-faint"
+          />
+          <rect
+            [attr.x]="k.box.x"
+            [attr.y]="k.box.y"
+            [attr.width]="k.box.w"
+            [attr.height]="k.box.h"
+            rx="6"
+            class="fill-surface stroke-ring-strong"
+          />
+          <text [attr.y]="k.box.y + 1" class="text-xs">
+            @for (riga of k.righe; track $index) {
+              <tspan
+                [attr.x]="k.box.x + 10"
+                dy="16"
+                [class]="riga.forte ? 'fill-fg font-medium' : 'fill-muted'"
+              >
+                {{ riga.testo }}
+              </tspan>
+            }
+          </text>
+        }
       </svg>
     }
   </div>
@@ -206,8 +271,9 @@
       role="region"
       aria-label="Tabella del percepito con più welfare, scorrevole"
     >
+      <!-- Fixed layout keeps the columns still when the period swaps short and long figures -->
       <table
-        class="w-full min-w-[480px] border-separate border-spacing-0.5 text-center text-[12.5px]/4 tabular-nums"
+        class="w-full min-w-[480px] table-fixed border-separate border-spacing-0.5 text-center text-[12.5px]/4 tabular-nums"
       >
         <caption class="caption-bottom pt-2 text-left text-xs text-muted">
           Righe: RAL. Colonne: servizi welfare aggiuntivi in euro l'anno. Valori in euro

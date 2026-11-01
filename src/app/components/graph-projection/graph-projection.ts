@@ -26,6 +26,12 @@ type Periodo = 'mensile' | 'annuale';
 const HEIGHT = 236;
 const PAD = { left: 52, right: 12, top: 14, bottom: 24 };
 
+/** The pointer snaps to this many euro of RAL */
+const SCATTO = 500;
+/** Arrow keys and Page keys move the cursor by these amounts */
+const PASSO_TASTO = 1_000;
+const PASSO_PAGINA = 5_000;
+
 /** Round step for about `count` axis divisions over `span` */
 function passo(span: number, count: number): number {
   const raw = span / count;
@@ -123,8 +129,18 @@ export class GraphProjection {
     const x = (ral: number) => PAD.left + ((ral - x0) / (x1 - x0)) * (w - PAD.left - PAD.right);
     const y = (v: number) =>
       HEIGHT - PAD.bottom - ((v - y0) / (y1 - y0)) * (HEIGHT - PAD.top - PAD.bottom);
-    const linea = (pick: (p: (typeof punti)[number]) => number) =>
+    type Pick = (p: (typeof punti)[number]) => number;
+    const linea = (pick: Pick) =>
       punti.map((p) => `${x(p.ral).toFixed(1)},${y(pick(p)).toFixed(1)}`).join(' ');
+
+    // Height of a drawn line at any RAL, so the cursor dot sits on it
+    const lungo = (ral: number, pick: Pick) => {
+      const found = punti.findIndex((p) => p.ral >= ral);
+      const i = found < 0 ? punti.length - 1 : Math.max(1, found);
+      const [a, b] = [punti[i - 1], punti[i]];
+      const k = b.ral === a.ral ? 0 : (ral - a.ral) / (b.ral - a.ral);
+      return y(pick(a) + (pick(b) - pick(a)) * k);
+    };
 
     const yTicks: { y: number; label: string }[] = [];
     for (let v = y0; v <= y1 + 0.5; v += stepY) yTicks.push({ y: y(v), label: formatNumber(v) });
@@ -142,6 +158,13 @@ export class GraphProjection {
 
     return {
       w,
+      x0,
+      x1,
+      x,
+      nettoA: (ral: number) => lungo(ral, (p) => p.nettoMensile),
+      percepitoA: (ral: number) => lungo(ral, (p) => p.percepitoMensile),
+      ralA: (px: number) =>
+        x0 + ((px - PAD.left) / (w - PAD.left - PAD.right)) * (x1 - x0),
       left: PAD.left,
       right: w - PAD.right,
       top: PAD.top - 2,
@@ -162,9 +185,110 @@ export class GraphProjection {
       label:
         `Netto mensile da ${formatCurrency(punti[0].nettoMensile, 0)} con RAL ${formatCurrency(x0, 0)} ` +
         `a ${formatCurrency(punti.at(-1)!.nettoMensile, 0)} con RAL ${formatCurrency(x1, 0)}. ` +
-        `Con RAL ${formatCurrency(tu.ral, 0)} il netto è ${formatCurrency(tu.nettoMensile)}.`,
+        `Con RAL ${formatCurrency(tu.ral, 0)} il netto è ${formatCurrency(tu.nettoMensile)}. ` +
+        'Usa le frecce per spostare il cursore su altre RAL.',
     };
   });
+
+  /** RAL under the pointer or the keyboard cursor; null hides the cursor */
+  readonly cursorRal = signal<number | null>(null);
+
+  /**
+   * The movable cursor: real calculator figures at its RAL, a dot on each
+   * drawn line and a readout box that stays inside the plot.
+   */
+  readonly cursore = computed(() => {
+    const c = this.chart();
+    const base = this.baseInput();
+    const ral = this.cursorRal();
+    if (!c || !base || ral === null) return null;
+    const result = conRal(base, ral);
+    if (!result) return null;
+
+    const righe = [
+      { testo: `RAL ${formatCurrency(ral, 0)}`, forte: true },
+      { testo: `${formatCurrency(result.nettoMensile)} netti`, forte: false },
+      ...(c.percepito
+        ? [{ testo: `${formatCurrency(result.nettoMensilePercepito)} percepiti`, forte: false }]
+        : []),
+    ];
+    const x = c.x(ral);
+    const y = c.nettoA(ral);
+    const boxW = 20 + Math.max(...righe.map((r) => r.testo.length)) * 6.6;
+    const boxH = 10 + righe.length * 16;
+    const flip = x + 10 + boxW > c.right;
+    const below = y < (c.top + c.bottom) / 2;
+    const boxY = Math.min(Math.max(below ? y + 12 : y - 12 - boxH, c.top), c.bottom - boxH);
+
+    return {
+      ral,
+      x,
+      y,
+      yPercepito: c.percepito ? c.percepitoA(ral) : null,
+      righe,
+      box: { x: flip ? x - 10 - boxW : x + 10, y: boxY, w: boxW, h: boxH },
+      testo:
+        `RAL ${formatCurrency(ral, 0)}: netto ${formatCurrency(result.nettoMensile)} al mese` +
+        (c.percepito ? `, percepito ${formatCurrency(result.nettoMensilePercepito)}` : ''),
+    };
+  });
+
+  /** Spoken value of the chart slider: the cursor, or your RAL when there is none */
+  readonly valueText = computed(() => {
+    const c = this.chart();
+    if (!c) return '';
+    return (
+      this.cursore()?.testo ??
+      `RAL ${formatCurrency(c.tu.ral, 0)}: netto ${formatCurrency(c.tu.netto)} al mese`
+    );
+  });
+
+  private sposta(ral: number) {
+    const c = this.chart();
+    if (c) this.cursorRal.set(Math.min(Math.max(ral, c.x0), c.x1));
+  }
+
+  protected punta(event: PointerEvent) {
+    const c = this.chart();
+    const svg = event.currentTarget as SVGSVGElement;
+    if (!c) return;
+    const rect = svg.getBoundingClientRect();
+    const px = ((event.clientX - rect.left) / rect.width) * c.w;
+    this.sposta(Math.round(c.ralA(px) / SCATTO) * SCATTO);
+  }
+
+  /** A mouse clears the cursor on leaving; a finger leaves it where it lifted */
+  protected lascia(event: PointerEvent) {
+    if (event.pointerType === 'mouse') this.cursorRal.set(null);
+  }
+
+  protected mostra() {
+    const base = this.baseInput();
+    if (base && this.cursorRal() === null) this.sposta(base.ral);
+  }
+
+  protected tasto(event: KeyboardEvent) {
+    const c = this.chart();
+    const base = this.baseInput();
+    if (!c || !base) return;
+    const ral = this.cursorRal() ?? base.ral;
+    const target: Record<string, number> = {
+      ArrowRight: ral + PASSO_TASTO,
+      ArrowUp: ral + PASSO_TASTO,
+      ArrowLeft: ral - PASSO_TASTO,
+      ArrowDown: ral - PASSO_TASTO,
+      PageUp: ral + PASSO_PAGINA,
+      PageDown: ral - PASSO_PAGINA,
+      Home: c.x0,
+      End: c.x1,
+    };
+    if (event.key === 'Escape') {
+      this.cursorRal.set(null);
+    } else if (event.key in target) {
+      event.preventDefault();
+      this.sposta(target[event.key]);
+    }
+  }
 
   /** The gain from 1.000 € of RAL, and from the next two 5.000 € steps */
   readonly aumenti = computed(() => {

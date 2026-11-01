@@ -78,18 +78,22 @@ export interface Stat {
         </div>
         <ul
           [attr.aria-label]="'Ripartizione ' + oggetto()"
-          class="mt-3.5 flex flex-wrap gap-2 text-[13px]/5 tabular-nums"
+          class="mt-3.5 grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-x-4 gap-y-3 tabular-nums"
         >
           @for (quota of quote(); track quota.id) {
-            <li class="flex items-center gap-1.5 rounded-full px-2.5 py-1" [class]="quota.pill">
-              <span
-                aria-hidden="true"
-                class="size-2 rounded-full"
-                [style.background-color]="quota.bar"
-              ></span>
-              {{ quota.label }}
-              <strong class="font-semibold">{{ euro(quota.importo) }}</strong>
-              {{ percent(quota.quota, 1) }}
+            <li>
+              <span class="flex items-center gap-1.5 text-xs text-muted">
+                <span
+                  aria-hidden="true"
+                  class="size-2 shrink-0 rounded-full"
+                  [style.background-color]="quota.bar"
+                ></span>
+                {{ quota.label }}
+              </span>
+              <span class="mt-0.5 block text-sm text-muted">
+                <strong class="font-medium text-fg">{{ euro(quota.importo) }}</strong>
+                {{ percent(quota.quota, 1) }}
+              </span>
             </li>
           }
         </ul>
@@ -137,10 +141,6 @@ export class Tray {
 
   protected readonly base = computed(() => formatCurrency(this.ripartizione().base, 0));
   protected readonly quote = computed(() =>
-    this.ripartizione().quote.map((quota) => ({
-      ...quota,
-      bar: HUE[quota.hue].bar,
-      pill: HUE_CLASS[quota.hue].tile,
-    })),
+    this.ripartizione().quote.map((quota) => ({ ...quota, bar: HUE[quota.hue].bar })),
   );
 }
