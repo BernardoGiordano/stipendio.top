@@ -1635,10 +1635,10 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
     expect(result.fondoPensioneIntegrativo!.contributoEbitempAnnuo).toBe(0);
   });
 
-  describe('cap condiviso con contributo volontario da welfare', () => {
-    it('contributo volontario condivide il cap €5.300 con contributi %', () => {
+  describe('cap condiviso con contributo welfare al fondo pensione', () => {
+    it('contributo welfare condivide il cap €5.300 con contributi %', () => {
       // Contributo % lavoratore: 30k * 2% = 600
-      // Contributo volontario: 3000
+      // Contributo welfare: 3000
       // Totale: 3600 < 5300 → tutto deducibile
       const result = calc.calcolaStipendioNetto({
         ...baseInput,
@@ -1647,15 +1647,15 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
         benefitNonTassati: { previdenzaComplementare: 3_000 },
       });
       expect(result.fondoPensioneIntegrativo).not.toBeNull();
-      expect(result.fondoPensioneIntegrativo!.contributoVolontarioAnnuo).toBe(3_000);
+      expect(result.fondoPensioneIntegrativo!.contributoWelfareAnnuo).toBe(3_000);
       expect(result.fondoPensioneIntegrativo!.totaleContributi).toBeCloseTo(3_600, 2);
       expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBeCloseTo(3_600, 2);
       expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBe(0);
     });
 
-    it('contributo volontario + contributi % > €5.300: eccedenza non deducibile', () => {
+    it('contributo welfare + contributi % > €5.300: eccedenza non deducibile', () => {
       // Contributo % lavoratore: 30k * 2% = 600
-      // Contributo volontario: 5000
+      // Contributo welfare: 5000
       // Totale: 5600 > 5300 → eccedenza 300
       const result = calc.calcolaStipendioNetto({
         ...baseInput,
@@ -1668,18 +1668,18 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
       expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBeCloseTo(300, 2);
     });
 
-    it('solo contributo volontario (senza sezione %): crea dettaglio fondo pensione', () => {
+    it('solo contributo welfare (senza sezione %): crea dettaglio fondo pensione', () => {
       const result = calc.calcolaStipendioNetto({
         ...baseInput,
         benefitNonTassati: { previdenzaComplementare: 2_000 },
       });
       expect(result.fondoPensioneIntegrativo).not.toBeNull();
       expect(result.fondoPensioneIntegrativo!.contributoLavoratoreAnnuo).toBe(0);
-      expect(result.fondoPensioneIntegrativo!.contributoVolontarioAnnuo).toBe(2_000);
+      expect(result.fondoPensioneIntegrativo!.contributoWelfareAnnuo).toBe(2_000);
       expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBe(2_000);
     });
 
-    it('contributo volontario NON va in costo aziendale', () => {
+    it('contributo welfare va in costo aziendale come fondo, non come welfare', () => {
       const resultSenza = calc.calcolaStipendioNetto({
         ...baseInput,
         ral: 30_000,
@@ -1689,12 +1689,12 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
         ral: 30_000,
         benefitNonTassati: { previdenzaComplementare: 3_000 },
       });
-      // Il costo aziendale non deve cambiare con contributo volontario
-      expect(resultCon.costoAziendale).toBeCloseTo(resultSenza.costoAziendale, 0);
+      expect(resultCon.costoAziendale).toBeCloseTo(resultSenza.costoAziendale + 3_000, 2);
       expect(entrateDi(resultCon, 'welfare')).toBe(0);
+      expect(entrateDi(resultCon, 'fondi')).toBeCloseTo(3_000, 2);
     });
 
-    it('contributo volontario è una trattenuta reale dal netto', () => {
+    it('contributo welfare entro il plafond non è una trattenuta e non cambia il netto', () => {
       const resultSenza = calc.calcolaStipendioNetto({
         ...baseInput,
         ral: 40_000,
@@ -1704,7 +1704,27 @@ describe('Fondo Pensione Integrativo (Previdenza Complementare)', () => {
         ral: 40_000,
         benefitNonTassati: { previdenzaComplementare: 2_000 },
       });
-      // Il netto deve diminuire (contributo volontario meno risparmio fiscale)
+      // Reddito +2.000 e deduzione −2.000: effetto netto zero
+      expect(resultCon.nettoAnnuo).toBeCloseTo(resultSenza.nettoAnnuo, 2);
+      expect(resultCon.ripartizione.trattenute.some((v) => v.descrizione.includes('welfare'))).toBe(
+        false,
+      );
+    });
+
+    it('contributo welfare oltre il plafond: la sola eccedenza è tassata', () => {
+      const resultSenza = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+      });
+      const resultCon = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        benefitNonTassati: { previdenzaComplementare: 6_000 },
+      });
+      expect(resultCon.irpef.imponibileIrpef).toBeCloseTo(
+        resultSenza.irpef.imponibileIrpef + 700,
+        2,
+      );
       expect(resultCon.nettoAnnuo).toBeLessThan(resultSenza.nettoAnnuo);
     });
   });
@@ -3413,7 +3433,7 @@ describe('Benefit non tassati', () => {
     expect(result.benefitNonTassati.totaleTassato).toBe(0);
     // Il cap €5.300 è applicato nella sezione fondo pensione integrativo
     expect(result.fondoPensioneIntegrativo).not.toBeNull();
-    expect(result.fondoPensioneIntegrativo!.contributoVolontarioAnnuo).toBe(7_000);
+    expect(result.fondoPensioneIntegrativo!.contributoWelfareAnnuo).toBe(7_000);
     expect(result.fondoPensioneIntegrativo!.deduzioneEffettiva).toBe(5_300);
     expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBeCloseTo(1_700, 2);
   });
@@ -3830,8 +3850,7 @@ describe('Property-based (fuzzy) tests', () => {
         expect(trattenuteDi('addizionali')).toBeCloseTo(result.addizionali.totaleAddizionali, 6);
         expect(trattenuteDi('fondi')).toBeCloseTo(
           somma(result.fondiContrattuali.map((fondo) => ({ importo: fondo.contributoAnnuo }))) +
-            (previdenza?.contributoLavoratoreAnnuo ?? 0) +
-            (previdenza?.contributoVolontarioAnnuo ?? 0),
+            (previdenza?.contributoLavoratoreAnnuo ?? 0),
           6,
         );
         expect(trattenuteDi('autoAziendale')).toBeCloseTo(

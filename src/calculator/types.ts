@@ -65,7 +65,10 @@ export interface RimborsiTrasferta {
 
 /** Dettaglio benefit non tassati (welfare aziendale) */
 export interface BenefitNonTassati {
-  /** Contributi previdenza complementare (fondo pensione) */
+  /**
+   * Contributi al fondo pensione versati dal datore tramite welfare aziendale (es. conversione
+   * del credito welfare). Concorrono al plafond di deducibilità, non sono una trattenuta.
+   */
   previdenzaComplementare?: number;
   /** Contributi assistenza sanitaria integrativa */
   assistenzaSanitaria?: number;
@@ -363,7 +366,7 @@ export interface DettaglioRimborsiTrasferta {
 
 /** Dettaglio benefit non tassati */
 export interface DettaglioBenefitNonTassati {
-  /** Contributi previdenza complementare (esenti) */
+  /** Contributi al fondo pensione versati tramite welfare aziendale (gestiti nel fondo pensione) */
   previdenzaComplementare: number;
   /** Contributi assistenza sanitaria (esenti) */
   assistenzaSanitaria: number;
@@ -413,9 +416,9 @@ export interface DettaglioFondoPensioneIntegrativo {
   contributoDatoreLavoroAnnuo: number;
   /** Contributo annuo EBITEMP (ente bilaterale lavoro somministrato) */
   contributoEbitempAnnuo: number;
-  /** Contributo volontario annuo aggiuntivo del lavoratore (da sezione welfare) */
-  contributoVolontarioAnnuo: number;
-  /** Totale contributi (lavoratore + datore + EBITEMP + volontario) */
+  /** Contributo annuo versato dal datore tramite welfare aziendale (da sezione welfare) */
+  contributoWelfareAnnuo: number;
+  /** Totale contributi (lavoratore + datore + EBITEMP + welfare) */
   totaleContributi: number;
   /** Deduzione effettiva dall'imponibile IRPEF (max €5.300 dal 2026) */
   deduzioneEffettiva: number;

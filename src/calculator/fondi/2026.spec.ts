@@ -9,7 +9,7 @@ import {
   type InputFondi,
 } from './2026';
 
-const nessunFondo: InputFondi = { contributoVolontario: 0, mensilita: 13 };
+const nessunFondo: InputFondi = { contributoWelfare: 0, mensilita: 13 };
 
 const fondiDeducibili = FONDI_CONTRATTUALI.filter((fondo) => fondo.deducibile);
 const contributoDeducibile = fondiDeducibili.reduce(
@@ -131,9 +131,9 @@ describe('Plafond previdenza complementare', () => {
     expect(calcolo.deduzione).toBeCloseTo(PLAFOND_PREVIDENZA_COMPLEMENTARE, 6);
   });
 
-  it('include datore, EBITEMP e contributo volontario', () => {
+  it('include datore, EBITEMP e contributo welfare', () => {
     const calcolo = calcolaFondi({
-      contributoVolontario: 500,
+      contributoWelfare: 500,
       mensilita: 14,
       fondoPensioneIntegrativo: {
         contributoLavoratore: 1,
@@ -150,23 +150,28 @@ describe('Plafond previdenza complementare', () => {
     expect(previdenza.totaleContributi).toBeCloseTo(300 + 600 + 300 + 500, 6);
     expect(previdenza.contributoLavoratoreMensile).toBeCloseTo(300 / 14, 6);
     expect(calcolo.deduzione).toBeCloseTo(1_700, 6);
-    expect(calcolo.redditoFondoPensione).toBeCloseTo(900, 6);
-    expect(somma(calcolo.trattenute)).toBeCloseTo(800, 6);
-    expect(somma(calcolo.entrate)).toBeCloseTo(600, 6);
+    // Datore, EBITEMP e welfare sono reddito del dipendente
+    expect(calcolo.redditoFondoPensione).toBeCloseTo(1_400, 6);
+    // Solo il contributo lavoratore è trattenuto dal netto
+    expect(somma(calcolo.trattenute)).toBeCloseTo(300, 6);
+    // Datore e welfare sono pagati dall'azienda
+    expect(somma(calcolo.entrate)).toBeCloseTo(1_100, 6);
   });
 
-  it('esiste anche con il solo contributo volontario', () => {
-    const calcolo = calcolaFondi({ ...nessunFondo, contributoVolontario: 1_000 });
+  it('esiste anche con il solo contributo welfare, senza trattenute', () => {
+    const calcolo = calcolaFondi({ ...nessunFondo, contributoWelfare: 1_000 });
 
     expect(calcolo.fondoPensioneIntegrativo?.deduzioneEffettiva).toBe(1_000);
-    expect(somma(calcolo.trattenute)).toBe(1_000);
+    expect(calcolo.redditoFondoPensione).toBe(1_000);
+    expect(somma(calcolo.trattenute)).toBe(0);
+    expect(somma(calcolo.entrate)).toBe(1_000);
   });
 });
 
 describe('dettagliFondi', () => {
   it('stima il risparmio fiscale solo sulle deduzioni', () => {
     const tutti = Object.fromEntries(FONDI_CONTRATTUALI.map((fondo) => [fondo.id, true]));
-    const calcolo = calcolaFondi({ ...nessunFondo, ...tutti, contributoVolontario: 1_000 });
+    const calcolo = calcolaFondi({ ...nessunFondo, ...tutti, contributoWelfare: 1_000 });
     const dettagli = dettagliFondi(calcolo, 0.33);
 
     for (const fondo of dettagli.fondiContrattuali) {

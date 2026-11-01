@@ -698,15 +698,15 @@
                     </dd>
                   </div>
                 }
-                @if (r.fondoPensioneIntegrativo.contributoVolontarioAnnuo > 0) {
+                @if (r.fondoPensioneIntegrativo.contributoWelfareAnnuo > 0) {
                   <div
                     class="flex justify-between py-1.5 border-b border-dotted border-stone-100 dark:border-stone-700"
                   >
                     <dt class="text-sm text-stone-600 dark:text-stone-400">
-                      Contributo Volontario (annuo)
+                      Contributo welfare azienda (annuo)
                     </dt>
-                    <dd class="text-sm font-medium text-red-600 dark:text-red-400">
-                      - {{ formatCurrency(r.fondoPensioneIntegrativo.contributoVolontarioAnnuo) }}
+                    <dd class="text-sm font-medium text-stone-900 dark:text-stone-100">
+                      {{ formatCurrency(r.fondoPensioneIntegrativo.contributoWelfareAnnuo) }}
                     </dd>
                   </div>
                 }

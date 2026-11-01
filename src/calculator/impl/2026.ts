@@ -390,10 +390,9 @@ function calcolaBenefitNonTassati(
     };
   }
 
-  // La previdenza complementare volontaria NON è un benefit welfare:
-  // è un contributo volontario del lavoratore che condivide il cap €5.300
-  // con il fondo pensione integrativo (Art. 10, c.1, lett. e-bis, TUIR).
-  // Viene gestita nella sezione previdenza complementare, non qui.
+  // I contributi al fondo pensione versati tramite welfare non sono trattati qui: sono
+  // reddito del dipendente (art. 51 TUIR) dedotto entro il plafond di €5.300 condiviso con il
+  // fondo pensione integrativo (art. 10, c. 1, lett. e-bis, TUIR), nella sezione previdenza.
   const previdenza = benefit.previdenzaComplementare ?? 0;
 
   const sanita = Math.min(benefit.assistenzaSanitaria ?? 0, BENEFIT_ESENTI.assistenzaSanitaria);
@@ -1116,15 +1115,15 @@ export class Calculator2026 implements StipendioCalculator {
     );
 
     // 6. CALCOLO FONDI CONTRATTUALI E PREVIDENZA COMPLEMENTARE
-    // Il contributo volontario (da sezione welfare) condivide il plafond della previdenza complementare
+    // Il contributo welfare al fondo pensione condivide il plafond della previdenza complementare
     const fondi = calcolaFondi({
       ...input,
-      contributoVolontario: benefitNonTassatiInput?.previdenzaComplementare ?? 0,
+      contributoWelfare: benefitNonTassatiInput?.previdenzaComplementare ?? 0,
       mensilita,
     });
 
     // 7. CALCOLO IMPONIBILE IRPEF
-    // Il contributo datore + Ebitemp al fondo pensione è reddito per il dipendente (Art. 51 TUIR)
+    // I contributi datore, EBITEMP e welfare al fondo pensione sono reddito per il dipendente (Art. 51 TUIR)
     // ma è deducibile entro il plafond (Art. 10 TUIR): effetto netto zero se entro il limite
     const redditoLavoroDipendenteLordo =
       imponibilePrevidenziale +

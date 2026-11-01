@@ -387,7 +387,7 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 
 | Voce                                        | Limite Annuo  |
 | ------------------------------------------- | ------------- |
-| Previdenza complementare                    | €5.164,57     |
+| Previdenza complementare (da welfare)       | €5.300 (\*)   |
 | Assistenza sanitaria integrativa            | €3.615,20     |
 | Buoni pasto cartacei                        | €4,00/giorno  |
 | Buoni pasto elettronici (2025)              | €8,00/giorno  |
@@ -396,6 +396,8 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 | Servizi welfare (asili, borse studio, ecc.) | 100% esenti   |
 
 > Per i buoni pasto il limite annuo è la soglia giornaliera moltiplicata per i giorni di erogazione (default 220, modificabile nella form), assumendo buoni di pari importo giornaliero.
+>
+> (\*) I contributi al fondo pensione versati dall'azienda tramite welfare sono gestiti nella [previdenza complementare](#11-previdenza-complementare-fondo-pensione-integrativo): concorrono al plafond di €5.300 insieme ai contributi di lavoratore e datore e non sono una trattenuta dal netto.
 
 ---
 
@@ -498,11 +500,12 @@ La previdenza complementare consente al lavoratore dipendente di versare contrib
 
 ##### Struttura dei Contributi
 
-| Fonte                 | Descrizione                                                                   |
-| --------------------- | ----------------------------------------------------------------------------- |
-| Contributo lavoratore | Percentuale della RAL trattenuta dalla busta paga                             |
-| Contributo datore     | Percentuale della RAL versata dall'azienda (costo aggiuntivo)                 |
-| Contributo EBITEMP    | Percentuale della RAL versata dall'ente bilaterale (lavoratori somministrati) |
+| Fonte                 | Descrizione                                                                       |
+| --------------------- | --------------------------------------------------------------------------------- |
+| Contributo lavoratore | Percentuale della RAL trattenuta dalla busta paga                                 |
+| Contributo datore     | Percentuale della RAL versata dall'azienda (costo aggiuntivo)                     |
+| Contributo EBITEMP    | Percentuale della RAL versata dall'ente bilaterale (lavoratori somministrati)     |
+| Contributo welfare    | Importo versato dal datore tramite il piano welfare (sezione Benefit non tassati) |
 
 Le percentuali dipendono dal CCNL applicato e dalla scelta individuale del lavoratore. Valori tipici: 0,55% - 2% per il lavoratore, 1% - 2% per il datore.
 
@@ -510,11 +513,11 @@ Per i **lavoratori somministrati** iscritti a Fon.Te., l'ente bilaterale EBITEMP
 
 ##### Deducibilità Fiscale (Art. 10, c.1, lett. e-bis, TUIR - aggiornato da L. 199/2025)
 
-| Parametro                    | Valore                                   |
-| ---------------------------- | ---------------------------------------- |
-| Limite annuo di deducibilità | €5.300 (dal 2026)                        |
-| Cosa concorre al limite      | Contributo lavoratore + datore + EBITEMP |
-| TFR destinato al fondo       | Escluso dal limite                       |
+| Parametro                    | Valore                                             |
+| ---------------------------- | -------------------------------------------------- |
+| Limite annuo di deducibilità | €5.300 (dal 2026)                                  |
+| Cosa concorre al limite      | Contributo lavoratore + datore + EBITEMP + welfare |
+| TFR destinato al fondo       | Escluso dal limite                                 |
 
 **Formula:**
 
@@ -534,6 +537,7 @@ Eccedenza Non Deducibile = MAX(0, Totale Contributi − €5.300)
 - **Netto in busta:** Solo il contributo lavoratore è una trattenuta reale dal netto
 - **Contributo datore:** Non è una trattenuta dalla busta paga, ma concorre al limite di deducibilità
 - **Contributo EBITEMP:** Come il contributo datore, non è una trattenuta dal netto, ma concorre al limite di deducibilità
+- **Contributo welfare:** Come il contributo datore, è pagato dall'azienda (incluso nel costo aziendale), non è una trattenuta dal netto e concorre al limite di deducibilità
 
 ##### Esempio
 
@@ -688,7 +692,7 @@ Il costo aziendale include anche le componenti variabili erogate dall'azienda, s
 
 - **Fringe Benefit:** il valore totale dei fringe benefit erogati (buoni acquisto, buoni carburante, rimborsi utenze/affitto/mutuo, auto aziendale, altri). Per l'auto aziendale, viene utilizzato il valore convenzionale ai fini fiscali.
 - **Rimborsi Trasferta:** il totale dei rimborsi spese per trasferte (forfettari ed analitici, sia esenti che tassati).
-- **Benefit Non Tassati (Welfare):** il totale dei benefit di welfare aziendale erogati (buoni pasto, previdenza complementare, assistenza sanitaria, abbonamento trasporti, servizi welfare).
+- **Benefit Non Tassati (Welfare):** il totale dei benefit di welfare aziendale erogati (buoni pasto, assistenza sanitaria, abbonamento trasporti, servizi welfare). La previdenza complementare da welfare è inclusa nella voce Fondo Pensione (datore/welfare).
 
 > Queste voci contribuiscono anche all'imponibile previdenziale per le eventuali parti tassabili, e il relativo costo INPS datore è già incluso nella voce "Contributi INPS Datore".
 
@@ -887,10 +891,10 @@ Costo per l'Ente:      € 20.036,55
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  6e. PREVIDENZA COMPLEMENTARE (se attiva)                       │
-│      Contributo lav. + datore + EBITEMP, deduc. fino a €5.300  │
+│      Contributo lav. + datore + EBITEMP + welfare, ded. ≤ €5.300│
 │      → Riduce l'imponibile IRPEF (con cap)                     │
 │      → Solo contributo lavoratore è trattenuta dal netto        │
-│      → Contributo datore e EBITEMP non sono trattenute          │
+│      → Datore, EBITEMP e welfare non sono trattenute            │
 │      → NON riduce l'imponibile previdenziale (INPS)            │
 └─────────────────────────────────────────────────────────────────┘
                               │
