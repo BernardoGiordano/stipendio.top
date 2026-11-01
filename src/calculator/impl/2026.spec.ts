@@ -2417,6 +2417,21 @@ describe('Trattamento integrativo', () => {
     expect(result.trattamentoIntegrativo.importoPieno).toBe(true);
   });
 
+  it('reddito ≤ 15k con giorniLavorati < 365: importo rapportato al periodo di lavoro', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 12_000,
+      giorniLavorati: 200,
+    });
+    expect(result.trattamentoIntegrativo.spetta).toBe(true);
+    expect(result.trattamentoIntegrativo.importoPieno).toBe(true);
+    expect(result.trattamentoIntegrativo.importo).toBeCloseTo(1_200 * (200 / 365), 2);
+    expect(result.totaleBonus).toBeCloseTo(
+      result.cuneoFiscale.indennitaEsente + 1_200 * (200 / 365),
+      2,
+    );
+  });
+
   it('reddito ≤ 15k con IRPEF insufficiente (no capienza): non spetta', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,

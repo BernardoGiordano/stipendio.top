@@ -234,7 +234,7 @@ Ex "Bonus Renzi" - Importo massimo: **€1.200/anno** (€100/mese)
 | €15.001 − €28.000 | Detrazioni > IRPEF Lorda                | MIN(€1.200, Eccedenza) |
 | > €28.000         | —                                       | Non spetta             |
 
-Nella fascia ≤ €15.000 l'IRPEF lorda è calcolata sui soli redditi di lavoro dipendente e assimilati (artt. 49 e 50 TUIR), e i €75 sono rapportati al periodo di lavoro (art. 1, c. 1, D.L. 3/2020). Nella fascia €15.001 − €28.000 si usa l'IRPEF lorda ordinaria (art. 1, c. 1-bis).
+Nella fascia ≤ €15.000 l'IRPEF lorda è calcolata sui soli redditi di lavoro dipendente e assimilati (artt. 49 e 50 TUIR), e sia l'importo di €1.200 sia i €75 sono rapportati al periodo di lavoro (art. 1, c. 1, D.L. 3/2020): `Importo = €1.200 × (Giorni Lavorati / 365)`. Nella fascia €15.001 − €28.000 si usa l'IRPEF lorda ordinaria (art. 1, c. 1-bis).
 
 ---
 

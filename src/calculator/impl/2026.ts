@@ -726,9 +726,10 @@ function calcolaTrattamentoIntegrativo(
       params.clausolaSalvaguardia * detrazioniLavoro.coefficienteGiorni;
 
     if (irpefLordaRedditiLavoro > sogliaCapienza) {
+      // L'importo è rapportato al periodo di lavoro (art. 1, c. 1, D.L. 3/2020)
       return {
         spetta: true,
-        importo: params.importoMassimo,
+        importo: params.importoMassimo * detrazioniLavoro.coefficienteGiorni,
         importoPieno: true,
       };
     } else {
