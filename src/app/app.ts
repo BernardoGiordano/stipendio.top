@@ -59,7 +59,8 @@ const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'relative block overflow-clip' },
+  // flow-root keeps the header margin inside the host, so the clipped glow reaches the top edge.
+  host: { class: 'relative flow-root overflow-clip' },
 })
 export class App {
   readonly buildInfo = buildInfo;
