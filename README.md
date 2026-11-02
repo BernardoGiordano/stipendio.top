@@ -621,12 +621,15 @@ Reddito Complessivo = Reddito Tassabile + Altri Redditi
 
 #### 13. Costo Aziendale
 
-Il costo aziendale rappresenta la spesa complessiva che l'azienda sostiene per un dipendente, ed è sempre significativamente superiore alla RAL. Viene calcolato automaticamente a partire dai dati già inseriti, senza necessità di input aggiuntivi.
+Il costo aziendale rappresenta la spesa complessiva che l'azienda sostiene per un dipendente, ed è sempre significativamente superiore alla RAL. Viene calcolato a partire dai dati già inseriti: contributo addizionale NASpI, contributo di solidarietà e recupero dello 0,50% sul TFR non richiedono input aggiuntivi. La sezione opzionale **Costo aziendale** del form aggiunge premio INAIL, rinnovi del tempo determinato, esoneri contributivi e aliquote agevolate dell'apprendistato. Nessuna di queste voci cambia lo stipendio netto.
 
 ##### Formula
 
 ```
-COSTO AZIENDALE = RAL + Contributi INPS Datore + TFR
+COSTO AZIENDALE = RAL + Contributi INPS Datore − Esonero Contributivo
+                + Addizionale NASpI (tempo determinato)
+                + Contributo di Solidarietà + Premio INAIL
+                + TFR (al netto dello 0,50% IVS)
                 + Fondi Dirigenti (datore) + Fondo EST (datore)
                 + Fondo Pensione (datore)
                 + Fringe Benefit + Rimborsi Trasferta + Benefit Non Tassati (Welfare)
@@ -642,23 +645,79 @@ Per gli iscritti dal 1996 il massimale contributivo (€122.295 nel 2026) limita
 INPS Datore = MIN(Imponibile, Massimale) × 23,81% + Imponibile × (Aliquota − 23,81%)
 ```
 
-| Tipologia                     | Aliquota Datore |
-| ----------------------------- | --------------- |
-| Operai/impiegati (senza CIGS) | 28,98%          |
-| Operai/impiegati (con CIGS)   | 29,68%          |
-| Apprendisti                   | 11,61%          |
-| Dirigenti (senza CIGS)        | 26,54%          |
-| Dirigenti (con CIGS)          | 27,24%          |
+| Tipologia                                    | Aliquota Datore |
+| -------------------------------------------- | --------------- |
+| Operai/impiegati (senza CIGS)                | 28,98%          |
+| Operai/impiegati (con CIGS)                  | 29,68%          |
+| Apprendisti                                  | 11,61%          |
+| Apprendisti, aziende fino a 9 dip. (1° anno) | 3,11%           |
+| Apprendisti, aziende fino a 9 dip. (2° anno) | 4,61%           |
+| Dirigenti (senza CIGS)                       | 26,54%          |
+| Dirigenti (con CIGS)                         | 27,24%          |
 
 > Le aliquote si riferiscono al settore Commercio/Terziario 2026 (fonte: tabelle INPS/Kitech). La qualifica di dirigente viene rilevata automaticamente dall'attivazione dei fondi contrattuali (Fondo Negri, Pastore, CFMT, FASDAC).
+
+L'aliquota degli apprendisti è forfettaria: 10% più NASpI 1,31% e formazione 0,30%, e comprende anche il premio INAIL. Nelle aziende fino a 9 dipendenti il 10% scende all'1,5% il primo anno e al 3% il secondo (art. 1, c. 773, L. 296/2006); dal terzo anno si torna all'11,61%.
+
+##### Contributo Addizionale NASpI (Tempo Determinato)
+
+I contratti a tempo determinato pagano un contributo addizionale dell'1,4% (art. 2, c. 28, L. 92/2012), aumentato di 0,5 punti per ogni rinnovo del contratto (art. 3, c. 2, D.L. 87/2018). Le proroghe non contano.
+
+```
+Addizionale NASpI = Imponibile × (1,4% + 0,5% × Rinnovi)
+```
+
+È una contribuzione minore: è dovuta sull'intero imponibile, senza massimale. Non si applica agli apprendisti. Il calcolatore non gestisce le altre esclusioni previste dalla norma, come le assunzioni in sostituzione di lavoratori assenti e i lavoratori stagionali.
+
+##### Premio INAIL
+
+Il premio INAIL varia per settore e rischio professionale (da 0,3% a oltre 12%, cioè da 3‰ a oltre 120‰). Il tasso, in per mille, si indica nella sezione Costo aziendale e si applica alla stessa retribuzione imponibile dei contributi INPS, senza massimale:
+
+```
+Premio INAIL = Imponibile × Tasso INAIL (‰) / 1.000
+```
+
+Il calcolatore considera il premio interamente a carico del datore. Per gli apprendisti il premio è compreso nell'aliquota INPS forfettaria (art. 1, c. 773, L. 296/2006) e non viene aggiunto.
+
+##### Contributo di Solidarietà 10%
+
+I contributi del datore destinati a previdenza complementare e assistenza sanitaria integrativa sono esclusi dall'imponibile previdenziale, ma il datore versa all'INPS un contributo di solidarietà del 10% (art. 16 D.Lgs. 252/2005, art. 9-bis D.L. 103/1991):
+
+```
+Contributo di Solidarietà = 10% × (Fondo Pensione datore + Fondo Pensione welfare
+                                 + Fondo Negri datore + FASDAC datore + Fondo EST datore
+                                 + Assistenza sanitaria welfare esente)
+```
+
+Non si applica ai contributi del lavoratore, al TFR conferito al fondo pensione, al Fondo Pastore e al CFMT. L'assistenza sanitaria oltre la soglia di esenzione è già imponibile, quindi è esclusa.
 
 ##### TFR (Trattamento di Fine Rapporto)
 
 ```
-TFR Annuo = RAL / 13,5
+TFR Annuo = RAL / 13,5 − 0,50% × MIN(Imponibile, Massimale)
 ```
 
-Il TFR è un accantonamento obbligatorio a carico del datore (Art. 2120 c.c.), indipendentemente da dove viene destinato (azienda, INPS o fondo pensione).
+Il TFR è un accantonamento obbligatorio a carico del datore (Art. 2120 c.c.), indipendentemente da dove viene destinato (azienda, INPS o fondo pensione). La quota annua si riduce del contributo aggiuntivo IVS dello 0,50% (art. 3, c. 15-16, L. 297/1982): il datore lo versa all'INPS insieme agli altri contributi, già compreso nel 23,81% IVS, e lo recupera sul TFR. Contare il TFR pieno conterebbe due volte lo 0,50%.
+
+La riduzione non si applica agli apprendisti. Con un esonero contributivo lo 0,50% non versato non si recupera (Messaggio INPS 1817/2019): il calcolatore riduce il recupero in proporzione alla quota di contributi esonerata.
+
+##### Esoneri Contributivi
+
+Alcune assunzioni danno diritto a un esonero dai contributi INPS a carico del datore, per un massimo di 24 mesi. L'esonero non riduce il premio INAIL, il contributo addizionale NASpI e il contributo di solidarietà.
+
+| Esonero                              | Destinatari                                                                  | Quota  | Tetto mensile              |
+| ------------------------------------ | ---------------------------------------------------------------------------- | ------ | -------------------------- |
+| Bonus Giovani (art. 22 D.L. 60/2024) | Under 35 mai assunti a tempo indeterminato                                   | 100%   | €500                       |
+| Bonus Giovani, ZES unica             | Come sopra, per sedi nella ZES unica del Mezzogiorno                         | 100%   | €650                       |
+| Bonus Donne (art. 23 D.L. 60/2024)   | Donne svantaggiate                                                           | 100%   | €650                       |
+| Bonus ZES (art. 24 D.L. 60/2024)     | Over 35 disoccupati da 24 mesi, aziende fino a 10 dipendenti nella ZES unica | 100%   | €650                       |
+| Personalizzato                       | Altri esoneri, proroghe o quote ridotte                                      | Libera | Libero (anche senza tetto) |
+
+```
+Esonero = MIN(INPS Datore × Quota × Mesi / 12, Tetto Mensile × Mesi)
+```
+
+Il calcolo è annuo: quota e tetto mensile si applicano ai mesi di esonero indicati. L'esonero si applica ai contributi INPS datore nel loro insieme, senza separare le contribuzioni minori che alcuni esoneri escludono. Requisiti e finestre di assunzione cambiano con le proroghe: vanno verificati con le circolari INPS.
 
 ##### Fondi Contrattuali Dirigenti (Quota Datore - CCNL Terziario 2026)
 
@@ -666,7 +725,7 @@ Per i dirigenti del CCNL Terziario, il datore sostiene costi aggiuntivi per i fo
 
 | Fondo                 | Base di Calcolo    | Aliquota/Importo | Costo Annuo Datore |
 | --------------------- | ------------------ | ---------------- | ------------------ |
-| Fondo Mario Negri     | €59.224,54 (conv.) | 15,38%           | ~€9.112            |
+| Fondo Mario Negri     | €59.224,54 (conv.) | 15,38%           | ~€9.109            |
 | Fondo Antonio Pastore | Importo fisso      | —                | €4.856,45          |
 | CFMT                  | Importo fisso      | —                | €276               |
 | FASDAC                | €45.940 (conv.)    | 8,07%            | ~€3.707            |
@@ -676,9 +735,11 @@ Dettaglio aliquote:
 - **Fondo Mario Negri**: contributo ordinario azienda 12,86% + integrativo 2,52% = 15,38% della retribuzione convenzionale
 - **FASDAC**: 5,29% per dirigenti in servizio + 2,78% per gestione pensionati = 8,07% della retribuzione convenzionale
 
+Sui contributi a Fondo Negri e FASDAC il datore versa anche il contributo di solidarietà del 10%.
+
 ##### Fondo EST (Quota Datore - CCNL Commercio 2026)
 
-Per i dipendenti non dirigenti del CCNL Commercio, il datore versa un contributo al Fondo EST:
+Per i dipendenti non dirigenti del CCNL Commercio, il datore versa un contributo al Fondo EST, più il contributo di solidarietà del 10%:
 
 | Fondo     | Importo          | Costo Annuo Datore |
 | --------- | ---------------- | ------------------ |
@@ -686,7 +747,7 @@ Per i dipendenti non dirigenti del CCNL Commercio, il datore versa un contributo
 
 ##### Fondo Pensione Integrativo (Quota Datore)
 
-Se attiva la previdenza complementare con contributo a carico del datore, tale importo è incluso nel costo aziendale.
+Se attiva la previdenza complementare con contributo a carico del datore, tale importo è incluso nel costo aziendale, insieme al contributo di solidarietà del 10%.
 
 ##### Fringe Benefit, Rimborsi Trasferta e Benefit Non Tassati
 
@@ -703,28 +764,55 @@ Il costo aziendale include anche le componenti variabili erogate dall'azienda, s
 Per un impiegato con RAL €35.000, senza CIGS:
 
 ```
-RAL:                   €35.000,00
-INPS Datore (28,98%):  €10.143,00
-TFR (35.000/13,5):     € 2.592,59
-────────────────────────────────────
-Costo Aziendale:       €47.735,59
+RAL:                         €35.000,00
+INPS Datore (28,98%):        €10.143,00
+TFR (35.000/13,5):           € 2.592,59
+Recupero 0,50% IVS sul TFR:  −€  175,00
+──────────────────────────────────────────
+Costo Aziendale:             €47.560,59
 ```
 
 Per un dirigente con RAL €80.000, con tutti i fondi CCNL Terziario:
 
 ```
-RAL:                   €80.000,00
-INPS Datore (26,54%):  €21.232,00
-TFR (80.000/13,5):     € 5.925,93
-Fondo Negri (datore):  € 9.112,82
-Fondo Pastore (datore):€ 4.856,45
-CFMT (datore):         €   276,00
-FASDAC (datore):       € 3.707,36
-────────────────────────────────────
-Costo Aziendale:       €125.110,56
+RAL:                         €80.000,00
+INPS Datore (26,54%):        €21.232,00
+TFR (80.000/13,5):           € 5.925,93
+Recupero 0,50% IVS sul TFR:  −€  400,00
+Fondo Negri (datore):        € 9.108,73
+Fondo Pastore (datore):      € 4.856,45
+CFMT (datore):               €   276,00
+FASDAC (datore):             € 3.707,36
+Solidarietà 10%:             € 1.281,61   (su Negri e FASDAC)
+──────────────────────────────────────────
+Costo Aziendale:             €125.988,08
 ```
 
-> **Nota:** Il calcolo non include INAIL (assicurazione infortuni), il cui premio varia significativamente per settore e rischio professionale (da 0,3% a oltre 12%).
+Per un impiegato a tempo determinato con RAL €30.000, al primo rinnovo, con tasso INAIL 4‰:
+
+```
+RAL:                         €30.000,00
+INPS Datore (28,98%):        € 8.694,00
+Addizionale NASpI (1,9%):    €   570,00
+Premio INAIL (4‰):           €   120,00
+TFR (30.000/13,5):           € 2.222,22
+Recupero 0,50% IVS sul TFR:  −€  150,00
+──────────────────────────────────────────
+Costo Aziendale:             €41.456,22
+```
+
+Lo stesso impiegato assunto a tempo indeterminato con il Bonus Giovani per tutto l'anno:
+
+```
+RAL:                         €30.000,00
+INPS Datore (28,98%):        € 8.694,00
+Esonero Bonus Giovani:       −€ 6.000,00   (€500 × 12 mesi)
+Premio INAIL (4‰):           €   120,00
+TFR (30.000/13,5):           € 2.222,22
+Recupero 0,50% IVS sul TFR:  −€   46,48   (solo sul 31% di contributi non esonerati)
+──────────────────────────────────────────
+Costo Aziendale:             €34.989,74
+```
 
 #### 14. Borse di Studio (Dottorato/Post-laurea)
 
@@ -969,8 +1057,10 @@ Costo per l'Ente:      € 20.036,55
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  14. COSTO AZIENDALE                                            │
-│      = RAL + INPS Datore + TFR + Fondi Dirigenti (datore)       │
-│        + Fondo EST (datore) + Fondo Pensione (datore)           │
+│      = RAL + INPS Datore − Esonero + Addizionale NASpI          │
+│        + Solidarietà 10% + INAIL + TFR (− 0,50% IVS)            │
+│        + Fondi Dirigenti (datore) + Fondo EST (datore)          │
+│        + Fondo Pensione (datore)                                │
 │        + Fringe Benefit + Rimborsi Trasferta + Benefit Non Tass.│
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -994,6 +1084,12 @@ Costo per l'Ente:      € 20.036,55
 | **Art. 10 TUIR**        | Deduzioni dal reddito complessivo        |
 | **D.Lgs. 209/2023**     | Regime impatriati (rientro cervelli)     |
 | **Art. 2120 c.c.**      | Trattamento di Fine Rapporto (TFR)       |
+| **L. 297/1982**         | Contributo 0,50% IVS recuperato sul TFR  |
+| **L. 92/2012**          | Contributo addizionale NASpI             |
+| **D.L. 87/2018**        | Aumento addizionale NASpI per rinnovo    |
+| **D.L. 103/1991**       | Contributo di solidarietà 10%            |
+| **L. 296/2006**         | Contribuzione apprendisti                |
+| **D.L. 60/2024**        | Esoneri Bonus Giovani, Donne e ZES       |
 
 ---
 

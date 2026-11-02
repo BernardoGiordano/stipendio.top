@@ -3,11 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { StipendioFieldTree, StipendioFormModel } from '../form-container/form-group';
 import { TipoContratto } from '../../../calculator/types';
-import { InfoTooltip } from '../info-tooltip/info-tooltip';
+import { Check, Control, Field } from '../field/field';
+import { Section } from '../section/section';
 
 @Component({
   selector: 'app-form-borsa-container',
-  imports: [FormField, FormsModule, InfoTooltip],
+  imports: [FormField, FormsModule, Field, Check, Control, Section],
   templateUrl: './form-borsa-container.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

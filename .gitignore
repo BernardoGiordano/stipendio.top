@@ -51,3 +51,4 @@ src/build.json
 *.pyc
 2025.comunali.ts
 automation
+.claude

@@ -17,6 +17,7 @@ import type {
   VoceEntrata,
 } from '../../../calculator/types';
 import { formatCurrency } from '../../utils/intl';
+import { SERIE } from '../../services/chart-palette';
 
 // Flows under one cent are rounding noise
 const MIN_FLOW = 0.01;
@@ -33,35 +34,36 @@ interface NodeValue extends NodeStyle {
 
 // Column 0: who pays
 const PAGATORI: Record<PagatoreVoce, NodeStyle> = {
-  datore: { label: 'Costo Aziendale', color: '#a8a29e' },
-  ente: { label: 'Borsa di Studio', color: '#ec4899' },
-  stato: { label: 'Bonus Fiscali', color: '#3b82f6' },
+  datore: { label: 'Costo Aziendale', color: SERIE.datore },
+  ente: { label: 'Borsa di Studio', color: SERIE.ente },
+  stato: { label: 'Bonus Fiscali', color: SERIE.stato },
 };
 
 // Column 1: what the datore pays for
 const ENTRATE: Record<CategoriaEntrata, NodeStyle> = {
-  retribuzione: { label: 'RAL (Lordo)', color: '#78716c' },
-  contributiDatore: { label: 'INPS Datore', color: '#dc2626' },
-  tfr: { label: 'TFR', color: '#d97706' },
-  fondi: { label: 'Fondi Datore', color: '#7c3aed' },
-  fringeBenefit: { label: 'Fringe Benefit', color: '#0891b2' },
-  rimborsiTrasferta: { label: 'Rimborsi', color: '#14b8a6' },
-  welfare: { label: 'Welfare', color: '#06b6d4' },
-  borsaDiStudio: { label: 'Borsa di Studio', color: '#ec4899' },
-  bonus: { label: 'Bonus Fiscali', color: '#3b82f6' },
+  retribuzione: { label: 'RAL (Lordo)', color: SERIE.retribuzione },
+  contributiDatore: { label: 'INPS Datore', color: SERIE.contributiDatore },
+  inail: { label: 'INAIL', color: SERIE.inail },
+  tfr: { label: 'TFR', color: SERIE.tfr },
+  fondi: { label: 'Fondi Datore', color: SERIE.fondiDatore },
+  fringeBenefit: { label: 'Fringe Benefit', color: SERIE.fringeBenefit },
+  rimborsiTrasferta: { label: 'Rimborsi', color: SERIE.rimborsiTrasferta },
+  welfare: { label: 'Welfare', color: SERIE.welfare },
+  borsaDiStudio: { label: 'Borsa di Studio', color: SERIE.ente },
+  bonus: { label: 'Bonus Fiscali', color: SERIE.stato },
 };
 
 // Column 2: where the money paid in busta goes
 const TRATTENUTE: Record<CategoriaTrattenuta, NodeStyle> = {
-  contributi: { label: 'INPS Dip.', color: '#ef4444' },
-  irpef: { label: 'IRPEF', color: '#f97316' },
-  addizionali: { label: 'Addizionali', color: '#eab308' },
-  fondi: { label: 'Fondi Dip.', color: '#a855f7' },
-  autoAziendale: { label: 'Trattenuta Auto', color: '#fb7185' },
+  contributi: { label: 'INPS Dip.', color: SERIE.contributi },
+  irpef: { label: 'IRPEF', color: SERIE.irpef },
+  addizionali: { label: 'Addizionali', color: SERIE.addizionali },
+  fondi: { label: 'Fondi Dip.', color: SERIE.fondi },
+  autoAziendale: { label: 'Trattenuta Auto', color: SERIE.autoAziendale },
 };
 
-const NETTO: NodeStyle = { label: 'Netto', color: '#84cc16' };
-const TOTALE: NodeStyle = { label: 'Totale Percepito', color: '#22c55e' };
+const NETTO: NodeStyle = { label: 'Netto', color: SERIE.netto };
+const TOTALE: NodeStyle = { label: 'Totale Percepito', color: SERIE.percepito };
 
 /** Sums voci by node id, keeping first-seen order */
 function group<T extends { importo: number }>(
@@ -112,7 +114,7 @@ interface SankeyLink {
   templateUrl: './graph-funnel.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'block w-full h-full',
+    class: '@container block w-full h-full min-w-0',
   },
 })
 export class GraphFunnel implements AfterViewInit, OnDestroy {
@@ -159,7 +161,8 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
   ): { nodes: SankeyNode[]; links: SankeyLink[]; width: number; height: number } {
     const padding = { top: 30, right: 10, bottom: 30, left: 10 };
     const nodeWidth = 18;
-    const nodePadding = 10;
+    // Each node has a two-line label; even the smallest flows need room for both lines.
+    const nodePadding = 26;
 
     const innerWidth = width - padding.left - padding.right;
     const innerHeight = height - padding.top - padding.bottom;
@@ -371,10 +374,10 @@ export class GraphFunnel implements AfterViewInit, OnDestroy {
 
   getLinkColor(link: SankeyLink): string {
     const data = this.chartData();
-    if (!data) return 'rgba(120, 113, 108, 0.3)';
+    if (!data) return this.hexToRgba(SERIE.retribuzione, 0.3);
 
     const sourceNode = data.nodes.find((n) => n.id === link.from);
-    return sourceNode ? this.hexToRgba(sourceNode.color, 0.45) : 'rgba(120, 113, 108, 0.3)';
+    return this.hexToRgba(sourceNode?.color ?? SERIE.retribuzione, sourceNode ? 0.45 : 0.3);
   }
 
   private hexToRgba(hex: string, alpha: number): string {

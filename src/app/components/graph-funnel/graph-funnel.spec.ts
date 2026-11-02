@@ -53,6 +53,39 @@ describe('GraphFunnel sankey', () => {
     expectBalanced(calcolaStipendioNetto(baseInput));
   });
 
+  it('keeps two-line labels apart when several small deductions share a column', () => {
+    const result = calcolaStipendioNetto({
+      ...baseInput,
+      ral: 80_000,
+      fondoMarioNegri: true,
+      fondoPastore: true,
+      cfmt: true,
+      fasdac: true,
+      fringeBenefit: {
+        buoniAcquisto: 1500,
+        autoAziendale: {
+          costoKmAci: 0.542,
+          tipoAlimentazione: 'altro',
+          mesiUtilizzo: 12,
+          trattenutaDipendente: 500,
+        },
+      },
+    });
+    const data = TestBed.createComponent(GraphFunnel).componentInstance['buildSankeyLayout'](
+      result,
+      672,
+      450,
+    );
+    for (const column of [0, 1, 2, 3]) {
+      const centers = data.nodes
+        .filter((node) => node.column === column)
+        .map((node) => node.y + node.height / 2);
+      for (let i = 1; i < centers.length; i++) {
+        expect(centers[i] - centers[i - 1]).toBeGreaterThanOrEqual(26);
+      }
+    }
+  });
+
   it('balances with taxed welfare, exempt fringe and contributo welfare', () => {
     expectBalanced(
       calcolaStipendioNetto({

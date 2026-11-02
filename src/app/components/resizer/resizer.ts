@@ -1,8 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
   inject,
+  input,
   output,
   PLATFORM_ID,
   signal,
@@ -13,24 +15,21 @@ import { isPlatformBrowser } from '@angular/common';
   selector: 'app-resizer',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="hidden lg:block w-4 self-stretch relative mx-1">
+    <div class="hidden lg:block w-8 shrink-0 self-stretch relative">
       <div
-        class="fixed top-1/2 -translate-y-1/2 w-4 h-12 flex items-center justify-center cursor-col-resize group"
+        class="sticky top-[50vh] -translate-y-1/2 w-8 h-12 flex items-center justify-center cursor-col-resize group"
         (mousedown)="onMouseDown($event)"
         (touchstart)="onTouchStart($event)"
         role="separator"
         aria-orientation="vertical"
         aria-label="Ridimensiona pannelli"
+        [attr.aria-valuenow]="valueNow()"
         tabindex="0"
         (keydown)="onKeyDown($event)"
       >
         <div
           class="w-1 h-12 rounded-full transition-colors"
-          [class]="
-            isDragging()
-              ? 'bg-stone-400 dark:bg-stone-500'
-              : 'bg-stone-300 group-hover:bg-stone-400 dark:bg-stone-600 dark:group-hover:bg-stone-500'
-          "
+          [class]="isDragging() ? 'bg-faint' : 'bg-ring-strong group-hover:bg-faint'"
         ></div>
       </div>
     </div>
@@ -42,6 +41,10 @@ import { isPlatformBrowser } from '@angular/common';
 export class Resizer {
   private readonly elementRef = inject(ElementRef);
   private readonly platformId = inject(PLATFORM_ID);
+
+  /** Width share of the left panel, 0 to 1, announced as a percentage */
+  readonly value = input.required<number>();
+  protected readonly valueNow = computed(() => Math.round(this.value() * 100));
 
   readonly isDragging = signal(false);
   readonly resize = output<number>();
