@@ -14,7 +14,7 @@
   <div
     class="relative mx-auto flex max-w-[1376px] items-center justify-between gap-x-4 pr-3 pl-4 lg:px-8"
   >
-    <div class="relative min-w-0 py-1.5 pr-2.5 lg:py-3 lg:pr-[18px]">
+    <div class="relative min-w-0 py-1.5 lg:py-3">
       <app-icon name="plus" class="absolute -top-2 -left-2 hidden size-[15px] text-plus lg:block" />
       <app-icon name="plus" class="absolute -top-2 -right-2 size-[15px] text-plus" />
       <app-icon
@@ -26,24 +26,7 @@
         href="/"
         class="flex items-center gap-2 rounded-lg text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus lg:gap-2.5"
       >
-        <svg viewBox="0 0 32 32" aria-hidden="true" class="size-[26px] shrink-0 lg:size-[30px]">
-          <rect width="32" height="32" rx="9" class="fill-fg" />
-          <path
-            d="M10 18.5 16 12.5l6 6"
-            fill="none"
-            stroke-width="2.6"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="stroke-[#f2a383] dark:stroke-[#b54a2a]"
-          />
-          <path
-            d="M10.5 23h11"
-            stroke-width="2.6"
-            stroke-linecap="round"
-            class="stroke-[#fdf0d5] dark:stroke-[#ca6680]"
-          />
-        </svg>
-        <span class="truncate text-base font-semibold tracking-[-0.03em] lg:text-lg">
+        <span class="px-4 truncate text-base font-semibold tracking-[-0.03em] lg:text-lg">
           stipendio.top
         </span>
       </a>
@@ -228,7 +211,7 @@
             class="inline-flex items-center gap-2 rounded-full bg-tray px-[18px] py-2 text-[15px] font-medium text-fg shadow-glow ring-1 ring-ring-card ring-inset transition-colors hover:bg-surface/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
           >
             <app-icon [name]="links.github.icon" class="size-4" />
-            Stella su GitHub
+            GitHub
           </a>
         </div>
       </section>
@@ -239,15 +222,11 @@
         <p>
           © {{ year }}
           <a
-            href="https://github.com/BernardoGiordano"
+            href="https://santella.dev"
             target="_blank"
             rel="noopener noreferrer"
             [class]="creditLink"
             >Bernardo Giordano</a
-          >
-          ·
-          <a [href]="licenseHref" target="_blank" rel="noopener noreferrer" [class]="creditLink"
-            >GPLv3</a
           >
           ·
           <a
@@ -256,14 +235,6 @@
             rel="noopener noreferrer"
             [class]="creditLink"
             >LinkedIn</a
-          >
-          ·
-          <a
-            [href]="links.github.href"
-            target="_blank"
-            rel="noopener noreferrer"
-            [class]="creditLink"
-            >GitHub</a
           >
         </p>
         <p>Stima informativa, non sostituisce la busta paga. Versione {{ version }}</p>

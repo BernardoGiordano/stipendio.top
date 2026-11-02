@@ -70,7 +70,6 @@ export class App {
   readonly links = LINKS;
   readonly navLinks = NAV_LINKS;
   readonly headerLinks = [LINKS.github, LINKS.paypal];
-  readonly licenseHref = `${LINKS.github.href}/blob/main/LICENSE`;
 
   readonly themeOptions = [
     { theme: 'light', label: 'Tema chiaro' },
