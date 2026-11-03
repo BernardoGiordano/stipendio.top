@@ -446,7 +446,7 @@ Il limite è attribuito nell'ordine: quote azienda dei fondi, welfare, quote lav
 | CFMT                         | Dirigenti Terziario | €166                         | €276                                                                        | Non deducibile                        |
 | FASDAC (Fondo Mario Besusso) | Dirigenti Terziario | €859,08 (1,87% di €45.940)   | €3.707,36 (5,29% + 2,78% di €45.940)                                        | Assistenza sanitaria                  |
 | mètaSalute                   | Metalmeccanici      | —                            | €156 (€13/mese)                                                             | Assistenza sanitaria                  |
-| FASI                         | Dirigenti Industria | €1.120 (€280/trim.)          | €2.180 (€545/trim.)                                                         | Assistenza sanitaria                  |
+| FASI                         | Dirigenti Industria | €1.120 (€280/trim.)          | €3.780 (€545/trim. + €400/trim. per i dirigenti pensionati)                 | Assistenza sanitaria                  |
 | GS-FASI                      | Dirigenti Industria | —                            | €100                                                                        | Assistenza sanitaria (quota solidale) |
 
 Note sui singoli fondi:
@@ -455,7 +455,7 @@ Note sui singoli fondi:
 - **FASDAC**: della quota azienda (8,07%) concorrono al limite di €3.615,20 solo il 5,29% per i dirigenti in servizio al netto del premio LTC di €206,60; il 2,78% per la gestione pensionati e il premio LTC non rilevano (Ris. AE 78/E/2004, accordo di rinnovo 2022). Con il solo FASDAC la quota del dirigente (€859,08) resta quindi interamente esente.
 - **Fondo EST, Quas, Fondo Fast**: la quota del lavoratore è esclusa dall'imponibile IRPEF, trattandosi di contributi a casse sanitarie entro il limite; non riduce l'imponibile INPS.
 - **mètaSalute, Sanimpresa, GS-FASI**: nessuna trattenuta al lavoratore, solo costo aziendale. I piani integrativi facoltativi di mètaSalute a carico del lavoratore si inseriscono come fondo personalizzato.
-- **FASI**: importi della circolare FASI 2026, invariati rispetto al 2025. **GS-FASI** (Gestione Separata FASI) copre i dirigenti involontariamente disoccupati: €100 l'anno per ogni dirigente in servizio, a carico azienda, fuori dal limite del dirigente.
+- **FASI**: quote del dirigente in servizio dalla circolare FASI 2026, invariate rispetto al 2025. L'azienda versa anche €1.600 l'anno per ogni dirigente in forza per l'assistenza ai dirigenti pensionati (art. G del Regolamento FASI, importo della circolare 2023): è un costo aziendale soggetto alla solidarietà del 10%, ma non è reddito del dirigente e non concorre al suo limite (Ris. AE 78/E/2004). **GS-FASI** (Gestione Separata FASI) copre i dirigenti involontariamente disoccupati: €100 l'anno per ogni dirigente in servizio, a carico azienda, fuori dal limite del dirigente.
 - **Quadrifor, CFMT**: enti bilaterali per la formazione, senza beneficio fiscale e senza contributo di solidarietà.
 
 Un fondo per dirigenti (Negri, Pastore, CFMT, FASDAC, FASI, GS-FASI, o un fondo personalizzato con l'opzione "Fondo per dirigenti") porta alle aliquote INPS datore dei dirigenti nel [costo aziendale](#13-costo-aziendale).
@@ -723,13 +723,14 @@ Per ogni fondo selezionato il datore sostiene la quota aziendale della [tabella 
 | Quas                  | Importo fisso      | —                | €390               | Sì              |
 | Quadrifor             | Importo fisso      | —                | €50                | No              |
 | mètaSalute            | €13/mese           | —                | €156               | Sì              |
-| FASI                  | €545/trimestre     | —                | €2.180             | Sì              |
+| FASI                  | €945/trimestre     | —                | €3.780             | Sì              |
 | GS-FASI               | Importo fisso      | —                | €100               | Sì              |
 
 Dettaglio aliquote:
 
 - **Fondo Mario Negri**: contributo ordinario azienda 12,86% + integrativo 2,52% = 15,38% della retribuzione convenzionale
 - **FASDAC**: 5,29% per dirigenti in servizio (compreso il premio LTC di €206,60) + 2,78% per gestione pensionati = 8,07% della retribuzione convenzionale
+- **FASI**: €545 a trimestre per il dirigente in servizio + €400 a trimestre per l'assistenza ai dirigenti pensionati (art. G del Regolamento FASI)
 
 La quota azienda dei fondi sanitari oltre il limite di €3.615,20 (insieme al welfare e alle quote lavoratore) diventa reddito imponibile IRPEF del lavoratore, ma non cambia il costo aziendale.
 

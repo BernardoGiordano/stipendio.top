@@ -86,6 +86,13 @@ const CONVENZIONALE_NEGRI = 59_224.54;
 const CONVENZIONALE_FASDAC = 45_940;
 /** Premio annuo Long Term Care compreso nel contributo azienda FASDAC */
 const PREMIO_LTC_FASDAC = 206.6;
+/** Contributo azienda FASI per il dirigente in servizio */
+const CONTRIBUTO_AZIENDA_FASI = 2_180;
+/**
+ * Contributo azienda FASI per l'assistenza ai dirigenti pensionati (art. G del Regolamento),
+ * dovuto per ogni dirigente in forza. Importo della circolare FASI 2023.
+ */
+const QUOTA_PENSIONATI_FASI = 1_600;
 
 /** Fondi contrattuali 2026 */
 export const FONDI_CONTRATTUALI: readonly FondoContrattuale[] = [
@@ -221,9 +228,13 @@ export const FONDI_CONTRATTUALI: readonly FondoContrattuale[] = [
     descrizione: 'Assistenza sanitaria integrativa dei dirigenti industriali.',
     contributoLavoratore: 1_120,
     calcoloContributo: '280 euro a trimestre',
-    contributoDatore: 2_180,
-    calcoloContributoDatore: '545 euro a trimestre',
+    contributoDatore: CONTRIBUTO_AZIENDA_FASI + QUOTA_PENSIONATI_FASI,
+    calcoloContributoDatore:
+      '545 euro a trimestre + 400 euro a trimestre per i dirigenti pensionati',
+    // La quota per i pensionati non concorre al limite del dirigente (Ris. AE 78/E/2004)
+    contributoDatoreSolidale: QUOTA_PENSIONATI_FASI,
     trattamento: 'assistenzaSanitaria',
+    note: 'La quota per i dirigenti pensionati (art. G del Regolamento FASI) usa l’importo della circolare 2023.',
   },
   {
     id: 'gsFasi',

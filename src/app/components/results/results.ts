@@ -285,6 +285,16 @@ export class Results {
     })),
   );
 
+  /** Use of the shared healthcare exemption limit, under the fund rows */
+  readonly notaSanitaria = computed(() => {
+    const sanita = this.result()?.assistenzaSanitaria;
+    if (!sanita) return undefined;
+    const esenti = `Contributi sanitari esenti ${formatCurrency(sanita.esente)} su ${formatCurrency(sanita.limite)}`;
+    return sanita.eccedenza > 0
+      ? `${esenti}, ${formatCurrency(sanita.eccedenza)} imponibili`
+      : esenti;
+  });
+
   readonly regione = computed(() => {
     const codice = this.baseInput()?.regione;
     return codice ? REGIONE_LABELS[codice] : undefined;

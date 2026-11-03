@@ -79,7 +79,7 @@ describe('Tabella fondi contrattuali', () => {
     expect(importi['fondoPastore']).toEqual([464.81, 4_856.45]);
     expect(importi['fasdac']).toEqual([859.08, 3_707.36]);
     expect(importi['metasalute']).toEqual([0, 156]);
-    expect(importi['fasi']).toEqual([1_120, 2_180]);
+    expect(importi['fasi']).toEqual([1_120, 3_780]);
     expect(importi['gsFasi']).toEqual([0, 100]);
   });
 
@@ -234,6 +234,21 @@ describe('Limite di esenzione dei contributi sanitari', () => {
     expect(calcolo.deduzione).toBeCloseTo(fasdac.contributoLavoratore, 6);
     // Ma la solidarietà del 10% grava sull'intero contributo azienda
     expect(calcolo.baseContributoSolidarieta).toBeCloseTo(fasdac.contributoDatore, 6);
+  });
+
+  it('FASI: la quota azienda per i pensionati non concorre al limite del dirigente', () => {
+    const fasi = FONDI_CONTRATTUALI.find((fondo) => fondo.id === 'fasi')!;
+    const calcolo = calcolaFondi({ ...nessunFondo, fasi: true });
+
+    expect(fasi.contributoDatoreSolidale).toBe(1_600);
+    expect(datoreNelLimite(fasi)).toBe(2_180);
+    expect(calcolo.assistenzaSanitaria!.contributi).toBe(2_180 + 1_120);
+    expect(calcolo.assistenzaSanitaria!.eccedenza).toBe(0);
+    expect(calcolo.redditoAssistenzaSanitaria).toBe(0);
+    expect(calcolo.deduzione).toBe(1_120);
+    // Costo aziendale e solidarietà comprendono la quota per i pensionati
+    expect(calcolo.entrate[0].importo).toBe(3_780);
+    expect(calcolo.baseContributoSolidarieta).toBe(3_780);
   });
 
   it('il welfare sanitario condivide il limite con i fondi: prima il datore, poi il welfare, poi il lavoratore', () => {

@@ -372,14 +372,8 @@
                 }
               }
             </dl>
-            @if (r.assistenzaSanitaria; as sanita) {
-              <p [class]="note">
-                Contributi sanitari esenti {{ formatCurrency(sanita.esente) }} su
-                {{ formatCurrency(sanita.limite) }}
-                @if (sanita.eccedenza > 0) {
-                  , {{ formatCurrency(sanita.eccedenza) }} imponibili
-                }
-              </p>
+            @if (notaSanitaria(); as nota) {
+              <p [class]="note">{{ nota }}</p>
             }
           </app-ledger-card>
         }
