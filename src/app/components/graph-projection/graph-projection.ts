@@ -163,8 +163,7 @@ export class GraphProjection {
       x,
       nettoA: (ral: number) => lungo(ral, (p) => p.nettoMensile),
       percepitoA: (ral: number) => lungo(ral, (p) => p.percepitoMensile),
-      ralA: (px: number) =>
-        x0 + ((px - PAD.left) / (w - PAD.left - PAD.right)) * (x1 - x0),
+      ralA: (px: number) => x0 + ((px - PAD.left) / (w - PAD.left - PAD.right)) * (x1 - x0),
       left: PAD.left,
       right: w - PAD.right,
       top: PAD.top - 2,
