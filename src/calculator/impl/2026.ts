@@ -32,7 +32,7 @@ import { StipendioCalculator } from '../calculator';
 import { calcolaAddizionali } from '../addizionali/2026';
 import { calcolaFondi, dettagliFondi } from '../fondi/2026';
 import { calcolaCostiDatore } from '../datore/2026';
-import { ripartisci, totali } from '../ripartizione';
+import { ripartisci, somma, totali } from '../ripartizione';
 
 /** Scaglioni IRPEF 2026 (aliquota intermedia ridotta) */
 const IRPEF_SCAGLIONI = [
@@ -1469,8 +1469,14 @@ export class Calculator2026 implements StipendioCalculator {
     // Stipendio netto mensile
     const nettoMensile = nettoAnnuo / mensilita;
 
-    // Stipendio netto mensile percepito (include benefit non tassati mensili)
-    const nettoMensilePercepito = nettoMensile + benefitNonTassati.totaleEsente / 12;
+    // Il percepito mensile aggiunge al netto le entrate esenti, ripartite su 12 mesi.
+    // I fringe benefit esenti restano fuori perché includono il valore dell'auto aziendale.
+    const esentiPercepiti = somma(
+      ripartizione.entrate.filter(
+        (voce) => voce.destinazione === 'esente' && voce.categoria !== 'fringeBenefit',
+      ),
+    );
+    const nettoMensilePercepito = nettoMensile + esentiPercepiti / 12;
 
     // Aliquota effettiva: la trattenuta auto paga un servizio, non è un'imposta
     const aliquotaEffettiva =

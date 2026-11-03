@@ -111,7 +111,7 @@ export class Results {
     const percepitoMensile = { label: 'Percepito mensile', value: r.nettoMensilePercepito };
     const nettoMensile = { label: 'Netto mensile', value: r.nettoMensile };
     return [
-      { ...percepitoMensile, note: `${mensilita}, welfare compreso` },
+      { ...percepitoMensile, note: `${mensilita}, welfare e rimborsi compresi` },
       { ...nettoMensile, note: 'in busta paga' },
       {
         label: 'Percepito annuo',
