@@ -32,6 +32,7 @@ import { StipendioCalculator } from '../calculator';
 import { calcolaAddizionali } from '../addizionali/2026';
 import { calcolaFondi, dettagliFondi } from '../fondi/2026';
 import { calcolaCostiDatore } from '../datore/2026';
+import { calcolaTfr } from '../tfr/2026';
 import { ripartisci, somma, totali } from '../ripartizione';
 
 /** Scaglioni IRPEF 2026 (aliquota intermedia ridotta) */
@@ -983,6 +984,7 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
       tfrLordo: 0,
       riduzioneTfr: 0,
     },
+    tfr: null,
     costoAziendale,
     irpef: { imponibileIrpef: 0, irpefLorda: 0, dettaglioScaglioni: [] },
     detrazioniLavoro: {
@@ -1453,6 +1455,13 @@ export class Calculator2026 implements StipendioCalculator {
     const { costoAziendale, totaleTrattenute, totaleBonus, nettoAnnuo, totalePercepito } =
       totali(ripartizione);
 
+    // 17. TFR NETTO (stima alla cessazione, fuori dal netto annuo)
+    const tfr = calcolaTfr({
+      quotaAnnua: costiDatore.dettaglio.tfrLordo - costiDatore.dettaglio.riduzioneTfr,
+      opzioni: input.tfr,
+      irpefLorda: (imponibile) => calcolaIrpefLorda(imponibile).irpefLorda,
+    });
+
     // Calcolo netto annuo borsa di studio (se presente)
     // Il netto borsa = importo lordo − contributo GS borsista − quota IRPEF/addizionali sulla borsa
     // La quota IRPEF/addizionali è proporzionale: (imponibileBorsa / redditoComplessivo) × (irpefFinale + addizionali)
@@ -1502,6 +1511,7 @@ export class Calculator2026 implements StipendioCalculator {
       borsaDiStudio: dettaglioBorsaDiStudio,
       ripartizione,
       contributiDatore: costiDatore.dettaglio,
+      tfr,
       costoAziendale,
       irpef,
       detrazioniLavoro,

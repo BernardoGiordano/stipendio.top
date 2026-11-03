@@ -192,6 +192,22 @@ export interface EsoneroContributivo {
   mesi?: number;
 }
 
+/** Dove è destinato il TFR che matura: in azienda (o al Fondo di Tesoreria INPS) o al fondo pensione */
+export type DestinazioneTfr = 'azienda' | 'fondoPensione';
+
+/** Stima del TFR netto alla cessazione, fuori dal netto annuo in busta */
+export interface OpzioniTfr {
+  /** Anni interi di servizio previsti alla cessazione (default 1) */
+  anniServizio?: number;
+  /**
+   * In azienda il TFR si rivaluta ogni anno ed è tassato alla cessazione con la tassazione
+   * separata; al fondo pensione la prestazione è tassata al 15%, ridotto fino al 9% (default azienda)
+   */
+  destinazione?: DestinazioneTfr;
+  /** Inflazione FOI annua attesa, in percentuale (es. 2 = 2%), per la rivalutazione (default 2) */
+  inflazioneAttesa?: number;
+}
+
 /** Voci a carico del datore che spostano il costo aziendale, non il netto */
 export interface OpzioniDatore {
   /** Tasso INAIL in per mille (es. 4 = 4‰), applicato all'imponibile previdenziale */
@@ -324,6 +340,9 @@ export interface InputCalcoloStipendio extends Partial<Record<FondoContrattualeI
 
   /** INAIL, rinnovi, esoneri e aliquote agevolate a carico del datore */
   opzioniDatore?: OpzioniDatore;
+
+  /** Anni di servizio, destinazione e inflazione attesa per la stima del TFR netto */
+  tfr?: OpzioniTfr;
 }
 
 /** Dettaglio dei contributi INPS */
@@ -364,6 +383,44 @@ export interface DettaglioContributiDatore {
   tfrLordo: number;
   /** Contributo aggiuntivo IVS 0,50% recuperato sul TFR (art. 3, c. 15-16, L. 297/1982) */
   riduzioneTfr: number;
+}
+
+/**
+ * Stima del TFR netto alla cessazione, a RAL costante. Il TFR non entra nel netto annuo: matura
+ * come accantonamento del datore ed è tassato a parte alla liquidazione.
+ */
+export interface DettaglioTfr {
+  destinazione: DestinazioneTfr;
+  /** Anni interi di servizio alla cessazione */
+  anniServizio: number;
+  /** Quota accantonata ogni anno (RAL / 13,5 meno lo 0,50% IVS) */
+  quotaAnnua: number;
+  /** Quote accantonate negli anni di servizio, imponibile della tassazione separata */
+  quoteAccantonate: number;
+  /** Tasso di rivalutazione annuo (1,5% + 75% dell'inflazione FOI), 0 al fondo pensione */
+  tassoRivalutazione: number;
+  /** Rivalutazioni lorde maturate (art. 2120 c.c.) */
+  rivalutazione: number;
+  /** Imposta sostitutiva del 17% sulle rivalutazioni, trattenuta dal fondo */
+  impostaSostitutiva: number;
+  /** TFR lordo alla cessazione: quote più rivalutazioni, meno l'imposta sostitutiva */
+  montanteLordo: number;
+  /** Reddito di riferimento (art. 19 TUIR): quote accantonate / anni di servizio × 12 */
+  redditoRiferimento: number;
+  /** Aliquota media IRPEF sul reddito di riferimento, o aliquota 15%-9% del fondo pensione */
+  aliquota: number;
+  /** Imposta prima della detrazione (quote accantonate × aliquota) */
+  impostaLorda: number;
+  /** Detrazione del D.M. 20 marzo 2008, solo in tassazione separata */
+  detrazione: number;
+  /** Imposta alla cessazione, al netto della detrazione */
+  imposta: number;
+  /** TFR netto stimato alla cessazione */
+  nettoTotale: number;
+  /** TFR netto per anno di servizio */
+  nettoAnnuo: number;
+  /** (Imposta + imposta sostitutiva) / (quote + rivalutazioni) */
+  aliquotaEffettiva: number;
 }
 
 /** Dettaglio del calcolo IRPEF */
@@ -726,6 +783,9 @@ export interface OutputCalcoloStipendio {
 
   /** Contributi, premi e accantonamenti a carico del datore */
   contributiDatore: DettaglioContributiDatore;
+
+  /** Stima del TFR netto alla cessazione (null per le borse di studio, che non maturano TFR) */
+  tfr: DettaglioTfr | null;
 
   /** Costo aziendale annuo (entrate pagate dal datore) */
   costoAziendale: number;
