@@ -4762,3 +4762,41 @@ describe('Borsa di Studio come tipo di contratto (dottorato, specializzazione)',
     });
   });
 });
+
+describe('Rimborsi trasferta nel percepito mensile', () => {
+  const base = calc.calcolaStipendioNetto(baseInput);
+
+  it('i rimborsi esenti aumentano il percepito mensile ma non il netto', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: { rimborsoAlloggio: 1_200, rimborsoViaggio: 600 },
+    });
+
+    expect(result.rimborsiTrasferta.totaleEsente).toBe(1_800);
+    expect(result.nettoAnnuo).toBeCloseTo(base.nettoAnnuo, 6);
+    expect(result.nettoMensile).toBeCloseTo(base.nettoMensile, 6);
+    expect(result.nettoMensilePercepito).toBeCloseTo(base.nettoMensilePercepito + 150, 6);
+    expect(result.totalePercepito).toBeCloseTo(base.totalePercepito + 1_800, 6);
+  });
+
+  it('i rimborsi tassati passano dal netto e non si sommano due volte', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: { rimborsoKmImponibile: 1_000 },
+    });
+
+    expect(result.nettoAnnuo).toBeGreaterThan(base.nettoAnnuo);
+    expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / baseInput.mensilita, 6);
+    expect(result.nettoMensilePercepito).toBeCloseTo(result.nettoMensile, 6);
+  });
+
+  it('si somma al welfare esente', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: { rimborsoViaggio: 600 },
+      benefitNonTassati: { abbonamentoTrasporto: 300 },
+    });
+
+    expect(result.nettoMensilePercepito).toBeCloseTo(result.nettoMensile + 900 / 12, 6);
+  });
+});

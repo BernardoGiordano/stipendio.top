@@ -1449,8 +1449,9 @@ export class Calculator2026 implements StipendioCalculator {
     // Stipendio netto mensile
     const nettoMensile = nettoAnnuo / mensilita;
 
-    // Stipendio netto mensile percepito (include benefit non tassati mensili)
-    const nettoMensilePercepito = nettoMensile + benefitNonTassati.totaleEsente / 12;
+    // Stipendio netto mensile percepito (include benefit non tassati e rimborsi esenti mensili)
+    const nettoMensilePercepito =
+      nettoMensile + (benefitNonTassati.totaleEsente + rimborsiTrasferta.totaleEsente) / 12;
 
     // Aliquota effettiva: la trattenuta auto paga un servizio, non è un'imposta
     const aliquotaEffettiva =
