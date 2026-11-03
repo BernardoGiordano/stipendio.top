@@ -42,6 +42,12 @@ const ADDIZIONALE_NASPI = {
  */
 const CONTRIBUTO_SOLIDARIETA = 0.1;
 
+/**
+ * Riduzione dell'aliquota IVS datore sulla quota decontribuita del premio di risultato, nei
+ * contratti con coinvolgimento paritetico dei lavoratori (art. 55 D.L. 50/2017)
+ */
+export const RIDUZIONE_ALIQUOTA_PREMIO_RISULTATO = 0.2;
+
 /** Parametri TFR (Art. 2120 c.c.) */
 const TFR = {
   divisore: 13.5,
@@ -113,6 +119,8 @@ export interface InputCostiDatore {
   imponibileEntroMassimale: number;
   /** Contributi datore a previdenza complementare e assistenza sanitaria */
   baseContributoSolidarieta: number;
+  /** Quota del premio di risultato con aliquota IVS ridotta di 20 punti (max €800) */
+  quotaPremioDecontribuita?: number;
   opzioni: OpzioniDatore | undefined;
 }
 
@@ -206,6 +214,7 @@ export function calcolaCostiDatore(input: InputCostiDatore): CalcoloCostiDatore 
     imponibilePrevidenziale,
     imponibileEntroMassimale,
     baseContributoSolidarieta,
+    quotaPremioDecontribuita = 0,
     opzioni,
   } = input;
   const apprendista = tipoContratto === 'apprendistato';
@@ -223,7 +232,11 @@ export function calcolaCostiDatore(input: InputCostiDatore): CalcoloCostiDatore 
     aliquotaInps,
     tipoContratto,
   );
-  const esonero = calcolaEsonero(contributiInpsLordi, opzioni);
+  // Sulla quota decontribuita del premio di risultato l'aliquota scende di 20 punti
+  // (art. 55 D.L. 50/2017); l'esonero si applica ai contributi residui
+  const decontribuzionePremio =
+    quotaPremioDecontribuita * Math.min(RIDUZIONE_ALIQUOTA_PREMIO_RISULTATO, aliquotaInps);
+  const esonero = calcolaEsonero(contributiInpsLordi - decontribuzionePremio, opzioni);
 
   // Addizionale NASpI: contribuzione minore, dovuta sull'intero imponibile
   const aliquotaNaspi = aliquotaAddizionaleNaspi(tipoContratto, opzioni);
@@ -264,7 +277,12 @@ export function calcolaCostiDatore(input: InputCostiDatore): CalcoloCostiDatore 
 
   return {
     entrate: [
-      voce(VOCE_INPS_DATORE, contributiInpsLordi - esonero, 'contributiDatore', aliquotaInps),
+      voce(
+        VOCE_INPS_DATORE,
+        contributiInpsLordi - decontribuzionePremio - esonero,
+        'contributiDatore',
+        aliquotaInps,
+      ),
       voce('Addizionale NASpI', addizionaleNaspi, 'contributiDatore', aliquotaNaspi),
       voce(
         'Contributo di solidarietà',
@@ -279,6 +297,7 @@ export function calcolaCostiDatore(input: InputCostiDatore): CalcoloCostiDatore 
       aliquotaInps,
       contributiInpsLordi,
       esonero,
+      decontribuzionePremio,
       aliquotaAddizionaleNaspi: aliquotaNaspi,
       addizionaleNaspi,
       tassoInail,

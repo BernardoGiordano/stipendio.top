@@ -3744,6 +3744,393 @@ describe('Fringe benefit monetari', () => {
 // 14 MENSILITA, ALTRI REDDITI, ALTRE DETRAZIONI
 // ============================================================================
 
+describe('Premio di risultato (art. 1, c. 182-190, L. 208/2015; L. 199/2025, art. 1, c. 9)', () => {
+  const senza = calc.calcolaStipendioNetto(baseInput);
+  const ALIQUOTA_INPS = 0.0919;
+
+  function trattenuta(result: OutputCalcoloStipendio, descrizione: string) {
+    return result.ripartizione.trattenute.find((voce) => voce.descrizione === descrizione);
+  }
+
+  function entrata(result: OutputCalcoloStipendio, descrizione: string) {
+    return result.ripartizione.entrate.find((voce) => voce.descrizione === descrizione);
+  }
+
+  it('senza premio: dettaglio nullo e nessuna voce', () => {
+    expect(senza.premioRisultato).toBeNull();
+    expect(entrateDi(senza, 'premioRisultato')).toBe(0);
+    expect(trattenuta(senza, 'Imposta sostitutiva premio')).toBeUndefined();
+  });
+
+  it('premio zero o negativo: come senza premio', () => {
+    for (const importo of [0, -500]) {
+      const result = calc.calcolaStipendioNetto({ ...baseInput, premioRisultato: { importo } });
+      expect(result.premioRisultato).toBeNull();
+      expect(result.nettoAnnuo).toBe(senza.nettoAnnuo);
+    }
+  });
+
+  describe('Premio €3.000 in denaro, RAL 25k', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      premioRisultato: { importo: 3_000 },
+    });
+    const premio = result.premioRisultato!;
+
+    it('è imponibile INPS per il lavoratore (9,19%)', () => {
+      expect(result.contributiInps.imponibilePrevidenziale).toBe(28_000);
+      expect(premio.contributiLavoratore).toBeCloseTo(3_000 * ALIQUOTA_INPS, 6);
+      expect(premio.quotaDecontribuita).toBe(0);
+    });
+
+    it('imposta sostitutiva 1% sul premio al netto dei contributi, entro €5.000', () => {
+      expect(premio.agevolabile).toBe(true);
+      expect(premio.limite).toBe(5_000);
+      expect(premio.aliquotaSostitutiva).toBe(0.01);
+      expect(premio.imponibileSostitutiva).toBeCloseTo(3_000 * (1 - ALIQUOTA_INPS), 6);
+      expect(premio.impostaSostitutiva).toBeCloseTo(3_000 * (1 - ALIQUOTA_INPS) * 0.01, 6);
+      expect(premio.imponibileOrdinario).toBe(0);
+    });
+
+    it('non concorre al reddito complessivo: IRPEF, detrazioni, addizionali e bonus invariati', () => {
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(senza.irpef.imponibileIrpef, 6);
+      expect(result.irpefFinale).toBeCloseTo(senza.irpefFinale, 6);
+      expect(result.addizionali.totaleAddizionali).toBeCloseTo(
+        senza.addizionali.totaleAddizionali,
+        6,
+      );
+      expect(result.totaleBonus).toBeCloseTo(senza.totaleBonus, 6);
+      expect(result.riepilogoDetrazioni.totale).toBeCloseTo(senza.riepilogoDetrazioni.totale, 6);
+    });
+
+    it('il netto aumenta del premio meno contributi e imposta sostitutiva', () => {
+      expect(result.nettoAnnuo - senza.nettoAnnuo).toBeCloseTo(
+        3_000 - premio.contributiLavoratore - premio.impostaSostitutiva,
+        6,
+      );
+    });
+
+    it('voci: entrata in busta e trattenuta dedicata', () => {
+      expect(entrata(result, 'Premio di risultato')).toMatchObject({
+        importo: 3_000,
+        categoria: 'premioRisultato',
+        pagatore: 'datore',
+        destinazione: 'netto',
+      });
+      expect(trattenuta(result, 'Imposta sostitutiva premio')).toMatchObject({
+        importo: premio.impostaSostitutiva,
+        categoria: 'impostaSostitutiva',
+      });
+      expect(entrateDi(result, 'premioRisultato')).toBe(3_000);
+    });
+
+    it('è imponibile INPS anche per il datore, non per il TFR', () => {
+      const d = result.contributiDatore;
+      expect(d.contributiInpsLordi).toBeCloseTo(28_000 * d.aliquotaInps, 6);
+      expect(d.decontribuzionePremio).toBe(0);
+      expect(d.tfrLordo).toBeCloseTo(senza.contributiDatore.tfrLordo, 6);
+      // Lo 0,50% IVS versato sul premio è recuperato sul TFR, come per gli altri imponibili
+      expect(d.riduzioneTfr - senza.contributiDatore.riduzioneTfr).toBeCloseTo(3_000 * 0.005, 6);
+      expect(result.costoAziendale - senza.costoAziendale).toBeCloseTo(
+        3_000 * (1 + d.aliquotaInps - 0.005),
+        6,
+      );
+    });
+
+    it('il risparmio stimato è il netto in più rispetto alla tassazione ordinaria', () => {
+      const ordinario = calc.calcolaStipendioNetto({
+        ...baseInput,
+        premioRisultato: { importo: 3_000, redditoAnnoPrecedenteEntroLimite: false },
+      });
+      expect(premio.risparmioFiscaleStimato).toBeGreaterThan(premio.impostaSostitutiva);
+      expect(result.nettoAnnuo - ordinario.nettoAnnuo).toBeCloseTo(
+        premio.risparmioFiscaleStimato,
+        6,
+      );
+    });
+  });
+
+  describe('Premio €7.000: eccedenza oltre il limite tassata ordinariamente', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      premioRisultato: { importo: 7_000 },
+    });
+    const premio = result.premioRisultato!;
+    const nettoContributi = 7_000 * (1 - ALIQUOTA_INPS);
+
+    it('imposta sostitutiva su €5.000, il resto a IRPEF ordinaria', () => {
+      expect(premio.imponibileSostitutiva).toBe(5_000);
+      expect(premio.impostaSostitutiva).toBeCloseTo(50, 6);
+      expect(premio.imponibileOrdinario).toBeCloseTo(nettoContributi - 5_000, 6);
+      expect(result.irpef.imponibileIrpef - senza.irpef.imponibileIrpef).toBeCloseTo(
+        nettoContributi - 5_000,
+        6,
+      );
+    });
+
+    it('il limite si confronta con il premio al netto dei contributi (Circ. AdE 28/E/2016)', () => {
+      // €5.500 lordi lasciano €4.994,55 netti, tutti a imposta sostitutiva
+      const sotto = calc.calcolaStipendioNetto({
+        ...baseInput,
+        premioRisultato: { importo: 5_500 },
+      });
+      expect(sotto.premioRisultato!.imponibileSostitutiva).toBeCloseTo(
+        5_500 * (1 - ALIQUOTA_INPS),
+        6,
+      );
+      expect(sotto.premioRisultato!.imponibileOrdinario).toBe(0);
+    });
+  });
+
+  describe('Reddito anno precedente oltre €80.000: tassazione ordinaria', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      premioRisultato: {
+        importo: 3_000,
+        redditoAnnoPrecedenteEntroLimite: false,
+        coinvolgimentoParitetico: true,
+      },
+    });
+    const premio = result.premioRisultato!;
+
+    it('niente imposta sostitutiva né decontribuzione', () => {
+      expect(premio.agevolabile).toBe(false);
+      expect(premio.limite).toBe(0);
+      expect(premio.imponibileSostitutiva).toBe(0);
+      expect(premio.impostaSostitutiva).toBe(0);
+      expect(premio.quotaDecontribuita).toBe(0);
+      expect(premio.risparmioFiscaleStimato).toBe(0);
+      expect(trattenuta(result, 'Imposta sostitutiva premio')).toBeUndefined();
+      expect(result.contributiDatore.decontribuzionePremio).toBe(0);
+    });
+
+    it('il premio concorre al reddito complessivo come la RAL', () => {
+      const conRal = calc.calcolaStipendioNetto({ ...baseInput, ral: 28_000 });
+      expect(premio.imponibileOrdinario).toBeCloseTo(3_000 * (1 - ALIQUOTA_INPS), 6);
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(conRal.irpef.imponibileIrpef, 6);
+      expect(result.nettoAnnuo).toBeCloseTo(conRal.nettoAnnuo, 6);
+    });
+
+    it('la conversione in welfare oltre il limite è reddito in natura imponibile', () => {
+      const convertito = calc.calcolaStipendioNetto({
+        ...baseInput,
+        premioRisultato: {
+          importo: 3_000,
+          quotaConvertitaWelfare: 1_000,
+          redditoAnnoPrecedenteEntroLimite: false,
+        },
+      });
+      expect(convertito.premioRisultato).toMatchObject({
+        quotaDenaro: 2_000,
+        quotaWelfare: 0,
+        conversioniTassate: 1_000,
+      });
+      expect(convertito.contributiInps.imponibilePrevidenziale).toBe(28_000);
+      expect(convertito.irpef.imponibileIrpef).toBeCloseTo(result.irpef.imponibileIrpef, 6);
+      expect(convertito.nettoAnnuo).toBeCloseTo(result.nettoAnnuo - 1_000, 6);
+      expect(entrata(convertito, 'Premio convertito oltre il limite')).toMatchObject({
+        importo: 1_000,
+        destinazione: 'inNatura',
+      });
+    });
+  });
+
+  describe('Conversione in welfare (c. 184)', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      premioRisultato: { importo: 3_000, quotaConvertitaWelfare: 1_000 },
+    });
+    const premio = result.premioRisultato!;
+
+    it('la quota convertita è esente da imposte e contributi', () => {
+      expect(premio.quotaDenaro).toBe(2_000);
+      expect(premio.quotaWelfare).toBe(1_000);
+      expect(premio.conversioniTassate).toBe(0);
+      expect(result.contributiInps.imponibilePrevidenziale).toBe(27_000);
+      expect(premio.contributiLavoratore).toBeCloseTo(2_000 * ALIQUOTA_INPS, 6);
+      expect(premio.imponibileSostitutiva).toBeCloseTo(2_000 * (1 - ALIQUOTA_INPS), 6);
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(senza.irpef.imponibileIrpef, 6);
+    });
+
+    it('arriva al percepito, non al netto', () => {
+      expect(entrata(result, 'Premio convertito in welfare')).toMatchObject({
+        importo: 1_000,
+        categoria: 'premioRisultato',
+        destinazione: 'esente',
+      });
+      expect(result.totalePercepito - result.nettoAnnuo).toBeCloseTo(1_000, 6);
+      expect(result.nettoMensilePercepito - result.nettoMensile).toBeCloseTo(1_000 / 12, 6);
+    });
+
+    it('le conversioni concorrono al limite di €5.000 (Ris. AdE 22/E/2026)', () => {
+      const oltre = calc.calcolaStipendioNetto({
+        ...baseInput,
+        premioRisultato: { importo: 7_000, quotaConvertitaWelfare: 6_000 },
+      });
+      const p = oltre.premioRisultato!;
+      expect(p.quotaWelfare).toBe(5_000);
+      expect(p.conversioniTassate).toBe(1_000);
+      expect(p.quotaDenaro).toBe(1_000);
+      // Denaro e conversioni oltre il limite sono imponibili INPS
+      expect(oltre.contributiInps.imponibilePrevidenziale).toBe(27_000);
+      expect(p.contributiLavoratore).toBeCloseTo(1_000 * ALIQUOTA_INPS, 6);
+      // Il limite è esaurito dal welfare: il denaro è tutto a IRPEF ordinaria
+      expect(p.imponibileSostitutiva).toBe(0);
+      expect(p.imponibileOrdinario).toBeCloseTo(1_000 * (1 - ALIQUOTA_INPS), 6);
+      expect(oltre.irpef.imponibileIrpef - senza.irpef.imponibileIrpef).toBeCloseTo(
+        2_000 * (1 - ALIQUOTA_INPS),
+        6,
+      );
+      expect(oltre.totalePercepito - oltre.nettoAnnuo).toBe(5_000);
+    });
+
+    it('le quote convertite non superano il premio', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        premioRisultato: {
+          importo: 3_000,
+          quotaConvertitaWelfare: 2_500,
+          quotaConvertitaPrevidenza: 2_500,
+        },
+      });
+      expect(result.premioRisultato).toMatchObject({
+        quotaDenaro: 0,
+        quotaWelfare: 2_500,
+        quotaPrevidenza: 500,
+        contributiLavoratore: 0,
+        imponibileSostitutiva: 0,
+        impostaSostitutiva: 0,
+      });
+      expect(result.contributiInps.imponibilePrevidenziale).toBe(25_000);
+      expect(result.nettoAnnuo).toBeCloseTo(senza.nettoAnnuo, 6);
+    });
+  });
+
+  describe('Conversione in previdenza complementare (c. 184-bis)', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      premioRisultato: { importo: 3_000, quotaConvertitaPrevidenza: 1_000 },
+    });
+
+    it('è esente, accantonata e fuori dal plafond di €5.300', () => {
+      expect(result.premioRisultato).toMatchObject({
+        quotaDenaro: 2_000,
+        quotaPrevidenza: 1_000,
+        conversioniTassate: 0,
+      });
+      expect(result.fondoPensioneIntegrativo).toBeNull();
+      expect(entrata(result, 'Premio convertito in previdenza')).toMatchObject({
+        importo: 1_000,
+        destinazione: 'accantonata',
+      });
+      expect(result.totalePercepito).toBeCloseTo(result.nettoAnnuo, 6);
+      expect(result.irpef.imponibileIrpef).toBeCloseTo(senza.irpef.imponibileIrpef, 6);
+    });
+
+    it('non riduce la deduzione del fondo pensione', () => {
+      const conFondo = calc.calcolaStipendioNetto({
+        ...baseInput,
+        fondoPensioneIntegrativo: { contributoLavoratore: 2, ralLavoratore: 250_000 },
+        premioRisultato: { importo: 3_000, quotaConvertitaPrevidenza: 1_000 },
+      });
+      expect(conFondo.fondoPensioneIntegrativo!.totaleContributi).toBe(5_000);
+      expect(conFondo.fondoPensioneIntegrativo!.deduzioneEffettiva).toBe(5_000);
+    });
+
+    it('il datore versa il contributo di solidarietà del 10% (art. 16 D.Lgs. 252/2005)', () => {
+      const d = result.contributiDatore;
+      expect(d.baseContributoSolidarieta).toBe(1_000);
+      expect(d.contributoSolidarieta).toBeCloseTo(100, 6);
+      expect(result.costoAziendale - senza.costoAziendale).toBeCloseTo(
+        3_000 + 2_000 * (d.aliquotaInps - 0.005) + 100,
+        6,
+      );
+    });
+  });
+
+  describe('Coinvolgimento paritetico: decontribuzione su €800 (art. 55 D.L. 50/2017)', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      premioRisultato: { importo: 3_000, coinvolgimentoParitetico: true },
+    });
+    const premio = result.premioRisultato!;
+
+    it('il lavoratore non versa contributi sui primi €800', () => {
+      expect(premio.quotaDecontribuita).toBe(800);
+      expect(result.contributiInps.imponibilePrevidenziale).toBe(27_200);
+      expect(premio.contributiLavoratore).toBeCloseTo(2_200 * ALIQUOTA_INPS, 6);
+      expect(premio.imponibileSostitutiva).toBeCloseTo(3_000 - 2_200 * ALIQUOTA_INPS, 6);
+    });
+
+    it('il datore riduce di 20 punti l’aliquota sugli €800, sul resto paga per intero', () => {
+      const d = result.contributiDatore;
+      expect(d.contributiInpsLordi).toBeCloseTo(28_000 * d.aliquotaInps, 6);
+      expect(d.decontribuzionePremio).toBeCloseTo(800 * 0.2, 6);
+      expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(
+        d.contributiInpsLordi - 160 + d.addizionaleNaspi + d.contributoSolidarieta,
+        6,
+      );
+    });
+
+    it('con un premio in denaro sotto €800 la quota è il premio stesso', () => {
+      const piccolo = calc.calcolaStipendioNetto({
+        ...baseInput,
+        premioRisultato: {
+          importo: 1_000,
+          quotaConvertitaWelfare: 500,
+          coinvolgimentoParitetico: true,
+        },
+      });
+      expect(piccolo.premioRisultato!.quotaDecontribuita).toBe(500);
+      expect(piccolo.premioRisultato!.contributiLavoratore).toBe(0);
+      expect(piccolo.contributiDatore.decontribuzionePremio).toBeCloseTo(100, 6);
+    });
+
+    it('la decontribuzione non tocca il massimale: imponibile datore per intero', () => {
+      const alto = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 150_000,
+        premioRisultato: { importo: 3_000, coinvolgimentoParitetico: true },
+      });
+      // Il massimale (€122.295) è già superato: niente contributi marginali sul premio
+      expect(alto.premioRisultato!.contributiLavoratore).toBe(0);
+      expect(alto.premioRisultato!.imponibileSostitutiva).toBe(3_000);
+      expect(alto.contributiDatore.decontribuzionePremio).toBeCloseTo(160, 6);
+    });
+  });
+
+  it('apprendistato: la riduzione datore non supera l’aliquota agevolata', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      tipoContratto: 'apprendistato',
+      premioRisultato: { importo: 3_000, coinvolgimentoParitetico: true },
+    });
+    const d = result.contributiDatore;
+    expect(d.aliquotaInps).toBeLessThan(0.2);
+    expect(d.decontribuzionePremio).toBeCloseTo(800 * d.aliquotaInps, 6);
+  });
+
+  it('con premio alto e RAL bassa il regime resta conveniente', () => {
+    for (const ral of [15_000, 20_000, 30_000, 45_000, 60_000]) {
+      const agevolato = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral,
+        premioRisultato: { importo: 5_000 },
+      });
+      const ordinario = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral,
+        premioRisultato: { importo: 5_000, redditoAnnoPrecedenteEntroLimite: false },
+      });
+      expect(agevolato.nettoAnnuo).toBeGreaterThan(ordinario.nettoAnnuo);
+      expect(agevolato.nettoAnnuo - ordinario.nettoAnnuo).toBeCloseTo(
+        agevolato.premioRisultato!.risparmioFiscaleStimato,
+        6,
+      );
+    }
+  });
+});
+
 describe('14 mensilità, altriRedditi, altreDetrazioni', () => {
   it('14 mensilità: nettoMensile = nettoAnnuo / 14', () => {
     const result = calc.calcolaStipendioNetto({
@@ -3946,6 +4333,15 @@ describe('Property-based (fuzzy) tests', () => {
           },
         }),
         ...(rng() > 0.8 && { borsaDiStudio: { importoAnnuo: 16_243 } }),
+        ...(rng() > 0.5 && {
+          premioRisultato: {
+            importo: Math.round(rng() * 8_000),
+            quotaConvertitaWelfare: Math.round(rng() * 3_000),
+            quotaConvertitaPrevidenza: Math.round(rng() * 2_000),
+            coinvolgimentoParitetico: rng() > 0.5,
+            redditoAnnoPrecedenteEntroLimite: rng() > 0.2,
+          },
+        }),
         tipoContratto: (['indeterminato', 'determinato', 'apprendistato'] as const)[
           Math.floor(rng() * 3)
         ],
@@ -4001,12 +4397,49 @@ describe('Property-based (fuzzy) tests', () => {
         const d = result.contributiDatore;
 
         expect(entrateDi(result, 'contributiDatore')).toBeCloseTo(
-          d.contributiInpsLordi - d.esonero + d.addizionaleNaspi + d.contributoSolidarieta,
+          d.contributiInpsLordi -
+            d.decontribuzionePremio -
+            d.esonero +
+            d.addizionaleNaspi +
+            d.contributoSolidarieta,
           6,
+        );
+        expect(d.decontribuzionePremio).toBeLessThanOrEqual(
+          0.2 * (result.premioRisultato?.quotaDecontribuita ?? 0) + 1e-9,
         );
         expect(entrateDi(result, 'inail')).toBeCloseTo(d.premioInail, 6);
         expect(entrateDi(result, 'tfr')).toBeCloseTo(d.tfrLordo - d.riduzioneTfr, 6);
         expect(d.esonero).toBeLessThanOrEqual(d.contributiInpsLordi + 1e-9);
+      }
+    });
+
+    it('le voci del premio di risultato coincidono con il dettaglio', () => {
+      for (const input of scenari) {
+        const result = calc.calcolaStipendioNetto(input);
+        const premio = result.premioRisultato;
+        if (!premio) {
+          expect(entrateDi(result, 'premioRisultato')).toBe(0);
+          continue;
+        }
+        expect(entrateDi(result, 'premioRisultato')).toBeCloseTo(premio.importo, 6);
+        expect(
+          premio.quotaDenaro +
+            premio.quotaWelfare +
+            premio.quotaPrevidenza +
+            premio.conversioniTassate,
+        ).toBeCloseTo(premio.importo, 6);
+        expect(
+          premio.quotaWelfare + premio.quotaPrevidenza + premio.imponibileSostitutiva,
+        ).toBeLessThanOrEqual(premio.limite + 1e-9);
+        expect(premio.imponibileSostitutiva + premio.imponibileOrdinario).toBeCloseTo(
+          Math.max(0, premio.quotaDenaro - premio.contributiLavoratore),
+          6,
+        );
+        expect(premio.impostaSostitutiva).toBeCloseTo(premio.imponibileSostitutiva * 0.01, 6);
+        if (!premio.agevolabile) {
+          expect(premio.imponibileSostitutiva).toBe(0);
+          expect(premio.quotaDecontribuita).toBe(0);
+        }
       }
     });
 
@@ -4033,6 +4466,10 @@ describe('Property-based (fuzzy) tests', () => {
           6,
         );
         expect(trattenuteDi('irpef')).toBeCloseTo(result.irpefFinale, 6);
+        expect(trattenuteDi('impostaSostitutiva')).toBeCloseTo(
+          result.premioRisultato?.impostaSostitutiva ?? 0,
+          6,
+        );
         expect(trattenuteDi('addizionali')).toBeCloseTo(result.addizionali.totaleAddizionali, 6);
         expect(trattenuteDi('fondi')).toBeCloseTo(
           somma(result.fondiContrattuali.map((fondo) => ({ importo: fondo.contributoAnnuo }))) +

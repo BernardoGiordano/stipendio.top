@@ -86,6 +86,33 @@ export interface BenefitNonTassati {
   altri?: number;
 }
 
+/**
+ * Premio di risultato (art. 1, c. 182-190, L. 208/2015), con imposta sostitutiva di IRPEF e
+ * addizionali entro il limite annuo e facoltà di conversione in welfare (c. 184)
+ */
+export interface PremioRisultato {
+  /** Importo annuo lordo del premio */
+  importo: number;
+  /**
+   * Il contratto prevede il coinvolgimento paritetico dei lavoratori (art. 55 D.L. 50/2017): sui
+   * primi €800 del premio in denaro il lavoratore non versa contributi e il datore riduce di 20
+   * punti l'aliquota IVS
+   */
+  coinvolgimentoParitetico?: boolean;
+  /** Quota del premio convertita in benefit welfare (art. 51, c. 2 e 3, TUIR), esente */
+  quotaConvertitaWelfare?: number;
+  /**
+   * Quota del premio versata alla previdenza complementare: esente e fuori dal plafond di €5.300
+   * (c. 184-bis)
+   */
+  quotaConvertitaPrevidenza?: number;
+  /**
+   * Reddito di lavoro dipendente dell'anno precedente entro €80.000 (c. 186), requisito per
+   * l'imposta sostitutiva e la conversione (default true)
+   */
+  redditoAnnoPrecedenteEntroLimite?: boolean;
+}
+
 /** Anno fiscale di riferimento */
 export type AnnoFiscale = 2025 | 2026;
 
@@ -303,6 +330,9 @@ export interface InputCalcoloStipendio extends Partial<Record<FondoContrattualeI
   /** Benefit non tassati (welfare aziendale) */
   benefitNonTassati?: BenefitNonTassati;
 
+  /** Premio di risultato con imposta sostitutiva - L. 208/2015, art. 1, c. 182-190 */
+  premioRisultato?: PremioRisultato;
+
   /** Regime impatriati (rientro cervelli) - D.Lgs. 209/2023, art. 5 */
   regimeImpatriati?: boolean;
 
@@ -348,6 +378,11 @@ export interface DettaglioContributiDatore {
   contributiInpsLordi: number;
   /** Esonero contributivo sottratto ai contributi INPS datore */
   esonero: number;
+  /**
+   * Riduzione di 20 punti dell'aliquota sulla quota decontribuita del premio di risultato
+   * (art. 55 D.L. 50/2017), sottratta ai contributi INPS datore
+   */
+  decontribuzionePremio: number;
   /** Aliquota del contributo addizionale NASpI (tempo determinato), 0 se non dovuto */
   aliquotaAddizionaleNaspi: number;
   /** Contributo addizionale NASpI (art. 2, c. 28, L. 92/2012) */
@@ -518,6 +553,41 @@ export interface DettaglioBenefitNonTassati {
   totaleTassato: number;
 }
 
+/** Dettaglio del premio di risultato */
+export interface DettaglioPremioRisultato {
+  /** Importo lordo del premio */
+  importo: number;
+  /** Quota pagata in denaro, al lordo di contributi e imposte */
+  quotaDenaro: number;
+  /** Quota convertita in welfare entro il limite: esente da imposte e contributi */
+  quotaWelfare: number;
+  /** Quota versata alla previdenza complementare entro il limite: esente, fuori dal plafond */
+  quotaPrevidenza: number;
+  /** Conversioni oltre il limite agevolabile: reddito in natura tassato ordinariamente */
+  conversioniTassate: number;
+  /** Il premio accede all'imposta sostitutiva (reddito dell'anno precedente entro €80.000) */
+  agevolabile: boolean;
+  /** Limite annuo dell'imponibile agevolabile, conversioni comprese (€5.000) */
+  limite: number;
+  /** Aliquota dell'imposta sostitutiva (1%) */
+  aliquotaSostitutiva: number;
+  /** Contributi INPS a carico del lavoratore sulla quota in denaro */
+  contributiLavoratore: number;
+  /** Quota del premio in denaro senza contributi lavoratore (max €800, coinvolgimento paritetico) */
+  quotaDecontribuita: number;
+  /** Quota in denaro, al netto dei contributi, soggetta all'imposta sostitutiva */
+  imponibileSostitutiva: number;
+  /** Imposta sostitutiva di IRPEF e addizionali */
+  impostaSostitutiva: number;
+  /** Quota in denaro, al netto dei contributi, tassata a IRPEF ordinaria (oltre il limite) */
+  imponibileOrdinario: number;
+  /**
+   * Risparmio annuo rispetto alla tassazione ordinaria dell'imponibile a imposta sostitutiva:
+   * differenza di IRPEF, addizionali e bonus, al netto dell'imposta sostitutiva
+   */
+  risparmioFiscaleStimato: number;
+}
+
 /** Input borsa di studio (dottorato/post-laurea, tassata dal 7/6/2025 - D.L. 45/2025, L. 79/2025) */
 export interface BorsaDiStudio {
   /** Importo annuo lordo della borsa */
@@ -622,12 +692,14 @@ export type CategoriaEntrata =
   | 'fringeBenefit'
   | 'rimborsiTrasferta'
   | 'welfare'
+  | 'premioRisultato'
   | 'borsaDiStudio'
   | 'bonus';
 
 export type CategoriaTrattenuta =
   | 'contributi'
   | 'irpef'
+  | 'impostaSostitutiva'
   | 'addizionali'
   | 'fondi'
   | 'autoAziendale';
@@ -721,6 +793,9 @@ export interface OutputCalcoloStipendio {
   /** Dettaglio borsa di studio (se presente) */
   borsaDiStudio: DettaglioBorsaDiStudio | null;
 
+  /** Premio di risultato (se presente) */
+  premioRisultato: DettaglioPremioRisultato | null;
+
   /** Voci di entrata e di trattenuta da cui derivano i totali */
   ripartizione: Ripartizione;
 
@@ -751,7 +826,7 @@ export interface OutputCalcoloStipendio {
   irpefNetta: number;
   /** IRPEF finale (dopo detrazione cuneo) */
   irpefFinale: number;
-  /** Totale trattenute (contributi, IRPEF finale, addizionali, fondi, trattenuta auto) */
+  /** Totale trattenute (contributi, IRPEF finale, imposta sostitutiva, addizionali, fondi, trattenuta auto) */
   totaleTrattenute: number;
   /** Totale bonus (indennità cuneo + trattamento integrativo) */
   totaleBonus: number;
