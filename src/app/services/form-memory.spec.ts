@@ -79,8 +79,22 @@ describe('FormMemory', () => {
     expect(memory.load()?.figli[0].eta).toBeNaN();
   });
 
+  it('discards a value from another version, keeping the option on', () => {
+    localStorage.setItem(KEY, 'v0:eyJyYWwiOjQyMDAwfQ');
+    const memory = TestBed.inject(FormMemory);
+
+    expect(memory.load()).toBeNull();
+    expect(memory.remember()).toBe(true);
+  });
+
+  it('discards a value with no version', () => {
+    sessionStorage.setItem(KEY, 'eyJyYWwiOjQyMDAwfQ');
+
+    expect(TestBed.inject(FormMemory).load()).toBeNull();
+  });
+
   it('ignores a value it cannot read', () => {
-    sessionStorage.setItem(KEY, '%%%');
+    sessionStorage.setItem(KEY, 'v1:%%%');
 
     expect(TestBed.inject(FormMemory).load()).toBeNull();
   });

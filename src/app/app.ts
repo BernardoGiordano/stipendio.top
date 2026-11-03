@@ -8,7 +8,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
 import { FormContainer } from './components/form-container/form-container';
 import { FormBorsaContainer } from './components/form-borsa-container/form-borsa-container';
 import { Results } from './components/results/results';
@@ -17,8 +16,6 @@ import { Resizer } from './components/resizer/resizer';
 import { Icon } from './components/icon/icon';
 import { AnimatedAmount } from './components/ledger/ledger';
 import { ShareLink } from './components/share-link/share-link';
-import { Check, Control } from './components/field/field';
-import { Section } from './components/section/section';
 import { LINKS, NAV_LINKS } from './links';
 import {
   createDefaultFormModel,
@@ -36,6 +33,7 @@ import {
   CdkMenu,
   CdkMenuGroup,
   CdkMenuItem,
+  CdkMenuItemCheckbox,
   CdkMenuItemRadio,
   CdkMenuTrigger,
 } from '@angular/cdk/menu';
@@ -54,12 +52,9 @@ const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
     Icon,
     AnimatedAmount,
     ShareLink,
-    Check,
-    Control,
-    FormField,
-    Section,
     CdkMenu,
     CdkMenuItem,
+    CdkMenuItemCheckbox,
     CdkMenuItemRadio,
     CdkMenuGroup,
     CdkMenuTrigger,
@@ -96,11 +91,16 @@ export class App {
 
   readonly themeMode = inject(ThemeMode);
   readonly formStateShare = inject(FormStateShare);
-  private readonly formMemory = inject(FormMemory);
+  readonly formMemory = inject(FormMemory);
+
+  readonly settingsNote =
+    'I dati restano in questo browser e non vengono inviati a nessun server. Con "Ricorda i miei dati" restano anche dopo la chiusura della scheda.';
+
+  /** The model opened from a shared URL, until the first edit or change of the memory option */
+  private readonly unsavedSharedModel = signal<StipendioFormModel | null>(null);
 
   readonly formModel = signal<StipendioFormModel>(this.loadInitialFormState());
   readonly stipendioForm = createStipendioForm(this.formModel);
-  readonly rememberField = form(this.formMemory.remember);
 
   readonly isBorsaDiStudio = computed(() => this.formModel().tipoContratto === 'borsaDiStudio');
 
@@ -148,7 +148,15 @@ export class App {
         this.calculationResult();
       }
     });
-    effect(() => this.formMemory.save(this.formModel()));
+    // save() reads remember(), so this also runs when the option changes:
+    // that is what moves the fields between the two storages.
+    effect(() => {
+      const model = this.formModel();
+      // Merely opening a shared link must not replace the saved fields
+      if (model !== this.unsavedSharedModel()) {
+        this.formMemory.save(model);
+      }
+    });
 
     const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
@@ -167,6 +175,17 @@ export class App {
     this.formStateShare.copyToClipboard(this.formModel());
   }
 
+  toggleRemember(): void {
+    // The choice applies to the fields on screen, even if they come from a shared link
+    this.unsavedSharedModel.set(null);
+    this.formMemory.remember.update((remember) => !remember);
+  }
+
+  resetForm(): void {
+    this.loadedFromUrl.set(false);
+    this.formModel.set({ ...createDefaultFormModel(), ral: RAL_ESEMPIO });
+  }
+
   onResize(delta: number): void {
     // Limit splitRatio: min 0.3 for left side, max 0.5 so right side is always at least 50%
     const newRatio = Math.min(0.5, Math.max(0.3, this.splitRatio() + delta));
@@ -181,7 +200,9 @@ export class App {
         this.loadedFromUrl.set(true);
         this.formStateShare.clearUrlState();
       });
-      return this.formStateShare.mergeWithDefaults(urlState);
+      const sharedModel = this.formStateShare.mergeWithDefaults(urlState);
+      this.unsavedSharedModel.set(sharedModel);
+      return sharedModel;
     }
     const model = this.formMemory.load() ?? createDefaultFormModel();
     return { ...model, ral: model.ral || RAL_ESEMPIO };
