@@ -11,6 +11,7 @@ Nota: questo progetto è stato scritto nel corso di un weekend tramite il parzia
 ## Funzionalità:
 
 - Calcolo dello stipendio netto a partire dalla RAL (Retribuzione Annua Lorda), situazione familiare e da eventuali benefit, fringe benefit e rimborsi spese.
+- Fondi contrattuali dei principali CCNL (Commercio e Turismo, Dirigenti Terziario, Metalmeccanici, Dirigenti Industria), preset per i fondi pensione negoziali (Cometa, Fon.Te., Previndai) e fondi personalizzati con trattamento fiscale a scelta.
 - Dettaglio di tutte le componenti del calcolo, con formule e spiegazioni.
 - Calcolo differenziato per gli anni fiscali (Attualmente solo 2026, ma aggiornabile nel tempo, preservando la retrocompatibilità).
 - Grafico Sankey per mostrare l'incidenza di ogni componente sul totale percepito.
@@ -38,8 +39,7 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Fringe Benefit](#7-fringe-benefit)
   - [Rimborsi Spese](#8-rimborsi-spese)
   - [Benefit Non Tassati](#9-benefit-non-tassati-welfare)
-  - [Dirigenti CCNL Terziario](#10-dirigenti-ccnl-terziario)
-  - [Fondo EST (CCNL Commercio)](#10b-fondo-est-ccnl-commercio)
+  - [Fondi Contrattuali (CCNL)](#10-fondi-contrattuali-ccnl)
   - [Previdenza Complementare](#11-previdenza-complementare-fondo-pensione-integrativo)
   - [Regime Impatriati](#12-regime-impatriati-rientro-cervelli)
   - [Costo Aziendale](#13-costo-aziendale)
@@ -388,7 +388,7 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 | Voce                                        | Limite Annuo  |
 | ------------------------------------------- | ------------- |
 | Previdenza complementare (da welfare)       | €5.300 (\*)   |
-| Assistenza sanitaria integrativa            | €3.615,20     |
+| Assistenza sanitaria integrativa            | €3.615,20 (†) |
 | Buoni pasto cartacei                        | €4,00/giorno  |
 | Buoni pasto elettronici (2025)              | €8,00/giorno  |
 | Buoni pasto elettronici (dal 2026)          | €10,00/giorno |
@@ -398,99 +398,75 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 > Per i buoni pasto il limite annuo è la soglia giornaliera moltiplicata per i giorni di erogazione (default 220, modificabile nella form), assumendo buoni di pari importo giornaliero.
 >
 > (\*) I contributi al fondo pensione versati dall'azienda tramite welfare sono gestiti nella [previdenza complementare](#11-previdenza-complementare-fondo-pensione-integrativo): concorrono al plafond di €5.300 insieme ai contributi di lavoratore e datore e non sono una trattenuta dal netto.
+>
+> (†) Il limite di €3.615,20 è unico per tutti i contributi a casse e fondi sanitari (art. 51, c. 2, lett. a, TUIR): l'assistenza sanitaria welfare lo condivide con i [fondi contrattuali sanitari](#limite-di-esenzione-dei-contributi-sanitari) (quota azienda e quota lavoratore). L'eccedenza è reddito imponibile IRPEF ma non entra in busta né nell'imponibile previdenziale (art. 12, c. 4, lett. f, L. 153/1969), e il datore versa su di essa il contributo di solidarietà del 10%.
 
 ---
 
-#### 10. Dirigenti CCNL Terziario
+#### 10. Fondi Contrattuali (CCNL)
 
-I dirigenti del settore terziario (commercio, distribuzione, servizi) sono soggetti a trattenute obbligatorie per fondi di previdenza e assistenza sanitaria integrativa.
+I CCNL prevedono fondi di previdenza, assistenza sanitaria e formazione finanziati con contributi fissi a carico del lavoratore e dell'azienda. Il calcolatore li raccoglie in una tabella per CCNL, con il trattamento fiscale di ciascuno, e permette di aggiungere **fondi personalizzati** per i contratti non coperti. I fondi pensione negoziali con contributi in percentuale (Cometa, Fon.Te., Previndai) sono invece preset della [previdenza complementare](#11-previdenza-complementare-fondo-pensione-integrativo).
 
-##### Fondo Mario Negri
+##### Trattamento fiscale
 
-Fondo di previdenza complementare obbligatorio per i dirigenti del terziario.
+| Trattamento              | Quota lavoratore                                                                            | Quota azienda                                                                     | Solidarietà 10% |
+| ------------------------ | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------- |
+| Assistenza sanitaria     | Esclusa dall'imponibile IRPEF entro €3.615,20 complessivi (art. 51, c. 2, lett. a)          | Esente entro lo stesso limite; l'eccedenza è reddito imponibile IRPEF, non INPS   | Sì              |
+| Previdenza complementare | Dedotta entro il plafond di €5.300 condiviso con il fondo pensione (art. 10, e-bis)         | Reddito del lavoratore, dedotto entro lo stesso plafond; l'eccedenza è imponibile | Sì              |
+| Deducibile senza limite  | Dedotta per intero (fondo in squilibrio, art. 20, c. 7, D.Lgs. 252/2005), riduce il plafond | Non è reddito; non riduce il plafond (semplificazione, vedi Fondo Negri)          | Sì              |
+| Non deducibile           | Trattenuta diretta dal netto, senza beneficio fiscale                                       | Solo un costo aziendale                                                           | No              |
 
-**Parametri 2026:**
+In tutti i casi la quota lavoratore **non riduce l'imponibile previdenziale** (INPS) e la quota azienda è esclusa dall'imponibile previdenziale ma concorre al [costo aziendale](#13-costo-aziendale).
 
-| Parametro                     | Valore     |
-| ----------------------------- | ---------- |
-| Retribuzione convenzionale    | €59.224,54 |
-| Aliquota contributo dirigente | 2%         |
-| Contributo annuo dirigente    | €1.184,49  |
-| Contributo mensile            | €98,71     |
+##### Limite di esenzione dei contributi sanitari
 
-**Caratteristiche:**
+Contributi versati dal datore e dal lavoratore a casse e fondi sanitari non concorrono al reddito "per un importo non superiore complessivamente a euro 3.615,20" (art. 51, c. 2, lett. a, TUIR). Il limite è unico: lo condividono tutti i fondi sanitari selezionati (quota azienda e quota lavoratore) e l'assistenza sanitaria della sezione welfare.
 
-- Il contributo **riduce l'imponibile IRPEF** (deduzione integrale, senza massimale di deducibilità come per la previdenza complementare generica)
-- Il contributo **non riduce l'imponibile previdenziale** (INPS)
-- È una **trattenuta reale** che si sottrae dal netto in busta paga
-- Il risparmio fiscale è calcolato come differenza reale di carico fiscale (IRPEF, addizionali e bonus) tra il calcolo senza e con la deduzione
+```
+Contributi sanitari = Σ quota azienda fondi sanitari (al netto delle quote solidali)
+                    + Assistenza sanitaria welfare
+                    + Σ quota lavoratore fondi sanitari
+Esente              = MIN(Contributi sanitari, €3.615,20)
+Eccedenza           = Contributi sanitari − Esente   → reddito imponibile IRPEF
+```
 
-> Il contributo aziendale (ordinario 12,86% + integrativo 2,52% = 15,38% della retribuzione convenzionale) non impatta il netto del dirigente, ma è incluso nel calcolo del [Costo Aziendale](#13-costo-aziendale).
+Il limite è attribuito nell'ordine: quote azienda dei fondi, welfare, quote lavoratore. L'ordine non cambia l'imponibile (ogni euro oltre il limite è tassato una volta sola), ma decide quale voce compare come eccedente nel dettaglio. I contributi che l'azienda versa per prestazioni ad altri (gestione dirigenti pensionati, premio LTC, dirigenti disoccupati) non concorrono al limite del lavoratore in servizio (Ris. AE 78/E/2004, accordo CCNL Dirigenti Terziario 2022), ma restano un costo soggetto al contributo di solidarietà.
 
-##### Fondo Antonio Pastore
+##### Tabella 2026
 
-Fondo assicurativo-previdenziale integrativo obbligatorio per i dirigenti del terziario.
+| Fondo                        | CCNL                | Lavoratore / anno            | Azienda / anno                                                              | Trattamento                           |
+| ---------------------------- | ------------------- | ---------------------------- | --------------------------------------------------------------------------- | ------------------------------------- |
+| Fondo EST                    | Commercio           | €24 (€2/mese)                | €156 (€13/mese, dal 1° aprile 2025)                                         | Assistenza sanitaria                  |
+| Sanimpresa (Lazio)           | Terziario, Lazio    | —                            | €168 (€14/mese, dal 1° gennaio 2025)                                        | Assistenza sanitaria                  |
+| Fondo Fast                   | Turismo             | €24 (€2/mese)                | €120 (€10/mese)                                                             | Assistenza sanitaria                  |
+| Quas (quadri)                | Terziario, art. 105 | €56                          | €390 (€370 nel 2025) + €340 una tantum alla prima iscrizione, non calcolati | Assistenza sanitaria                  |
+| Quadrifor (quadri)           | Terziario, art. 109 | €25                          | €50                                                                         | Non deducibile                        |
+| Fondo Mario Negri            | Dirigenti Terziario | €1.184,49 (2% di €59.224,54) | €9.108,73 (12,86% + 2,52% di €59.224,54)                                    | Deducibile senza limite               |
+| Fondo Antonio Pastore        | Dirigenti Terziario | €464,81                      | €4.856,45                                                                   | Non deducibile                        |
+| CFMT                         | Dirigenti Terziario | €166                         | €276                                                                        | Non deducibile                        |
+| FASDAC (Fondo Mario Besusso) | Dirigenti Terziario | €859,08 (1,87% di €45.940)   | €3.707,36 (5,29% + 2,78% di €45.940)                                        | Assistenza sanitaria                  |
+| mètaSalute                   | Metalmeccanici      | —                            | €156 (€13/mese)                                                             | Assistenza sanitaria                  |
+| FASI                         | Dirigenti Industria | €1.120 (€280/trim.)          | €3.780 (€545/trim. + €400/trim. per i dirigenti pensionati)                 | Assistenza sanitaria                  |
+| GS-FASI                      | Dirigenti Industria | —                            | €100                                                                        | Assistenza sanitaria (quota solidale) |
 
-**Parametri 2026:**
+Note sui singoli fondi:
 
-| Parametro                  | Valore    |
-| -------------------------- | --------- |
-| Contributo annuo dirigente | €464,81   |
-| Contributo annuo azienda   | €4.856,45 |
-| Contributo totale          | €5.321,26 |
+- **Fondo Mario Negri**: fondo preesistente in squilibrio finanziario, con deducibilità integrale della quota dirigente (art. 20, c. 7, D.Lgs. 252/2005). Il rinnovo del CCNL Dirigenti Terziario del 5 novembre 2025 porta dal 2026 la quota dirigente al 2% e l'integrativo azienda al 2,52% (2,57% nel 2027, 2,62% nel 2028). La quota aziendale è inclusa nel costo aziendale ma, per semplificazione, non riduce il plafond della previdenza complementare.
+- **FASDAC**: della quota azienda (8,07%) concorrono al limite di €3.615,20 solo il 5,29% per i dirigenti in servizio al netto del premio LTC di €206,60; il 2,78% per la gestione pensionati e il premio LTC non rilevano (Ris. AE 78/E/2004, accordo di rinnovo 2022). Con il solo FASDAC la quota del dirigente (€859,08) resta quindi interamente esente.
+- **Fondo EST, Quas, Fondo Fast**: la quota del lavoratore è esclusa dall'imponibile IRPEF, trattandosi di contributi a casse sanitarie entro il limite; non riduce l'imponibile INPS.
+- **mètaSalute, Sanimpresa, GS-FASI**: nessuna trattenuta al lavoratore, solo costo aziendale. I piani integrativi facoltativi di mètaSalute a carico del lavoratore si inseriscono come fondo personalizzato.
+- **FASI**: quote del dirigente in servizio dalla circolare FASI 2026, invariate rispetto al 2025. L'azienda versa anche €1.600 l'anno per ogni dirigente in forza per l'assistenza ai dirigenti pensionati (art. G del Regolamento FASI, importo della circolare 2023): è un costo aziendale soggetto alla solidarietà del 10%, ma non è reddito del dirigente e non concorre al suo limite (Ris. AE 78/E/2004). **GS-FASI** (Gestione Separata FASI) copre i dirigenti involontariamente disoccupati: €100 l'anno per ogni dirigente in servizio, a carico azienda, fuori dal limite del dirigente.
+- **Quadrifor, CFMT**: enti bilaterali per la formazione, senza beneficio fiscale e senza contributo di solidarietà.
 
-**Caratteristiche fiscali:**
+Un fondo per dirigenti (Negri, Pastore, CFMT, FASDAC, FASI, GS-FASI, o un fondo personalizzato con l'opzione "Fondo per dirigenti") porta alle aliquote INPS datore dei dirigenti nel [costo aziendale](#13-costo-aziendale).
 
-- Il contributo **NON riduce l'imponibile IRPEF** (non deducibile)
-- Il contributo **non riduce l'imponibile previdenziale** (INPS)
-- È una **trattenuta diretta dal netto** in busta paga, senza beneficio fiscale
-- A differenza del Fondo Negri, non genera risparmio fiscale
+##### Fondi personalizzati
 
-##### FASDAC (Fondo Mario Besusso)
+Per i CCNL non in tabella si possono aggiungere fondi con nome, contributo annuo lavoratore, contributo annuo azienda, trattamento fiscale (uno dei quattro sopra) e flag dirigenti. Un fondo con trattamento "previdenza complementare" entra nel plafond di €5.300 insieme al fondo pensione, in proporzione ai contributi; uno con trattamento "assistenza sanitaria" entra nel limite di €3.615,20.
 
-Fondo di assistenza sanitaria integrativa obbligatorio per i dirigenti del terziario.
+##### Risparmio fiscale
 
-**Parametri 2026:**
-
-| Parametro                     | Valore     |
-| ----------------------------- | ---------- |
-| Retribuzione convenzionale    | €45.940,00 |
-| Aliquota contributo dirigente | 1,87%      |
-| Contributo annuo dirigente    | €859,08    |
-| Contributo mensile            | €71,59     |
-
-**Caratteristiche fiscali:**
-
-- Il contributo **NON riduce l'imponibile IRPEF** (non deducibile)
-- Il contributo **non riduce l'imponibile previdenziale** (INPS)
-- È una **trattenuta diretta dal netto** in busta paga, senza beneficio fiscale
-- A differenza del Fondo Negri, non genera risparmio fiscale
-
-> La quota azienda (5,29% dirigenti in servizio + 2,78% gestione pensionati = 8,07% della retribuzione convenzionale) non impatta il netto del dirigente, ma è inclusa nel calcolo del [Costo Aziendale](#13-costo-aziendale).
-
----
-
-#### 10b. Fondo EST (CCNL Commercio)
-
-Il Fondo EST (Ente di assistenza Sanitaria integrativa per i dipendenti delle aziende del Commercio, Turismo, Servizi e Settori affini) è il fondo di assistenza sanitaria integrativa per i **dipendenti non dirigenti** del CCNL Commercio/Terziario.
-
-**Parametri 2026 (dal 1 aprile 2025, Art. 104 CCNL Commercio):**
-
-| Parametro                     | Valore |
-| ----------------------------- | ------ |
-| Contributo mensile dipendente | €2     |
-| Contributo annuo dipendente   | €24    |
-| Contributo mensile datore     | €13    |
-| Contributo annuo datore       | €156   |
-
-**Caratteristiche fiscali:**
-
-- Il contributo dipendente **NON riduce l'imponibile IRPEF** (non deducibile)
-- Il contributo **non riduce l'imponibile previdenziale** (INPS)
-- È una **trattenuta diretta dal netto** in busta paga, senza beneficio fiscale
-- Il contributo datore è esente per il dipendente (Art. 51, c.2, lett. a) TUIR, entro €3.615,20/anno)
-
-> La quota azienda (€156/anno) non impatta il netto del dipendente, ma è inclusa nel calcolo del [Costo Aziendale](#13-costo-aziendale).
+Per le quote dedotte o esenti il calcolatore mostra il risparmio fiscale: la differenza di carico fiscale (IRPEF, addizionali, bonus) tra il calcolo senza e con le deduzioni, ripartita tra i fondi in proporzione alla quota dedotta da ciascuno. Il netto si riduce del contributo meno il risparmio.
 
 ---
 
@@ -567,6 +543,18 @@ Esempio: €5.300 − €1.184,49 = €4.115,51 disponibili per altri fondi
 
 > **Nota:** nel calcolo, il plafond è ridotto dalla quota del contributo Fondo Negri a carico del dirigente, essendo l'unica componente modellata. La quota aziendale, non inclusa nel calcolo, in realtà concorre anch'essa alla riduzione del plafond.
 
+##### Preset dei fondi pensione negoziali
+
+La sezione previdenza complementare ha un preset per i fondi negoziali più diffusi, che imposta le percentuali del CCNL e usa la RAL come base di riferimento (da correggere se il contratto usa una base diversa):
+
+| Fondo     | CCNL                     | Lavoratore                               | Azienda                                                          | Base                                                                      |
+| --------- | ------------------------ | ---------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Cometa    | Metalmeccanici industria | ≥ 1,2%                                   | 2% (2,2% per chi si iscrive entro i 35 anni, dal 1° giugno 2022) | Minimi tabellari del livello                                              |
+| Fon.Te.   | Terziario Confcommercio  | ≥ 0,55% (di cui 0,05% quota associativa) | 1,55%, se si conferisce il TFR                                   | Retribuzione utile al TFR (art. 107 CCNL)                                 |
+| Previndai | Dirigenti industria      | ≥ 2% (dal 2025)                          | 6% (4%, con minimo €4.800 l'anno, più 2%)                        | Retribuzione globale lorda fino a €200.000 (massimale applicato alla RAL) |
+
+Il contributo azienda spetta solo se il lavoratore versa la propria quota minima. Il TFR conferito al fondo non concorre al plafond. I fondi contrattuali personalizzati con trattamento "previdenza complementare" condividono lo stesso plafond: contributi di lavoratore e azienda si sommano a quelli del fondo pensione e la deduzione è ripartita in proporzione.
+
 > **Riferimento normativo:** D.Lgs. 252/2005 (Disciplina delle forme pensionistiche complementari), Art. 10, c.1, lett. e-bis, TUIR (DPR 917/1986), L. 199/2025 (Legge di Bilancio 2026, art. 1, c. 201).
 
 ---
@@ -630,7 +618,7 @@ COSTO AZIENDALE = RAL + Contributi INPS Datore − Esonero Contributivo
                 + Addizionale NASpI (tempo determinato)
                 + Contributo di Solidarietà + Premio INAIL
                 + TFR (al netto dello 0,50% IVS)
-                + Fondi Dirigenti (datore) + Fondo EST (datore)
+                + Fondi Contrattuali (datore)
                 + Fondo Pensione (datore)
                 + Fringe Benefit + Rimborsi Trasferta + Benefit Non Tassati (Welfare)
 ```
@@ -655,7 +643,7 @@ INPS Datore = MIN(Imponibile, Massimale) × 23,81% + Imponibile × (Aliquota −
 | Dirigenti (senza CIGS)                       | 26,54%          |
 | Dirigenti (con CIGS)                         | 27,24%          |
 
-> Le aliquote si riferiscono al settore Commercio/Terziario 2026 (fonte: tabelle INPS/Kitech). La qualifica di dirigente viene rilevata automaticamente dall'attivazione dei fondi contrattuali (Fondo Negri, Pastore, CFMT, FASDAC).
+> Le aliquote si riferiscono al settore Commercio/Terziario 2026 (fonte: tabelle INPS/Kitech). La qualifica di dirigente viene rilevata automaticamente dall'attivazione di un fondo per dirigenti (Fondo Negri, Pastore, CFMT, FASDAC, FASI, GS-FASI o un fondo personalizzato con l'opzione dirigenti); le stesse aliquote sono usate anche per i dirigenti industriali.
 
 L'aliquota degli apprendisti è forfettaria: 10% più NASpI 1,31% e formazione 0,30%, e comprende anche il premio INAIL. Nelle aziende fino a 9 dipendenti il 10% scende all'1,5% il primo anno e al 3% il secondo (art. 1, c. 773, L. 296/2006); dal terzo anno si torna all'11,61%.
 
@@ -685,11 +673,11 @@ I contributi del datore destinati a previdenza complementare e assistenza sanita
 
 ```
 Contributo di Solidarietà = 10% × (Fondo Pensione datore + Fondo Pensione welfare
-                                 + Fondo Negri datore + FASDAC datore + Fondo EST datore
-                                 + Assistenza sanitaria welfare esente)
+                                 + Fondi contrattuali datore (previdenza e sanità)
+                                 + Assistenza sanitaria welfare)
 ```
 
-Non si applica ai contributi del lavoratore, al TFR conferito al fondo pensione, al Fondo Pastore e al CFMT. L'assistenza sanitaria oltre la soglia di esenzione è già imponibile, quindi è esclusa.
+Non si applica ai contributi del lavoratore, al TFR conferito al fondo pensione né ai fondi non deducibili (Fondo Pastore, CFMT, Quadrifor). I contributi datore alle casse sanitarie sono esclusi dall'imponibile previdenziale senza limite (art. 12, c. 4, lett. f, L. 153/1969): il 10% grava sull'intero importo, anche sulla parte oltre i €3.615,20 che è imponibile solo ai fini IRPEF.
 
 ##### TFR (Trattamento di Fine Rapporto)
 
@@ -719,31 +707,32 @@ Esonero = MIN(INPS Datore × Quota × Mesi / 12, Tetto Mensile × Mesi)
 
 Il calcolo è annuo: quota e tetto mensile si applicano ai mesi di esonero indicati. L'esonero si applica ai contributi INPS datore nel loro insieme, senza separare le contribuzioni minori che alcuni esoneri escludono. Requisiti e finestre di assunzione cambiano con le proroghe: vanno verificati con le circolari INPS.
 
-##### Fondi Contrattuali Dirigenti (Quota Datore - CCNL Terziario 2026)
+##### Fondi Contrattuali (Quota Datore 2026)
 
-Per i dirigenti del CCNL Terziario, il datore sostiene costi aggiuntivi per i fondi obbligatori:
+Per ogni fondo selezionato il datore sostiene la quota aziendale della [tabella fondi](#tabella-2026), più il contributo di solidarietà del 10% su previdenza e sanità:
 
-| Fondo                 | Base di Calcolo    | Aliquota/Importo | Costo Annuo Datore |
-| --------------------- | ------------------ | ---------------- | ------------------ |
-| Fondo Mario Negri     | €59.224,54 (conv.) | 15,38%           | ~€9.109            |
-| Fondo Antonio Pastore | Importo fisso      | —                | €4.856,45          |
-| CFMT                  | Importo fisso      | —                | €276               |
-| FASDAC                | €45.940 (conv.)    | 8,07%            | ~€3.707            |
+| Fondo                 | Base di Calcolo    | Aliquota/Importo | Costo Annuo Datore | Solidarietà 10% |
+| --------------------- | ------------------ | ---------------- | ------------------ | --------------- |
+| Fondo Mario Negri     | €59.224,54 (conv.) | 15,38%           | ~€9.109            | Sì              |
+| Fondo Antonio Pastore | Importo fisso      | —                | €4.856,45          | No              |
+| CFMT                  | Importo fisso      | —                | €276               | No              |
+| FASDAC                | €45.940 (conv.)    | 8,07%            | ~€3.707            | Sì              |
+| Fondo EST             | €13/mese           | —                | €156               | Sì              |
+| Sanimpresa (Lazio)    | €14/mese           | —                | €168               | Sì              |
+| Fondo Fast            | €10/mese           | —                | €120               | Sì              |
+| Quas                  | Importo fisso      | —                | €390               | Sì              |
+| Quadrifor             | Importo fisso      | —                | €50                | No              |
+| mètaSalute            | €13/mese           | —                | €156               | Sì              |
+| FASI                  | €945/trimestre     | —                | €3.780             | Sì              |
+| GS-FASI               | Importo fisso      | —                | €100               | Sì              |
 
 Dettaglio aliquote:
 
 - **Fondo Mario Negri**: contributo ordinario azienda 12,86% + integrativo 2,52% = 15,38% della retribuzione convenzionale
-- **FASDAC**: 5,29% per dirigenti in servizio + 2,78% per gestione pensionati = 8,07% della retribuzione convenzionale
+- **FASDAC**: 5,29% per dirigenti in servizio (compreso il premio LTC di €206,60) + 2,78% per gestione pensionati = 8,07% della retribuzione convenzionale
+- **FASI**: €545 a trimestre per il dirigente in servizio + €400 a trimestre per l'assistenza ai dirigenti pensionati (art. G del Regolamento FASI)
 
-Sui contributi a Fondo Negri e FASDAC il datore versa anche il contributo di solidarietà del 10%.
-
-##### Fondo EST (Quota Datore - CCNL Commercio 2026)
-
-Per i dipendenti non dirigenti del CCNL Commercio, il datore versa un contributo al Fondo EST, più il contributo di solidarietà del 10%:
-
-| Fondo     | Importo          | Costo Annuo Datore |
-| --------- | ---------------- | ------------------ |
-| Fondo EST | €13/mese (fisso) | €156               |
+La quota azienda dei fondi sanitari oltre il limite di €3.615,20 (insieme al welfare e alle quote lavoratore) diventa reddito imponibile IRPEF del lavoratore, ma non cambia il costo aziendale.
 
 ##### Fondo Pensione Integrativo (Quota Datore)
 
@@ -948,34 +937,13 @@ Costo per l'Ente:      € 20.036,55
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  6b. FONDO MARIO NEGRI (se dirigente CCNL Terziario)            │
-│      = €1.184,49/anno (contributo fisso 2026)                   │
-│      → Riduce l'imponibile IRPEF                                │
-│      → È una trattenuta reale dal netto                         │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  6c. FONDO ANTONIO PASTORE (se dirigente CCNL Terziario)        │
-│      = €464,81/anno (contributo fisso 2026)                     │
-│      → NON riduce l'imponibile IRPEF                            │
-│      → Trattenuta diretta dal netto                             │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  6d. FASDAC (se dirigente CCNL Terziario)                       │
-│      = €859,08/anno (contributo fisso 2026)                     │
-│      → NON riduce l'imponibile IRPEF                            │
-│      → Trattenuta diretta dal netto                             │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  6d2. FONDO EST (se dipendente CCNL Commercio)                  │
-│       = €24/anno (€2/mese, contributo fisso 2026)               │
-│       → NON riduce l'imponibile IRPEF                           │
-│       → Trattenuta diretta dal netto                            │
+│  6b. FONDI CONTRATTUALI (CCNL selezionati e personalizzati)     │
+│      Contributi annui fissi lavoratore e azienda, per fondo:    │
+│      → Sanitari: esenti entro €3.615,20 con il welfare sanità   │
+│      → Previdenziali: nel plafond €5.300 con il fondo pensione  │
+│      → Negri: dedotto per intero, riduce il plafond             │
+│      → Non deducibili: trattenuta diretta dal netto             │
+│      La quota lavoratore è sempre una trattenuta reale          │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -1059,37 +1027,38 @@ Costo per l'Ente:      € 20.036,55
 │  14. COSTO AZIENDALE                                            │
 │      = RAL + INPS Datore − Esonero + Addizionale NASpI          │
 │        + Solidarietà 10% + INAIL + TFR (− 0,50% IVS)            │
-│        + Fondi Dirigenti (datore) + Fondo EST (datore)          │
-│        + Fondo Pensione (datore)                                │
+│        + Fondi Contrattuali (datore) + Fondo Pensione (datore)  │
 │        + Fringe Benefit + Rimborsi Trasferta + Benefit Non Tass.│
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Riferimenti Normativi
 
-| Normativa               | Contenuto                                |
-| ----------------------- | ---------------------------------------- |
-| **TUIR (DPR 917/1986)** | Testo Unico Imposte sui Redditi          |
-| **Art. 51 TUIR**        | Determinazione reddito lavoro dipendente |
-| **Art. 13 TUIR**        | Detrazioni lavoro dipendente             |
-| **Art. 12 TUIR**        | Detrazioni carichi familiari             |
-| **L. 207/2024**         | Legge di Bilancio 2025                   |
-| **L. 199/2025**         | Legge di Bilancio 2026                   |
-| **D.Lgs. 192/2024**     | Riforma IRPEF-IRES                       |
-| **L. 438/1992**         | Contributo aggiuntivo 1%                 |
-| **Circ. AE 5/E/2024**   | Chiarimenti fringe benefit               |
-| **Circ. AE 10/E/2025**  | Auto aziendali uso promiscuo             |
-| **Circ. AE 15/E/2025**  | Rimborsi trasferta e tracciabilità       |
-| **D.Lgs. 252/2005**     | Previdenza complementare                 |
-| **Art. 10 TUIR**        | Deduzioni dal reddito complessivo        |
-| **D.Lgs. 209/2023**     | Regime impatriati (rientro cervelli)     |
-| **Art. 2120 c.c.**      | Trattamento di Fine Rapporto (TFR)       |
-| **L. 297/1982**         | Contributo 0,50% IVS recuperato sul TFR  |
-| **L. 92/2012**          | Contributo addizionale NASpI             |
-| **D.L. 87/2018**        | Aumento addizionale NASpI per rinnovo    |
-| **D.L. 103/1991**       | Contributo di solidarietà 10%            |
-| **L. 296/2006**         | Contribuzione apprendisti                |
-| **D.L. 60/2024**        | Esoneri Bonus Giovani, Donne e ZES       |
+| Normativa                | Contenuto                                |
+| ------------------------ | ---------------------------------------- |
+| **TUIR (DPR 917/1986)**  | Testo Unico Imposte sui Redditi          |
+| **Art. 51 TUIR**         | Determinazione reddito lavoro dipendente |
+| **Art. 13 TUIR**         | Detrazioni lavoro dipendente             |
+| **Art. 12 TUIR**         | Detrazioni carichi familiari             |
+| **L. 207/2024**          | Legge di Bilancio 2025                   |
+| **L. 199/2025**          | Legge di Bilancio 2026                   |
+| **D.Lgs. 192/2024**      | Riforma IRPEF-IRES                       |
+| **L. 438/1992**          | Contributo aggiuntivo 1%                 |
+| **Circ. AE 5/E/2024**    | Chiarimenti fringe benefit               |
+| **Circ. AE 10/E/2025**   | Auto aziendali uso promiscuo             |
+| **Circ. AE 15/E/2025**   | Rimborsi trasferta e tracciabilità       |
+| **D.Lgs. 252/2005**      | Previdenza complementare                 |
+| **Art. 10 TUIR**         | Deduzioni dal reddito complessivo        |
+| **D.Lgs. 209/2023**      | Regime impatriati (rientro cervelli)     |
+| **Art. 2120 c.c.**       | Trattamento di Fine Rapporto (TFR)       |
+| **L. 297/1982**          | Contributo 0,50% IVS recuperato sul TFR  |
+| **L. 92/2012**           | Contributo addizionale NASpI             |
+| **D.L. 87/2018**         | Aumento addizionale NASpI per rinnovo    |
+| **D.L. 103/1991**        | Contributo di solidarietà 10%            |
+| **L. 153/1969, art. 12** | Imponibile previdenziale, esclusioni     |
+| **Ris. AE 78/E/2004**    | Contributi FASI per pensionati e limite  |
+| **L. 296/2006**          | Contribuzione apprendisti                |
+| **D.L. 60/2024**         | Esoneri Bonus Giovani, Donne e ZES       |
 
 ---
 

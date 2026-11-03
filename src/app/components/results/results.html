@@ -340,7 +340,7 @@
         @if (r.fondiContrattuali.length) {
           <app-ledger-card heading="Fondi contrattuali" [total]="fondiTotale()" flow="out">
             <dl>
-              @for (fondo of r.fondiContrattuali; track fondo.id) {
+              @for (fondo of righeFondi(); track fondo.id) {
                 <div
                   appLedgerRow
                   [label]="fondo.nome"
@@ -349,15 +349,11 @@
                 ></div>
                 <div
                   appLedgerRow
-                  [label]="
-                    fondo.deducibile
-                      ? 'al mese, deducibile dall\'imponibile IRPEF'
-                      : 'al mese, trattenuta diretta dal netto'
-                  "
+                  [label]="fondo.effetto"
                   [amount]="fondo.contributoMensile"
                   level="detail"
                 ></div>
-                @if (fondo.deducibile) {
+                @if (fondo.deduzione > 0) {
                   <div
                     appLedgerRow
                     label="risparmio fiscale stimato"
@@ -366,8 +362,19 @@
                     level="detail"
                   ></div>
                 }
+                @if (fondo.contributoDatoreImponibile > 0) {
+                  <div
+                    appLedgerRow
+                    label="quota azienda imponibile IRPEF"
+                    [amount]="fondo.contributoDatoreImponibile"
+                    level="detail"
+                  ></div>
+                }
               }
             </dl>
+            @if (notaSanitaria(); as nota) {
+              <p [class]="note">{{ nota }}</p>
+            }
           </app-ledger-card>
         }
 
@@ -408,11 +415,7 @@
 
         <!-- Fondo pensione -->
         @if (r.fondoPensioneIntegrativo; as fp) {
-          <app-ledger-card
-            heading="Fondo pensione"
-            [total]="fp.contributoLavoratoreAnnuo"
-            flow="out"
-          >
+          <app-ledger-card [heading]="fp.nome" [total]="fp.contributoLavoratoreAnnuo" flow="out">
             <dl>
               <div
                 appLedgerRow
@@ -445,6 +448,13 @@
                   appLedgerRow
                   label="Contributo welfare azienda"
                   [amount]="fp.contributoWelfareAnnuo"
+                ></div>
+              }
+              @if (fp.contributoFondiContrattualiAnnuo > 0) {
+                <div
+                  appLedgerRow
+                  label="Fondi contrattuali di previdenza"
+                  [amount]="fp.contributoFondiContrattualiAnnuo"
                 ></div>
               }
               <div appLedgerRow label="Deduzione effettiva" [amount]="fp.deduzioneEffettiva"></div>
@@ -560,7 +570,11 @@
         }
 
         <!-- Benefit non tassati -->
-        @if (r.benefitNonTassati.totaleEsente > 0 || r.benefitNonTassati.totaleTassato > 0) {
+        @if (
+          r.benefitNonTassati.totaleEsente > 0 ||
+          r.benefitNonTassati.totaleTassato > 0 ||
+          r.benefitNonTassati.assistenzaSanitariaTassata > 0
+        ) {
           <app-ledger-card
             heading="Benefit non tassati"
             [total]="r.benefitNonTassati.totaleEsente"
@@ -572,6 +586,13 @@
                   appLedgerRow
                   label="Assistenza sanitaria"
                   [amount]="r.benefitNonTassati.assistenzaSanitaria"
+                ></div>
+              }
+              @if (r.benefitNonTassati.assistenzaSanitariaTassata > 0) {
+                <div
+                  appLedgerRow
+                  label="Assistenza sanitaria oltre soglia (imponibile IRPEF)"
+                  [amount]="r.benefitNonTassati.assistenzaSanitariaTassata"
                 ></div>
               }
               @if (r.benefitNonTassati.buoniPastoEsenti > 0) {

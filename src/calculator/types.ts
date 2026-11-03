@@ -95,11 +95,51 @@ export type FondoContrattualeId =
   | 'fondoPastore'
   | 'cfmt'
   | 'fasdac'
-  | 'fondoEst';
+  | 'fondoEst'
+  | 'quas'
+  | 'quadrifor'
+  | 'sanimpresa'
+  | 'fondoFast'
+  | 'metasalute'
+  | 'fasi'
+  | 'gsFasi';
+
+/**
+ * Trattamento fiscale dei contributi a un fondo contrattuale.
+ * - deducibileSenzaLimite: fondo preesistente in squilibrio finanziario (art. 20, c. 7, D.Lgs.
+ *   252/2005): il contributo lavoratore è dedotto per intero e riduce il plafond della
+ *   previdenza complementare
+ * - previdenzaComplementare: contributi di lavoratore e datore deducibili entro il plafond di
+ *   €5.300 condiviso con il fondo pensione (art. 10, c. 1, lett. e-bis, TUIR); il contributo
+ *   datore è reddito di lavoro dipendente
+ * - assistenzaSanitaria: contributi di lavoratore e datore esenti entro €3.615,20 complessivi,
+ *   insieme all'assistenza sanitaria della sezione welfare (art. 51, c. 2, lett. a, TUIR)
+ * - nonDeducibile: il contributo lavoratore è trattenuto dal netto senza beneficio fiscale,
+ *   quello datore non è reddito (es. enti bilaterali per la formazione)
+ */
+export type TrattamentoFiscaleFondo =
+  | 'deducibileSenzaLimite'
+  | 'previdenzaComplementare'
+  | 'assistenzaSanitaria'
+  | 'nonDeducibile';
+
+/** Fondo contrattuale non in tabella, con contributi annui fissi indicati dall'utente */
+export interface FondoPersonalizzato {
+  /** Nome mostrato nel dettaglio (default "Fondo personalizzato") */
+  nome?: string;
+  /** Contributo annuo a carico del lavoratore */
+  contributoLavoratore: number;
+  /** Contributo annuo a carico del datore */
+  contributoDatore: number;
+  trattamento: TrattamentoFiscaleFondo;
+  /** Fondo per dirigenti: porta alle aliquote INPS datore dei dirigenti */
+  dirigente?: boolean;
+}
 
 /** Dettaglio di un fondo contrattuale selezionato */
 export interface DettaglioFondoContrattuale {
-  id: FondoContrattualeId;
+  /** Id del fondo in tabella, o "personalizzato-N" per i fondi personalizzati */
+  id: string;
   nome: string;
   /** Contributo annuo a carico del lavoratore */
   contributoAnnuo: number;
@@ -107,13 +147,35 @@ export interface DettaglioFondoContrattuale {
   contributoMensile: number;
   /** Contributo annuo a carico del datore */
   contributoDatore: number;
-  /** Deducibile dall'imponibile IRPEF; altrimenti trattenuta diretta dal netto */
-  deducibile: boolean;
+  trattamento: TrattamentoFiscaleFondo;
+  /** Quota del contributo lavoratore esclusa dall'imponibile IRPEF */
+  deduzione: number;
   /**
-   * Risparmio fiscale annuo del contributo deducibile: quota della differenza di IRPEF,
+   * Quota del contributo datore che concorre al reddito imponibile IRPEF: l'eccedenza oltre il
+   * limite di esenzione sanitaria o oltre il plafond della previdenza complementare
+   */
+  contributoDatoreImponibile: number;
+  /**
+   * Risparmio fiscale annuo della quota dedotta: quota della differenza di IRPEF,
    * addizionali e bonus tra il calcolo senza e con le deduzioni
    */
   risparmioFiscaleStimato: number;
+}
+
+/**
+ * Contributi di assistenza sanitaria a casse e fondi (art. 51, c. 2, lett. a, TUIR): fondi
+ * contrattuali sanitari (datore e lavoratore) e assistenza sanitaria welfare condividono lo
+ * stesso limite annuo di esenzione
+ */
+export interface DettaglioAssistenzaSanitaria {
+  /** Contributi che concorrono al limite */
+  contributi: number;
+  /** Quota esente da IRPEF */
+  esente: number;
+  /** Quota oltre il limite, reddito imponibile IRPEF (non INPS) */
+  eccedenza: number;
+  /** Limite annuo di esenzione (€3.615,20) */
+  limite: number;
 }
 
 /** Esoneri contributivi per le nuove assunzioni, con quota e tetto mensile predefiniti */
@@ -247,6 +309,9 @@ export interface InputCalcoloStipendio extends Partial<Record<FondoContrattualeI
 
   /** Previdenza complementare (fondo pensione integrativo) - D.Lgs. 252/2005 */
   fondoPensioneIntegrativo?: FondoPensioneIntegrativo;
+
+  /** Fondi contrattuali non in tabella, con contributi annui indicati dall'utente */
+  fondiPersonalizzati?: FondoPersonalizzato[];
 
   /** Borsa di studio post-laurea (tassata dal 7/6/2025) - D.L. 45/2025, convertito in L. 79/2025 */
   borsaDiStudio?: BorsaDiStudio;
@@ -433,6 +498,12 @@ export interface DettaglioBenefitNonTassati {
   previdenzaComplementare: number;
   /** Contributi assistenza sanitaria (esenti) */
   assistenzaSanitaria: number;
+  /**
+   * Contributi assistenza sanitaria oltre il limite condiviso con i fondi sanitari contrattuali:
+   * reddito imponibile IRPEF, esclusi dall'imponibile previdenziale (art. 12, c. 4, lett. f,
+   * L. 153/1969) e soggetti al contributo di solidarietà
+   */
+  assistenzaSanitariaTassata: number;
   /** Buoni pasto (esenti) */
   buoniPastoEsenti: number;
   /** Buoni pasto eccedenti (tassati) */
@@ -441,7 +512,7 @@ export interface DettaglioBenefitNonTassati {
   altriWelfare: number;
   /** Totale benefit esenti */
   totaleEsente: number;
-  /** Totale benefit tassati (eccedenze) */
+  /** Totale benefit tassati che entrano in busta (eccedenze buoni pasto) */
   totaleTassato: number;
 }
 
@@ -453,6 +524,8 @@ export interface BorsaDiStudio {
 
 /** Input previdenza complementare (fondo pensione integrativo) */
 export interface FondoPensioneIntegrativo {
+  /** Nome del fondo (es. Cometa, Fon.Te., Previndai), solo per il dettaglio */
+  nome?: string;
   /** Percentuale contributo a carico del lavoratore (es. 1.0 = 1%) */
   contributoLavoratore: number;
   /** RAL di riferimento per il contributo lavoratore */
@@ -471,6 +544,8 @@ export interface FondoPensioneIntegrativo {
 
 /** Dettaglio previdenza complementare (fondo pensione integrativo) */
 export interface DettaglioFondoPensioneIntegrativo {
+  /** Nome del fondo ("Fondo pensione" se non indicato) */
+  nome: string;
   /** Contributo annuo a carico del lavoratore */
   contributoLavoratoreAnnuo: number;
   /** Contributo mensile a carico del lavoratore */
@@ -481,7 +556,12 @@ export interface DettaglioFondoPensioneIntegrativo {
   contributoEbitempAnnuo: number;
   /** Contributo annuo versato dal datore tramite welfare aziendale (da sezione welfare) */
   contributoWelfareAnnuo: number;
-  /** Totale contributi (lavoratore + datore + EBITEMP + welfare) */
+  /**
+   * Contributi annui (lavoratore e datore) dei fondi contrattuali di previdenza complementare,
+   * che condividono il plafond
+   */
+  contributoFondiContrattualiAnnuo: number;
+  /** Totale contributi (lavoratore + datore + EBITEMP + welfare + fondi contrattuali) */
   totaleContributi: number;
   /** Deduzione effettiva dall'imponibile IRPEF (max €5.300 dal 2026) */
   deduzioneEffettiva: number;
@@ -629,6 +709,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio previdenza complementare (se attiva) */
   fondoPensioneIntegrativo: DettaglioFondoPensioneIntegrativo | null;
+
+  /** Contributi di assistenza sanitaria e limite di esenzione (se presenti) */
+  assistenzaSanitaria: DettaglioAssistenzaSanitaria | null;
 
   /** Dettaglio regime impatriati (se applicabile) */
   regimeImpatriati: DettaglioRegimeImpatriati | null;

@@ -11,7 +11,12 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../../../calculator/types';
+import {
+  DettaglioFondoContrattuale,
+  InputCalcoloStipendio,
+  OutputCalcoloStipendio,
+  TrattamentoFiscaleFondo,
+} from '../../../calculator/types';
 import { REGIONE_LABELS } from '../../../calculator/addizionali/2026.regionali';
 import { PLAFOND_PREVIDENZA_COMPLEMENTARE } from '../../../calculator/fondi/2026';
 import { VOCE_INPS_DATORE } from '../../../calculator/datore/2026';
@@ -27,6 +32,27 @@ type TabId = 'cedolino' | 'flusso' | 'proiezione';
 
 /** A row of the costo aziendale card, with the rate it applies in brackets */
 type RigaCosto = LedgerVoce & { nota?: string };
+
+/** The monthly line of a fund row, by how the worker's contribution is taxed */
+const EFFETTO_FONDO: Record<
+  TrattamentoFiscaleFondo,
+  (fondo: DettaglioFondoContrattuale) => string
+> = {
+  deducibileSenzaLimite: () => "al mese, dedotto dall'imponibile IRPEF senza limite",
+  previdenzaComplementare: (fondo) =>
+    fondo.deduzione >= fondo.contributoAnnuo - 0.005
+      ? 'al mese, dedotto entro il plafond della previdenza'
+      : `al mese, dedotti ${formatCurrency(fondo.deduzione)} entro il plafond della previdenza`,
+  assistenzaSanitaria: (fondo) =>
+    fondo.contributoAnnuo <= 0
+      ? 'al mese, nessuna trattenuta'
+      : fondo.deduzione >= fondo.contributoAnnuo - 0.005
+        ? 'al mese, esente da IRPEF entro il limite sanitario'
+        : fondo.deduzione > 0
+          ? `al mese, esenti ${formatCurrency(fondo.deduzione)} entro il limite sanitario`
+          : 'al mese, oltre il limite sanitario: trattenuta dal netto',
+  nonDeducibile: () => 'al mese, trattenuta diretta dal netto',
+};
 
 /** Tailwind's lg breakpoint, where the tab bar pins to the top */
 const PINNED_BAR_QUERY = '(min-width: 64rem)';
@@ -250,6 +276,24 @@ export class Results {
   readonly fondiTotale = computed(
     () => this.result()?.fondiContrattuali.reduce((sum, f) => sum + f.contributoAnnuo, 0) ?? 0,
   );
+
+  /** Fund rows with the text of their monthly line */
+  readonly righeFondi = computed(() =>
+    (this.result()?.fondiContrattuali ?? []).map((fondo) => ({
+      ...fondo,
+      effetto: EFFETTO_FONDO[fondo.trattamento](fondo),
+    })),
+  );
+
+  /** Use of the shared healthcare exemption limit, under the fund rows */
+  readonly notaSanitaria = computed(() => {
+    const sanita = this.result()?.assistenzaSanitaria;
+    if (!sanita) return undefined;
+    const esenti = `Contributi sanitari esenti ${formatCurrency(sanita.esente)} su ${formatCurrency(sanita.limite)}`;
+    return sanita.eccedenza > 0
+      ? `${esenti}, ${formatCurrency(sanita.eccedenza)} imponibili`
+      : esenti;
+  });
 
   readonly regione = computed(() => {
     const codice = this.baseInput()?.regione;

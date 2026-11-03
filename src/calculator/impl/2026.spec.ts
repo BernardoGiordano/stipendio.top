@@ -798,7 +798,7 @@ describe('FASDAC (Fondo Assistenza Sanitaria Dirigenti)', () => {
     expect(fondo(result, 'fasdac')!.contributoMensile).toBeCloseTo(CONTRIBUTO_FASDAC_2026 / 12, 2);
   });
 
-  it("NON deve ridurre l'imponibile IRPEF (stessa IRPEF con/senza FASDAC)", () => {
+  it("esclude la quota del dirigente dall'imponibile IRPEF (art. 51, c. 2, lett. a, TUIR)", () => {
     const resultSenza = calc.calcolaStipendioNetto({
       ral: 80_000,
       mensilita: 13,
@@ -818,10 +818,20 @@ describe('FASDAC (Fondo Assistenza Sanitaria Dirigenti)', () => {
       fasdac: true,
     });
 
-    expect(resultCon.irpef.imponibileIrpef).toBeCloseTo(resultSenza.irpef.imponibileIrpef, 2);
+    // Quota azienda in servizio (5,29% meno LTC) e quota dirigente restano sotto €3.615,20:
+    // la gestione pensionati e il premio LTC non concorrono al limite (Ris. AE 78/E/2004)
+    expect(resultCon.assistenzaSanitaria!.eccedenza).toBe(0);
+    expect(resultSenza.irpef.imponibileIrpef - resultCon.irpef.imponibileIrpef).toBeCloseTo(
+      CONTRIBUTO_FASDAC_2026,
+      2,
+    );
+    // L'imponibile previdenziale non cambia
+    expect(resultCon.contributiInps.imponibilePrevidenziale).toBe(
+      resultSenza.contributiInps.imponibilePrevidenziale,
+    );
   });
 
-  it('deve ridurre il netto esattamente di €859,08', () => {
+  it('deve ridurre il netto di €859,08 meno il risparmio fiscale', () => {
     const resultSenza = calc.calcolaStipendioNetto({
       ral: 80_000,
       mensilita: 13,
@@ -842,7 +852,9 @@ describe('FASDAC (Fondo Assistenza Sanitaria Dirigenti)', () => {
     });
 
     const differenzaNetto = resultSenza.nettoAnnuo - resultCon.nettoAnnuo;
-    expect(differenzaNetto).toBeCloseTo(CONTRIBUTO_FASDAC_2026, 2);
+    const risparmio = fondo(resultCon, 'fasdac')!.risparmioFiscaleStimato;
+    expect(risparmio).toBeGreaterThan(0);
+    expect(differenzaNetto).toBeCloseTo(CONTRIBUTO_FASDAC_2026 - risparmio, 2);
   });
 });
 
@@ -893,7 +905,7 @@ describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
     );
   });
 
-  it("NON deve ridurre l'imponibile IRPEF (stessa IRPEF con/senza Fondo EST)", () => {
+  it("esclude la quota del dipendente dall'imponibile IRPEF (art. 51, c. 2, lett. a, TUIR)", () => {
     const resultSenza = calc.calcolaStipendioNetto({
       ral: 25_000,
       mensilita: 13,
@@ -913,10 +925,16 @@ describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
       fondoEst: true,
     });
 
-    expect(resultCon.irpef.imponibileIrpef).toBeCloseTo(resultSenza.irpef.imponibileIrpef, 2);
+    expect(resultSenza.irpef.imponibileIrpef - resultCon.irpef.imponibileIrpef).toBeCloseTo(
+      CONTRIBUTO_FONDO_EST_2026,
+      2,
+    );
+    expect(resultCon.contributiInps.imponibilePrevidenziale).toBe(
+      resultSenza.contributiInps.imponibilePrevidenziale,
+    );
   });
 
-  it('deve ridurre il netto esattamente di €24', () => {
+  it('deve ridurre il netto di €24 meno il risparmio fiscale', () => {
     const resultSenza = calc.calcolaStipendioNetto({
       ral: 25_000,
       mensilita: 13,
@@ -937,7 +955,9 @@ describe('Fondo EST (Assistenza Sanitaria Integrativa dipendenti CCNL Commercio)
     });
 
     const differenzaNetto = resultSenza.nettoAnnuo - resultCon.nettoAnnuo;
-    expect(differenzaNetto).toBeCloseTo(CONTRIBUTO_FONDO_EST_2026, 2);
+    const risparmio = fondo(resultCon, 'fondoEst')!.risparmioFiscaleStimato;
+    expect(risparmio).toBeGreaterThan(0);
+    expect(differenzaNetto).toBeCloseTo(CONTRIBUTO_FONDO_EST_2026 - risparmio, 2);
   });
 
   it('il costo aziendale deve includere €156 fondoEstDatore', () => {
@@ -3480,13 +3500,38 @@ describe('Benefit non tassati', () => {
     expect(result.fondoPensioneIntegrativo!.eccedenzaNonDeducibile).toBe(0);
   });
 
-  it('assistenza sanitaria sopra cap €3.615,20: eccedente tassato', () => {
+  it('assistenza sanitaria sopra cap €3.615,20: eccedente imponibile IRPEF, non INPS', () => {
+    const senza = calc.calcolaStipendioNetto(baseInput);
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
       benefitNonTassati: { assistenzaSanitaria: 5_000 },
     });
     expect(result.benefitNonTassati.assistenzaSanitaria).toBeCloseTo(3_615.2, 2);
-    expect(result.benefitNonTassati.totaleTassato).toBeCloseTo(1_384.8, 2);
+    expect(result.benefitNonTassati.assistenzaSanitariaTassata).toBeCloseTo(1_384.8, 2);
+    // L'eccedenza non entra in busta né nell'imponibile previdenziale (art. 12, c. 4, lett. f,
+    // L. 153/1969), ma concorre al reddito imponibile IRPEF
+    expect(result.benefitNonTassati.totaleTassato).toBe(0);
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(baseInput.ral);
+    expect(result.irpef.imponibileIrpef - senza.irpef.imponibileIrpef).toBeCloseTo(1_384.8, 2);
+    expect(result.assistenzaSanitaria).toEqual({
+      contributi: 5_000,
+      esente: expect.closeTo(3_615.2, 6),
+      eccedenza: expect.closeTo(1_384.8, 6),
+      limite: 3_615.2,
+    });
+  });
+
+  it('assistenza sanitaria welfare e Fondo EST condividono il limite', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fondoEst: true,
+      benefitNonTassati: { assistenzaSanitaria: 3_600 },
+    });
+    // Prima il contributo azienda del fondo (156), poi il welfare, poi la quota del dipendente
+    expect(result.benefitNonTassati.assistenzaSanitaria).toBeCloseTo(3_615.2 - 156, 2);
+    expect(result.benefitNonTassati.assistenzaSanitariaTassata).toBeCloseTo(3_600 - 3_459.2, 2);
+    expect(fondo(result, 'fondoEst')!.deduzione).toBe(0);
+    expect(result.assistenzaSanitaria!.eccedenza).toBeCloseTo(156 + 24 + 3_600 - 3_615.2, 2);
   });
 
   it('buoni pasto elettronici: soglia €10/giorno × 220 giorni = €2.200', () => {
@@ -4380,13 +4425,15 @@ describe('Costo aziendale', () => {
       expect(result.contributiDatore.contributoSolidarieta).toBeCloseTo(160, 2);
     });
 
-    it("grava sull'assistenza sanitaria esente pagata come welfare, non sull'eccedenza", () => {
+    it("grava sull'intera assistenza sanitaria pagata come welfare, anche oltre il limite", () => {
+      // I contributi datore alle casse sanitarie sono esclusi dall'imponibile previdenziale
+      // senza limite (art. 12, c. 4, lett. f, L. 153/1969) e soggetti per intero al 10%
       const result = calc.calcolaStipendioNetto({
         ...baseInput,
         ral: 30_000,
         benefitNonTassati: { assistenzaSanitaria: 4_000 },
       });
-      expect(result.contributiDatore.contributoSolidarieta).toBeCloseTo(361.52, 2);
+      expect(result.contributiDatore.contributoSolidarieta).toBeCloseTo(400, 2);
     });
 
     it('non grava su buoni pasto, trasporto e servizi welfare', () => {
