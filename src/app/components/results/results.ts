@@ -149,6 +149,14 @@ export class Results {
         icon: 'sprout',
       });
     }
+    if (r.premioRisultato && r.premioRisultato.imponibileSostitutiva > 0) {
+      stats.push({
+        label: 'Risparmio premio detassato',
+        value: `${formatCurrency(r.premioRisultato.risparmioFiscaleStimato)} l'anno`,
+        hue: 'ocra',
+        icon: 'trend',
+      });
+    }
     return stats;
   });
 
@@ -219,6 +227,16 @@ export class Results {
         amount: d.contributiInpsLordi,
         nota: formatPercent(d.aliquotaInps),
       },
+      ...(d.decontribuzionePremio > 0
+        ? [
+            {
+              label: 'Decontribuzione premio di risultato',
+              amount: d.decontribuzionePremio,
+              flow: 'reduce',
+              level: 'detail',
+            } as const,
+          ]
+        : []),
       ...(d.esonero > 0
         ? [
             {
@@ -259,7 +277,10 @@ export class Results {
     });
 
     // A full exemption leaves no INPS voce: show the contributions and the exemption after the RAL
-    if (d.esonero > 0 && !datore.some((voce) => voce.descrizione === VOCE_INPS_DATORE)) {
+    if (
+      (d.esonero > 0 || d.decontribuzionePremio > 0) &&
+      !datore.some((voce) => voce.descrizione === VOCE_INPS_DATORE)
+    ) {
       righe.splice(1, 0, ...inps);
     }
     return righe;

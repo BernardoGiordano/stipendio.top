@@ -96,6 +96,25 @@ describe('GraphFunnel sankey', () => {
     );
   });
 
+  it('balances with a premio di risultato split between cash, welfare and previdenza', () => {
+    expectBalanced(
+      calcolaStipendioNetto({
+        ...baseInput,
+        premioRisultato: {
+          importo: 7_000,
+          quotaConvertitaWelfare: 4_000,
+          quotaConvertitaPrevidenza: 1_500,
+          coinvolgimentoParitetico: true,
+        },
+      }),
+    );
+    const data = layout(
+      calcolaStipendioNetto({ ...baseInput, premioRisultato: { importo: 3_000 } }),
+    );
+    expect(nodeValue(data, 'entrata:premioRisultato')).toBeCloseTo(3_000, 2);
+    expect(nodeValue(data, 'trattenuta:impostaSostitutiva')).toBeGreaterThan(0);
+  });
+
   it('balances with taxed fringe, auto aziendale, rimborsi tassati, fondi and borsa', () => {
     expectBalanced(
       calcolaStipendioNetto({

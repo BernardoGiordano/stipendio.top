@@ -22,10 +22,12 @@ export const SERIE = {
   fringeBenefit: '#4f8a8b',
   rimborsiTrasferta: '#5f9e94',
   welfare: '#3f7f8c',
+  premioRisultato: '#a3772f',
 
   // where the busta goes
   contributi: '#d9774f',
   irpef: '#c25a74',
+  impostaSostitutiva: '#b54a2a',
   addizionali: '#bf8a2c',
   fondi: '#8e6f9e',
   autoAziendale: '#c97575',

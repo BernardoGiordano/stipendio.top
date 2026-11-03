@@ -413,6 +413,97 @@
           </app-ledger-card>
         }
 
+        <!-- Premio di risultato -->
+        @if (r.premioRisultato; as premio) {
+          <app-ledger-card heading="Premio di risultato" [total]="premio.importo">
+            <dl>
+              <div appLedgerRow label="Importo lordo" [amount]="premio.importo"></div>
+              @if (premio.quotaWelfare > 0) {
+                <div
+                  appLedgerRow
+                  label="Convertito in welfare (esente)"
+                  [amount]="premio.quotaWelfare"
+                ></div>
+              }
+              @if (premio.quotaPrevidenza > 0) {
+                <div
+                  appLedgerRow
+                  label="Convertito in previdenza (esente, fuori plafond)"
+                  [amount]="premio.quotaPrevidenza"
+                ></div>
+              }
+              @if (premio.conversioniTassate > 0) {
+                <div
+                  appLedgerRow
+                  label="Convertito oltre il limite (imponibile)"
+                  [amount]="premio.conversioniTassate"
+                ></div>
+              }
+              <div appLedgerRow label="Quota in denaro" [amount]="premio.quotaDenaro"></div>
+              @if (premio.quotaDecontribuita > 0) {
+                <div
+                  appLedgerRow
+                  label="di cui senza contributi (coinvolgimento paritetico)"
+                  [amount]="premio.quotaDecontribuita"
+                  level="detail"
+                ></div>
+              }
+              @if (premio.contributiLavoratore > 0) {
+                <div
+                  appLedgerRow
+                  label="Contributi INPS sul premio"
+                  [amount]="premio.contributiLavoratore"
+                  flow="out"
+                ></div>
+              }
+              @if (premio.imponibileSostitutiva > 0) {
+                <div
+                  appLedgerRow
+                  label="Imponibile a imposta sostitutiva"
+                  [amount]="premio.imponibileSostitutiva"
+                ></div>
+                <div
+                  appLedgerRow
+                  label="limite annuo, conversioni comprese"
+                  [amount]="premio.limite"
+                  level="detail"
+                ></div>
+                <div
+                  appLedgerRow
+                  label="Imposta sostitutiva ({{ formatPercent(premio.aliquotaSostitutiva, 0) }})"
+                  [amount]="premio.impostaSostitutiva"
+                  flow="out"
+                ></div>
+              }
+              @if (premio.imponibileOrdinario > 0) {
+                <div
+                  appLedgerRow
+                  label="Quota a IRPEF ordinaria"
+                  [amount]="premio.imponibileOrdinario"
+                ></div>
+              }
+              @if (premio.imponibileSostitutiva > 0) {
+                <div
+                  appLedgerRow
+                  label="Risparmio fiscale stimato"
+                  [amount]="premio.risparmioFiscaleStimato"
+                  flow="in"
+                  level="total"
+                ></div>
+              }
+            </dl>
+            <p [class]="note">
+              @if (premio.agevolabile) {
+                Imposta sostitutiva di IRPEF e addizionali all'1% entro 5.000 € (L. 199/2025, art.
+                1, c. 9). Il premio in denaro resta imponibile INPS
+              } @else {
+                Reddito dell'anno precedente oltre 80.000 €: premio tassato come retribuzione
+                ordinaria
+              }
+            </p>
+          </app-ledger-card>
+        }
+
         <!-- Fondo pensione -->
         @if (r.fondoPensioneIntegrativo; as fp) {
           <app-ledger-card [heading]="fp.nome" [total]="fp.contributoLavoratoreAnnuo" flow="out">

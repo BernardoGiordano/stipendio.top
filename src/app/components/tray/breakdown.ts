@@ -20,6 +20,7 @@ export interface RipartizioneRal {
 const TRATTENUTE: Record<CategoriaTrattenuta, { label: string; hue: Hue }> = {
   contributi: { label: 'INPS', hue: 'arancio' },
   irpef: { label: 'IRPEF', hue: 'rosa' },
+  impostaSostitutiva: { label: 'Imposta sostitutiva', hue: 'terracotta' },
   addizionali: { label: 'Addizionali', hue: 'ocra' },
   fondi: { label: 'Fondi', hue: 'viola' },
   autoAziendale: { label: 'Auto aziendale', hue: 'blu' },

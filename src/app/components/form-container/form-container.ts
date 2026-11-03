@@ -38,7 +38,7 @@ import {
 } from '../../../calculator/fondi/2026';
 import { ESONERI_CONTRIBUTIVI } from '../../../calculator/datore/2026';
 import { HUE } from '../../services/chart-palette';
-import { formatCurrency } from '../../utils/intl';
+import { formatCurrency, formatPercent } from '../../utils/intl';
 
 const ALTRO_OPTION = { value: 'DEFAULT', label: 'Non specificato' } as const;
 
@@ -52,6 +52,7 @@ type Riga =
   | 'fringeBenefit'
   | 'rimborsi'
   | 'benefit'
+  | 'premio'
   | 'borsa'
   | GruppoFondiId
   | 'fondiPersonalizzati'
@@ -228,6 +229,7 @@ export class FormContainer {
       fringeBenefit: m.fringeBenefit.enabled,
       rimborsi: m.rimborsiTrasferta.enabled,
       benefit: m.benefitNonTassati.enabled,
+      premio: m.premioRisultato.enabled,
       borsa: m.borsaDiStudio.enabled,
       ...(Object.fromEntries(
         this.gruppiFondi.map((gruppo) => [gruppo.id, gruppo.fondi.some((fondo) => m[fondo.id])]),
@@ -287,6 +289,13 @@ export class FormContainer {
         r.benefitNonTassati.totaleEsente > 0
           ? `+ ${eur(r.benefitNonTassati.totaleEsente)} esenti`
           : undefined,
+      premio: r.premioRisultato
+        ? r.premioRisultato.imponibileSostitutiva > 0
+          ? `${eur(r.premioRisultato.imponibileSostitutiva)} al ${formatPercent(r.premioRisultato.aliquotaSostitutiva, 0)}`
+          : r.premioRisultato.agevolabile
+            ? `+ ${eur(r.premioRisultato.importo)} lordi`
+            : 'tassato ordinariamente'
+        : undefined,
       borsa: r.borsaDiStudio ? `+ ${eur(r.borsaDiStudio.nettoAnnuo)} netti` : undefined,
       ...(Object.fromEntries(
         this.gruppiFondi.map((gruppo) => [
