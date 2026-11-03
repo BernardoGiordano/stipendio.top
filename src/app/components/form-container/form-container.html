@@ -82,6 +82,16 @@
             labelForId="comune"
           ></ng-select>
         </app-field>
+
+        @if (mostraContribuenteDisabile()) {
+          <app-check
+            label="Contribuente con disabilità (L. 104/92)"
+            info="Il Veneto applica l'aliquota agevolata dello 0,90% ai contribuenti disabili ai sensi dell'art. 3 della L. 104/1992, o con un familiare disabile a carico, con reddito imponibile fino a 50.000 euro. I figli disabili inseriti nella sezione Figli a carico sono già considerati."
+            class="@min-[26rem]:col-span-2"
+          >
+            <input appControl type="checkbox" [formField]="form.contribuenteDisabile" />
+          </app-check>
+        }
       </div>
     </div>
   </app-section>
@@ -179,7 +189,7 @@
           <app-field
             label="Redditi con imposta sostitutiva"
             unit="€ / anno"
-            info="Redditi da cedolare secca, mance con imposta sostitutiva e regime forfettario. Rilevano per il limite di 90.000 euro delle detrazioni regionali di Bolzano. Non inserirli anche in Altri Redditi."
+            info="Redditi da cedolare secca, mance con imposta sostitutiva e regime forfettario. Rilevano per i limiti di reddito delle agevolazioni regionali di Bolzano, Campania e Marche. Non inserirli anche in Altri Redditi."
             class="flex-[1_1_100%]"
           >
             <input
@@ -445,7 +455,7 @@
 
             <app-check
               label="Disabile"
-              info="I figli disabili danno diritto alla detrazione fiscale a qualsiasi età, non solo tra 21 e 30 anni."
+              info="I figli disabili danno diritto alla detrazione fiscale a qualsiasi età, non solo tra 21 e 30 anni. In alcune regioni riducono anche l'addizionale regionale."
               class="h-[34px]"
             >
               <input appControl type="checkbox" [formField]="form.figli[$index].disabile" />

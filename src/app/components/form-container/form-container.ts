@@ -23,6 +23,7 @@ import { Segmented, SegmentedOption } from '../segmented/segmented';
 import {
   elencoComuni,
   elencoRegioni,
+  haAgevolazioneContribuenteDisabile,
   haRedditiSostitutiviInSoglia,
 } from '../../../calculator/addizionali/2026';
 import {
@@ -154,6 +155,10 @@ export class FormContainer {
 
   readonly mostraRedditiSostitutivi = computed(() =>
     haRedditiSostitutiviInSoglia(this.selectedRegione()),
+  );
+
+  readonly mostraContribuenteDisabile = computed(() =>
+    haAgevolazioneContribuenteDisabile(this.selectedRegione()),
   );
 
   /** One row per CCNL, with its funds */

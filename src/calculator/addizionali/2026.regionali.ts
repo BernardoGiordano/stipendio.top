@@ -45,7 +45,13 @@ export const ADDIZIONALI_REGIONALI: Record<string, AddizionaleRegionale> = {
       { limite: 50_000, aliquota: 0.032 },
       { limite: Infinity, aliquota: 0.0333 },
     ],
-    // note: 'Detrazioni: €30/figlio (min 2 figli), €40/figlio disabile per redditi ≤€28.000',
+    // L.R. 30 marzo 2022, n. 7, art. 1, commi 2 e 3: due detrazioni cumulabili, in proporzione alla
+    // percentuale e ai mesi a carico, per redditi fino a 28.000 euro
+    detrazioniFigli: [
+      { limiteReddito: 28_000, importo: 30, minimoFigli: 2 },
+      { limiteReddito: 28_000, importo: 40, soloDisabili: true },
+    ],
+    redditiSostitutiviInSoglia: true,
   },
   ER: {
     scaglioni: [
@@ -91,7 +97,10 @@ export const ADDIZIONALI_REGIONALI: Record<string, AddizionaleRegionale> = {
       { limite: 50_000, aliquota: 0.017 },
       { limite: Infinity, aliquota: 0.0173 },
     ],
-    // note: 'Aliquota ridotta 1,23% per contribuenti con figli disabili a carico (reddito ≤€50.000)',
+    // L.R. 23 marzo 2022, n. 5, art. 1: aliquota unica 1,23% con figli disabili a carico, a
+    // prescindere dall'età, per redditi fino a 50.000 euro
+    aliquotaRidotta: { limiteReddito: 50_000, aliquota: 0.0123, requisito: 'figliDisabili' },
+    redditiSostitutiviInSoglia: true,
   },
   MO: {
     scaglioni: [
@@ -108,7 +117,14 @@ export const ADDIZIONALI_REGIONALI: Record<string, AddizionaleRegionale> = {
       { limite: 50_000, aliquota: 0.0331 },
       { limite: Infinity, aliquota: 0.0333 },
     ],
-    // note: 'Detrazioni: €100/figlio (dal 3°), €500/figlio disabile',
+    // L.R. 28 marzo 2022, n. 4, come modificata dalla L.R. 6 agosto 2025, n. 16 (dal 2026): 100 euro
+    // per ciascun figlio, a partire dal primo, con più di due figli a carico (i non disabili contano
+    // solo sotto i 30 anni), più 500 euro per ciascun figlio disabile. Maggiorazioni delle
+    // detrazioni per carichi di famiglia, ridotte dal quoziente dell'art. 12 TUIR
+    detrazioniFigli: [
+      { importo: 100, minimoFigli: 3, etaMassimaNonDisabili: 30, quozienteArt12: true },
+      { importo: 500, soloDisabili: true, quozienteArt12: true },
+    ],
   },
   PU: {
     scaglioni: [
@@ -117,11 +133,20 @@ export const ADDIZIONALI_REGIONALI: Record<string, AddizionaleRegionale> = {
       { limite: 50_000, aliquota: 0.0163 },
       { limite: Infinity, aliquota: 0.0185 },
     ],
-    // note: 'Detrazioni: €20/figlio (>3 figli), €375 aggiuntivi per figli disabili',
+    // L.R. 29 dicembre 2015, n. 40, art. 3: con più di tre figli a carico, 20 euro per ciascun figlio
+    // a partire dal primo, aumentati di 375 euro per ogni figlio disabile. Maggiorazione delle
+    // detrazioni per carichi di famiglia, ridotta dal quoziente dell'art. 12 TUIR
+    detrazioniFigli: [
+      { importo: 20, maggiorazioneDisabile: 375, minimoFigli: 4, quozienteArt12: true },
+    ],
   },
   SA: {
     scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
-    // note: 'Detrazione €200/figlio minorenne (reddito ≤€50.000), +€100 per figli disabili',
+    // L.R. 48/2018, art. 2, commi 1 e 1 bis (L.R. 11 luglio 2022, n. 13): 200 euro per ciascun figlio
+    // minorenne a carico, aumentati di 100 euro se disabile, per redditi fino a 50.000 euro
+    detrazioniFigli: [
+      { limiteReddito: 50_000, importo: 200, maggiorazioneDisabile: 100, soloMinorenni: true },
+    ],
   },
   SI: {
     scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
@@ -141,7 +166,7 @@ export const ADDIZIONALI_REGIONALI: Record<string, AddizionaleRegionale> = {
       { limite: Infinity, aliquota: 0.0173 },
     ],
     esenzione: 30_000,
-    detrazioneFigli: { limiteReddito: 50_000, importo: 246 },
+    detrazioniFigli: [{ limiteReddito: 50_000, importo: 246 }],
   },
   BZ: {
     scaglioni: [
@@ -150,7 +175,7 @@ export const ADDIZIONALI_REGIONALI: Record<string, AddizionaleRegionale> = {
     ],
     detrazioneBase: { limiteReddito: 90_000, importo: 430.5 },
     detrazioneSupplementare: { sogliaReddito: 50_000, intervalloReddito: 25_000, importo: 125 },
-    detrazioneFigli: { limiteReddito: 90_000, importo: 340 },
+    detrazioniFigli: [{ limiteReddito: 90_000, importo: 340 }],
     redditiSostitutiviInSoglia: true,
   },
   UM: {
@@ -170,7 +195,13 @@ export const ADDIZIONALI_REGIONALI: Record<string, AddizionaleRegionale> = {
   },
   VE: {
     scaglioni: [{ limite: Infinity, aliquota: 0.0123 }],
-    // note: 'Aliquota ridotta 0,90% per soggetti disabili o con familiari disabili a carico (reddito ≤€50.000)',
+    // L.R. 19/2005, art. 1, c. 5 (L.R. 30/2022, art. 9): aliquota 0,90% per i contribuenti disabili o
+    // con un familiare disabile a carico, per redditi fino a 50.000 euro
+    aliquotaRidotta: {
+      limiteReddito: 50_000,
+      aliquota: 0.009,
+      requisito: 'contribuenteOFigliDisabili',
+    },
   },
   // Aliquota di default per regioni non specificate (aliquota base nazionale)
   DEFAULT: {

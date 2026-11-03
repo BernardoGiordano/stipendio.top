@@ -283,8 +283,10 @@ export interface InputCalcoloStipendio extends Partial<Record<FondoContrattualeI
 
   /** Altri redditi concorrenti al reddito complessivo (es. redditi fondiari) */
   altriRedditi?: number;
-  /** Redditi sostitutivi rilevanti solo per la soglia delle detrazioni regionali di Bolzano */
+  /** Redditi sostitutivi rilevanti per i limiti di reddito delle agevolazioni regionali (Bolzano, Campania, Marche) */
   altriRedditiSogliaAddizionale?: number;
+  /** Contribuente con disabilità (art. 3, L. 104/1992): aliquota agevolata dell'addizionale regionale in Veneto */
+  contribuenteDisabile?: boolean;
 
   /** Altre detrazioni spettanti (es. interessi mutuo, spese mediche) */
   altreDetrazioni?: number;

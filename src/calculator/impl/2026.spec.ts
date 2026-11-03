@@ -4809,3 +4809,43 @@ describe('Borsa di Studio come tipo di contratto (dottorato, specializzazione)',
     });
   });
 });
+
+describe('Agevolazioni regionali per disabilità', () => {
+  it('Veneto: il flag contribuenteDisabile applica lo 0,90% sul reddito complessivo', () => {
+    const input: InputCalcoloStipendio = {
+      ...baseInput,
+      ral: 40_000,
+      regione: 'VE',
+      comune: 'L781',
+    };
+    const ordinario = calc.calcolaStipendioNetto(input);
+    const agevolato = calc.calcolaStipendioNetto({ ...input, contribuenteDisabile: true });
+    expect(ordinario.addizionali.aliquotaRegionale).toBeCloseTo(0.0123, 10);
+    expect(agevolato.addizionali.aliquotaRegionale).toBeCloseTo(0.009, 10);
+    expect(agevolato.addizionali.addizionaleRegionale).toBeCloseTo(
+      ordinario.irpef.imponibileIrpef * 0.009,
+      6,
+    );
+    expect(agevolato.nettoAnnuo).toBeGreaterThan(ordinario.nettoAnnuo);
+  });
+
+  it('Marche: il figlio disabile oltre il limite di reddito a carico non attiva l’aliquota ridotta', () => {
+    const input: InputCalcoloStipendio = {
+      ...baseInput,
+      ral: 40_000,
+      regione: 'MA',
+      comune: 'A271',
+    };
+    const ordinario = calc.calcolaStipendioNetto(input);
+    const aCarico = calc.calcolaStipendioNetto({
+      ...input,
+      figli: [{ eta: 25, disabile: true }],
+    });
+    const nonACarico = calc.calcolaStipendioNetto({
+      ...input,
+      figli: [{ eta: 25, disabile: true, redditoAnnuo: 5_000 }],
+    });
+    expect(aCarico.addizionali.aliquotaRegionale).toBeCloseTo(0.0123, 10);
+    expect(nonACarico.addizionali.aliquotaRegionale).toBe(ordinario.addizionali.aliquotaRegionale);
+  });
+});

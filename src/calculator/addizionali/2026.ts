@@ -24,15 +24,49 @@ export type AddizionaleComunale = {
     }
 );
 
+/** Aliquota unica che sostituisce gli scaglioni entro un limite di reddito */
+export interface AliquotaRidottaRegionale {
+  limiteReddito: number;
+  aliquota: number;
+  /**
+   * Requisito di disabilità (art. 3, L. 104/1992): figli disabili a carico (Marche) oppure anche il
+   * contribuente stesso (Veneto). Senza requisito l'aliquota spetta a tutti entro il limite di reddito.
+   */
+  requisito?: 'figliDisabili' | 'contribuenteOFigliDisabili';
+}
+
+/** Detrazione per figli a carico, rapportata alla percentuale e ai mesi di carico */
+export interface DetrazioneFigliRegionale {
+  /** Reddito massimo del contribuente; nessun limite se assente */
+  limiteReddito?: number;
+  /** Importo per ciascun figlio */
+  importo: number;
+  /** Importo aggiuntivo per ciascun figlio disabile */
+  maggiorazioneDisabile?: number;
+  /** Numero minimo di figli a carico perché la detrazione spetti */
+  minimoFigli?: number;
+  /** Spetta solo per i figli disabili */
+  soloDisabili?: boolean;
+  /** Spetta solo per i figli minorenni */
+  soloMinorenni?: boolean;
+  /** I figli non disabili contano solo se di età inferiore a questa */
+  etaMassimaNonDisabili?: number;
+  /**
+   * Maggiorazione delle detrazioni per carichi di famiglia (art. 6, c. 5, D.Lgs. 68/2011): l'importo
+   * teorico è moltiplicato per il quoziente dell'art. 12, c. 1, TUIR, come le detrazioni IRPEF
+   */
+  quozienteArt12?: boolean;
+}
+
 /** Regole dell'addizionale regionale */
 export interface AddizionaleRegionale {
   scaglioni: Array<{ limite: number; aliquota: number }>;
   esenzione?: number;
-  aliquotaRidotta?: { limiteReddito: number; aliquota: number };
+  aliquotaRidotta?: AliquotaRidottaRegionale;
   detrazioneBase?: { sogliaReddito?: number; limiteReddito: number; importo: number };
   detrazioneSupplementare?: { sogliaReddito: number; intervalloReddito: number; importo: number };
-  detrazioneFigli?: { limiteReddito: number; importo: number };
-  // I redditi con imposta sostitutiva concorrono ai limiti di reddito delle detrazioni
+  detrazioniFigli?: DetrazioneFigliRegionale[];
+  // I redditi con imposta sostitutiva concorrono ai limiti di reddito delle agevolazioni
   redditiSostitutiviInSoglia?: boolean;
   note?: string;
 }
@@ -48,6 +82,8 @@ export interface InputAddizionali {
   altriRedditiSogliaAddizionale: number;
   /** Le addizionali sono dovute solo se risulta dovuta l'IRPEF */
   irpefDovuta: boolean;
+  /** Contribuente con disabilità (art. 3, L. 104/1992), per l'aliquota agevolata del Veneto */
+  contribuenteDisabile?: boolean;
 }
 
 export function calcolaAddizionali(input: InputAddizionali): DettaglioAddizionali {
@@ -90,7 +126,15 @@ export function elencoComuni(regione: string): ReadonlyArray<{ codice: string; n
 
 /** La regione prevede una detrazione per figli proporzionata ai mesi a carico */
 export function haDetrazioneFigliRegionale(regione: string): boolean {
-  return ADDIZIONALI_REGIONALI[regione.toUpperCase()]?.detrazioneFigli !== undefined;
+  return (ADDIZIONALI_REGIONALI[regione.toUpperCase()]?.detrazioniFigli?.length ?? 0) > 0;
+}
+
+/** La regione prevede un'aliquota agevolata per il contribuente disabile */
+export function haAgevolazioneContribuenteDisabile(regione: string): boolean {
+  return (
+    ADDIZIONALI_REGIONALI[regione.toUpperCase()]?.aliquotaRidotta?.requisito ===
+    'contribuenteOFigliDisabili'
+  );
 }
 
 /** La regione include i redditi con imposta sostitutiva nei limiti delle detrazioni */
@@ -103,6 +147,7 @@ function calcolaAddizionaleRegionale({
   regione,
   figliACarico,
   altriRedditiSogliaAddizionale,
+  contribuenteDisabile = false,
 }: InputAddizionali): { addizionale: number; aliquotaMedia: number } {
   const config = ADDIZIONALI_REGIONALI[regione.toUpperCase()] ?? ADDIZIONALI_REGIONALI['DEFAULT'];
 
@@ -110,12 +155,22 @@ function calcolaAddizionaleRegionale({
     return { addizionale: 0, aliquotaMedia: 0 };
   }
 
+  // Reddito di riferimento per i limiti delle agevolazioni
+  const redditoSoglia =
+    imponibile + (config.redditiSostitutiviInSoglia ? altriRedditiSogliaAddizionale : 0);
+
   let addizionaleTotale = 0;
   let imponibileResiduo = imponibile;
   let limiteInferiore = 0;
 
   const scaglioni =
-    config.aliquotaRidotta && imponibile <= config.aliquotaRidotta.limiteReddito
+    config.aliquotaRidotta &&
+    redditoSoglia <= config.aliquotaRidotta.limiteReddito &&
+    soddisfaRequisitoDisabilita(
+      config.aliquotaRidotta.requisito,
+      figliACarico,
+      contribuenteDisabile,
+    )
       ? [{ limite: Infinity, aliquota: config.aliquotaRidotta.aliquota }]
       : config.scaglioni;
 
@@ -129,9 +184,6 @@ function calcolaAddizionaleRegionale({
     imponibileResiduo -= imponibileScaglione;
     limiteInferiore = scaglione.limite;
   }
-
-  const redditoSoglia =
-    imponibile + (config.redditiSostitutiviInSoglia ? altriRedditiSogliaAddizionale : 0);
 
   if (
     config.detrazioneBase &&
@@ -150,19 +202,73 @@ function calcolaAddizionaleRegionale({
     addizionaleTotale -= config.detrazioneSupplementare.importo * rapporto;
   }
 
-  if (config.detrazioneFigli && redditoSoglia <= config.detrazioneFigli.limiteReddito) {
-    // I requisiti regionali richiamano l'art. 12, comma 2, senza i limiti di età delle detrazioni IRPEF.
-    for (const figlio of figliACarico) {
-      const percentuale = (figlio.percentualeCarico ?? 100) / 100;
-      const mesi = Math.min(12, Math.max(0, figlio.mesiCarico ?? 12));
-      addizionaleTotale -= config.detrazioneFigli.importo * percentuale * (mesi / 12);
-    }
+  for (const regola of config.detrazioniFigli ?? []) {
+    addizionaleTotale -= calcolaDetrazioneFigli(regola, redditoSoglia, figliACarico);
   }
 
   addizionaleTotale = Math.max(0, addizionaleTotale);
   const aliquotaMedia = imponibile > 0 ? addizionaleTotale / imponibile : 0;
 
   return { addizionale: addizionaleTotale, aliquotaMedia };
+}
+
+function soddisfaRequisitoDisabilita(
+  requisito: AliquotaRidottaRegionale['requisito'],
+  figliACarico: FiglioACarico[],
+  contribuenteDisabile: boolean,
+): boolean {
+  switch (requisito) {
+    case undefined:
+      return true;
+    case 'figliDisabili':
+      return figliACarico.some((figlio) => figlio.disabile);
+    case 'contribuenteOFigliDisabili':
+      return contribuenteDisabile || figliACarico.some((figlio) => figlio.disabile);
+  }
+}
+
+/** Art. 12, c. 1, lett. c), TUIR: 95.000 euro, aumentati di 15.000 per ogni figlio oltre il primo */
+const QUOZIENTE_ART12 = { base: 95_000, incrementoPerFiglio: 15_000 };
+
+/**
+ * Detrazione regionale per figli a carico. I requisiti regionali richiamano l'art. 12, comma 2,
+ * TUIR, senza i limiti di età delle detrazioni IRPEF, salvo quando la regola li prevede.
+ */
+function calcolaDetrazioneFigli(
+  regola: DetrazioneFigliRegionale,
+  redditoSoglia: number,
+  figliACarico: FiglioACarico[],
+): number {
+  if (regola.limiteReddito !== undefined && redditoSoglia > regola.limiteReddito) return 0;
+
+  const figliRilevanti = figliACarico.filter(
+    (figlio) =>
+      figlio.disabile ||
+      regola.etaMassimaNonDisabili === undefined ||
+      figlio.eta < regola.etaMassimaNonDisabili,
+  );
+  if (figliRilevanti.length < (regola.minimoFigli ?? 1)) return 0;
+
+  // Circolare AdE di liquidazione del 730: la detrazione teorica è moltiplicata per il quoziente
+  // "(95.000 + incremento - reddito) / (95.000 + incremento)", calcolato sul numero di figli a carico
+  let quoziente = 1;
+  if (regola.quozienteArt12) {
+    const coefficiente =
+      QUOZIENTE_ART12.base + (figliACarico.length - 1) * QUOZIENTE_ART12.incrementoPerFiglio;
+    quoziente = Math.max(0, (coefficiente - redditoSoglia) / coefficiente);
+  }
+
+  let detrazione = 0;
+  for (const figlio of figliRilevanti) {
+    if (regola.soloDisabili && !figlio.disabile) continue;
+    if (regola.soloMinorenni && figlio.eta >= 18) continue;
+
+    const importo = regola.importo + (figlio.disabile ? (regola.maggiorazioneDisabile ?? 0) : 0);
+    const percentuale = (figlio.percentualeCarico ?? 100) / 100;
+    const mesi = Math.min(12, Math.max(0, figlio.mesiCarico ?? 12));
+    detrazione += importo * quoziente * percentuale * (mesi / 12);
+  }
+  return detrazione;
 }
 
 function calcolaAddizionaleComunale(
