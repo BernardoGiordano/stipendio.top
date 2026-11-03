@@ -26,6 +26,7 @@ import {
   InputCalcoloStipendio,
   OpzioniDatore,
   RimborsiTrasferta,
+  RimborsoAffittoNeoassunto,
   TipoAlimentazioneAuto,
   TipoContratto,
   TipoEsoneroContributivo,
@@ -85,6 +86,12 @@ export interface BenefitNonTassatiFormModel {
   abbonamentoTrasporto: number;
   serviziWelfare: number;
   altri: number;
+}
+
+export interface RimborsoAffittoNeoassuntoFormModel {
+  enabled: boolean;
+  importo: number;
+  requisiti: boolean;
 }
 
 export interface FondoPensioneIntegrativoFormModel {
@@ -179,6 +186,7 @@ export interface StipendioFormModel extends Record<FondoContrattualeId, boolean>
   fringeBenefit: FringeBenefitFormModel;
   rimborsiTrasferta: RimborsiTrasfertaFormModel;
   benefitNonTassati: BenefitNonTassatiFormModel;
+  rimborsoAffittoNeoassunto: RimborsoAffittoNeoassuntoFormModel;
   opzioniDatore: OpzioniDatoreFormModel;
 
   // Dynamic arrays
@@ -238,6 +246,14 @@ function createDefaultBenefitNonTassati(): BenefitNonTassatiFormModel {
     abbonamentoTrasporto: 0,
     serviziWelfare: 0,
     altri: 0,
+  };
+}
+
+function createDefaultRimborsoAffittoNeoassunto(): RimborsoAffittoNeoassuntoFormModel {
+  return {
+    enabled: false,
+    importo: 0,
+    requisiti: false,
   };
 }
 
@@ -346,6 +362,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     fringeBenefit: createDefaultFringeBenefit(),
     rimborsiTrasferta: createDefaultRimborsiTrasferta(),
     benefitNonTassati: createDefaultBenefitNonTassati(),
+    rimborsoAffittoNeoassunto: createDefaultRimborsoAffittoNeoassunto(),
     opzioniDatore: createDefaultOpzioniDatore(),
     figli: [],
     ascendenti: [],
@@ -407,6 +424,10 @@ const rimborsiTrasfertaSchema = schema<RimborsiTrasfertaFormModel>((path) => {
   min(path.rimborsoViaggio, 0, { message: 'Valore non valido' });
   min(path.rimborsoKm, 0, { message: 'Valore non valido' });
   min(path.rimborsoKmImponibile, 0, { message: 'Valore non valido' });
+});
+
+const rimborsoAffittoNeoassuntoSchema = schema<RimborsoAffittoNeoassuntoFormModel>((path) => {
+  min(path.importo, 0, { message: 'Valore non valido' });
 });
 
 const benefitNonTassatiSchema = schema<BenefitNonTassatiFormModel>((path) => {
@@ -543,6 +564,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   apply(path.fringeBenefit, fringeBenefitSchema);
   apply(path.rimborsiTrasferta, rimborsiTrasfertaSchema);
   apply(path.benefitNonTassati, benefitNonTassatiSchema);
+  apply(path.rimborsoAffittoNeoassunto, rimborsoAffittoNeoassuntoSchema);
   apply(path.opzioniDatore, opzioniDatoreSchema);
 
   // Arrays
@@ -638,6 +660,14 @@ function toBenefitNonTassati(model: BenefitNonTassatiFormModel): BenefitNonTassa
   if (model.altri > 0) result.altri = model.altri;
 
   return Object.keys(result).length > 0 ? result : undefined;
+}
+
+function toRimborsoAffittoNeoassunto(
+  model: RimborsoAffittoNeoassuntoFormModel,
+): RimborsoAffittoNeoassunto | undefined {
+  if (!model.enabled || model.importo <= 0) return undefined;
+
+  return { importo: model.importo, requisiti: model.requisiti };
 }
 
 function toFondoPensioneIntegrativo(
@@ -827,6 +857,12 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
     ...(() => {
       const benefitNonTassati = toBenefitNonTassati(model.benefitNonTassati);
       return benefitNonTassati ? { benefitNonTassati } : {};
+    })(),
+    ...(() => {
+      const rimborsoAffittoNeoassunto = toRimborsoAffittoNeoassunto(
+        model.rimborsoAffittoNeoassunto,
+      );
+      return rimborsoAffittoNeoassunto ? { rimborsoAffittoNeoassunto } : {};
     })(),
     ...(() => {
       const opzioniDatore = toOpzioniDatore(model.opzioniDatore, model.tipoContratto);

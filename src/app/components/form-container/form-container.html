@@ -849,6 +849,46 @@
       }
     </app-section>
 
+    <!-- Rimborso affitto neoassunti 2025 -->
+    <app-section
+      variant="row"
+      heading="Rimborso affitto neoassunti 2025"
+      [active]="attive().affittoNeoassunto"
+      [toggle]="form.rimborsoAffittoNeoassunto.enabled"
+      [summary]="riepilogo.affittoNeoassunto"
+      info="Somme erogate o rimborsate dal datore per canoni di locazione e spese di manutenzione a chi è stato assunto a tempo indeterminato nel 2025 e si è trasferito per lavoro (art. 1, c. 386-389, L. 207/2024). Esenti da IRPEF fino a 5.000 euro per ciascuno dei primi due anni dall'assunzione; l'eccedenza è imponibile. I contributi INPS si pagano sull'intero importo. Misura autonoma: non concorre alla soglia fringe benefit di 1.000/2.000 euro e si cumula con essa."
+    >
+      @if (model.rimborsoAffittoNeoassunto.enabled) {
+        <div class="flex flex-wrap items-end gap-3">
+          <app-field
+            label="Rimborso affitto e manutenzione"
+            unit="€ / anno"
+            info="Canoni di locazione (da contratto registrato) e spese di manutenzione dell'immobile nel comune di lavoro, rimborsati o pagati dal datore nell'anno. Il limite di 5.000 euro vale per ogni annualità di 12 mesi dall'assunzione ed è una franchigia: solo la parte eccedente è reddito imponibile (Circ. AdE 4/E/2025, par. 2.7)."
+            class="flex-[1_1_200px]"
+          >
+            <input
+              appControl
+              type="number"
+              [formField]="form.rimborsoAffittoNeoassunto.importo"
+              placeholder="Max 5.000 esenti"
+            />
+          </app-field>
+        </div>
+
+        <app-check
+          label="Ho i requisiti (assunto a tempo indeterminato nel 2025, reddito 2024 ≤ 35.000 €, residenza trasferita oltre 100 km)"
+          info="Assunzione a tempo indeterminato tra il 1° gennaio e il 31 dicembre 2025; reddito di lavoro dipendente 2024 non superiore a 35.000 euro; residenza trasferita nel comune di lavoro, distante più di 100 km dal comune precedente (autocertificazione ai sensi dell'art. 46 DPR 445/2000). Senza i requisiti l'intero rimborso è reddito imponibile. La misura non è stata estesa agli assunti nel 2026, ma chi è stato assunto nel 2025 ne beneficia per 24 mesi dall'assunzione."
+          class="mt-2"
+        >
+          <input
+            appControl
+            type="checkbox"
+            [formField]="form.rimborsoAffittoNeoassunto.requisiti"
+          />
+        </app-check>
+      }
+    </app-section>
+
     <!-- Borsa di studio aggiuntiva -->
     <app-section
       variant="row"

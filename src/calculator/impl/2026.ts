@@ -15,6 +15,7 @@ import {
   DettaglioIrpef,
   DettaglioRegimeImpatriati,
   DettaglioRimborsiTrasferta,
+  DettaglioRimborsoAffittoNeoassunto,
   DettaglioTrattamentoIntegrativo,
   DestinazioneVoce,
   DettaglioAddizionali,
@@ -24,6 +25,7 @@ import {
   OutputCalcoloStipendio,
   RiepilogoDetrazioni,
   RimborsiTrasferta,
+  RimborsoAffittoNeoassunto,
   TipoContratto,
   VoceEntrata,
   VoceTrattenuta,
@@ -45,6 +47,15 @@ const IRPEF_SCAGLIONI = [
 const FRINGE_BENEFIT = {
   sogliaSenzaFigli: 1_000,
   sogliaConFigli: 2_000,
+} as const;
+
+/**
+ * Limite annuo di non concorrenza al reddito del rimborso affitto ai neoassunti a tempo
+ * indeterminato nel 2025 (art. 1, c. 386, L. 207/2024). È una franchigia: l'eccedenza è
+ * imponibile (Circ. AdE 4/E/2025, par. 2.7)
+ */
+const RIMBORSO_AFFITTO_NEOASSUNTO = {
+  limiteEsenzione: 5_000,
 } as const;
 
 /** Soglia buoni pasto elettronici 2026 (aumentata) */
@@ -412,6 +423,32 @@ function calcolaBenefitNonTassati(
     altriWelfare,
     totaleEsente,
     totaleTassato,
+  };
+}
+
+/**
+ * Rimborso affitto neoassunti 2025 (art. 1, c. 386-389, L. 207/2024). Per i primi due anni
+ * dall'assunzione le somme non concorrono al reddito IRPEF entro €5.000 per annualità; la
+ * franchigia non vale ai fini contributivi, quindi l'intero importo entra nell'imponibile
+ * previdenziale. La misura è autonoma dalla soglia fringe benefit dei commi 390-391
+ * (Circ. AdE 4/E/2025, par. 2.7)
+ */
+function calcolaRimborsoAffittoNeoassunto(
+  rimborso: RimborsoAffittoNeoassunto | undefined,
+): DettaglioRimborsoAffittoNeoassunto | null {
+  const importo = rimborso?.importo ?? 0;
+  if (importo <= 0) return null;
+
+  const requisiti = rimborso?.requisiti ?? false;
+  const limiteEsenzione = RIMBORSO_AFFITTO_NEOASSUNTO.limiteEsenzione;
+  const importoEsente = requisiti ? Math.min(importo, limiteEsenzione) : 0;
+
+  return {
+    importo,
+    requisiti,
+    limiteEsenzione,
+    importoEsente,
+    importoImponibile: importo - importoEsente,
   };
 }
 
@@ -785,6 +822,7 @@ function vociBenefit(
   fringeBenefit: DettaglioFringeBenefit,
   rimborsiTrasferta: DettaglioRimborsiTrasferta,
   benefitNonTassati: DettaglioBenefitNonTassati,
+  rimborsoAffittoNeoassunto: DettaglioRimborsoAffittoNeoassunto | null,
 ): VoceEntrata[] {
   const voce = (
     descrizione: string,
@@ -824,6 +862,19 @@ function vociBenefit(
       'inNatura',
     ),
     voce('Welfare esente', benefitNonTassati.totaleEsente, 'welfare', 'esente'),
+    // Pagato in denaro: la quota esente IRPEF sconta comunque i contributi INPS
+    voce(
+      'Affitto neoassunto imponibile',
+      rimborsoAffittoNeoassunto?.importoImponibile ?? 0,
+      'affittoNeoassunto',
+      'netto',
+    ),
+    voce(
+      'Affitto neoassunto esente',
+      rimborsoAffittoNeoassunto?.importoEsente ?? 0,
+      'affittoNeoassunto',
+      'esente',
+    ),
   ];
 }
 
@@ -963,6 +1014,7 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     fringeBenefit: zeroFringeBenefit,
     rimborsiTrasferta: zeroRimborsiTrasferta,
     benefitNonTassati: zeroBenefitNonTassati,
+    rimborsoAffittoNeoassunto: null,
     fondiContrattuali: [],
     fondoPensioneIntegrativo: null,
     assistenzaSanitaria: null,
@@ -1267,6 +1319,7 @@ export class Calculator2026 implements StipendioCalculator {
       haFigliACarico = false,
       rimborsiTrasferta: rimborsiTrasfertaInput,
       benefitNonTassati: benefitNonTassatiInput,
+      rimborsoAffittoNeoassunto: rimborsoAffittoNeoassuntoInput,
       regimeImpatriati: regimeImpatriatiFlag = false,
       regimeImpatriatiMinorenni = false,
       borsaDiStudio: borsaDiStudioInput,
@@ -1296,12 +1349,20 @@ export class Calculator2026 implements StipendioCalculator {
       fondi.assistenzaSanitariaWelfareEsente,
     );
 
+    // 3c. CALCOLO RIMBORSO AFFITTO NEOASSUNTI 2025
+    const rimborsoAffittoNeoassunto = calcolaRimborsoAffittoNeoassunto(
+      rimborsoAffittoNeoassuntoInput,
+    );
+
     // 4. CALCOLO IMPONIBILE PREVIDENZIALE
+    // Il rimborso affitto ai neoassunti entra per intero: la non concorrenza al reddito vale
+    // solo ai fini fiscali (art. 1, c. 386, L. 207/2024)
     const imponibilePrevidenziale =
       ral +
       fringeBenefit.valoreImponibile +
       rimborsiTrasferta.rimborsiTassati +
-      benefitNonTassati.totaleTassato;
+      benefitNonTassati.totaleTassato +
+      (rimborsoAffittoNeoassunto?.importo ?? 0);
 
     // 5. CALCOLO CONTRIBUTI INPS
     const contributiInps = calcolaContributiInps(
@@ -1314,11 +1375,13 @@ export class Calculator2026 implements StipendioCalculator {
     // 7. CALCOLO IMPONIBILE IRPEF
     // I contributi datore, EBITEMP e welfare al fondo pensione sono reddito per il dipendente (Art. 51 TUIR)
     // ma è deducibile entro il plafond (Art. 10 TUIR): effetto netto zero se entro il limite.
-    // I contributi sanitari del datore oltre €3.615,20 sono reddito imponibile IRPEF, non INPS
+    // I contributi sanitari del datore oltre €3.615,20 sono reddito imponibile IRPEF, non INPS.
+    // La quota esente del rimborso affitto ai neoassunti è nell'imponibile INPS ma non IRPEF
     const redditoLavoroDipendenteLordo =
       imponibilePrevidenziale +
       fondi.redditoFondoPensione +
       fondi.redditoAssistenzaSanitaria -
+      (rimborsoAffittoNeoassunto?.importoEsente ?? 0) -
       contributiInps.totaleContributi -
       fondi.deduzione;
 
@@ -1396,7 +1459,12 @@ export class Calculator2026 implements StipendioCalculator {
       },
       ...costiDatore.entrate,
       ...fondi.entrate,
-      ...vociBenefit(fringeBenefit, rimborsiTrasferta, benefitNonTassati),
+      ...vociBenefit(
+        fringeBenefit,
+        rimborsiTrasferta,
+        benefitNonTassati,
+        rimborsoAffittoNeoassunto,
+      ),
       {
         descrizione: 'Borsa di Studio',
         importo: borsaCalcolo.dettaglio?.importoLordo ?? 0,
@@ -1495,6 +1563,7 @@ export class Calculator2026 implements StipendioCalculator {
       fringeBenefit,
       rimborsiTrasferta,
       benefitNonTassati,
+      rimborsoAffittoNeoassunto,
       fondiContrattuali,
       fondoPensioneIntegrativo,
       assistenzaSanitaria: fondi.assistenzaSanitaria,

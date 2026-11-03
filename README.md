@@ -39,6 +39,7 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Fringe Benefit](#7-fringe-benefit)
   - [Rimborsi Spese](#8-rimborsi-spese)
   - [Benefit Non Tassati](#9-benefit-non-tassati-welfare)
+    - [Rimborso Affitto Neoassunti 2025](#rimborso-affitto-neoassunti-2025-l-2072024-art-1-c-386-389)
   - [Fondi Contrattuali (CCNL)](#10-fondi-contrattuali-ccnl)
   - [Previdenza Complementare](#11-previdenza-complementare-fondo-pensione-integrativo)
   - [Regime Impatriati](#12-regime-impatriati-rientro-cervelli)
@@ -57,8 +58,8 @@ STIPENDIO NETTO = Imponibile − Contributi INPS − IRPEF Finale − Addizional
 
 Dove:
 
-- `IMPONIBILE = RAL + Fringe Benefit Tassabili + Rimborsi Tassati + Benefit Eccedenti`
-- `IMPONIBILE IRPEF = IMPONIBILE − Contributi INPS − Contributi obbligatori per qualifica`
+- `IMPONIBILE = RAL + Fringe Benefit Tassabili + Rimborsi Tassati + Benefit Eccedenti + Rimborso Affitto Neoassunti`
+- `IMPONIBILE IRPEF = IMPONIBILE − Contributi INPS − Contributi obbligatori per qualifica − Rimborso Affitto Neoassunti Esente`
 - `IRPEF NETTA = IRPEF Lorda − Detrazioni Lavoro − Detrazioni Familiari − Altre Detrazioni`
 - `IRPEF FINALE = MAX(0, IRPEF Netta − Detrazione Cuneo Fiscale)`
 - `BONUS = Indennità Cuneo Fiscale + Trattamento Integrativo`
@@ -66,7 +67,7 @@ Dove:
 Il **Totale percepito** include anche le componenti esenti:
 
 ```
-TOTALE PERCEPITO = Stipendio Netto + Fringe Benefit Esenti + Rimborsi Esenti + Welfare Esente
+TOTALE PERCEPITO = Stipendio Netto + Fringe Benefit Esenti + Rimborsi Esenti + Welfare Esente + Rimborso Affitto Neoassunti Esente
 ```
 
 ---
@@ -400,6 +401,37 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 > (\*) I contributi al fondo pensione versati dall'azienda tramite welfare sono gestiti nella [previdenza complementare](#11-previdenza-complementare-fondo-pensione-integrativo): concorrono al plafond di €5.300 insieme ai contributi di lavoratore e datore e non sono una trattenuta dal netto.
 >
 > (†) Il limite di €3.615,20 è unico per tutti i contributi a casse e fondi sanitari (art. 51, c. 2, lett. a, TUIR): l'assistenza sanitaria welfare lo condivide con i [fondi contrattuali sanitari](#limite-di-esenzione-dei-contributi-sanitari) (quota azienda e quota lavoratore). L'eccedenza è reddito imponibile IRPEF ma non entra in busta né nell'imponibile previdenziale (art. 12, c. 4, lett. f, L. 153/1969), e il datore versa su di essa il contributo di solidarietà del 10%.
+
+##### Rimborso Affitto Neoassunti 2025 (L. 207/2024, art. 1, c. 386-389)
+
+Le somme erogate o rimborsate dal datore per i **canoni di locazione** (da contratto registrato) e le **spese di manutenzione** dell'immobile preso in affitto nel comune di lavoro non concorrono a formare il reddito di lavoro dipendente, per i **primi due anni dalla data di assunzione**, entro il limite di **€5.000 per annualità**. È una misura distinta dal rimborso affitto dei [fringe benefit](#7-fringe-benefit): nel calcolo si attiva dalla sezione "Rimborso affitto neoassunti 2025", con l'importo annuo e la conferma dei requisiti.
+
+**Requisiti (c. 387):**
+
+| Requisito  | Condizione                                                                                           |
+| ---------- | ---------------------------------------------------------------------------------------------------- |
+| Assunzione | Contratto a tempo indeterminato stipulato tra il 1° gennaio e il 31 dicembre 2025                    |
+| Reddito    | Reddito di lavoro dipendente 2024 (anno precedente l'assunzione) non superiore a €35.000             |
+| Residenza  | Trasferita nel comune di lavoro, distante più di 100 km dal comune di precedente residenza           |
+| Documenti  | Autocertificazione della residenza nei 6 mesi precedenti l'assunzione (c. 389, art. 46 DPR 445/2000) |
+
+**Trattamento nel calcolo:**
+
+| Quota                              | IRPEF      | INPS (lavoratore e datore) | Ripartizione                      |
+| ---------------------------------- | ---------- | -------------------------- | --------------------------------- |
+| Entro €5.000 l'anno, con requisiti | Esente     | Imponibile                 | Voce esente, nel totale percepito |
+| Eccedenza oltre €5.000             | Imponibile | Imponibile                 | Voce in busta, tassata            |
+| Intero importo, senza requisiti    | Imponibile | Imponibile                 | Voce in busta, tassata            |
+
+- **Franchigia, non soglia secca:** se il rimborso supera €5.000, solo l'eccedenza concorre al reddito (Circ. AdE 4/E/2025, par. 2.7). Diversamente dai fringe benefit, il superamento del limite non rende imponibile l'intero importo.
+- **Contributi:** la non concorrenza al reddito "non rileva ai fini contributivi" (c. 386): l'intero rimborso, quota esente compresa, entra nell'imponibile previdenziale di lavoratore e datore (INPS, addizionale NASpI e INAIL) e sconta i contributi ordinari. Il netto in busta scende quindi dei contributi dovuti sulla quota esente, mentre il totale percepito sale dell'importo esente.
+- **Limite per annualità:** i €5.000 valgono per ciascuno dei 24 mesi dall'assunzione, in due periodi di 12 mesi (es. assunzione il 1° ottobre 2025: dal 1° ottobre 2025 al 30 settembre 2026 e dal 1° ottobre 2026 al 30 settembre 2027). Le annualità non si cumulano: la quota non usata nel primo anno non aumenta il limite del secondo. Il calcolo, su base annua, applica il limite all'importo indicato.
+- **Autonomia dai fringe benefit:** la misura è autonoma e cumulabile con la soglia di €1.000/€2.000 dei commi 390-391, anche per spese della stessa natura: il rimborso ai neoassunti non concorre alla soglia fringe benefit e un ulteriore rimborso affitto può restare esente come fringe benefit, fermo restando che il rimborso complessivo non può superare la spesa sostenuta.
+- **Altre agevolazioni:** per le spese rimborsate non spettano la detrazione per canoni di locazione (art. 16 TUIR) né quelle per ristrutturazioni ed ecobonus; le somme rilevano ai fini ISEE e dell'accesso alle prestazioni previdenziali e assistenziali (c. 388).
+- **Durata:** la Legge di Bilancio 2026 non ha esteso la misura alle assunzioni del 2026, ma chi è stato assunto nel 2025 ne beneficia per 24 mesi dall'assunzione, quindi anche nel 2026 e, per le assunzioni successive a gennaio, nel 2027.
+- **Costo aziendale:** il rimborso è pagato dal datore e rientra per intero nel costo aziendale, insieme ai contributi datore dovuti su di esso.
+
+> ℹ️ Fonti: art. 1, c. 386-389, L. 207/2024; Circolare Agenzia delle Entrate n. 4/E del 16 maggio 2025, par. 2.7 ("Misure fiscali per il welfare aziendale"); risposta a interpello n. 17/2025 (autocertificazione).
 
 ---
 
@@ -745,6 +777,7 @@ Il costo aziendale include anche le componenti variabili erogate dall'azienda, s
 - **Fringe Benefit:** il valore totale dei fringe benefit erogati (buoni acquisto, buoni carburante, rimborsi utenze/affitto/mutuo, auto aziendale, altri). Per l'auto aziendale, viene utilizzato il valore convenzionale ai fini fiscali.
 - **Rimborsi Trasferta:** il totale dei rimborsi spese per trasferte (forfettari ed analitici, sia esenti che tassati).
 - **Benefit Non Tassati (Welfare):** il totale dei benefit di welfare aziendale erogati (buoni pasto, assistenza sanitaria, abbonamento trasporti, servizi welfare). La previdenza complementare da welfare è inclusa nella voce Fondo Pensione (datore/welfare).
+- **Rimborso Affitto Neoassunti 2025:** l'intero rimborso (quota esente ed eccedenza), su cui il datore paga anche i contributi, perché la franchigia di €5.000 vale solo ai fini IRPEF.
 
 > Queste voci contribuiscono anche all'imponibile previdenziale per le eventuali parti tassabili, e il relativo costo INPS datore è già incluso nella voce "Contributi INPS Datore".
 
@@ -921,12 +954,14 @@ Costo per l'Ente:      € 20.036,55
 │  4. CALCOLO BENEFIT WELFARE                                     │
 │     → Verifica limiti per categoria                             │
 │     → Determina eccedenze tassabili                             │
+│     → Rimborso affitto neoassunti: esente IRPEF entro €5.000    │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  5. IMPONIBILE PREVIDENZIALE                                    │
 │     = RAL + Fringe Imponibili + Rimborsi Tassati + Eccedenze    │
+│       + Rimborso Affitto Neoassunti (per intero)                │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -1045,6 +1080,7 @@ Costo per l'Ente:      € 20.036,55
 | **D.Lgs. 192/2024**      | Riforma IRPEF-IRES                       |
 | **L. 438/1992**          | Contributo aggiuntivo 1%                 |
 | **Circ. AE 5/E/2024**    | Chiarimenti fringe benefit               |
+| **Circ. AE 4/E/2025**    | Chiarimenti LB 2025, affitto neoassunti  |
 | **Circ. AE 10/E/2025**   | Auto aziendali uso promiscuo             |
 | **Circ. AE 15/E/2025**   | Rimborsi trasferta e tracciabilità       |
 | **D.Lgs. 252/2005**      | Previdenza complementare                 |

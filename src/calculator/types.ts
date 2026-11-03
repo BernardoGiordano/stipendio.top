@@ -63,6 +63,21 @@ export interface RimborsiTrasferta {
   pagamentiTracciabili?: boolean;
 }
 
+/**
+ * Rimborso affitto per i neoassunti a tempo indeterminato nel 2025 trasferiti per lavoro
+ * (art. 1, c. 386-389, L. 207/2024; Circ. AdE 4/E/2025, par. 2.7)
+ */
+export interface RimborsoAffittoNeoassunto {
+  /** Somme erogate o rimborsate dal datore nell'anno per canoni di locazione e spese di manutenzione */
+  importo: number;
+  /**
+   * Requisiti dei commi 386-387 rispettati: assunzione a tempo indeterminato nel 2025, reddito
+   * di lavoro dipendente 2024 non superiore a €35.000 e residenza trasferita nel comune di
+   * lavoro, distante più di 100 km dal precedente. Senza requisiti l'intero importo è imponibile
+   */
+  requisiti: boolean;
+}
+
 /** Dettaglio benefit non tassati (welfare aziendale) */
 export interface BenefitNonTassati {
   /**
@@ -303,6 +318,12 @@ export interface InputCalcoloStipendio extends Partial<Record<FondoContrattualeI
   /** Benefit non tassati (welfare aziendale) */
   benefitNonTassati?: BenefitNonTassati;
 
+  /**
+   * Rimborso affitto neoassunti 2025 (art. 1, c. 386-389, L. 207/2024): esente da IRPEF entro
+   * €5.000 l'anno per i primi due anni dall'assunzione, fuori dalla soglia fringe benefit
+   */
+  rimborsoAffittoNeoassunto?: RimborsoAffittoNeoassunto;
+
   /** Regime impatriati (rientro cervelli) - D.Lgs. 209/2023, art. 5 */
   regimeImpatriati?: boolean;
 
@@ -518,6 +539,20 @@ export interface DettaglioBenefitNonTassati {
   totaleTassato: number;
 }
 
+/** Dettaglio rimborso affitto neoassunti 2025 */
+export interface DettaglioRimborsoAffittoNeoassunto {
+  /** Somme erogate o rimborsate nell'anno (per intero nell'imponibile previdenziale) */
+  importo: number;
+  /** Requisiti dei commi 386-387 rispettati */
+  requisiti: boolean;
+  /** Limite annuo di non concorrenza al reddito (€5.000), franchigia */
+  limiteEsenzione: number;
+  /** Quota esente da IRPEF (entro il limite, se i requisiti sono rispettati) */
+  importoEsente: number;
+  /** Quota imponibile IRPEF: eccedenza oltre il limite, o intero importo senza requisiti */
+  importoImponibile: number;
+}
+
 /** Input borsa di studio (dottorato/post-laurea, tassata dal 7/6/2025 - D.L. 45/2025, L. 79/2025) */
 export interface BorsaDiStudio {
   /** Importo annuo lordo della borsa */
@@ -622,6 +657,7 @@ export type CategoriaEntrata =
   | 'fringeBenefit'
   | 'rimborsiTrasferta'
   | 'welfare'
+  | 'affittoNeoassunto'
   | 'borsaDiStudio'
   | 'bonus';
 
@@ -706,6 +742,9 @@ export interface OutputCalcoloStipendio {
   /** Dettaglio benefit non tassati */
   benefitNonTassati: DettaglioBenefitNonTassati;
 
+  /** Dettaglio rimborso affitto neoassunti 2025 (se presente) */
+  rimborsoAffittoNeoassunto: DettaglioRimborsoAffittoNeoassunto | null;
+
   /** Fondi contrattuali selezionati */
   fondiContrattuali: DettaglioFondoContrattuale[];
 
@@ -764,6 +803,6 @@ export interface OutputCalcoloStipendio {
   nettoMensilePercepito: number;
   /** Aliquota effettiva totale ((trattenute esclusa auto - bonus) / RAL) */
   aliquotaEffettiva: number;
-  /** Totale percepito (netto + rimborsi esenti + benefit esenti) */
+  /** Totale percepito (netto + rimborsi esenti + benefit esenti + affitto neoassunto esente) */
   totalePercepito: number;
 }

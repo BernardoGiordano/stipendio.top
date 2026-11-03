@@ -635,6 +635,49 @@
           </app-ledger-card>
         }
 
+        <!-- Rimborso affitto neoassunti 2025 -->
+        @if (r.rimborsoAffittoNeoassunto; as affitto) {
+          <app-ledger-card
+            heading="Rimborso affitto neoassunto"
+            [total]="affitto.importoEsente"
+            flow="in"
+          >
+            <dl>
+              <div
+                appLedgerRow
+                label="Rimborso affitto e manutenzione"
+                [amount]="affitto.importo"
+              ></div>
+              <div
+                appLedgerRow
+                label="Limite esenzione annuo"
+                [amount]="affitto.limiteEsenzione"
+                level="detail"
+              ></div>
+              <div
+                appLedgerRow
+                label="Requisiti (c. 387, L. 207/2024)"
+                [value]="affitto.requisiti ? 'Sì' : 'No'"
+                level="detail"
+              ></div>
+              <div appLedgerRow label="Quota esente IRPEF" [amount]="affitto.importoEsente"></div>
+              @if (affitto.importoImponibile > 0) {
+                <div
+                  appLedgerRow
+                  label="Quota imponibile IRPEF"
+                  [amount]="affitto.importoImponibile"
+                ></div>
+              }
+              <div
+                appLedgerRow
+                label="Contributi INPS dovuti sull'intero importo"
+                value=""
+                level="detail"
+              ></div>
+            </dl>
+          </app-ledger-card>
+        }
+
         <!-- Costo aziendale -->
         <app-ledger-card heading="Costo aziendale" [total]="r.costoAziendale">
           <dl>
