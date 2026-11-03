@@ -10,6 +10,7 @@ import {
   StipendioFormModel,
 } from './form-group';
 import {
+  DestinazioneTfr,
   OutputCalcoloStipendio,
   TipoAlimentazioneAuto,
   TipoContratto,
@@ -55,6 +56,7 @@ type Riga =
   | 'borsa'
   | GruppoFondiId
   | 'fondiPersonalizzati'
+  | 'tfr'
   | 'datore';
 
 /** What each tax treatment does to the worker's contribution, for tooltips and selects */
@@ -233,6 +235,7 @@ export class FormContainer {
         this.gruppiFondi.map((gruppo) => [gruppo.id, gruppo.fondi.some((fondo) => m[fondo.id])]),
       ) as Record<GruppoFondiId, boolean>),
       fondiPersonalizzati: m.fondiPersonalizzati.length > 0,
+      tfr: m.tfr.enabled,
       datore: m.opzioniDatore.enabled,
     };
   });
@@ -299,6 +302,7 @@ export class FormContainer {
           .filter((fondo) => fondo.id.startsWith('personalizzato-'))
           .map((fondo) => fondo.id),
       ),
+      tfr: r.tfr ? `${eur(r.tfr.nettoAnnuo)} netti / anno` : undefined,
       datore:
         [
           datore.premioInail > 0 ? `INAIL ${eur(datore.premioInail)}` : '',
@@ -342,6 +346,11 @@ export class FormContainer {
     ...ESONERI_CONTRIBUTIVI.map((esonero) => `${esonero.nome}: ${esonero.descrizione}`),
     'Verifica i requisiti e le finestre di assunzione con le circolari INPS: per esoneri diversi, proroghe o quote ridotte usa Personalizzato.',
   ].join(' ');
+
+  readonly destinazioniTfr: SegmentedOption<DestinazioneTfr>[] = [
+    { value: 'azienda', label: 'Azienda' },
+    { value: 'fondoPensione', label: 'Fondo pensione' },
+  ];
 
   readonly anniApprendistato: SegmentedOption<number>[] = [
     { value: 1, label: '1°' },

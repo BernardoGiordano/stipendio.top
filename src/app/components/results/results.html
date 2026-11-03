@@ -635,6 +635,27 @@
           </app-ledger-card>
         }
 
+        <!-- TFR -->
+        @if (r.tfr; as tfr) {
+          <app-ledger-card heading="TFR" [total]="tfr.nettoTotale">
+            <dl>
+              @for (riga of righeTfr(); track riga.label) {
+                <div
+                  appLedgerRow
+                  [label]="riga.label"
+                  [amount]="riga.amount"
+                  [percent]="riga.percent"
+                  [flow]="riga.flow"
+                  [level]="riga.level ?? 'row'"
+                ></div>
+              }
+            </dl>
+            @if (notaTfr(); as nota) {
+              <p [class]="note">{{ nota }}</p>
+            }
+          </app-ledger-card>
+        }
+
         <!-- Costo aziendale -->
         <app-ledger-card heading="Costo aziendale" [total]="r.costoAziendale">
           <dl>
