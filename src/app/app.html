@@ -147,6 +147,16 @@
           [result]="calculationResult()"
         />
       }
+
+      <!-- Impostazioni -->
+      <app-section heading="Impostazioni" class="mt-3 rounded-2xl">
+        <app-check
+          label="Ricorda i miei dati"
+          info="Conserva i dati inseriti in questo browser anche dopo la chiusura della scheda. I dati non vengono inviati a nessun server. Deselezionando l'opzione vengono rimossi dal browser alla chiusura della scheda."
+        >
+          <input appControl type="checkbox" [formField]="rememberField" />
+        </app-check>
+      </app-section>
     </div>
     <app-resizer [value]="splitRatio()" (resize)="onResize($event)" />
     <div
