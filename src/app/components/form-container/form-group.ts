@@ -31,7 +31,10 @@ import {
   TipoEsoneroContributivo,
   TrattamentoFiscaleFondo,
 } from '../../../calculator/types';
-import { haRedditiSostitutiviInSoglia } from '../../../calculator/addizionali/2026';
+import {
+  haAgevolazioneContribuenteDisabile,
+  haRedditiSostitutiviInSoglia,
+} from '../../../calculator/addizionali/2026';
 import {
   FONDI_CONTRATTUALI,
   FondoPensionePresetId,
@@ -162,6 +165,7 @@ export interface StipendioFormModel extends Record<FondoContrattualeId, boolean>
   iscrittoPost1996: boolean;
   altriRedditi: number;
   altriRedditiSogliaAddizionale: number;
+  contribuenteDisabile: boolean;
   altreDetrazioni: number;
   haFigliACarico: boolean;
   regimeImpatriati: boolean;
@@ -326,6 +330,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     iscrittoPost1996: true,
     altriRedditi: 0,
     altriRedditiSogliaAddizionale: 0,
+    contribuenteDisabile: false,
     altreDetrazioni: 0,
     haFigliACarico: false,
     ...(Object.fromEntries(FONDI_CONTRATTUALI.map((fondo) => [fondo.id, false])) as Record<
@@ -787,6 +792,8 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
       model.altriRedditiSogliaAddizionale > 0 && {
         altriRedditiSogliaAddizionale: model.altriRedditiSogliaAddizionale,
       }),
+    ...(haAgevolazioneContribuenteDisabile(model.regione) &&
+      model.contribuenteDisabile && { contribuenteDisabile: true }),
     ...(model.altreDetrazioni > 0 && { altreDetrazioni: model.altreDetrazioni }),
     ...(model.haFigliACarico && { haFigliACarico: true }),
     ...Object.fromEntries(

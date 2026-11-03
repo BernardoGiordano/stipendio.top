@@ -1050,6 +1050,7 @@ interface ContestoImposte {
   regione: string;
   comune: string;
   altriRedditiSogliaAddizionale: number;
+  contribuenteDisabile: boolean;
 }
 
 interface RisultatoImposte {
@@ -1082,6 +1083,7 @@ function calcolaImposte(ctx: ContestoImposte): RisultatoImposte {
     regione,
     comune,
     altriRedditiSogliaAddizionale,
+    contribuenteDisabile,
   } = ctx;
 
   // 7b. REGIME IMPATRIATI (D.Lgs. 209/2023, art. 5)
@@ -1196,6 +1198,7 @@ function calcolaImposte(ctx: ContestoImposte): RisultatoImposte {
     figliACarico: (figli ?? []).filter(isFiglioACarico),
     altriRedditiSogliaAddizionale,
     irpefDovuta: irpefFinale > 0,
+    contribuenteDisabile,
   });
 
   // Riepilogo detrazioni
@@ -1258,6 +1261,7 @@ export class Calculator2026 implements StipendioCalculator {
       ascendenti,
       altriRedditi = 0,
       altriRedditiSogliaAddizionale = 0,
+      contribuenteDisabile = false,
       altreDetrazioni = 0,
       fringeBenefit: fringeBenefitInput,
       haFigliACarico = false,
@@ -1334,6 +1338,7 @@ export class Calculator2026 implements StipendioCalculator {
       regione,
       comune,
       altriRedditiSogliaAddizionale,
+      contribuenteDisabile,
     };
     const imposte = calcolaImposte(contestoImposte);
     const {
