@@ -204,11 +204,28 @@
     >
       @if (model.fondoPensioneIntegrativo.enabled) {
         <div class="flex flex-col gap-3">
+          <app-field
+            label="Fondo"
+            [info]="infoPresetFondiPensione"
+            [hint]="basePreset()"
+            class="max-w-[320px]"
+          >
+            <select
+              appControl
+              [formField]="form.fondoPensioneIntegrativo.fondo"
+              (change)="onPresetFondoPensioneChange($any($event.target).value)"
+            >
+              @for (preset of presetFondiPensione; track preset.value) {
+                <option [value]="preset.value">{{ preset.label }}</option>
+              }
+            </select>
+          </app-field>
+
           <div class="flex flex-wrap items-end gap-3">
             <app-field
               label="Contributo lavoratore"
               unit="%"
-              info="Percentuale della RAL versata dal lavoratore al fondo pensione. Trattenuta dalla busta paga. Valore tipico: 0,55% - 2% a seconda del CCNL."
+              info="Percentuale della retribuzione di riferimento versata dal lavoratore al fondo pensione. Trattenuta dalla busta paga. Valore tipico: 0,55% - 2% a seconda del CCNL."
               class="flex-[1_1_130px]"
             >
               <input
@@ -311,7 +328,7 @@
           @if (deducibile(); as d) {
             <div class="text-xs text-muted tabular-nums">
               <p class="flex justify-between gap-3">
-                <span>Deducibile usato, lavoratore + datore + welfare</span>
+                <span>Deducibile usato, lavoratore + datore + welfare + fondi</span>
                 <span
                   ><strong class="font-medium text-fg">{{ d.usato }}</strong> su
                   {{ d.plafond }}</span
@@ -844,34 +861,119 @@
       }
     </app-section>
 
-    <!-- Dipendenti CCNL Commercio -->
-    <app-section
-      variant="row"
-      heading="Dipendenti CCNL Commercio"
-      [active]="attive().commercio"
-      [summary]="riepilogo.commercio"
-      description="Trattenute per i dipendenti non dirigenti del settore commercio, turismo e servizi."
-    >
-      @for (fondo of fondiCommercio; track fondo.id) {
-        <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" [note]="fondo.nota">
-          <input appControl type="checkbox" [formField]="form[fondo.id]" />
-        </app-check>
-      }
-    </app-section>
+    <!-- Fondi contrattuali, una riga per CCNL -->
+    @for (gruppo of gruppiFondi; track gruppo.id) {
+      <app-section
+        variant="row"
+        [heading]="gruppo.heading"
+        [active]="attive()[gruppo.id]"
+        [summary]="riepilogo[gruppo.id]"
+        [description]="gruppo.description"
+      >
+        @for (fondo of gruppo.fondi; track fondo.id) {
+          <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" [note]="fondo.nota">
+            <input appControl type="checkbox" [formField]="form[fondo.id]" />
+          </app-check>
+        }
+      </app-section>
+    }
 
-    <!-- Dirigenti CCNL Terziario -->
+    <!-- Fondi personalizzati -->
     <app-section
       variant="row"
-      heading="Dirigenti CCNL Terziario"
-      [active]="attive().dirigenti"
-      [summary]="riepilogo.dirigenti"
-      description="Trattenute obbligatorie per i dirigenti del settore terziario (commercio, distribuzione, servizi)."
+      heading="Altri fondi contrattuali"
+      [active]="attive().fondiPersonalizzati"
+      [summary]="riepilogo.fondiPersonalizzati"
+      description="Fondi di altri CCNL o piani facoltativi, con i contributi annui del tuo contratto."
+      [info]="infoTrattamenti"
     >
-      @for (fondo of fondiDirigenti; track fondo.id) {
-        <app-check label="{{ fondo.nome }}" [info]="fondo.tooltip" [note]="fondo.nota">
-          <input appControl type="checkbox" [formField]="form[fondo.id]" />
-        </app-check>
+      @for (fondo of model.fondiPersonalizzati; track $index) {
+        <fieldset class="mb-2 rounded-lg bg-sunken p-2.5 ring-1 ring-hair ring-inset">
+          <legend class="sr-only">Fondo personalizzato {{ $index + 1 }}</legend>
+          <div class="flex flex-wrap items-end gap-x-2.5 gap-y-2">
+            <span
+              aria-hidden="true"
+              class="flex h-[34px] w-4 items-center font-mono text-xs font-semibold text-muted"
+              >{{ $index + 1 }}</span
+            >
+            <app-field label="Nome" class="flex-[1_1_140px]">
+              <input
+                appControl
+                type="text"
+                [formField]="form.fondiPersonalizzati[$index].nome"
+                placeholder="Es. Fondo sanitario"
+              />
+            </app-field>
+
+            <app-field
+              label="Lavoratore"
+              unit="€ / anno"
+              info="Contributo annuo trattenuto al lavoratore, 0 se il fondo è a solo carico dell'azienda."
+              class="flex-[1_1_120px]"
+            >
+              <input
+                appControl
+                type="number"
+                step="0.01"
+                [formField]="form.fondiPersonalizzati[$index].contributoLavoratore"
+                placeholder="0"
+              />
+            </app-field>
+
+            <app-field
+              label="Azienda"
+              unit="€ / anno"
+              info="Contributo annuo a carico del datore: entra nel costo aziendale e, per previdenza e sanità, nel contributo di solidarietà del 10%."
+              class="flex-[1_1_120px]"
+            >
+              <input
+                appControl
+                type="number"
+                step="0.01"
+                [formField]="form.fondiPersonalizzati[$index].contributoDatore"
+                placeholder="0"
+              />
+            </app-field>
+          </div>
+          <div class="mt-2 flex flex-wrap items-end gap-x-2.5 gap-y-2">
+            <app-field
+              label="Trattamento fiscale"
+              [info]="infoTrattamenti"
+              class="flex-[2_1_240px]"
+            >
+              <select appControl [formField]="form.fondiPersonalizzati[$index].trattamento">
+                @for (trattamento of trattamentiFondo; track trattamento.value) {
+                  <option [value]="trattamento.value">{{ trattamento.label }}</option>
+                }
+              </select>
+            </app-field>
+            <app-check
+              label="Fondo per dirigenti"
+              info="Applica le aliquote INPS a carico del datore previste per i dirigenti (26,54% o 27,24% con CIGS) invece di quelle di operai e impiegati."
+              class="h-[34px]"
+            >
+              <input
+                appControl
+                type="checkbox"
+                [formField]="form.fondiPersonalizzati[$index].dirigente"
+              />
+            </app-check>
+            <button
+              type="button"
+              (click)="removeFondoPersonalizzato($index)"
+              [class]="removeButton"
+              [attr.aria-label]="'Rimuovi fondo personalizzato ' + ($index + 1)"
+            >
+              <app-icon name="x" class="size-4" />
+            </button>
+          </div>
+        </fieldset>
       }
+
+      <button type="button" (click)="addFondoPersonalizzato()" [class]="addButton">
+        <app-icon name="add" class="size-3.5" />
+        Aggiungi fondo
+      </button>
     </app-section>
 
     <!-- Costo aziendale -->

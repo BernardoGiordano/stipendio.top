@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import {
   createDefaultAscendente,
   createDefaultFiglio,
+  createDefaultFondoPersonalizzato,
   createDefaultFormModel,
   StipendioFormModel,
 } from '../components/form-container/form-group';
@@ -81,6 +82,10 @@ export class FormStateShare {
     model.ascendenti = model.ascendenti.map((ascendente) => ({
       ...createDefaultAscendente(),
       ...ascendente,
+    }));
+    model.fondiPersonalizzati = (model.fondiPersonalizzati ?? []).map((fondo) => ({
+      ...createDefaultFondoPersonalizzato(),
+      ...fondo,
     }));
     return model;
   }

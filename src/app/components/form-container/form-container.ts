@@ -5,6 +5,7 @@ import { NgSelectComponent } from '@ng-select/ng-select';
 import {
   createDefaultAscendente,
   createDefaultFiglio,
+  createDefaultFondoPersonalizzato,
   StipendioFieldTree,
   StipendioFormModel,
 } from './form-group';
@@ -13,6 +14,7 @@ import {
   TipoAlimentazioneAuto,
   TipoContratto,
   TipoEsoneroContributivo,
+  TrattamentoFiscaleFondo,
 } from '../../../calculator/types';
 import { Check, Control, Field } from '../field/field';
 import { Icon } from '../icon/icon';
@@ -26,7 +28,12 @@ import {
 import {
   FONDI_CONTRATTUALI,
   FondoContrattuale,
+  FondoPensionePresetId,
+  GRUPPI_FONDI,
+  GruppoFondiId,
+  LIMITE_ASSISTENZA_SANITARIA,
   PLAFOND_PREVIDENZA_COMPLEMENTARE,
+  PRESET_FONDI_PENSIONE,
 } from '../../../calculator/fondi/2026';
 import { ESONERI_CONTRIBUTIVI } from '../../../calculator/datore/2026';
 import { HUE } from '../../services/chart-palette';
@@ -45,25 +52,65 @@ type Riga =
   | 'rimborsi'
   | 'benefit'
   | 'borsa'
-  | 'commercio'
-  | 'dirigenti'
+  | GruppoFondiId
+  | 'fondiPersonalizzati'
   | 'datore';
 
-function vociFondi(categoria: FondoContrattuale['categoria']) {
-  return FONDI_CONTRATTUALI.filter((fondo) => fondo.categoria === categoria).map((fondo) => ({
+/** What each tax treatment does to the worker's contribution, for tooltips and selects */
+export const TRATTAMENTI_FONDO: readonly {
+  value: TrattamentoFiscaleFondo;
+  label: string;
+  effetto: string;
+}[] = [
+  {
+    value: 'assistenzaSanitaria',
+    label: 'Assistenza sanitaria (esente entro 3.615,20 €)',
+    effetto: `Esente da IRPEF entro ${formatCurrency(LIMITE_ASSISTENZA_SANITARIA)} l'anno, limite condiviso tra contributo azienda, contributo lavoratore e assistenza sanitaria welfare. L'eccedenza è imponibile.`,
+  },
+  {
+    value: 'previdenzaComplementare',
+    label: 'Previdenza complementare (plafond 5.300 €)',
+    effetto: `Contributi di lavoratore e azienda dedotti entro il plafond di ${formatCurrency(PLAFOND_PREVIDENZA_COMPLEMENTARE, 0)} l'anno, condiviso con il fondo pensione. L'eccedenza è imponibile.`,
+  },
+  {
+    value: 'deducibileSenzaLimite',
+    label: 'Deducibile senza limite (fondo in squilibrio)',
+    effetto:
+      "Il contributo lavoratore riduce l'imponibile IRPEF senza limiti e riduce il plafond della previdenza complementare (art. 20, c. 7, D.Lgs. 252/2005).",
+  },
+  {
+    value: 'nonDeducibile',
+    label: 'Non deducibile',
+    effetto:
+      "NON riduce l'imponibile IRPEF: trattenuta diretta dal netto. Il contributo azienda è solo un costo.",
+  },
+];
+
+function effettoTrattamento(trattamento: TrattamentoFiscaleFondo): string {
+  return TRATTAMENTI_FONDO.find((t) => t.value === trattamento)?.effetto ?? '';
+}
+
+function vociFondi(gruppo: GruppoFondiId) {
+  return FONDI_CONTRATTUALI.filter((fondo) => fondo.gruppo === gruppo).map((fondo) => ({
     id: fondo.id,
     nome: fondo.nome,
     tooltip: tooltipFondo(fondo),
-    nota: `${formatCurrency(fondo.contributoLavoratore)} / anno`,
+    nota:
+      fondo.contributoLavoratore > 0
+        ? `${formatCurrency(fondo.contributoLavoratore)} / anno`
+        : `azienda ${formatCurrency(fondo.contributoDatore)} / anno`,
   }));
 }
 
 function tooltipFondo(fondo: FondoContrattuale): string {
   const calcolo = fondo.calcoloContributo ? ` (${fondo.calcoloContributo})` : '';
-  const effetto = fondo.deducibile
-    ? "Riduce l'imponibile IRPEF senza limiti di deducibilità."
-    : "NON riduce l'imponibile IRPEF: trattenuta diretta dal netto.";
-  return `${fondo.descrizione} Contributo 2026: ${formatCurrency(fondo.contributoLavoratore)}/anno${calcolo}. ${effetto}`;
+  const calcoloDatore = fondo.calcoloContributoDatore ? ` (${fondo.calcoloContributoDatore})` : '';
+  const lavoratore =
+    fondo.contributoLavoratore > 0
+      ? `lavoratore ${formatCurrency(fondo.contributoLavoratore)}/anno${calcolo}, `
+      : 'nessuna trattenuta al lavoratore, ';
+  const note = fondo.note ? ` ${fondo.note}` : '';
+  return `${fondo.descrizione} Contributo 2026: ${lavoratore}azienda ${formatCurrency(fondo.contributoDatore)}/anno${calcoloDatore}. ${effettoTrattamento(fondo.trattamento)}${note}`;
 }
 
 @Component({
@@ -109,15 +156,41 @@ export class FormContainer {
     haRedditiSostitutiviInSoglia(this.selectedRegione()),
   );
 
-  readonly fondiCommercio = vociFondi('dipendentiCommercio');
-  readonly fondiDirigenti = vociFondi('dirigentiTerziario');
+  /** One row per CCNL, with its funds */
+  readonly gruppiFondi = GRUPPI_FONDI.map((gruppo) => ({ ...gruppo, fondi: vociFondi(gruppo.id) }));
 
-  readonly fondoCommercioSelezionato = computed(() =>
-    this.fondiCommercio.some((fondo) => this.formModel()()[fondo.id]),
-  );
-  readonly fondoDirigentiSelezionato = computed(() =>
-    this.fondiDirigenti.some((fondo) => this.formModel()()[fondo.id]),
-  );
+  /** Tax treatments of a custom fund */
+  readonly trattamentiFondo = TRATTAMENTI_FONDO;
+  readonly infoTrattamenti = [
+    'Trattamento fiscale del contributo:',
+    ...TRATTAMENTI_FONDO.map((t) => `${t.label}: ${t.effetto}`),
+  ].join(' ');
+
+  /** Presets of the pension fund section */
+  readonly presetFondiPensione: {
+    value: FondoPensionePresetId | 'personalizzato';
+    label: string;
+  }[] = [
+    { value: 'personalizzato', label: 'Personalizzato' },
+    ...PRESET_FONDI_PENSIONE.map((preset) => ({
+      value: preset.id,
+      label: `${preset.nome} (${preset.ccnl})`,
+    })),
+  ];
+  readonly infoPresetFondiPensione = [
+    'Un preset imposta le percentuali del CCNL e, come base, la RAL inserita: correggila se il contratto usa una base diversa.',
+    ...PRESET_FONDI_PENSIONE.map(
+      (preset) => `${preset.nome}: ${preset.descrizione} Base: ${preset.base}.`,
+    ),
+  ].join(' ');
+
+  /** Hint under the reference RAL fields, from the chosen preset */
+  readonly basePreset = computed(() => {
+    const preset = PRESET_FONDI_PENSIONE.find(
+      (p) => p.id === this.formModel()().fondoPensioneIntegrativo.fondo,
+    );
+    return preset ? `${preset.nome}: ${preset.base}` : undefined;
+  });
 
   readonly tipiContratto: { value: TipoContratto; label: string }[] = [
     { value: 'indeterminato', label: 'Tempo indeterminato' },
@@ -151,8 +224,10 @@ export class FormContainer {
       rimborsi: m.rimborsiTrasferta.enabled,
       benefit: m.benefitNonTassati.enabled,
       borsa: m.borsaDiStudio.enabled,
-      commercio: this.fondoCommercioSelezionato(),
-      dirigenti: this.fondoDirigentiSelezionato(),
+      ...(Object.fromEntries(
+        this.gruppiFondi.map((gruppo) => [gruppo.id, gruppo.fondi.some((fondo) => m[fondo.id])]),
+      ) as Record<GruppoFondiId, boolean>),
+      fondiPersonalizzati: m.fondiPersonalizzati.length > 0,
       datore: m.opzioniDatore.enabled,
     };
   });
@@ -165,10 +240,13 @@ export class FormContainer {
     const m = this.formModel()();
     if (!r) return {};
     const eur = (value: number) => formatCurrency(value);
-    const contaFondi = (fondi: { id: string }[]) =>
-      r.fondiContrattuali
-        .filter((fondo) => fondi.some((f) => f.id === fondo.id))
-        .reduce((sum, fondo) => sum + fondo.contributoAnnuo, 0);
+    // The worker's yearly share, or the employer's when the worker pays nothing
+    const riepilogoFondi = (ids: string[]) => {
+      const fondi = r.fondiContrattuali.filter((fondo) => ids.includes(fondo.id));
+      const lavoratore = fondi.reduce((sum, fondo) => sum + fondo.contributoAnnuo, 0);
+      const datore = fondi.reduce((sum, fondo) => sum + fondo.contributoDatore, 0);
+      return lavoratore > 0 ? `− ${eur(lavoratore)} / anno` : `azienda ${eur(datore)} / anno`;
+    };
     const conta = (n: number, uno: string, molti: string) => `${n} ${n === 1 ? uno : molti}`;
 
     const fp = r.fondoPensioneIntegrativo;
@@ -205,8 +283,17 @@ export class FormContainer {
           ? `+ ${eur(r.benefitNonTassati.totaleEsente)} esenti`
           : undefined,
       borsa: r.borsaDiStudio ? `+ ${eur(r.borsaDiStudio.nettoAnnuo)} netti` : undefined,
-      commercio: `− ${eur(contaFondi(this.fondiCommercio))} / anno`,
-      dirigenti: `− ${eur(contaFondi(this.fondiDirigenti))} / anno`,
+      ...(Object.fromEntries(
+        this.gruppiFondi.map((gruppo) => [
+          gruppo.id,
+          riepilogoFondi(gruppo.fondi.map((fondo) => fondo.id)),
+        ]),
+      ) as Record<GruppoFondiId, string>),
+      fondiPersonalizzati: riepilogoFondi(
+        r.fondiContrattuali
+          .filter((fondo) => fondo.id.startsWith('personalizzato-'))
+          .map((fondo) => fondo.id),
+      ),
       datore:
         [
           datore.premioInail > 0 ? `INAIL ${eur(datore.premioInail)}` : '',
@@ -307,5 +394,40 @@ export class FormContainer {
       ...model,
       ascendenti: model.ascendenti.filter((_, i) => i !== index),
     }));
+  }
+
+  addFondoPersonalizzato(): void {
+    this.formModel().update((model) => ({
+      ...model,
+      fondiPersonalizzati: [...model.fondiPersonalizzati, createDefaultFondoPersonalizzato()],
+    }));
+  }
+
+  removeFondoPersonalizzato(index: number): void {
+    this.formModel().update((model) => ({
+      ...model,
+      fondiPersonalizzati: model.fondiPersonalizzati.filter((_, i) => i !== index),
+    }));
+  }
+
+  /** Fills the pension fund percentages from the CCNL preset, with the RAL as reference base */
+  onPresetFondoPensioneChange(value: string): void {
+    const preset = PRESET_FONDI_PENSIONE.find((p) => p.id === value);
+    this.formModel().update((model) => {
+      const base = Math.min(model.ral || 0, preset?.massimaleBase ?? Infinity);
+      return {
+        ...model,
+        fondoPensioneIntegrativo: {
+          ...model.fondoPensioneIntegrativo,
+          fondo: preset?.id ?? 'personalizzato',
+          ...(preset && {
+            contributoLavoratore: preset.contributoLavoratore,
+            ralLavoratore: base,
+            contributoDatoreLavoro: preset.contributoDatore,
+            ralDatoreLavoro: base,
+          }),
+        },
+      };
+    });
   }
 }

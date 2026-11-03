@@ -150,7 +150,6 @@ const RIMBORSI_TRASFERTA = {
 
 /** Limiti benefit esenti da tassazione */
 const BENEFIT_ESENTI = {
-  assistenzaSanitaria: 3_615.2,
   buoniPastoCartacei: 4.0,
   /** Giorni di erogazione buoni pasto se non indicati */
   giorniBuoniPastoDefault: 220,
@@ -356,13 +355,19 @@ function calcolaRimborsiTrasferta(
   };
 }
 
+/**
+ * @param assistenzaSanitariaEsente quota dei contributi sanitari welfare entro il limite di
+ * €3.615,20, condiviso con i fondi sanitari contrattuali e calcolato nella sezione fondi
+ */
 function calcolaBenefitNonTassati(
   benefit: BenefitNonTassati | undefined,
+  assistenzaSanitariaEsente: number,
 ): DettaglioBenefitNonTassati {
   if (!benefit) {
     return {
       previdenzaComplementare: 0,
       assistenzaSanitaria: 0,
+      assistenzaSanitariaTassata: 0,
       buoniPastoEsenti: 0,
       buoniPastoTassati: 0,
       altriWelfare: 0,
@@ -376,11 +381,10 @@ function calcolaBenefitNonTassati(
   // fondo pensione integrativo (art. 10, c. 1, lett. e-bis, TUIR), nella sezione previdenza.
   const previdenza = benefit.previdenzaComplementare ?? 0;
 
-  const sanita = Math.min(benefit.assistenzaSanitaria ?? 0, BENEFIT_ESENTI.assistenzaSanitaria);
-  const sanitaEccedente = Math.max(
-    0,
-    (benefit.assistenzaSanitaria ?? 0) - BENEFIT_ESENTI.assistenzaSanitaria,
-  );
+  // L'eccedenza è reddito imponibile IRPEF ma non INPS (art. 12, c. 4, lett. f, L. 153/1969):
+  // non entra in busta e non concorre all'imponibile previdenziale
+  const sanita = Math.min(benefit.assistenzaSanitaria ?? 0, assistenzaSanitariaEsente);
+  const sanitaEccedente = Math.max(0, (benefit.assistenzaSanitaria ?? 0) - sanita);
 
   const buoniPastoTotale = benefit.buoniPasto ?? 0;
   const sogliaGiornaliera = benefit.buoniPastoElettronici
@@ -397,11 +401,12 @@ function calcolaBenefitNonTassati(
     (benefit.abbonamentoTrasporto ?? 0) + (benefit.serviziWelfare ?? 0) + (benefit.altri ?? 0);
 
   const totaleEsente = sanita + buoniPastoEsenti + altriWelfare;
-  const totaleTassato = sanitaEccedente + buoniPastoTassati;
+  const totaleTassato = buoniPastoTassati;
 
   return {
     previdenzaComplementare: previdenza,
     assistenzaSanitaria: sanita,
+    assistenzaSanitariaTassata: sanitaEccedente,
     buoniPastoEsenti,
     buoniPastoTassati,
     altriWelfare,
@@ -811,6 +816,13 @@ function vociBenefit(
       'esente',
     ),
     voce('Welfare oltre soglia', benefitNonTassati.totaleTassato, 'welfare', 'netto'),
+    // Versata alla cassa sanitaria: tassata ma non percepita in denaro
+    voce(
+      'Assistenza sanitaria oltre soglia',
+      benefitNonTassati.assistenzaSanitariaTassata,
+      'welfare',
+      'inNatura',
+    ),
     voce('Welfare esente', benefitNonTassati.totaleEsente, 'welfare', 'esente'),
   ];
 }
@@ -935,6 +947,7 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
   const zeroBenefitNonTassati: DettaglioBenefitNonTassati = {
     previdenzaComplementare: 0,
     assistenzaSanitaria: 0,
+    assistenzaSanitariaTassata: 0,
     buoniPastoEsenti: 0,
     buoniPastoTassati: 0,
     altriWelfare: 0,
@@ -952,6 +965,7 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     benefitNonTassati: zeroBenefitNonTassati,
     fondiContrattuali: [],
     fondoPensioneIntegrativo: null,
+    assistenzaSanitaria: null,
     regimeImpatriati: null,
     borsaDiStudio,
     ripartizione,
@@ -1262,8 +1276,21 @@ export class Calculator2026 implements StipendioCalculator {
     // 2. CALCOLO RIMBORSI TRASFERTA
     const rimborsiTrasferta = calcolaRimborsiTrasferta(rimborsiTrasfertaInput);
 
-    // 3. CALCOLO BENEFIT NON TASSATI
-    const benefitNonTassati = calcolaBenefitNonTassati(benefitNonTassatiInput);
+    // 3. CALCOLO FONDI CONTRATTUALI, PREVIDENZA COMPLEMENTARE E ASSISTENZA SANITARIA
+    // Il contributo welfare al fondo pensione condivide il plafond della previdenza complementare;
+    // l'assistenza sanitaria welfare condivide il limite di esenzione con i fondi sanitari
+    const fondi = calcolaFondi({
+      ...input,
+      contributoWelfare: benefitNonTassatiInput?.previdenzaComplementare ?? 0,
+      assistenzaSanitariaWelfare: benefitNonTassatiInput?.assistenzaSanitaria ?? 0,
+      mensilita,
+    });
+
+    // 3b. CALCOLO BENEFIT NON TASSATI
+    const benefitNonTassati = calcolaBenefitNonTassati(
+      benefitNonTassatiInput,
+      fondi.assistenzaSanitariaWelfareEsente,
+    );
 
     // 4. CALCOLO IMPONIBILE PREVIDENZIALE
     const imponibilePrevidenziale =
@@ -1280,20 +1307,14 @@ export class Calculator2026 implements StipendioCalculator {
       iscrittoPost1996,
     );
 
-    // 6. CALCOLO FONDI CONTRATTUALI E PREVIDENZA COMPLEMENTARE
-    // Il contributo welfare al fondo pensione condivide il plafond della previdenza complementare
-    const fondi = calcolaFondi({
-      ...input,
-      contributoWelfare: benefitNonTassatiInput?.previdenzaComplementare ?? 0,
-      mensilita,
-    });
-
     // 7. CALCOLO IMPONIBILE IRPEF
     // I contributi datore, EBITEMP e welfare al fondo pensione sono reddito per il dipendente (Art. 51 TUIR)
-    // ma è deducibile entro il plafond (Art. 10 TUIR): effetto netto zero se entro il limite
+    // ma è deducibile entro il plafond (Art. 10 TUIR): effetto netto zero se entro il limite.
+    // I contributi sanitari del datore oltre €3.615,20 sono reddito imponibile IRPEF, non INPS
     const redditoLavoroDipendenteLordo =
       imponibilePrevidenziale +
-      fondi.redditoFondoPensione -
+      fondi.redditoFondoPensione +
+      fondi.redditoAssistenzaSanitaria -
       contributiInps.totaleContributi -
       fondi.deduzione;
 
@@ -1349,7 +1370,7 @@ export class Calculator2026 implements StipendioCalculator {
 
     // 16. RIPARTIZIONE
     // Costo aziendale, trattenute, bonus, netto e percepito sono somme di queste voci.
-    // Il contributo di solidarietà grava anche sull'assistenza sanitaria esente pagata come welfare
+    // Il contributo di solidarietà grava anche sull'assistenza sanitaria pagata come welfare
     const costiDatore = calcolaCostiDatore({
       ral,
       tipoContratto,
@@ -1357,8 +1378,7 @@ export class Calculator2026 implements StipendioCalculator {
       isDirigente: fondi.isDirigente,
       imponibilePrevidenziale,
       imponibileEntroMassimale: contributiInps.imponibilePrevidenziale,
-      baseContributoSolidarieta:
-        fondi.baseContributoSolidarieta + benefitNonTassati.assistenzaSanitaria,
+      baseContributoSolidarieta: fondi.baseContributoSolidarieta,
       opzioni: input.opzioniDatore,
     });
     const entrate: VoceEntrata[] = [
@@ -1466,6 +1486,7 @@ export class Calculator2026 implements StipendioCalculator {
       benefitNonTassati,
       fondiContrattuali,
       fondoPensioneIntegrativo,
+      assistenzaSanitaria: fondi.assistenzaSanitaria,
       regimeImpatriati: dettaglioRegimeImpatriati,
       borsaDiStudio: dettaglioBorsaDiStudio,
       ripartizione,

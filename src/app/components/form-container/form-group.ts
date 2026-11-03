@@ -21,6 +21,7 @@ import {
   FiglioACarico,
   FondoContrattualeId,
   FondoPensioneIntegrativo,
+  FondoPersonalizzato,
   FringeBenefit,
   InputCalcoloStipendio,
   OpzioniDatore,
@@ -28,9 +29,14 @@ import {
   TipoAlimentazioneAuto,
   TipoContratto,
   TipoEsoneroContributivo,
+  TrattamentoFiscaleFondo,
 } from '../../../calculator/types';
 import { haRedditiSostitutiviInSoglia } from '../../../calculator/addizionali/2026';
-import { FONDI_CONTRATTUALI } from '../../../calculator/fondi/2026';
+import {
+  FONDI_CONTRATTUALI,
+  FondoPensionePresetId,
+  PRESET_FONDI_PENSIONE,
+} from '../../../calculator/fondi/2026';
 
 export interface AutoAziendaleFormModel {
   costoKmAci: number;
@@ -80,6 +86,8 @@ export interface BenefitNonTassatiFormModel {
 
 export interface FondoPensioneIntegrativoFormModel {
   enabled: boolean;
+  /** Preset del fondo negoziale che ha riempito le percentuali, solo per il dettaglio */
+  fondo: FondoPensionePresetId | 'personalizzato';
   contributoLavoratore: number;
   ralLavoratore: number;
   contributoDatoreLavoro: number;
@@ -87,6 +95,16 @@ export interface FondoPensioneIntegrativoFormModel {
   contributoEbitemp: number;
   ralEbitemp: number;
   ripartizionePerMensilita: boolean;
+}
+
+export interface FondoPersonalizzatoFormModel {
+  nome: string;
+  /** Contributo annuo a carico del lavoratore (€) */
+  contributoLavoratore: number;
+  /** Contributo annuo a carico del datore (€) */
+  contributoDatore: number;
+  trattamento: TrattamentoFiscaleFondo;
+  dirigente: boolean;
 }
 
 export interface OpzioniDatoreFormModel {
@@ -162,6 +180,7 @@ export interface StipendioFormModel extends Record<FondoContrattualeId, boolean>
   // Dynamic arrays
   figli: FiglioACaricoFormModel[];
   ascendenti: AscendenteACaricoFormModel[];
+  fondiPersonalizzati: FondoPersonalizzatoFormModel[];
 }
 
 function createDefaultAutoAziendale(): AutoAziendaleFormModel {
@@ -221,6 +240,7 @@ function createDefaultBenefitNonTassati(): BenefitNonTassatiFormModel {
 function createDefaultFondoPensioneIntegrativo(): FondoPensioneIntegrativoFormModel {
   return {
     enabled: false,
+    fondo: 'personalizzato',
     contributoLavoratore: 0,
     ralLavoratore: 0,
     contributoDatoreLavoro: 0,
@@ -278,6 +298,16 @@ export function createDefaultAscendente(): AscendenteACaricoFormModel {
   };
 }
 
+export function createDefaultFondoPersonalizzato(): FondoPersonalizzatoFormModel {
+  return {
+    nome: '',
+    contributoLavoratore: 0,
+    contributoDatore: 0,
+    trattamento: 'assistenzaSanitaria',
+    dirigente: false,
+  };
+}
+
 const currentYear = new Date().getFullYear() as AnnoFiscale;
 
 /** RAL shown on first load, so the page opens on a result instead of an empty form */
@@ -314,6 +344,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     opzioniDatore: createDefaultOpzioniDatore(),
     figli: [],
     ascendenti: [],
+    fondiPersonalizzati: [],
   };
 }
 
@@ -457,6 +488,11 @@ const ascendenteSchema = schema<AscendenteACaricoFormModel>((path) => {
   validate(path.mesiCarico, validaMesi);
 });
 
+const fondoPersonalizzatoSchema = schema<FondoPersonalizzatoFormModel>((path) => {
+  min(path.contributoLavoratore, 0, { message: 'Valore non valido' });
+  min(path.contributoDatore, 0, { message: 'Valore non valido' });
+});
+
 export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   // Mandatory fields
   validate(path.ral, ({ value }) => {
@@ -507,6 +543,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   // Arrays
   applyEach(path.figli, figlioSchema);
   applyEach(path.ascendenti, ascendenteSchema);
+  applyEach(path.fondiPersonalizzati, fondoPersonalizzatoSchema);
 });
 
 // ============================================================================
@@ -603,7 +640,9 @@ function toFondoPensioneIntegrativo(
 ): FondoPensioneIntegrativo | undefined {
   if (!model.enabled || model.contributoLavoratore <= 0) return undefined;
 
+  const preset = PRESET_FONDI_PENSIONE.find((p) => p.id === model.fondo);
   return {
+    ...(preset && { nome: preset.nome }),
     contributoLavoratore: model.contributoLavoratore,
     ralLavoratore: model.ralLavoratore,
     ...(model.contributoDatoreLavoro > 0 && {
@@ -687,6 +726,22 @@ function toAscendenti(models: AscendenteACaricoFormModel[]): AscendenteACarico[]
     convivente: m.convivente,
     ...((m.mesiCarico ?? 12) !== 12 && { mesiCarico: m.mesiCarico ?? 12 }),
   }));
+}
+
+/** Keeps the custom funds with at least one contribution */
+function toFondiPersonalizzati(
+  models: FondoPersonalizzatoFormModel[],
+): FondoPersonalizzato[] | undefined {
+  const fondi = models
+    .filter((m) => m.contributoLavoratore > 0 || m.contributoDatore > 0)
+    .map((m) => ({
+      ...(m.nome.trim() && { nome: m.nome.trim() }),
+      contributoLavoratore: m.contributoLavoratore,
+      contributoDatore: m.contributoDatore,
+      trattamento: m.trattamento,
+      ...(m.dirigente && { dirigente: true }),
+    }));
+  return fondi.length > 0 ? fondi : undefined;
 }
 
 /**
@@ -779,6 +834,10 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
     ...(() => {
       const ascendenti = toAscendenti(model.ascendenti);
       return ascendenti ? { ascendenti } : {};
+    })(),
+    ...(() => {
+      const fondiPersonalizzati = toFondiPersonalizzati(model.fondiPersonalizzati);
+      return fondiPersonalizzati ? { fondiPersonalizzati } : {};
     })(),
   };
 }
