@@ -673,13 +673,13 @@
       [active]="attive().rimborsi"
       [toggle]="form.rimborsiTrasferta.enabled"
       [summary]="riepilogo.rimborsi"
-      info="Rimborsi per trasferte fuori dal comune di lavoro. Possono essere forfettari (46,48 euro/giorno Italia, 77,47 euro estero) o a pie' di lista."
+      info="Rimborsi per trasferte fuori dal comune di lavoro. Possono essere forfettari (46,48 euro/giorno Italia, 77,47 euro estero) o a pie' di lista. Ciò che non è esente si somma all'imponibile: paga INPS, IRPEF e addizionali."
     >
       @if (model.rimborsiTrasferta.enabled) {
         <div class="flex flex-wrap items-end gap-3">
           <app-field
             label="Modalità rimborso"
-            info="Forfettario: indennità fissa giornaliera. Analitico: rimborso a pie' di lista documentato. Misto: forfettario ridotto + rimborso vitto/alloggio."
+            info="Forfettario: indennità fissa giornaliera. Analitico: rimborso a pie' di lista documentato. Misto: forfettario ridotto + rimborso vitto/alloggio, anche quando sono forniti gratuitamente."
             class="flex-[2_1_160px]"
           >
             <select appControl [formField]="form.rimborsiTrasferta.modalitaRimborso">
@@ -688,30 +688,123 @@
               }
             </select>
           </app-field>
-          <app-field label="Giorni Italia" class="flex-[1_1_100px]">
-            <input
-              appControl
-              type="number"
-              [formField]="form.rimborsiTrasferta.giorniTrasfertaItalia"
-            />
-          </app-field>
-          <app-field label="Giorni estero" class="flex-[1_1_100px]">
-            <input
-              appControl
-              type="number"
-              [formField]="form.rimborsiTrasferta.giorniTrasfertaEstero"
-            />
-          </app-field>
         </div>
 
+        @if (conIndennita()) {
+          @for (trasferta of model.rimborsiTrasferta.trasferte; track $index) {
+            <fieldset class="mt-2 rounded-lg bg-sunken p-2.5 ring-1 ring-hair ring-inset">
+              <legend class="sr-only">Trasferta {{ $index + 1 }}</legend>
+              @let misto = model.rimborsiTrasferta.modalitaRimborso === 'misto';
+              @let limite = limiteTrasferta(trasferta);
+              <div class="flex items-center gap-2.5">
+                <span
+                  aria-hidden="true"
+                  class="w-4 shrink-0 font-mono text-xs font-semibold text-muted"
+                  >{{ $index + 1 }}</span
+                >
+                <div class="@container min-w-0 flex-1">
+                  <div [class]="misto ? grigliaMisto : grigliaForfettario">
+                    <app-field label="Destinazione">
+                      <select
+                        appControl
+                        [formField]="form.rimborsiTrasferta.trasferte[$index].destinazione"
+                      >
+                        @for (destinazione of destinazioni; track destinazione.value) {
+                          <option [value]="destinazione.value">{{ destinazione.label }}</option>
+                        }
+                      </select>
+                    </app-field>
+
+                    <app-field label="Giorni">
+                      <input
+                        appControl
+                        type="number"
+                        [formField]="form.rimborsiTrasferta.trasferte[$index].giorni"
+                      />
+                    </app-field>
+
+                    <app-field
+                      label="Indennità"
+                      unit="€ / giorno"
+                      info="Importo giornaliero erogato. Se lo lasci vuoto vale il limite esente, mostrato in grigio. La parte oltre il limite si somma all'imponibile: paga INPS, IRPEF e addizionali."
+                      [class]="misto ? campoMisto : indennitaForfettario"
+                    >
+                      <input
+                        appControl
+                        type="number"
+                        [attr.placeholder]="formatNumber(limite, 2)"
+                        [formField]="form.rimborsiTrasferta.trasferte[$index].indennitaGiornaliera"
+                      />
+                    </app-field>
+
+                    @if (misto) {
+                      <app-field
+                        label="Vitto e alloggio"
+                        info="Quanti tra vitto e alloggio sono rimborsati o forniti gratuitamente dall'azienda in questi giorni. Il limite esente si riduce di 1/3 con uno dei due e di 2/3 con entrambi."
+                        [class]="campoMisto"
+                      >
+                        <select
+                          appControl
+                          [formField]="
+                            form.rimborsiTrasferta.trasferte[$index].vittoAlloggioACarico
+                          "
+                        >
+                          @for (voce of vittoAlloggio; track voce.value) {
+                            <option [value]="voce.value">{{ voce.label }}</option>
+                          }
+                        </select>
+                      </app-field>
+                    }
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  (click)="removeTrasferta($index)"
+                  [class]="removeButton"
+                  [attr.aria-label]="'Rimuovi trasferta ' + ($index + 1)"
+                >
+                  <app-icon name="x" class="size-4" />
+                </button>
+              </div>
+              @if (trasferta.indennitaGiornaliera > limite) {
+                <p class="mt-2 ml-[26px] text-xs text-muted">
+                  {{ formatCurrency(limite) }} al giorno esenti,
+                  {{ formatCurrency(trasferta.indennitaGiornaliera - limite) }} al giorno tassati.
+                </p>
+              }
+            </fieldset>
+          }
+
+          <button type="button" (click)="addTrasferta()" [class]="addButton">
+            <app-icon name="add" class="size-3.5" />
+            Aggiungi trasferta
+          </button>
+        }
+
         <div class="mt-3 flex flex-wrap items-end gap-3">
-          <app-field label="Vitto documentato" unit="€ / anno" class="flex-[1_1_150px]">
+          <app-field
+            label="Vitto documentato"
+            unit="€ / anno"
+            info="Esente se il pagamento è tracciabile. Nel sistema forfettario o senza tracciabilità è tassato: si somma all'imponibile e paga INPS, IRPEF e addizionali."
+            class="flex-[1_1_150px]"
+          >
             <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoVitto" />
           </app-field>
-          <app-field label="Alloggio documentato" unit="€ / anno" class="flex-[1_1_150px]">
+          <app-field
+            label="Alloggio documentato"
+            unit="€ / anno"
+            info="Esente se il pagamento è tracciabile. Nel sistema forfettario o senza tracciabilità è tassato: si somma all'imponibile e paga INPS, IRPEF e addizionali."
+            class="flex-[1_1_150px]"
+          >
             <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoAlloggio" />
           </app-field>
-          <app-field label="Viaggio" unit="€ / anno" class="flex-[1_1_150px]">
+          <app-field
+            label="Viaggio"
+            unit="€ / anno"
+            info="Spese di viaggio e trasporto documentate: esenti con qualsiasi modalità di rimborso."
+            class="flex-[1_1_150px]"
+          >
             <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoViaggio" />
           </app-field>
           <app-field
@@ -725,7 +818,7 @@
           <app-field
             label="Chilometrico imponibile"
             unit="€ / anno"
-            info="Rimborsi chilometrici che concorrono al reddito (art. 51, c. 5, TUIR): spostamenti nel comune sede di lavoro e quota eccedente le tariffe ACI nelle trasferte fuori comune."
+            info="Rimborsi chilometrici che concorrono al reddito (art. 51, c. 5, TUIR): spostamenti nel comune sede di lavoro e quota eccedente le tariffe ACI nelle trasferte fuori comune. Si sommano all'imponibile: pagano INPS, IRPEF e addizionali."
             class="flex-[1_1_150px]"
           >
             <input
@@ -736,9 +829,13 @@
           </app-field>
         </div>
 
+        @if (avvisoVittoAlloggio(); as avviso) {
+          <p class="mt-2 text-xs text-neg" role="alert">{{ avviso }}</p>
+        }
+
         <app-check
           label="Pagamenti tracciabili"
-          info="Dal 2025 obbligo di tracciabilità per vitto, alloggio e taxi. Senza tracciabilità i rimborsi diventano imponibili."
+          info="Dal 2025 obbligo di tracciabilità per vitto, alloggio e taxi. Senza tracciabilità i rimborsi diventano imponibili: pagano INPS, IRPEF e addizionali."
           class="mt-2"
         >
           <input

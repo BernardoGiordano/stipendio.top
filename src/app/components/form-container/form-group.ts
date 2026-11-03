@@ -2,6 +2,7 @@ import { signal, WritableSignal } from '@angular/core';
 import {
   apply,
   applyEach,
+  applyWhen,
   FieldTree,
   form,
   max,
@@ -30,6 +31,8 @@ import {
   TipoContratto,
   TipoEsoneroContributivo,
   TrattamentoFiscaleFondo,
+  Trasferta,
+  VittoAlloggioACarico,
 } from '../../../calculator/types';
 import {
   haAgevolazioneContribuenteDisabile,
@@ -62,11 +65,18 @@ export interface FringeBenefitFormModel {
   altri: number;
 }
 
+export interface TrasfertaFormModel {
+  destinazione: Trasferta['destinazione'];
+  giorni: number;
+  /** Vuota (NaN) = pari al limite esente */
+  indennitaGiornaliera: number;
+  vittoAlloggioACarico: VittoAlloggioACarico;
+}
+
 export interface RimborsiTrasfertaFormModel {
   enabled: boolean;
   modalitaRimborso: 'nessuna' | 'forfettario' | 'misto' | 'analitico';
-  giorniTrasfertaItalia: number;
-  giorniTrasfertaEstero: number;
+  trasferte: TrasfertaFormModel[];
   rimborsoVitto: number;
   rimborsoAlloggio: number;
   rimborsoViaggio: number;
@@ -212,12 +222,20 @@ function createDefaultFringeBenefit(): FringeBenefitFormModel {
   };
 }
 
+export function createDefaultTrasferta(): TrasfertaFormModel {
+  return {
+    destinazione: 'italia',
+    giorni: 0,
+    indennitaGiornaliera: NaN,
+    vittoAlloggioACarico: 'nessuno',
+  };
+}
+
 function createDefaultRimborsiTrasferta(): RimborsiTrasfertaFormModel {
   return {
     enabled: false,
     modalitaRimborso: 'nessuna',
-    giorniTrasfertaItalia: 0,
-    giorniTrasfertaEstero: 0,
+    trasferte: [createDefaultTrasferta()],
     rimborsoVitto: 0,
     rimborsoAlloggio: 0,
     rimborsoViaggio: 0,
@@ -395,12 +413,19 @@ const fringeBenefitSchema = schema<FringeBenefitFormModel>((path) => {
   apply(path.autoAziendale, autoAziendaleSchema);
 });
 
-const rimborsiTrasfertaSchema = schema<RimborsiTrasfertaFormModel>((path) => {
-  min(path.giorniTrasfertaItalia, 0, { message: 'Valore tra 0 e 365' });
-  max(path.giorniTrasfertaItalia, 365, { message: 'Valore tra 0 e 365' });
+const trasfertaSchema = schema<TrasfertaFormModel>((path) => {
+  min(path.giorni, 0, { message: 'Valore tra 0 e 365' });
+  max(path.giorni, 365, { message: 'Valore tra 0 e 365' });
+  min(path.indennitaGiornaliera, 0, { message: 'Valore non valido' });
+});
 
-  min(path.giorniTrasfertaEstero, 0, { message: 'Valore tra 0 e 365' });
-  max(path.giorniTrasfertaEstero, 365, { message: 'Valore tra 0 e 365' });
+const rimborsiTrasfertaSchema = schema<RimborsiTrasfertaFormModel>((path) => {
+  // The rows are hidden with the other methods, so they must not invalidate the form
+  applyWhen(
+    path.trasferte,
+    ({ valueOf }) => ['forfettario', 'misto'].includes(valueOf(path.modalitaRimborso)),
+    (trasferte) => applyEach(trasferte, trasfertaSchema),
+  );
 
   min(path.rimborsoVitto, 0, { message: 'Valore non valido' });
   min(path.rimborsoAlloggio, 0, { message: 'Valore non valido' });
@@ -602,14 +627,25 @@ function toFringeBenefit(model: FringeBenefitFormModel): FringeBenefit | undefin
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
+function toTrasferta(model: TrasfertaFormModel): Trasferta {
+  return {
+    destinazione: model.destinazione,
+    giorni: model.giorni,
+    ...(model.indennitaGiornaliera >= 0 && { indennitaGiornaliera: model.indennitaGiornaliera }),
+    ...(model.vittoAlloggioACarico !== 'nessuno' && {
+      vittoAlloggioACarico: model.vittoAlloggioACarico,
+    }),
+  };
+}
+
 function toRimborsiTrasferta(model: RimborsiTrasfertaFormModel): RimborsiTrasferta | undefined {
   if (!model.enabled) return undefined;
 
   const result: RimborsiTrasferta = {};
 
   if (model.modalitaRimborso !== 'nessuna') result.modalitaRimborso = model.modalitaRimborso;
-  if (model.giorniTrasfertaItalia > 0) result.giorniTrasfertaItalia = model.giorniTrasfertaItalia;
-  if (model.giorniTrasfertaEstero > 0) result.giorniTrasfertaEstero = model.giorniTrasfertaEstero;
+  const trasferte = model.trasferte.filter((t) => t.giorni > 0).map(toTrasferta);
+  if (trasferte.length > 0) result.trasferte = trasferte;
   if (model.rimborsoVitto > 0) result.rimborsoVitto = model.rimborsoVitto;
   if (model.rimborsoAlloggio > 0) result.rimborsoAlloggio = model.rimborsoAlloggio;
   if (model.rimborsoViaggio > 0) result.rimborsoViaggio = model.rimborsoViaggio;
