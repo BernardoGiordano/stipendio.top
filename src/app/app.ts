@@ -97,8 +97,8 @@ export class App {
   /** Whether the form was loaded from a shared URL */
   readonly loadedFromUrl = signal(false);
 
-  /** Width share of the form column on desktop, 0.3 to 0.5; the default matches flex 1 : 1.2 */
-  readonly splitRatio = signal(0.45);
+  /** Width share of the form column on desktop, 0.3 to 0.5; the default centres the resizer */
+  readonly splitRatio = signal(0.5);
 
   /** Whether the results fill the upper half of the viewport, for the mobile bar */
   private readonly resultsInView = signal(false);
