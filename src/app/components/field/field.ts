@@ -104,6 +104,8 @@ abstract class FieldBase extends FieldHost {
 export class Field extends FieldBase {
   /** Help text under the control */
   readonly hint = input<string>();
+  /** Id of a note outside the field that also describes the control, such as a section warning */
+  readonly noteId = input<string>();
   /** Unit drawn inside the control, such as "€ / anno" or "%" */
   readonly unit = input<string>();
   /** The control is a group of inputs (radios), so the label names the group instead */
@@ -113,6 +115,8 @@ export class Field extends FieldBase {
     const ids = this.errors().map((_, i) => `${this.id()}-error-${i}`);
     if (this.hint()) ids.unshift(`${this.id()}-hint`);
     if (this.unit()) ids.unshift(`${this.id()}-unit`);
+    const noteId = this.noteId();
+    if (noteId) ids.push(noteId);
     return ids.length ? ids.join(' ') : null;
   });
 }

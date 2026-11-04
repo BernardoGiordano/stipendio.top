@@ -41,9 +41,11 @@ export interface FringeBenefit {
 /** Quante tra vitto e alloggio sono rimborsate o fornite gratuitamente */
 export type VittoAlloggioACarico = 'nessuno' | 'uno' | 'entrambi';
 
+export type DestinazioneTrasferta = 'italia' | 'estero';
+
 /** Giorni di trasferta fuori comune con lo stesso trattamento */
 export interface Trasferta {
-  destinazione: 'italia' | 'estero';
+  destinazione: DestinazioneTrasferta;
   giorni: number;
   /** Indennità giornaliera erogata; se assente, è pari al limite esente */
   indennitaGiornaliera?: number;
@@ -497,9 +499,11 @@ export interface DettaglioRimborsiTrasferta {
   rimborsoForfettarioEsente: number;
   /** Totale rimborsi documentati esenti */
   rimborsoDocumentatoEsente: number;
-  /** Parte dell'indennità di trasferta oltre il limite esente (compresa nei rimborsi tassati) */
+  /** Parte dell'indennità di trasferta oltre il limite esente */
   indennitaEccedente: number;
-  /** Rimborsi tassati (pagamenti non tracciabili, vitto e alloggio nel forfettario, indennità eccedente) */
+  /** Rimborsi spese tassati: vitto e alloggio non tracciabili o nel forfettario, km imponibili */
+  rimborsiSpeseTassati: number;
+  /** Totale tassato: indennità eccedente + rimborsi spese tassati */
   rimborsiTassati: number;
   /** Totale rimborsi esenti */
   totaleEsente: number;

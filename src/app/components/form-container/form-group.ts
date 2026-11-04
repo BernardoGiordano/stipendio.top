@@ -19,6 +19,7 @@ import {
   BenefitNonTassati,
   BorsaDiStudio,
   ConiugeACarico,
+  DestinazioneTrasferta,
   FiglioACarico,
   FondoContrattualeId,
   FondoPensioneIntegrativo,
@@ -38,6 +39,7 @@ import {
   haAgevolazioneContribuenteDisabile,
   haRedditiSostitutiviInSoglia,
 } from '../../../calculator/addizionali/2026';
+import { conIndennitaTrasferta } from '../../../calculator/impl/2026';
 import {
   FONDI_CONTRATTUALI,
   FondoPensionePresetId,
@@ -66,7 +68,7 @@ export interface FringeBenefitFormModel {
 }
 
 export interface TrasfertaFormModel {
-  destinazione: Trasferta['destinazione'];
+  destinazione: DestinazioneTrasferta;
   giorni: number;
   /** Vuota (NaN) = pari al limite esente */
   indennitaGiornaliera: number;
@@ -423,7 +425,7 @@ const rimborsiTrasfertaSchema = schema<RimborsiTrasfertaFormModel>((path) => {
   // The rows are hidden with the other methods, so they must not invalidate the form
   applyWhen(
     path.trasferte,
-    ({ valueOf }) => ['forfettario', 'misto'].includes(valueOf(path.modalitaRimborso)),
+    ({ valueOf }) => conIndennitaTrasferta(valueOf(path.modalitaRimborso)),
     (trasferte) => applyEach(trasferte, trasfertaSchema),
   );
 
@@ -631,7 +633,9 @@ function toTrasferta(model: TrasfertaFormModel): Trasferta {
   return {
     destinazione: model.destinazione,
     giorni: model.giorni,
-    ...(model.indennitaGiornaliera >= 0 && { indennitaGiornaliera: model.indennitaGiornaliera }),
+    ...(Number.isFinite(model.indennitaGiornaliera) && {
+      indennitaGiornaliera: model.indennitaGiornaliera,
+    }),
     ...(model.vittoAlloggioACarico !== 'nessuno' && {
       vittoAlloggioACarico: model.vittoAlloggioACarico,
     }),

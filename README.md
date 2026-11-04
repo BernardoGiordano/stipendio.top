@@ -353,8 +353,10 @@ Fringe Benefit = (Costo €/km ACI × 15.000 km × Percentuale) × (Mesi / 12) �
 
 **Riduzioni con rimborso misto:**
 
-- Vitto O alloggio rimborsati o forniti gratuitamente: −1/3
-- Vitto E alloggio rimborsati o forniti gratuitamente: −2/3
+- Vitto O alloggio rimborsati o forniti gratuitamente: −1/3 (€30,99 Italia, €51,65 estero)
+- Vitto E alloggio rimborsati o forniti gratuitamente: −2/3 (€15,49 Italia, €25,82 estero)
+
+I limiti ridotti sono arrotondati al centesimo, come i valori ufficiali.
 
 **Indennità diversa dal limite:**
 

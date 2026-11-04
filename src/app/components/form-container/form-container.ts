@@ -9,15 +9,14 @@ import {
   createDefaultTrasferta,
   StipendioFieldTree,
   StipendioFormModel,
-  TrasfertaFormModel,
 } from './form-group';
 import {
+  DestinazioneTrasferta,
   OutputCalcoloStipendio,
   TipoAlimentazioneAuto,
   TipoContratto,
   TipoEsoneroContributivo,
   TrattamentoFiscaleFondo,
-  Trasferta,
   VittoAlloggioACarico,
 } from '../../../calculator/types';
 import { Check, Control, Field } from '../field/field';
@@ -41,7 +40,7 @@ import {
   PRESET_FONDI_PENSIONE,
 } from '../../../calculator/fondi/2026';
 import { ESONERI_CONTRIBUTIVI } from '../../../calculator/datore/2026';
-import { limiteIndennitaTrasferta } from '../../../calculator/impl/2026';
+import { conIndennitaTrasferta, limiteIndennitaTrasferta } from '../../../calculator/impl/2026';
 import { HUE } from '../../services/chart-palette';
 import { formatCurrency, formatNumber } from '../../utils/intl';
 
@@ -366,12 +365,12 @@ export class FormContainer {
     label: string;
   }[] = [
     { value: 'nessuna', label: '-- Seleziona --' },
-    { value: 'forfettario', label: 'Forfettario' },
-    { value: 'misto', label: 'Misto' },
-    { value: 'analitico', label: 'Analitico' },
+    { value: 'forfettario', label: 'Forfettario (solo indennità)' },
+    { value: 'misto', label: 'Misto (indennità con vitto o alloggio)' },
+    { value: 'analitico', label: 'Analitico (solo rimborsi)' },
   ];
 
-  readonly destinazioni: { value: Trasferta['destinazione']; label: string }[] = [
+  readonly destinazioni: { value: DestinazioneTrasferta; label: string }[] = [
     { value: 'italia', label: 'Italia' },
     { value: 'estero', label: 'Estero' },
   ];
@@ -381,9 +380,6 @@ export class FormContainer {
     { value: 'uno', label: 'Uno dei due (−1/3)' },
     { value: 'entrambi', label: 'Entrambi (−2/3)' },
   ];
-
-  readonly formatCurrency = formatCurrency;
-  readonly formatNumber = formatNumber;
 
   /** Two aligned lines in the form column, one line where the four fields fit */
   readonly grigliaMisto =
@@ -395,29 +391,38 @@ export class FormContainer {
   /** Allowance and meals take a line each where two columns would cut their text */
   readonly campoMisto = 'col-span-2 @min-[20rem]:col-span-1';
 
-  /** Daily exempt ceiling of a trip row; only the mixed method reduces it */
-  limiteTrasferta(trasferta: TrasfertaFormModel): number {
-    return limiteIndennitaTrasferta(
-      trasferta.destinazione,
-      this.formModel()().rimborsiTrasferta.modalitaRimborso === 'misto'
-        ? trasferta.vittoAlloggioACarico
-        : 'nessuno',
-    );
-  }
+  /** Per trip row: the exempt daily ceiling and the texts of the allowance field */
+  readonly righeTrasferta = computed(() => {
+    const rimborsi = this.formModel()().rimborsiTrasferta;
+    return rimborsi.trasferte.map((trasferta) => {
+      const limite = limiteIndennitaTrasferta(trasferta, rimborsi.modalitaRimborso);
+      const eccedente = trasferta.indennitaGiornaliera - limite;
+      return {
+        limite: formatNumber(limite, 2),
+        info: `Importo giornaliero erogato. Se lo lasci vuoto vale il limite esente di ${formatCurrency(limite)}. La parte oltre il limite si somma all'imponibile: paga INPS, IRPEF e addizionali.`,
+        tassata:
+          eccedente > 0
+            ? `${formatCurrency(limite)} esenti, ${formatCurrency(eccedente)} tassati`
+            : undefined,
+      };
+    });
+  });
 
   /** Whether the reimbursement method pays a daily allowance */
   readonly conIndennita = computed(() =>
-    ['forfettario', 'misto'].includes(this.formModel()().rimborsiTrasferta.modalitaRimborso),
+    conIndennitaTrasferta(this.formModel()().rimborsiTrasferta.modalitaRimborso),
   );
 
   /** Meal and lodging reimbursements that don't match the selected method */
   readonly avvisoVittoAlloggio = computed(() => {
     const rimborsi = this.formModel()().rimborsiTrasferta;
     if (!(rimborsi.rimborsoVitto > 0 || rimborsi.rimborsoAlloggio > 0)) return null;
-    if (rimborsi.modalitaRimborso === 'forfettario') {
-      return 'Con vitto o alloggio rimborsati il sistema è misto: seleziona «Misto». Nel forfettario questi rimborsi sono tassati.';
-    }
     const trasferte = rimborsi.trasferte.filter((trasferta) => trasferta.giorni > 0);
+    if (rimborsi.modalitaRimborso === 'forfettario') {
+      return trasferte.length > 0
+        ? 'Con vitto o alloggio rimborsati il sistema è misto: seleziona «Misto». Nel forfettario questi rimborsi sono tassati.'
+        : 'Senza giorni di indennità il sistema è analitico: seleziona «Analitico». Nel forfettario questi rimborsi sono tassati.';
+    }
     if (
       rimborsi.modalitaRimborso === 'misto' &&
       trasferte.length > 0 &&

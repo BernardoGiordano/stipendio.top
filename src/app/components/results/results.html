@@ -558,13 +558,11 @@
                   [amount]="r.rimborsiTrasferta.indennitaEccedente"
                 ></div>
               }
-              @if (r.rimborsiTrasferta.rimborsiTassati > r.rimborsiTrasferta.indennitaEccedente) {
+              @if (r.rimborsiTrasferta.rimborsiSpeseTassati > 0) {
                 <div
                   appLedgerRow
                   label="Rimborsi tassati"
-                  [amount]="
-                    r.rimborsiTrasferta.rimborsiTassati - r.rimborsiTrasferta.indennitaEccedente
-                  "
+                  [amount]="r.rimborsiTrasferta.rimborsiSpeseTassati"
                 ></div>
               }
               <div

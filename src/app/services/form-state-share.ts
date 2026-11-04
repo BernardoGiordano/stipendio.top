@@ -9,6 +9,7 @@ import {
   StipendioFormModel,
   TrasfertaFormModel,
 } from '../components/form-container/form-group';
+import { DestinazioneTrasferta, VittoAlloggioACarico } from '../../calculator/types';
 
 type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
 
@@ -132,15 +133,8 @@ export class FormStateShare {
     },
   ): RimborsiTrasfertaFormModel {
     const { giorniTrasfertaItalia = 0, giorniTrasfertaEstero = 0, ...model } = rimborsi;
-    const coperti =
-      model.modalitaRimborso === 'misto'
-        ? [model.rimborsoVitto, model.rimborsoAlloggio].filter((importo) => importo > 0).length
-        : 0;
-    const vittoAlloggioACarico = (['nessuno', 'uno', 'entrambi'] as const)[coperti];
-    const riga = (
-      destinazione: TrasfertaFormModel['destinazione'],
-      giorni: number,
-    ): TrasfertaFormModel => ({
+    const vittoAlloggioACarico = this.vittoAlloggioVecchioLink(model);
+    const riga = (destinazione: DestinazioneTrasferta, giorni: number): TrasfertaFormModel => ({
       ...createDefaultTrasferta(),
       destinazione,
       giorni,
@@ -163,6 +157,15 @@ export class FormStateShare {
             indennitaGiornaliera: trasferta.indennitaGiornaliera ?? NaN,
           })),
     };
+  }
+
+  /** Old mixed links reduced the limit by a third for each of meals and lodging reimbursed */
+  private vittoAlloggioVecchioLink(model: RimborsiTrasfertaFormModel): VittoAlloggioACarico {
+    if (model.modalitaRimborso !== 'misto') return 'nessuno';
+    const vitto = model.rimborsoVitto > 0;
+    const alloggio = model.rimborsoAlloggio > 0;
+    if (vitto && alloggio) return 'entrambi';
+    return vitto || alloggio ? 'uno' : 'nessuno';
   }
 
   private getDiff(current: unknown, defaults: unknown): Record<string, unknown> {

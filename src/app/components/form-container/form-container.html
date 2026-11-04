@@ -463,7 +463,7 @@
 
             <button
               type="button"
-              (click)="removeFiglio($index)"
+              (click)="removeFiglio($index); aggiungiFiglio.focus()"
               [class]="removeButton"
               [attr.aria-label]="'Rimuovi figlio ' + ($index + 1)"
             >
@@ -473,7 +473,7 @@
         </fieldset>
       }
 
-      <button type="button" (click)="addFiglio()" [class]="addButton">
+      <button #aggiungiFiglio type="button" (click)="addFiglio()" [class]="addButton">
         <app-icon name="add" class="size-3.5" />
         Aggiungi figlio
       </button>
@@ -527,7 +527,7 @@
 
             <button
               type="button"
-              (click)="removeAscendente($index)"
+              (click)="removeAscendente($index); aggiungiAscendente.focus()"
               [class]="removeButton"
               [attr.aria-label]="'Rimuovi ascendente ' + ($index + 1)"
             >
@@ -537,7 +537,7 @@
         </fieldset>
       }
 
-      <button type="button" (click)="addAscendente()" [class]="addButton">
+      <button #aggiungiAscendente type="button" (click)="addAscendente()" [class]="addButton">
         <app-icon name="add" class="size-3.5" />
         Aggiungi ascendente
       </button>
@@ -679,7 +679,7 @@
         <div class="flex flex-wrap items-end gap-3">
           <app-field
             label="Modalità rimborso"
-            info="Forfettario: indennità fissa giornaliera. Analitico: rimborso a pie' di lista documentato. Misto: forfettario ridotto + rimborso vitto/alloggio, anche quando sono forniti gratuitamente."
+            info="Forfettario: solo indennità giornaliera, senza vitto o alloggio a carico dell'azienda. Misto: indennità con vitto o alloggio rimborsati o forniti gratuitamente, e il limite esente si riduce. Analitico: solo rimborsi a pie' di lista documentati."
             class="flex-[2_1_160px]"
           >
             <select appControl [formField]="form.rimborsiTrasferta.modalitaRimborso">
@@ -695,7 +695,7 @@
             <fieldset class="mt-2 rounded-lg bg-sunken p-2.5 ring-1 ring-hair ring-inset">
               <legend class="sr-only">Trasferta {{ $index + 1 }}</legend>
               @let misto = model.rimborsiTrasferta.modalitaRimborso === 'misto';
-              @let limite = limiteTrasferta(trasferta);
+              @let riga = righeTrasferta()[$index];
               <div class="flex items-center gap-2.5">
                 <span
                   aria-hidden="true"
@@ -726,13 +726,14 @@
                     <app-field
                       label="Indennità"
                       unit="€ / giorno"
-                      info="Importo giornaliero erogato. Se lo lasci vuoto vale il limite esente, mostrato in grigio. La parte oltre il limite si somma all'imponibile: paga INPS, IRPEF e addizionali."
+                      [info]="riga.info"
+                      [hint]="riga.tassata"
                       [class]="misto ? campoMisto : indennitaForfettario"
                     >
                       <input
                         appControl
                         type="number"
-                        [attr.placeholder]="formatNumber(limite, 2)"
+                        [attr.placeholder]="riga.limite"
                         [formField]="form.rimborsiTrasferta.trasferte[$index].indennitaGiornaliera"
                       />
                     </app-field>
@@ -760,23 +761,17 @@
 
                 <button
                   type="button"
-                  (click)="removeTrasferta($index)"
+                  (click)="removeTrasferta($index); aggiungiTrasferta.focus()"
                   [class]="removeButton"
                   [attr.aria-label]="'Rimuovi trasferta ' + ($index + 1)"
                 >
                   <app-icon name="x" class="size-4" />
                 </button>
               </div>
-              @if (trasferta.indennitaGiornaliera > limite) {
-                <p class="mt-2 ml-[26px] text-xs text-muted">
-                  {{ formatCurrency(limite) }} al giorno esenti,
-                  {{ formatCurrency(trasferta.indennitaGiornaliera - limite) }} al giorno tassati.
-                </p>
-              }
             </fieldset>
           }
 
-          <button type="button" (click)="addTrasferta()" [class]="addButton">
+          <button #aggiungiTrasferta type="button" (click)="addTrasferta()" [class]="addButton">
             <app-icon name="add" class="size-3.5" />
             Aggiungi trasferta
           </button>
@@ -787,6 +782,7 @@
             label="Vitto documentato"
             unit="€ / anno"
             info="Esente se il pagamento è tracciabile. Nel sistema forfettario o senza tracciabilità è tassato: si somma all'imponibile e paga INPS, IRPEF e addizionali."
+            noteId="avviso-vitto-alloggio"
             class="flex-[1_1_150px]"
           >
             <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoVitto" />
@@ -795,6 +791,7 @@
             label="Alloggio documentato"
             unit="€ / anno"
             info="Esente se il pagamento è tracciabile. Nel sistema forfettario o senza tracciabilità è tassato: si somma all'imponibile e paga INPS, IRPEF e addizionali."
+            noteId="avviso-vitto-alloggio"
             class="flex-[1_1_150px]"
           >
             <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoAlloggio" />
@@ -802,7 +799,7 @@
           <app-field
             label="Viaggio"
             unit="€ / anno"
-            info="Spese di viaggio e trasporto documentate: esenti con qualsiasi modalità di rimborso."
+            info="Treno, aereo e altri trasporti documentati: esenti con qualsiasi modalità di rimborso. Taxi e NCC sono esenti solo se pagati con mezzi tracciabili."
             class="flex-[1_1_150px]"
           >
             <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoViaggio" />
@@ -829,9 +826,12 @@
           </app-field>
         </div>
 
-        @if (avvisoVittoAlloggio(); as avviso) {
-          <p class="mt-2 text-xs text-neg" role="alert">{{ avviso }}</p>
-        }
+        <!-- The live region stays in the DOM so the warning is announced when it appears -->
+        <div id="avviso-vitto-alloggio" role="status">
+          @if (avvisoVittoAlloggio(); as avviso) {
+            <p class="mt-2 text-xs text-neg">{{ avviso }}</p>
+          }
+        </div>
 
         <app-check
           label="Pagamenti tracciabili"
@@ -1067,7 +1067,7 @@
             </app-check>
             <button
               type="button"
-              (click)="removeFondoPersonalizzato($index)"
+              (click)="removeFondoPersonalizzato($index); aggiungiFondo.focus()"
               [class]="removeButton"
               [attr.aria-label]="'Rimuovi fondo personalizzato ' + ($index + 1)"
             >
@@ -1077,7 +1077,7 @@
         </fieldset>
       }
 
-      <button type="button" (click)="addFondoPersonalizzato()" [class]="addButton">
+      <button #aggiungiFondo type="button" (click)="addFondoPersonalizzato()" [class]="addButton">
         <app-icon name="add" class="size-3.5" />
         Aggiungi fondo
       </button>

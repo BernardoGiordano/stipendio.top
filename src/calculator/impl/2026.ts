@@ -287,16 +287,27 @@ function calcolaFringeBenefit(
   };
 }
 
-/** Limite giornaliero esente dell'indennità di trasferta (art. 51, c. 5, TUIR) */
+/** Sistemi di rimborso che erogano un'indennità giornaliera */
+export function conIndennitaTrasferta(modalitaRimborso: string | undefined): boolean {
+  return modalitaRimborso === 'forfettario' || modalitaRimborso === 'misto';
+}
+
+/**
+ * Limite giornaliero esente dell'indennità di trasferta (art. 51, c. 5, TUIR).
+ * Solo il sistema misto lo riduce. Il limite ridotto è arrotondato al centesimo,
+ * come i valori ufficiali: 30,99 e 15,49 € in Italia, 51,65 e 25,82 € all'estero.
+ */
 export function limiteIndennitaTrasferta(
-  destinazione: Trasferta['destinazione'],
-  vittoAlloggioACarico: VittoAlloggioACarico = 'nessuno',
+  trasferta: Pick<Trasferta, 'destinazione' | 'vittoAlloggioACarico'>,
+  modalitaRimborso: string | undefined,
 ): number {
   const limite =
-    destinazione === 'estero'
+    trasferta.destinazione === 'estero'
       ? RIMBORSI_TRASFERTA.forfettarioEstero
       : RIMBORSI_TRASFERTA.forfettarioItalia;
-  return limite * (1 - RIMBORSI_TRASFERTA.riduzione[vittoAlloggioACarico]);
+  const vittoAlloggio: VittoAlloggioACarico =
+    modalitaRimborso === 'misto' ? (trasferta.vittoAlloggioACarico ?? 'nessuno') : 'nessuno';
+  return Math.round(limite * (1 - RIMBORSI_TRASFERTA.riduzione[vittoAlloggio]) * 100) / 100;
 }
 
 function calcolaRimborsiTrasferta(
@@ -307,6 +318,7 @@ function calcolaRimborsiTrasferta(
       rimborsoForfettarioEsente: 0,
       rimborsoDocumentatoEsente: 0,
       indennitaEccedente: 0,
+      rimborsiSpeseTassati: 0,
       rimborsiTassati: 0,
       totaleEsente: 0,
       totaleRimborsi: 0,
@@ -316,20 +328,15 @@ function calcolaRimborsiTrasferta(
   let rimborsoForfettarioEsente = 0;
   let rimborsoDocumentatoEsente = 0;
   let indennitaEccedente = 0;
-  let rimborsiTassati = 0;
+  let rimborsiSpeseTassati = 0;
 
   const forfettario = rimborsi.modalitaRimborso === 'forfettario';
-  const misto = rimborsi.modalitaRimborso === 'misto';
 
-  if (forfettario || misto) {
+  if (conIndennitaTrasferta(rimborsi.modalitaRimborso)) {
     for (const trasferta of rimborsi.trasferte ?? []) {
       // Il limite si riduce anche con vitto o alloggio forniti gratuitamente (Circ. AE 15/E/2025)
       const limite =
-        trasferta.giorni *
-        limiteIndennitaTrasferta(
-          trasferta.destinazione,
-          misto ? trasferta.vittoAlloggioACarico : 'nessuno',
-        );
+        trasferta.giorni * limiteIndennitaTrasferta(trasferta, rimborsi.modalitaRimborso);
       const erogato =
         trasferta.indennitaGiornaliera === undefined
           ? limite
@@ -353,12 +360,13 @@ function calcolaRimborsiTrasferta(
   // Nel sistema forfettario vitto e alloggio rimborsati sono tassati (Circ. AE 15/E/2025)
   if (pagamentiTracciabili && !forfettario) {
     rimborsoDocumentatoEsente = rimborsoVitto + rimborsoAlloggio + rimborsoViaggio + rimborsoKm;
-    rimborsiTassati = rimborsoKmImponibile + indennitaEccedente;
+    rimborsiSpeseTassati = rimborsoKmImponibile;
   } else {
-    rimborsiTassati = rimborsoVitto + rimborsoAlloggio + rimborsoKmImponibile + indennitaEccedente;
+    rimborsiSpeseTassati = rimborsoVitto + rimborsoAlloggio + rimborsoKmImponibile;
     rimborsoDocumentatoEsente = rimborsoViaggio + rimborsoKm;
   }
 
+  const rimborsiTassati = rimborsiSpeseTassati + indennitaEccedente;
   const totaleEsente = rimborsoForfettarioEsente + rimborsoDocumentatoEsente;
   const totaleRimborsi = totaleEsente + rimborsiTassati;
 
@@ -366,6 +374,7 @@ function calcolaRimborsiTrasferta(
     rimborsoForfettarioEsente,
     rimborsoDocumentatoEsente,
     indennitaEccedente,
+    rimborsiSpeseTassati,
     rimborsiTassati,
     totaleEsente,
     totaleRimborsi,
@@ -957,6 +966,7 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     rimborsoForfettarioEsente: 0,
     rimborsoDocumentatoEsente: 0,
     indennitaEccedente: 0,
+    rimborsiSpeseTassati: 0,
     rimborsiTassati: 0,
     totaleEsente: 0,
     totaleRimborsi: 0,
