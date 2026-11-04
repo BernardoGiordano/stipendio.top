@@ -986,6 +986,83 @@
       }
     </app-section>
 
+    <!-- Premio di risultato -->
+    <app-section
+      variant="row"
+      heading="Premio di risultato"
+      [active]="attive().premio"
+      [toggle]="form.premioRisultato.enabled"
+      [summary]="riepilogo.premio"
+      description="Premio variabile previsto da un contratto aziendale o territoriale depositato (art. 1, c. 182-190, L. 208/2015). Nel 2026 e 2027 imposta sostitutiva dell'1% entro 5.000 euro (L. 199/2025, art. 1, c. 9)."
+      info="Il premio in denaro è soggetto ai contributi INPS di lavoratore e datore. Al netto dei contributi, entro 5.000 euro l'anno paga un'imposta sostitutiva dell'1% al posto di IRPEF e addizionali e non concorre al reddito complessivo; l'eccedenza è tassata ordinariamente. Richiede un reddito di lavoro dipendente dell'anno precedente non superiore a 80.000 euro. Il premio può essere convertito in welfare o previdenza complementare, esenti da imposte e contributi entro lo stesso limite (Ris. AdE 22/E/2026). Il premio non è conteggiato nel TFR."
+    >
+      @if (model.premioRisultato.enabled) {
+        <div class="flex flex-wrap items-end gap-3">
+          <app-field
+            label="Importo lordo"
+            unit="€ / anno"
+            info="Importo annuo lordo del premio di risultato, prima dei contributi INPS e dell'imposta sostitutiva. Le quote convertite in welfare o previdenza vanno indicate nei campi accanto e sono comprese in questo importo."
+            class="flex-[1_1_150px]"
+          >
+            <input
+              appControl
+              type="number"
+              [formField]="form.premioRisultato.importo"
+              placeholder="Es. 2000"
+            />
+          </app-field>
+          <app-field
+            label="Convertito in welfare"
+            unit="€ / anno"
+            info="Quota del premio scelta in benefit welfare (buoni acquisto, servizi, rimborsi, art. 51, c. 2 e 3, TUIR) al posto del denaro: esente da imposte e contributi entro il limite di 5.000 euro, conteggiata nel totale percepito. La parte oltre il limite è reddito in natura tassato ordinariamente."
+            class="flex-[1_1_150px]"
+          >
+            <input
+              appControl
+              type="number"
+              [formField]="form.premioRisultato.quotaConvertitaWelfare"
+              placeholder="0"
+            />
+          </app-field>
+          <app-field
+            label="Convertito in previdenza"
+            unit="€ / anno"
+            info="Quota del premio versata al fondo pensione: esente da imposte e contributi entro il limite di 5.000 euro e non concorre al plafond di deducibilità di 5.300 euro (art. 1, c. 184-bis, L. 208/2015). È accantonata, non percepita; il datore vi versa il contributo di solidarietà del 10%."
+            class="flex-[1_1_150px]"
+          >
+            <input
+              appControl
+              type="number"
+              [formField]="form.premioRisultato.quotaConvertitaPrevidenza"
+              placeholder="0"
+            />
+          </app-field>
+        </div>
+
+        <app-check
+          label="Reddito di lavoro dipendente dell'anno precedente entro 80.000 €"
+          info="Requisito per l'imposta sostitutiva e per la conversione in welfare (art. 1, c. 186, L. 208/2015). Conta il reddito di lavoro dipendente dell'anno prima, compresi eventuali premi detassati. Se superato, il premio è tassato per intero come retribuzione ordinaria."
+          class="mt-1"
+        >
+          <input
+            appControl
+            type="checkbox"
+            [formField]="form.premioRisultato.redditoAnnoPrecedenteEntroLimite"
+          />
+        </app-check>
+        <app-check
+          label="Contratto con coinvolgimento paritetico dei lavoratori"
+          info="Se il contratto prevede il coinvolgimento paritetico dei lavoratori nell'organizzazione del lavoro (art. 55 D.L. 50/2017), sui primi 800 euro del premio in denaro il lavoratore non versa contributi INPS e il datore riduce di 20 punti la propria aliquota. Il limite dell'imposta sostitutiva resta di 5.000 euro."
+        >
+          <input
+            appControl
+            type="checkbox"
+            [formField]="form.premioRisultato.coinvolgimentoParitetico"
+          />
+        </app-check>
+      }
+    </app-section>
+
     <!-- Borsa di studio aggiuntiva -->
     <app-section
       variant="row"

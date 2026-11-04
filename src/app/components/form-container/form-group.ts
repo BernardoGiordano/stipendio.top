@@ -29,6 +29,7 @@ import {
   InputCalcoloStipendio,
   OpzioniDatore,
   OpzioniTfr,
+  PremioRisultato,
   RimborsiTrasferta,
   RimborsoAffittoNeoassunto,
   TipoAlimentazioneAuto,
@@ -161,6 +162,19 @@ export interface TfrFormModel {
   inflazioneAttesa: number;
 }
 
+export interface PremioRisultatoFormModel {
+  enabled: boolean;
+  /** Importo annuo lordo (€) */
+  importo: number;
+  coinvolgimentoParitetico: boolean;
+  /** Quota convertita in benefit welfare (€) */
+  quotaConvertitaWelfare: number;
+  /** Quota versata alla previdenza complementare (€) */
+  quotaConvertitaPrevidenza: number;
+  /** Reddito di lavoro dipendente dell'anno precedente entro 80.000 € */
+  redditoAnnoPrecedenteEntroLimite: boolean;
+}
+
 export interface ConiugeACaricoFormModel {
   enabled: boolean;
   redditoAnnuo: number;
@@ -205,6 +219,7 @@ export interface StipendioFormModel extends Record<FondoContrattualeId, boolean>
 
   // Optional nested objects
   borsaDiStudio: BorsaDiStudioFormModel;
+  premioRisultato: PremioRisultatoFormModel;
   fondoPensioneIntegrativo: FondoPensioneIntegrativoFormModel;
   coniuge: ConiugeACaricoFormModel;
   fringeBenefit: FringeBenefitFormModel;
@@ -334,6 +349,17 @@ function createDefaultTfr(): TfrFormModel {
   };
 }
 
+function createDefaultPremioRisultato(): PremioRisultatoFormModel {
+  return {
+    enabled: false,
+    importo: 0,
+    coinvolgimentoParitetico: false,
+    quotaConvertitaWelfare: 0,
+    quotaConvertitaPrevidenza: 0,
+    redditoAnnoPrecedenteEntroLimite: true,
+  };
+}
+
 function createDefaultConiuge(): ConiugeACaricoFormModel {
   return {
     enabled: false,
@@ -399,6 +425,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     regimeImpatriatiMinorenni: false,
     altraCoperturaPensionistica: false,
     borsaDiStudio: createDefaultBorsaDiStudio(),
+    premioRisultato: createDefaultPremioRisultato(),
     fondoPensioneIntegrativo: createDefaultFondoPensioneIntegrativo(),
     coniuge: createDefaultConiuge(),
     fringeBenefit: createDefaultFringeBenefit(),
@@ -527,6 +554,24 @@ const tfrSchema = schema<TfrFormModel>((path) => {
   max(path.inflazioneAttesa, 30, { message: 'Valore tra 0 e 30' });
 });
 
+const premioRisultatoSchema = schema<PremioRisultatoFormModel>((path) => {
+  min(path.importo, 0, { message: "L'importo non può essere negativo" });
+  min(path.quotaConvertitaWelfare, 0, { message: 'Valore non valido' });
+  min(path.quotaConvertitaPrevidenza, 0, { message: 'Valore non valido' });
+
+  // Le conversioni non possono superare il premio
+  validate(path.quotaConvertitaWelfare, ({ valueOf }) => erroreConversioni(valueOf(path)));
+  validate(path.quotaConvertitaPrevidenza, ({ valueOf }) => erroreConversioni(valueOf(path)));
+});
+
+function erroreConversioni(premio: PremioRisultatoFormModel) {
+  if (!premio.enabled) return null;
+  if (premio.quotaConvertitaWelfare + premio.quotaConvertitaPrevidenza > premio.importo) {
+    return { kind: 'max', message: 'Le quote convertite superano il premio' };
+  }
+  return null;
+}
+
 function validaMesi({ value }: { value: () => number }) {
   const v = value();
   if (!Number.isInteger(v) || v < 0 || v > 12) {
@@ -622,6 +667,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
 
   // Nested objects
   apply(path.borsaDiStudio, borsaDiStudioSchema);
+  apply(path.premioRisultato, premioRisultatoSchema);
   apply(path.fondoPensioneIntegrativo, fondoPensioneIntegrativoSchema);
   apply(path.coniuge, coniugeSchema);
   apply(path.fringeBenefit, fringeBenefitSchema);
@@ -823,6 +869,22 @@ function toBorsaDiStudio(model: BorsaDiStudioFormModel): BorsaDiStudio | undefin
   };
 }
 
+function toPremioRisultato(model: PremioRisultatoFormModel): PremioRisultato | undefined {
+  if (!model.enabled || model.importo <= 0) return undefined;
+
+  return {
+    importo: model.importo,
+    ...(model.coinvolgimentoParitetico && { coinvolgimentoParitetico: true }),
+    ...(model.quotaConvertitaWelfare > 0 && {
+      quotaConvertitaWelfare: model.quotaConvertitaWelfare,
+    }),
+    ...(model.quotaConvertitaPrevidenza > 0 && {
+      quotaConvertitaPrevidenza: model.quotaConvertitaPrevidenza,
+    }),
+    ...(!model.redditoAnnoPrecedenteEntroLimite && { redditoAnnoPrecedenteEntroLimite: false }),
+  };
+}
+
 function toConiuge(model: ConiugeACaricoFormModel): ConiugeACarico | undefined {
   if (!model.enabled) return undefined;
 
@@ -928,6 +990,10 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
     ...(() => {
       const borsaDiStudio = toBorsaDiStudio(model.borsaDiStudio);
       return borsaDiStudio ? { borsaDiStudio } : {};
+    })(),
+    ...(() => {
+      const premioRisultato = toPremioRisultato(model.premioRisultato);
+      return premioRisultato ? { premioRisultato } : {};
     })(),
     ...(() => {
       const fondoPensioneIntegrativo = toFondoPensioneIntegrativo(model.fondoPensioneIntegrativo);

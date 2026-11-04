@@ -11,6 +11,7 @@ Nota: questo progetto è stato scritto nel corso di un weekend tramite il parzia
 ## Funzionalità:
 
 - Calcolo dello stipendio netto a partire dalla RAL (Retribuzione Annua Lorda), situazione familiare e da eventuali benefit, fringe benefit e rimborsi spese.
+- Premi di risultato con imposta sostitutiva dell'1% entro 5.000 euro (L. 199/2025), conversione in welfare o previdenza complementare e decontribuzione per il coinvolgimento paritetico.
 - Fondi contrattuali dei principali CCNL (Commercio e Turismo, Dirigenti Terziario, Metalmeccanici, Dirigenti Industria), preset per i fondi pensione negoziali (Cometa, Fon.Te., Previndai) e fondi personalizzati con trattamento fiscale a scelta.
 - Dettaglio di tutte le componenti del calcolo, con formule e spiegazioni.
 - Calcolo differenziato per gli anni fiscali (Attualmente solo 2026, ma aggiornabile nel tempo, preservando la retrocompatibilità).
@@ -48,6 +49,7 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Borsa di Studio come Tipo di Contratto](#15-borsa-di-studio-come-tipo-di-contratto-dottorato-di-ricerca)
   - [Mensilità Ordinaria, Tredicesima e Quattordicesima](#16-mensilità-ordinaria-tredicesima-e-quattordicesima)
   - [TFR Netto](#17-tfr-netto-tassazione-separata-e-rivalutazione)
+  - [Premi di Risultato](#18-premi-di-risultato)
 - [Sequenza di Calcolo](#sequenza-di-calcolo)
 - [Riferimenti Normativi](#riferimenti-normativi)
 
@@ -56,13 +58,13 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
 ### Formula Generale
 
 ```
-STIPENDIO NETTO = Imponibile − Contributi INPS − IRPEF Finale − Addizionali − Contributi obbligatori per qualifica + Bonus
+STIPENDIO NETTO = Imponibile − Contributi INPS − IRPEF Finale − Imposta Sostitutiva Premio − Addizionali − Contributi obbligatori per qualifica + Bonus
 ```
 
 Dove:
 
-- `IMPONIBILE = RAL + Fringe Benefit Tassabili + Rimborsi Tassati + Benefit Eccedenti + Rimborso Affitto Neoassunti`
-- `IMPONIBILE IRPEF = IMPONIBILE − Contributi INPS − Contributi obbligatori per qualifica − Rimborso Affitto Neoassunti Esente`
+- `IMPONIBILE = RAL + Fringe Benefit Tassabili + Rimborsi Tassati + Benefit Eccedenti + Rimborso Affitto Neoassunti + Premio di Risultato in denaro`
+- `IMPONIBILE IRPEF = IMPONIBILE − Contributi INPS − Contributi obbligatori per qualifica − Rimborso Affitto Neoassunti Esente − Quota premio a imposta sostitutiva`
 - `IRPEF NETTA = IRPEF Lorda − Detrazioni Lavoro − Detrazioni Familiari − Altre Detrazioni`
 - `IRPEF FINALE = MAX(0, IRPEF Netta − Detrazione Cuneo Fiscale)`
 - `BONUS = Indennità Cuneo Fiscale + Trattamento Integrativo`
@@ -70,7 +72,7 @@ Dove:
 Il **Totale percepito** include anche le componenti esenti:
 
 ```
-TOTALE PERCEPITO = Stipendio Netto + Fringe Benefit Esenti + Rimborsi Esenti + Welfare Esente + Rimborso Affitto Neoassunti Esente
+TOTALE PERCEPITO = Stipendio Netto + Fringe Benefit Esenti + Rimborsi Esenti + Welfare Esente + Rimborso Affitto Neoassunti Esente + Premio convertito in Welfare
 ```
 
 Il **Netto mensile** è quello della mensilità ordinaria, non la media sulle mensilità: con tredicesima e quattordicesima il mese ordinario è più alto della media e la mensilità aggiuntiva più bassa, perché detrazioni, bonus e addizionali competono alle sole dodici mensilità ordinarie (vedi [sezione 16](#16-mensilità-ordinaria-tredicesima-e-quattordicesima)).
@@ -981,7 +983,7 @@ Ogni voce annua è ripartita per differenza, così che `12 × ordinaria + aggiun
 Voce ordinaria = (Voce annua − Mensilità aggiuntive × Voce aggiuntiva) / 12
 ```
 
-Addizionali, bonus, fringe benefit e rimborsi tassati, welfare oltre soglia, borsa di studio, trattenuta auto e Gestione Separata del borsista gravano per intero sulle dodici mensilità ordinarie. I contributi ai fondi contrattuali sono mensili su dodici mesi; il contributo al fondo pensione segue l'opzione "ripartisci per mensilità".
+Addizionali, bonus, fringe benefit e rimborsi tassati, welfare oltre soglia, premio di risultato e relativa imposta sostitutiva, borsa di studio, trattenuta auto e Gestione Separata del borsista gravano per intero sulle dodici mensilità ordinarie. I contributi ai fondi contrattuali sono mensili su dodici mesi; il contributo al fondo pensione segue l'opzione "ripartisci per mensilità".
 
 ##### Esempio: RAL €30.000, 13 mensilità, Lombardia, Milano
 
@@ -1081,12 +1083,96 @@ TFR netto stimato:                         € 4.995,96   (€ 1.665,32 per anno
 
 ---
 
+#### 18. Premi di Risultato
+
+I premi di risultato di ammontare variabile, legati a incrementi di produttività, redditività, qualità, efficienza o innovazione e previsti da contratti aziendali o territoriali depositati, godono di un'imposta sostitutiva dell'IRPEF e delle addizionali (art. 1, c. 182-190, L. 208/2015). Lo stesso regime vale per le somme erogate come partecipazione agli utili.
+
+##### Parametri 2026
+
+| Parametro                                       | Valore                                 | Fonte                                        |
+| ----------------------------------------------- | -------------------------------------- | -------------------------------------------- |
+| Aliquota imposta sostitutiva                    | **1%** (premi erogati nel 2026 e 2027) | L. 199/2025, art. 1, c. 9                    |
+| Limite annuo dell'imponibile agevolabile        | **€5.000** (conversioni comprese)      | L. 199/2025, art. 1, c. 9; Ris. AE 22/E/2026 |
+| Reddito di lavoro dipendente anno precedente    | ≤ €80.000                              | L. 208/2015, art. 1, c. 186                  |
+| Quota decontribuita (coinvolgimento paritetico) | primi €800 del premio in denaro        | D.L. 50/2017, art. 55                        |
+
+> **Storico:** aliquota 10% ed €3.000 a regime; 5% nel 2023 (L. 197/2022), 2024 (L. 213/2023) e 2025 (L. 207/2024, c. 385, che l'aveva estesa anche al 2026-2027). La L. 199/2025 sostituisce per il 2026 e il 2027 l'1% e i €5.000; salvo proroghe, dal 2028 tornano il 10% e i €3.000. Il limite di €4.000 con coinvolgimento paritetico (c. 189) vale solo per i contratti stipulati prima del 24 aprile 2017: per quelli successivi il coinvolgimento dà diritto alla decontribuzione.
+
+##### Trattamento del premio in denaro
+
+| Fase                   | Regola                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Contributi INPS        | Il premio è imponibile previdenziale per lavoratore e datore (aliquote ordinarie, massimale compreso)         |
+| Imponibile agevolabile | Premio al netto dei contributi lavoratore, entro il limite residuo di €5.000 (Circ. AE 28/E/2016, par. 1.2)   |
+| Imposta sostitutiva    | 1% dell'imponibile agevolabile, al posto di IRPEF e addizionali; la quota non concorre al reddito complessivo |
+| Eccedenza              | Quota oltre il limite: reddito di lavoro dipendente a IRPEF ordinaria, con addizionali                        |
+| Reddito > €80.000      | Nessuna agevolazione: il premio è tassato per intero come retribuzione ordinaria                              |
+
+La quota a imposta sostitutiva non entra nel reddito complessivo: non riduce le detrazioni, non alza le addizionali e non incide su cuneo fiscale e trattamento integrativo. Il risparmio mostrato nel dettaglio è la differenza di carico fiscale (IRPEF, addizionali e bonus) tra la tassazione ordinaria della stessa quota e il calcolo effettivo, al netto dell'imposta sostitutiva pagata.
+
+##### Conversione in welfare (c. 184 e 184-bis)
+
+Il lavoratore può scegliere di ricevere il premio, in tutto o in parte, sotto forma di benefit:
+
+| Destinazione                              | Trattamento                                                                                           |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Benefit welfare (art. 51, c. 2 e 3, TUIR) | Esente da imposte e contributi entro il limite di €5.000; conteggiato nel totale percepito            |
+| Previdenza complementare (c. 184-bis)     | Esente da imposte e contributi entro il limite; **non concorre** al plafond di deducibilità di €5.300 |
+| Conversioni oltre il limite               | Reddito in natura tassato ordinariamente (IRPEF e INPS), non percepito in denaro                      |
+
+Le conversioni usano per prime il limite di €5.000 (Ris. AE 22/E/2026): il premio in denaro accede all'imposta sostitutiva solo per la parte residua. Sulla quota versata alla previdenza complementare il datore paga il contributo di solidarietà del 10% (art. 16 D.Lgs. 252/2005).
+
+##### Coinvolgimento paritetico (D.L. 50/2017, art. 55)
+
+Se il contratto prevede il coinvolgimento paritetico dei lavoratori nell'organizzazione del lavoro, sui primi €800 del premio in denaro:
+
+- il lavoratore non versa contributi INPS, quindi l'intera quota entra nell'imponibile agevolabile;
+- il datore riduce di 20 punti percentuali la propria aliquota (per gli apprendisti, entro l'aliquota agevolata).
+
+La decontribuzione spetta solo ai premi che accedono al regime (reddito dell'anno precedente entro €80.000).
+
+##### Formula
+
+```
+Premio in Denaro = Importo − Quota Welfare − Quota Previdenza
+Conversioni Esenti = MIN(Quota Welfare + Quota Previdenza, €5.000)
+Limite Residuo = €5.000 − Conversioni Esenti
+Quota Decontribuita = MIN(Premio in Denaro, €800)            [solo con coinvolgimento paritetico]
+Contributi Premio = Contributi(Imponibile) − Contributi(Imponibile − Premio in Denaro)
+Imponibile Sostitutiva = MIN(Premio in Denaro − Contributi Premio, Limite Residuo)
+Imposta Sostitutiva = Imponibile Sostitutiva × 1%
+Quota a IRPEF Ordinaria = Premio in Denaro − Contributi Premio − Imponibile Sostitutiva
+Decontribuzione Datore = Quota Decontribuita × 20%
+```
+
+##### Esempio
+
+Premio €3.000 in denaro, RAL €25.000, aliquota INPS 9,19%:
+
+```
+Contributi INPS sul premio: €3.000 × 9,19% = €275,70
+Imponibile a imposta sostitutiva: €3.000 − €275,70 = €2.724,30 (entro €5.000)
+Imposta sostitutiva: €2.724,30 × 1% = €27,24
+Netto del premio: €3.000 − €275,70 − €27,24 = €2.697,06
+```
+
+Con tassazione ordinaria gli stessi €2.724,30 avrebbero pagato IRPEF al 23%, addizionali e la perdita di detrazione lavoro dipendente: il risparmio stimato dal calcolatore è di circa €1.030 l'anno.
+
+##### Cosa non è modellato
+
+- Il premio non è conteggiato nella quota TFR (RAL / 13,5), come previsto dalla maggior parte dei CCNL per le voci variabili.
+- La rinuncia scritta all'imposta sostitutiva (c. 182) e le azioni assegnate in sostituzione del premio (c. 184-bis, lett. c).
+
+> **Riferimento normativo:** L. 208/2015, art. 1, c. 182-190; L. 199/2025, art. 1, c. 9; D.L. 50/2017, art. 55; D.M. 25 marzo 2016; Circ. AE 28/E/2016; Circ. AE 5/E/2018; Ris. AE 22/E/2026.
+
+---
+
 ### Sequenza di Calcolo
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  1. INPUT                                                       │
-│     RAL + Fringe Benefit + Rimborsi + Welfare                   │
+│     RAL + Fringe Benefit + Rimborsi + Welfare + Premio          │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -1114,15 +1200,28 @@ TFR netto stimato:                         € 4.995,96   (€ 1.665,32 per anno
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
+│  4b. PREMIO DI RISULTATO (se presente)                          │
+│      → Quota in denaro, welfare e previdenza (esenti ≤ €5.000)  │
+│      → Conversioni oltre il limite: reddito in natura tassato   │
+│      → Coinvolgimento paritetico: €800 senza contributi         │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
 │  5. IMPONIBILE PREVIDENZIALE                                    │
 │     = RAL + Fringe Imponibili + Rimborsi Tassati + Eccedenze    │
 │       + Rimborso Affitto Neoassunti (per intero)                │
+│       + Premio in denaro (− €800 decontribuiti, lavoratore)     │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  6. CONTRIBUTI INPS                                             │
 │     = Imponibile × Aliquota + Eventuale 1% Aggiuntivo           │
+│                                                                 │
+│  6a. IMPOSTA SOSTITUTIVA PREMIO                                 │
+│      = MIN(Premio − Contributi sul premio, Limite residuo) × 1% │
+│      La quota agevolata esce dal reddito complessivo            │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -1160,6 +1259,7 @@ TFR netto stimato:                         € 4.995,96   (€ 1.665,32 per anno
 │     = Imponibile Previdenziale − Contributi INPS                │
 │       − Contributi obbligatori per qualifica                    │
 │       − Deduzione previdenza complementare (max €5.300)         │
+│       − Quota premio a imposta sostitutiva                      │
 │       − Importo esente impatriati (se attivo)                   │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -1206,10 +1306,10 @@ TFR netto stimato:                         € 4.995,96   (€ 1.665,32 per anno
 ┌─────────────────────────────────────────────────────────────────┐
 │  13. RISULTATO FINALE                                           │
 │      Netto = Imponibile − Contributi INPS − IRPEF Finale        │
-│     − Addizionali − Contributi obb. qualifica − Prev. compl.    │
-│     + Bonus                                                     │
+│     − Imposta Sostitutiva Premio − Addizionali                  │
+│     − Contributi obb. qualifica − Prev. compl. + Bonus          │
 │                                                                 │
-│      Totale Percepito = Netto + Esenti                          │
+│      Totale Percepito = Netto + Esenti (premio welfare incluso) │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -1228,6 +1328,7 @@ TFR netto stimato:                         € 4.995,96   (€ 1.665,32 per anno
 │        + Solidarietà 10% + INAIL + TFR (− 0,50% IVS)            │
 │        + Fondi Contrattuali (datore) + Fondo Pensione (datore)  │
 │        + Fringe Benefit + Rimborsi Trasferta + Benefit Non Tass.│
+│        + Premio di Risultato − Decontribuzione €800 × 20%       │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -1273,6 +1374,10 @@ TFR netto stimato:                         € 4.995,96   (€ 1.665,32 per anno
 | **Ris. AE 78/E/2004**       | Contributi FASI per pensionati e limite  |
 | **L. 296/2006**             | Contribuzione apprendisti                |
 | **D.L. 60/2024**            | Esoneri Bonus Giovani, Donne e ZES       |
+| **L. 208/2015, art. 1**     | Premi di risultato, c. 182-190           |
+| **D.L. 50/2017, art. 55**   | Decontribuzione premi, coinv. paritetico |
+| **Circ. AE 28/E/2016**      | Premi di risultato e welfare sostitutivo |
+| **Ris. AE 22/E/2026**       | Limite €5.000 anche alle conversioni     |
 
 ---
 

@@ -15,6 +15,7 @@ import {
   DettaglioDetrazioniLavoro,
   DettaglioFringeBenefit,
   DettaglioIrpef,
+  DettaglioPremioRisultato,
   DettaglioRegimeImpatriati,
   DettaglioRimborsiTrasferta,
   DettaglioRimborsoAffittoNeoassunto,
@@ -25,6 +26,7 @@ import {
   FringeBenefit,
   InputCalcoloStipendio,
   OutputCalcoloStipendio,
+  PremioRisultato,
   RiepilogoDetrazioni,
   RimborsiTrasferta,
   RimborsoAffittoNeoassunto,
@@ -181,6 +183,25 @@ const REGIME_IMPATRIATI = {
   percentualeEsenzioneMinorenni: 0.6,
   /** Tetto massimo reddito agevolabile */
   tettoRedditoAgevolabile: 600_000,
+} as const;
+
+/**
+ * Parametri dei premi di risultato (art. 1, c. 182-190, L. 208/2015). Per i premi erogati nel
+ * 2026 e nel 2027 l'art. 1, c. 9, L. 199/2025 riduce l'aliquota all'1% e alza il limite a €5.000
+ * (Ris. AdE 22/E/2026)
+ */
+const PREMIO_RISULTATO = {
+  /** Aliquota dell'imposta sostitutiva di IRPEF e addizionali (10% ordinario, 5% nel 2025) */
+  aliquotaSostitutiva: 0.01,
+  /** Limite annuo dell'imponibile agevolabile, conversioni in welfare comprese (€3.000 fino al 2025) */
+  limite: 5_000,
+  /** Reddito di lavoro dipendente dell'anno precedente oltre il quale il regime non si applica (c. 186) */
+  limiteRedditoAnnoPrecedente: 80_000,
+  /**
+   * Quota del premio in denaro senza contributi lavoratore e con aliquota IVS datore ridotta di 20
+   * punti, nei contratti con coinvolgimento paritetico dei lavoratori (art. 55 D.L. 50/2017)
+   */
+  quotaDecontribuzione: 800,
 } as const;
 
 /** Parametri INPS Gestione Separata per borse di studio post-laurea (D.L. 45/2025, L. 79/2025) */
@@ -499,7 +520,7 @@ function calcolaContributiInps(
     aliquotaBase = ALIQUOTE_INPS.baseWorker;
   }
 
-  const imponibilePrevidenziale = iscrittoPost1996 ? Math.min(ral, ALIQUOTE_INPS.massimale) : ral;
+  const imponibilePrevidenziale = entroMassimale(ral, iscrittoPost1996);
 
   const contributiBase = imponibilePrevidenziale * aliquotaBase;
 
@@ -516,6 +537,11 @@ function calcolaContributiInps(
     contributoAggiuntivo,
     totaleContributi: contributiBase + contributoAggiuntivo,
   };
+}
+
+/** Imponibile entro il massimale contributivo, che vale solo per gli iscritti dal 1996 */
+function entroMassimale(imponibile: number, iscrittoPost1996: boolean): number {
+  return iscrittoPost1996 ? Math.min(imponibile, ALIQUOTE_INPS.massimale) : imponibile;
 }
 
 function calcolaIrpefLorda(imponibile: number): DettaglioIrpef {
@@ -910,6 +936,139 @@ function vociBenefit(
   ];
 }
 
+/** Quote del premio di risultato, prima di conoscere i contributi del lavoratore */
+interface QuotePremioRisultato {
+  importo: number;
+  quotaDenaro: number;
+  quotaWelfare: number;
+  quotaPrevidenza: number;
+  conversioniTassate: number;
+  agevolabile: boolean;
+  limite: number;
+  /** Parte del limite non usata dalle conversioni, disponibile per l'imposta sostitutiva */
+  limiteResiduo: number;
+  quotaDecontribuita: number;
+}
+
+const NESSUN_PREMIO: QuotePremioRisultato = {
+  importo: 0,
+  quotaDenaro: 0,
+  quotaWelfare: 0,
+  quotaPrevidenza: 0,
+  conversioniTassate: 0,
+  agevolabile: false,
+  limite: 0,
+  limiteResiduo: 0,
+  quotaDecontribuita: 0,
+};
+
+/**
+ * Divide il premio tra denaro e conversioni. Le conversioni in welfare e previdenza (c. 184) sono
+ * esenti entro il limite agevolabile, prima il welfare poi la previdenza; oltre il limite sono
+ * reddito in natura tassato ordinariamente (Circ. AdE 28/E/2016, par. 1.2). Senza il requisito di
+ * reddito dell'anno precedente il premio è tassato per intero come retribuzione ordinaria.
+ */
+function ripartisciPremioRisultato(premio: PremioRisultato | undefined): QuotePremioRisultato {
+  const importo = Math.max(0, premio?.importo || 0);
+  if (importo <= 0) return NESSUN_PREMIO;
+
+  const welfare = Math.min(importo, Math.max(0, premio?.quotaConvertitaWelfare ?? 0));
+  const previdenza = Math.min(
+    importo - welfare,
+    Math.max(0, premio?.quotaConvertitaPrevidenza ?? 0),
+  );
+  const quotaDenaro = importo - welfare - previdenza;
+
+  const agevolabile = premio?.redditoAnnoPrecedenteEntroLimite ?? true;
+  const limite = agevolabile ? PREMIO_RISULTATO.limite : 0;
+  const quotaWelfare = Math.min(welfare, limite);
+  const quotaPrevidenza = Math.min(previdenza, limite - quotaWelfare);
+
+  // La decontribuzione riguarda le sole erogazioni agevolabili (art. 55 D.L. 50/2017, c. 182)
+  const quotaDecontribuita =
+    agevolabile && premio?.coinvolgimentoParitetico
+      ? Math.min(quotaDenaro, PREMIO_RISULTATO.quotaDecontribuzione)
+      : 0;
+
+  return {
+    importo,
+    quotaDenaro,
+    quotaWelfare,
+    quotaPrevidenza,
+    conversioniTassate: welfare + previdenza - quotaWelfare - quotaPrevidenza,
+    agevolabile,
+    limite,
+    limiteResiduo: limite - quotaWelfare - quotaPrevidenza,
+    quotaDecontribuita,
+  };
+}
+
+/**
+ * Imposta sostitutiva sul premio in denaro. Il limite si confronta con il premio al netto dei
+ * contributi del lavoratore (Circ. AdE 28/E/2016, par. 1.2); l'eccedenza è reddito di lavoro
+ * dipendente a IRPEF ordinaria.
+ */
+function tassaPremioRisultato(
+  quote: QuotePremioRisultato,
+  contributiLavoratore: number,
+): Omit<DettaglioPremioRisultato, 'risparmioFiscaleStimato'> | null {
+  if (quote.importo <= 0) return null;
+
+  const nettoContributi = Math.max(0, quote.quotaDenaro - contributiLavoratore);
+  const imponibileSostitutiva = Math.min(nettoContributi, quote.limiteResiduo);
+
+  return {
+    importo: quote.importo,
+    quotaDenaro: quote.quotaDenaro,
+    quotaWelfare: quote.quotaWelfare,
+    quotaPrevidenza: quote.quotaPrevidenza,
+    conversioniTassate: quote.conversioniTassate,
+    agevolabile: quote.agevolabile,
+    limite: quote.limite,
+    aliquotaSostitutiva: PREMIO_RISULTATO.aliquotaSostitutiva,
+    contributiLavoratore,
+    quotaDecontribuita: quote.quotaDecontribuita,
+    imponibileSostitutiva,
+    impostaSostitutiva: imponibileSostitutiva * PREMIO_RISULTATO.aliquotaSostitutiva,
+    imponibileOrdinario: nettoContributi - imponibileSostitutiva,
+  };
+}
+
+/** Il premio pagato dal datore, per destinazione, e l'imposta sostitutiva trattenuta */
+function vociPremioRisultato(
+  premio: Omit<DettaglioPremioRisultato, 'risparmioFiscaleStimato'> | null,
+): { entrate: VoceEntrata[]; trattenute: VoceTrattenuta[] } {
+  if (!premio) return { entrate: [], trattenute: [] };
+  const voce = (
+    descrizione: string,
+    importo: number,
+    destinazione: DestinazioneVoce,
+  ): VoceEntrata => ({
+    descrizione,
+    importo,
+    categoria: 'premioRisultato',
+    pagatore: 'datore',
+    destinazione,
+  });
+
+  return {
+    entrate: [
+      voce('Premio di risultato', premio.quotaDenaro, 'netto'),
+      voce('Premio convertito in welfare', premio.quotaWelfare, 'esente'),
+      voce('Premio convertito in previdenza', premio.quotaPrevidenza, 'accantonata'),
+      // Conversioni oltre il limite: tassate ma non pagate in denaro
+      voce('Premio convertito oltre il limite', premio.conversioniTassate, 'inNatura'),
+    ],
+    trattenute: [
+      {
+        descrizione: 'Imposta sostitutiva premio',
+        importo: premio.impostaSostitutiva,
+        categoria: 'impostaSostitutiva',
+      },
+    ],
+  };
+}
+
 function calcolaBorsaDiStudio(borsa: BorsaDiStudio | undefined): {
   contributoGSBorsista: number;
   imponibileBorsa: number;
@@ -1064,12 +1223,14 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     assistenzaSanitaria: null,
     regimeImpatriati: null,
     borsaDiStudio,
+    premioRisultato: null,
     ripartizione,
     // L'ente versa solo la sua quota di Gestione Separata: niente TFR, INAIL o addizionali
     contributiDatore: {
       aliquotaInps: aliquotaGS * GESTIONE_SEPARATA_BORSE.quotaEnte,
       contributiInpsLordi: contributoGSEnte,
       esonero: 0,
+      decontribuzionePremio: 0,
       aliquotaAddizionaleNaspi: 0,
       addizionaleNaspi: 0,
       tassoInail: 0,
@@ -1516,12 +1677,16 @@ export class Calculator2026 implements StipendioCalculator {
       fondi.assistenzaSanitariaWelfareEsente,
     );
 
-    // 3c. CALCOLO RIMBORSO AFFITTO NEOASSUNTI 2025
+    // 3c. PREMIO DI RISULTATO: quota in denaro e conversioni in welfare e previdenza
+    const quotePremio = ripartisciPremioRisultato(input.premioRisultato);
+
+    // 3d. CALCOLO RIMBORSO AFFITTO NEOASSUNTI 2025
     const rimborsoAffittoNeoassunto = calcolaRimborsoAffittoNeoassunto(
       rimborsoAffittoNeoassuntoInput,
     );
 
     // 4. CALCOLO IMPONIBILE PREVIDENZIALE
+    // Il premio in denaro e le conversioni oltre il limite sono imponibili per lavoratore e datore.
     // Il rimborso affitto ai neoassunti entra per intero: la non concorrenza al reddito vale
     // solo ai fini fiscali (art. 1, c. 386, L. 207/2024)
     const imponibilePrevidenziale =
@@ -1529,28 +1694,38 @@ export class Calculator2026 implements StipendioCalculator {
       fringeBenefit.valoreImponibile +
       rimborsiTrasferta.rimborsiTassati +
       benefitNonTassati.totaleTassato +
+      quotePremio.quotaDenaro +
+      quotePremio.conversioniTassate +
       (rimborsoAffittoNeoassunto?.importo ?? 0);
 
     // 5. CALCOLO CONTRIBUTI INPS
-    const contributiInps = calcolaContributiInps(
-      imponibilePrevidenziale,
-      tipoContratto,
-      aziendaConCigs,
-      iscrittoPost1996,
-    );
+    // Il lavoratore non versa contributi sulla quota decontribuita del premio (art. 55 D.L. 50/2017)
+    const contributi = (imponibile: number) =>
+      calcolaContributiInps(imponibile, tipoContratto, aziendaConCigs, iscrittoPost1996);
+    const contributiInps = contributi(imponibilePrevidenziale - quotePremio.quotaDecontribuita);
+
+    // 5b. IMPOSTA SOSTITUTIVA SUL PREMIO DI RISULTATO
+    // I contributi sul premio in denaro sono quelli marginali, aggiunti dal premio agli altri redditi
+    const contributiPremio =
+      contributiInps.totaleContributi -
+      contributi(imponibilePrevidenziale - quotePremio.quotaDenaro).totaleContributi;
+    const premioRisultato = tassaPremioRisultato(quotePremio, contributiPremio);
+    const imponibileSostitutiva = premioRisultato?.imponibileSostitutiva ?? 0;
 
     // 7. CALCOLO IMPONIBILE IRPEF
     // I contributi datore, EBITEMP e welfare al fondo pensione sono reddito per il dipendente (Art. 51 TUIR)
     // ma è deducibile entro il plafond (Art. 10 TUIR): effetto netto zero se entro il limite.
     // I contributi sanitari del datore oltre €3.615,20 sono reddito imponibile IRPEF, non INPS.
     // La quota esente del rimborso affitto ai neoassunti è nell'imponibile INPS ma non IRPEF
+    // La quota del premio a imposta sostitutiva non concorre al reddito complessivo
     const redditoLavoroDipendenteLordo =
       imponibilePrevidenziale +
       fondi.redditoFondoPensione +
       fondi.redditoAssistenzaSanitaria -
       (rimborsoAffittoNeoassunto?.importoEsente ?? 0) -
       contributiInps.totaleContributi -
-      fondi.deduzione;
+      fondi.deduzione -
+      imponibileSostitutiva;
 
     // 7b-14. REGIME IMPATRIATI, BORSA DI STUDIO, IRPEF, DETRAZIONI, BONUS E ADDIZIONALI
     const contestoImposte: ContestoImposte = {
@@ -1603,17 +1778,38 @@ export class Calculator2026 implements StipendioCalculator {
       risparmioFiscaleDeduzioni,
     );
 
+    // 15b. RISPARMIO DEL PREMIO DETASSATO
+    // Carico fiscale con l'imponibile a imposta sostitutiva tassato ordinariamente, meno quello
+    // effettivo e meno l'imposta sostitutiva pagata
+    const dettaglioPremioRisultato: DettaglioPremioRisultato | null = premioRisultato && {
+      ...premioRisultato,
+      risparmioFiscaleStimato:
+        imponibileSostitutiva > 0
+          ? caricoFiscale(
+              calcolaImposte({
+                ...contestoImposte,
+                redditoLavoroDipendenteLordo: redditoLavoroDipendenteLordo + imponibileSostitutiva,
+              }),
+            ) -
+            caricoFiscale(imposte) -
+            premioRisultato.impostaSostitutiva
+          : 0,
+    };
+    const vociPremio = vociPremioRisultato(premioRisultato);
+
     // 16. RIPARTIZIONE
     // Costo aziendale, trattenute, bonus, netto e percepito sono somme di queste voci.
-    // Il contributo di solidarietà grava anche sull'assistenza sanitaria pagata come welfare
+    // Il contributo di solidarietà grava anche sull'assistenza sanitaria pagata come welfare e
+    // sul premio versato alla previdenza complementare (art. 16 D.Lgs. 252/2005)
     const costiDatore = calcolaCostiDatore({
       ral,
       tipoContratto,
       aziendaConCigs,
       isDirigente: fondi.isDirigente,
       imponibilePrevidenziale,
-      imponibileEntroMassimale: contributiInps.imponibilePrevidenziale,
-      baseContributoSolidarieta: fondi.baseContributoSolidarieta,
+      imponibileEntroMassimale: entroMassimale(imponibilePrevidenziale, iscrittoPost1996),
+      baseContributoSolidarieta: fondi.baseContributoSolidarieta + quotePremio.quotaPrevidenza,
+      quotaPremioDecontribuita: quotePremio.quotaDecontribuita,
       opzioni: input.opzioniDatore,
     });
     const entrate: VoceEntrata[] = [
@@ -1632,6 +1828,7 @@ export class Calculator2026 implements StipendioCalculator {
         benefitNonTassati,
         rimborsoAffittoNeoassunto,
       ),
+      ...vociPremio.entrate,
       {
         descrizione: 'Borsa di Studio',
         importo: borsaCalcolo.dettaglio?.importoLordo ?? 0,
@@ -1666,6 +1863,7 @@ export class Calculator2026 implements StipendioCalculator {
         categoria: 'contributi',
       },
       { descrizione: 'IRPEF', importo: irpefFinale, categoria: 'irpef' },
+      ...vociPremio.trattenute,
       {
         descrizione: 'Addizionale Regionale',
         importo: addizionali.addizionaleRegionale,
@@ -1754,6 +1952,7 @@ export class Calculator2026 implements StipendioCalculator {
         ripartizione.trattenute.filter(
           (voce) =>
             voce.categoria === 'autoAziendale' ||
+            voce.categoria === 'impostaSostitutiva' ||
             (voce.categoria === 'contributi' && voce.descrizione !== VOCE_CONTRIBUTI_INPS),
         ),
       ),
@@ -1790,6 +1989,7 @@ export class Calculator2026 implements StipendioCalculator {
       assistenzaSanitaria: fondi.assistenzaSanitaria,
       regimeImpatriati: dettaglioRegimeImpatriati,
       borsaDiStudio: dettaglioBorsaDiStudio,
+      premioRisultato: dettaglioPremioRisultato,
       ripartizione,
       contributiDatore: costiDatore.dettaglio,
       tfr,

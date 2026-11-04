@@ -23,10 +23,12 @@ export const SERIE = {
   rimborsiTrasferta: '#5f9e94',
   welfare: '#3f7f8c',
   affittoNeoassunto: '#4a6fa5',
+  premioRisultato: '#a3772f',
 
   // where the busta goes
   contributi: '#d9774f',
   irpef: '#c25a74',
+  impostaSostitutiva: '#b54a2a',
   addizionali: '#bf8a2c',
   fondi: '#8e6f9e',
   autoAziendale: '#c97575',

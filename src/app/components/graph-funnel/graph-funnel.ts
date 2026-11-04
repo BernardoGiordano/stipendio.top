@@ -50,6 +50,7 @@ const ENTRATE: Record<CategoriaEntrata, NodeStyle> = {
   rimborsiTrasferta: { label: 'Rimborsi', color: SERIE.rimborsiTrasferta },
   welfare: { label: 'Welfare', color: SERIE.welfare },
   affittoNeoassunto: { label: 'Affitto Neoassunto', color: SERIE.affittoNeoassunto },
+  premioRisultato: { label: 'Premio di Risultato', color: SERIE.premioRisultato },
   borsaDiStudio: { label: 'Borsa di Studio', color: SERIE.ente },
   bonus: { label: 'Bonus Fiscali', color: SERIE.stato },
 };
@@ -58,6 +59,7 @@ const ENTRATE: Record<CategoriaEntrata, NodeStyle> = {
 const TRATTENUTE: Record<CategoriaTrattenuta, NodeStyle> = {
   contributi: { label: 'INPS Dip.', color: SERIE.contributi },
   irpef: { label: 'IRPEF', color: SERIE.irpef },
+  impostaSostitutiva: { label: 'Imposta Sostitutiva', color: SERIE.impostaSostitutiva },
   addizionali: { label: 'Addizionali', color: SERIE.addizionali },
   fondi: { label: 'Fondi Dip.', color: SERIE.fondi },
   autoAziendale: { label: 'Trattenuta Auto', color: SERIE.autoAziendale },

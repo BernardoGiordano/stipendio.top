@@ -31,6 +31,17 @@ describe('ripartizioneRal', () => {
     expect(addizionali.importo).toBeCloseTo(result.addizionali.totaleAddizionali, 2);
   });
 
+  it('counts the premio di risultato in the base and its imposta sostitutiva as a quota', () => {
+    const result = calcolaStipendioNetto({ ...base, premioRisultato: { importo: 3_000 } });
+    const { base: totale, quote } = ripartizioneRal(result);
+    expect(totale).toBe(38_000);
+    expect(quote.find((q) => q.id === 'impostaSostitutiva')).toMatchObject({
+      label: 'Imposta sostitutiva',
+      importo: result.premioRisultato!.impostaSostitutiva,
+    });
+    expect(sum(quote.map((q) => q.importo))).toBeCloseTo(totale, 2);
+  });
+
   it('names the fondi group after the pension fund when it is the only fund', () => {
     const fondoPensione = {
       ...base,
