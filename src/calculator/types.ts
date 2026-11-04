@@ -56,9 +56,13 @@ export interface Trasferta {
 /** Dettaglio rimborsi spese trasferta */
 export interface RimborsiTrasferta {
   /** Modalità rimborso trasferte fuori comune */
-  modalitaRimborso?: 'forfettario' | 'misto' | 'analitico';
+  modalitaRimborso?: 'forfettario' | 'misto' | 'analitico' | 'trasfertista';
   /** Giorni di trasferta con indennità (forfettario/misto) */
   trasferte?: Trasferta[];
+  /** Indennità fissa annua del trasfertista, oltre la RAL (art. 51, c. 6, TUIR) */
+  indennitaTrasfertista?: number;
+  /** Spese di trasferta del trasfertista pagate direttamente dall'azienda (imponibili) */
+  speseAziendaTrasfertista?: number;
   /** Rimborso vitto documentato (analitico/misto) */
   rimborsoVitto?: number;
   /** Rimborso alloggio documentato (analitico/misto) */
@@ -615,8 +619,16 @@ export interface DettaglioRimborsiTrasferta {
   indennitaEccedente: number;
   /** Rimborsi spese tassati: vitto e alloggio non tracciabili o nel forfettario, km imponibili */
   rimborsiSpeseTassati: number;
-  /** Totale tassato: indennità eccedente + rimborsi spese tassati */
+  /** Metà dell'indennità del trasfertista che non concorre al reddito */
+  indennitaTrasfertistaEsente: number;
+  /** Metà dell'indennità del trasfertista che concorre al reddito */
+  indennitaTrasfertistaTassata: number;
+  /** Tassato e pagato in denaro: indennità eccedente o del trasfertista + rimborsi spese tassati */
   rimborsiTassati: number;
+  /** Spese del trasfertista pagate dall'azienda: tassate ma non percepite in denaro */
+  speseAziendaTassate: number;
+  /** Totale tassato: rimborsi tassati + spese pagate dall'azienda */
+  totaleTassato: number;
   /** Totale rimborsi esenti */
   totaleEsente: number;
   /** Totale rimborsi */

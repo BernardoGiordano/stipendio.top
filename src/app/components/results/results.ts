@@ -332,7 +332,13 @@ export class Results {
       if (voce.descrizione === VOCE_INPS_DATORE) return inps;
       if (voce.categoria === 'tfr') {
         return [
-          { label: 'TFR (RAL / 13,5)', amount: d.tfrLordo },
+          {
+            label:
+              r.rimborsiTrasferta.indennitaTrasfertistaEsente > 0
+                ? 'TFR ((RAL + indennità trasfertista) / 13,5)'
+                : 'TFR (RAL / 13,5)',
+            amount: d.tfrLordo,
+          },
           ...(d.riduzioneTfr > 0
             ? [
                 {

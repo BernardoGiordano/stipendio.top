@@ -296,8 +296,8 @@ export class FormContainer {
           r.rimborsiTrasferta.totaleEsente > 0
             ? `+ ${eur(r.rimborsiTrasferta.totaleEsente)} esenti`
             : '',
-          r.rimborsiTrasferta.rimborsiTassati > 0
-            ? `${eur(r.rimborsiTrasferta.rimborsiTassati)} tassati`
+          r.rimborsiTrasferta.totaleTassato > 0
+            ? `${eur(r.rimborsiTrasferta.totaleTassato)} tassati`
             : '',
         ]
           .filter(Boolean)
@@ -390,13 +390,14 @@ export class FormContainer {
   ];
 
   readonly modalitaRimborso: {
-    value: 'nessuna' | 'forfettario' | 'misto' | 'analitico';
+    value: 'nessuna' | 'forfettario' | 'misto' | 'analitico' | 'trasfertista';
     label: string;
   }[] = [
     { value: 'nessuna', label: '-- Seleziona --' },
     { value: 'forfettario', label: 'Forfettario (solo indennità)' },
     { value: 'misto', label: 'Misto (indennità con vitto o alloggio)' },
     { value: 'analitico', label: 'Analitico (solo rimborsi)' },
+    { value: 'trasfertista', label: 'Trasfertista (indennità fissa)' },
   ];
 
   readonly destinazioni: { value: DestinazioneTrasferta; label: string }[] = [
@@ -442,9 +443,22 @@ export class FormContainer {
     conIndennitaTrasferta(this.formModel()().rimborsiTrasferta.modalitaRimborso),
   );
 
+  readonly trasfertista = computed(
+    () => this.formModel()().rimborsiTrasferta.modalitaRimborso === 'trasfertista',
+  );
+
   /** Meal and lodging reimbursements that don't match the selected method */
   readonly avvisoVittoAlloggio = computed(() => {
     const rimborsi = this.formModel()().rimborsiTrasferta;
+    if (
+      this.trasfertista() &&
+      (rimborsi.rimborsoVitto > 0 ||
+        rimborsi.rimborsoAlloggio > 0 ||
+        rimborsi.rimborsoViaggio > 0 ||
+        rimborsi.rimborsoKm > 0)
+    ) {
+      return "Per i trasfertisti i rimborsi spese non sono esenti: si sommano per intero all'imponibile e pagano INPS, IRPEF e addizionali.";
+    }
     if (!(rimborsi.rimborsoVitto > 0 || rimborsi.rimborsoAlloggio > 0)) return null;
     const trasferte = rimborsi.trasferte.filter((trasferta) => trasferta.giorni > 0);
     if (rimborsi.modalitaRimborso === 'forfettario') {

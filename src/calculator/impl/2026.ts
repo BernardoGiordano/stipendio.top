@@ -166,6 +166,8 @@ const RIMBORSI_TRASFERTA = {
   forfettarioItalia: 46.48,
   forfettarioEstero: 77.47,
   riduzione: { nessuno: 0, uno: 1 / 3, entrambi: 2 / 3 },
+  /** Quota dell'indennità del trasfertista che concorre al reddito (art. 51, c. 6, TUIR) */
+  quotaImponibileTrasfertista: 0.5,
 } as const;
 
 /** Limiti benefit esenti da tassazione */
@@ -357,7 +359,11 @@ function calcolaRimborsiTrasferta(
       rimborsoDocumentatoEsente: 0,
       indennitaEccedente: 0,
       rimborsiSpeseTassati: 0,
+      indennitaTrasfertistaEsente: 0,
+      indennitaTrasfertistaTassata: 0,
       rimborsiTassati: 0,
+      speseAziendaTassate: 0,
+      totaleTassato: 0,
       totaleEsente: 0,
       totaleRimborsi: 0,
     };
@@ -369,6 +375,7 @@ function calcolaRimborsiTrasferta(
   let rimborsiSpeseTassati = 0;
 
   const forfettario = rimborsi.modalitaRimborso === 'forfettario';
+  const trasfertista = rimborsi.modalitaRimborso === 'trasfertista';
 
   if (conIndennitaTrasferta(rimborsi.modalitaRimborso)) {
     for (const trasferta of rimborsi.trasferte ?? []) {
@@ -395,8 +402,13 @@ function calcolaRimborsiTrasferta(
 
   const pagamentiTracciabili = rimborsi.pagamentiTracciabili ?? true;
 
-  // Nel sistema forfettario vitto e alloggio rimborsati sono tassati (Circ. AE 15/E/2025)
-  if (pagamentiTracciabili && !forfettario) {
+  // Nel sistema forfettario vitto e alloggio rimborsati sono tassati (Circ. AE 15/E/2025).
+  // Il regime del trasfertista è alternativo al c. 5: oltre al 50% dell'indennità non sono
+  // previste esclusioni, neppure per viaggio e chilometri (Cass. 24148/2025)
+  if (trasfertista) {
+    rimborsiSpeseTassati =
+      rimborsoVitto + rimborsoAlloggio + rimborsoViaggio + rimborsoKm + rimborsoKmImponibile;
+  } else if (pagamentiTracciabili && !forfettario) {
     rimborsoDocumentatoEsente = rimborsoVitto + rimborsoAlloggio + rimborsoViaggio + rimborsoKm;
     rimborsiSpeseTassati = rimborsoKmImponibile;
   } else {
@@ -404,16 +416,28 @@ function calcolaRimborsiTrasferta(
     rimborsoDocumentatoEsente = rimborsoViaggio + rimborsoKm;
   }
 
-  const rimborsiTassati = rimborsiSpeseTassati + indennitaEccedente;
-  const totaleEsente = rimborsoForfettarioEsente + rimborsoDocumentatoEsente;
-  const totaleRimborsi = totaleEsente + rimborsiTassati;
+  const indennitaTrasfertista = trasfertista ? (rimborsi.indennitaTrasfertista ?? 0) : 0;
+  const indennitaTrasfertistaTassata =
+    indennitaTrasfertista * RIMBORSI_TRASFERTA.quotaImponibileTrasfertista;
+  const indennitaTrasfertistaEsente = indennitaTrasfertista - indennitaTrasfertistaTassata;
+  const speseAziendaTassate = trasfertista ? (rimborsi.speseAziendaTrasfertista ?? 0) : 0;
+
+  const rimborsiTassati = rimborsiSpeseTassati + indennitaEccedente + indennitaTrasfertistaTassata;
+  const totaleTassato = rimborsiTassati + speseAziendaTassate;
+  const totaleEsente =
+    rimborsoForfettarioEsente + rimborsoDocumentatoEsente + indennitaTrasfertistaEsente;
+  const totaleRimborsi = totaleEsente + totaleTassato;
 
   return {
     rimborsoForfettarioEsente,
     rimborsoDocumentatoEsente,
     indennitaEccedente,
     rimborsiSpeseTassati,
+    indennitaTrasfertistaEsente,
+    indennitaTrasfertistaTassata,
     rimborsiTassati,
+    speseAziendaTassate,
+    totaleTassato,
     totaleEsente,
     totaleRimborsi,
   };
@@ -911,6 +935,13 @@ function vociBenefit(
       'rimborsiTrasferta',
       'esente',
     ),
+    // Pagate dall'azienda per il trasfertista: tassate ma non percepite in denaro
+    voce(
+      "Spese Trasferta pagate dall'azienda",
+      rimborsiTrasferta.speseAziendaTassate,
+      'rimborsiTrasferta',
+      'inNatura',
+    ),
     voce('Welfare oltre soglia', benefitNonTassati.totaleTassato, 'welfare', 'netto'),
     // Versata alla cassa sanitaria: tassata ma non percepita in denaro
     voce(
@@ -1193,7 +1224,11 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     rimborsoDocumentatoEsente: 0,
     indennitaEccedente: 0,
     rimborsiSpeseTassati: 0,
+    indennitaTrasfertistaEsente: 0,
+    indennitaTrasfertistaTassata: 0,
     rimborsiTassati: 0,
+    speseAziendaTassate: 0,
+    totaleTassato: 0,
     totaleEsente: 0,
     totaleRimborsi: 0,
   };
@@ -1692,7 +1727,7 @@ export class Calculator2026 implements StipendioCalculator {
     const imponibilePrevidenziale =
       ral +
       fringeBenefit.valoreImponibile +
-      rimborsiTrasferta.rimborsiTassati +
+      rimborsiTrasferta.totaleTassato +
       benefitNonTassati.totaleTassato +
       quotePremio.quotaDenaro +
       quotePremio.conversioniTassate +
@@ -1803,6 +1838,9 @@ export class Calculator2026 implements StipendioCalculator {
     // sul premio versato alla previdenza complementare (art. 16 D.Lgs. 252/2005)
     const costiDatore = calcolaCostiDatore({
       ral,
+      indennitaUtileTfr:
+        rimborsiTrasferta.indennitaTrasfertistaEsente +
+        rimborsiTrasferta.indennitaTrasfertistaTassata,
       tipoContratto,
       aziendaConCigs,
       isDirigente: fondi.isDirigente,

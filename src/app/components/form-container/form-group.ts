@@ -82,8 +82,10 @@ export interface TrasfertaFormModel {
 
 export interface RimborsiTrasfertaFormModel {
   enabled: boolean;
-  modalitaRimborso: 'nessuna' | 'forfettario' | 'misto' | 'analitico';
+  modalitaRimborso: 'nessuna' | 'forfettario' | 'misto' | 'analitico' | 'trasfertista';
   trasferte: TrasfertaFormModel[];
+  indennitaTrasfertista: number;
+  speseAziendaTrasfertista: number;
   rimborsoVitto: number;
   rimborsoAlloggio: number;
   rimborsoViaggio: number;
@@ -274,6 +276,8 @@ function createDefaultRimborsiTrasferta(): RimborsiTrasfertaFormModel {
     enabled: false,
     modalitaRimborso: 'nessuna',
     trasferte: [createDefaultTrasferta()],
+    indennitaTrasfertista: 0,
+    speseAziendaTrasfertista: 0,
     rimborsoVitto: 0,
     rimborsoAlloggio: 0,
     rimborsoViaggio: 0,
@@ -494,6 +498,14 @@ const rimborsiTrasfertaSchema = schema<RimborsiTrasfertaFormModel>((path) => {
     path.trasferte,
     ({ valueOf }) => conIndennitaTrasferta(valueOf(path.modalitaRimborso)),
     (trasferte) => applyEach(trasferte, trasfertaSchema),
+  );
+  applyWhen(
+    path,
+    ({ valueOf }) => valueOf(path.modalitaRimborso) === 'trasfertista',
+    (rimborsi) => {
+      min(rimborsi.indennitaTrasfertista, 0, { message: 'Valore non valido' });
+      min(rimborsi.speseAziendaTrasfertista, 0, { message: 'Valore non valido' });
+    },
   );
 
   min(path.rimborsoVitto, 0, { message: 'Valore non valido' });
@@ -755,6 +767,10 @@ function toRimborsiTrasferta(model: RimborsiTrasfertaFormModel): RimborsiTrasfer
   if (model.modalitaRimborso !== 'nessuna') result.modalitaRimborso = model.modalitaRimborso;
   const trasferte = model.trasferte.filter((t) => t.giorni > 0).map(toTrasferta);
   if (trasferte.length > 0) result.trasferte = trasferte;
+  if (model.indennitaTrasfertista > 0) result.indennitaTrasfertista = model.indennitaTrasfertista;
+  if (model.speseAziendaTrasfertista > 0) {
+    result.speseAziendaTrasfertista = model.speseAziendaTrasfertista;
+  }
   if (model.rimborsoVitto > 0) result.rimborsoVitto = model.rimborsoVitto;
   if (model.rimborsoAlloggio > 0) result.rimborsoAlloggio = model.rimborsoAlloggio;
   if (model.rimborsoViaggio > 0) result.rimborsoViaggio = model.rimborsoViaggio;
