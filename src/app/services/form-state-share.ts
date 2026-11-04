@@ -4,8 +4,12 @@ import {
   createDefaultFiglio,
   createDefaultFondoPersonalizzato,
   createDefaultFormModel,
+  createDefaultTrasferta,
+  RimborsiTrasfertaFormModel,
   StipendioFormModel,
+  TrasfertaFormModel,
 } from '../components/form-container/form-group';
+import { DestinazioneTrasferta, VittoAlloggioACarico } from '../../calculator/types';
 
 type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
 
@@ -87,6 +91,7 @@ export class FormStateShare {
       ...createDefaultFondoPersonalizzato(),
       ...fondo,
     }));
+    model.rimborsiTrasferta = this.withTrasferte(model.rimborsiTrasferta);
     return model;
   }
 
@@ -116,6 +121,52 @@ export class FormStateShare {
   // ==========================================================================
   // Private helpers
   // ==========================================================================
+
+  /**
+   * Links created before the trip rows hold the days per destination, and the
+   * mixed method derived its reduction from the meal and lodging amounts.
+   */
+  private withTrasferte(
+    rimborsi: RimborsiTrasfertaFormModel & {
+      giorniTrasfertaItalia?: number;
+      giorniTrasfertaEstero?: number;
+    },
+  ): RimborsiTrasfertaFormModel {
+    const { giorniTrasfertaItalia = 0, giorniTrasfertaEstero = 0, ...model } = rimborsi;
+    const vittoAlloggioACarico = this.vittoAlloggioVecchioLink(model);
+    const riga = (destinazione: DestinazioneTrasferta, giorni: number): TrasfertaFormModel => ({
+      ...createDefaultTrasferta(),
+      destinazione,
+      giorni,
+      vittoAlloggioACarico,
+    });
+
+    const vecchie = [
+      riga('italia', giorniTrasfertaItalia),
+      riga('estero', giorniTrasfertaEstero),
+    ].filter((trasferta) => trasferta.giorni > 0);
+
+    return {
+      ...model,
+      trasferte: vecchie.length
+        ? vecchie
+        : model.trasferte.map((trasferta) => ({
+            ...createDefaultTrasferta(),
+            ...trasferta,
+            // An empty allowance is NaN, which JSON stores as null
+            indennitaGiornaliera: trasferta.indennitaGiornaliera ?? NaN,
+          })),
+    };
+  }
+
+  /** Old mixed links reduced the limit by a third for each of meals and lodging reimbursed */
+  private vittoAlloggioVecchioLink(model: RimborsiTrasfertaFormModel): VittoAlloggioACarico {
+    if (model.modalitaRimborso !== 'misto') return 'nessuno';
+    const vitto = model.rimborsoVitto > 0;
+    const alloggio = model.rimborsoAlloggio > 0;
+    if (vitto && alloggio) return 'entrambi';
+    return vitto || alloggio ? 'uno' : 'nessuno';
+  }
 
   private getDiff(current: unknown, defaults: unknown): Record<string, unknown> {
     if (typeof current !== 'object' || current === null) {

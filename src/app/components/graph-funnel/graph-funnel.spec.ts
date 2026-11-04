@@ -143,7 +143,7 @@ describe('GraphFunnel sankey', () => {
         },
         rimborsiTrasferta: {
           modalitaRimborso: 'misto',
-          giorniTrasfertaItalia: 10,
+          trasferte: [{ destinazione: 'italia', giorni: 10, vittoAlloggioACarico: 'uno' }],
           rimborsoVitto: 500,
           pagamentiTracciabili: false,
         },

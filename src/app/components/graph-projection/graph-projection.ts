@@ -295,12 +295,13 @@ export class GraphProjection {
     const r = this.result();
     if (!base || !r) return null;
     const annuo = aumentoNetto(base);
+    const piu1 = conRal(base, base.ral + 1_000);
     const piu5 = conRal(base, base.ral + 5_000);
     const piu10 = conRal(base, base.ral + 10_000);
-    if (annuo === null || !piu5 || !piu10) return null;
+    if (annuo === null || !piu1 || !piu5 || !piu10) return null;
     return {
       annuo,
-      mensile: annuo / r.mensilita,
+      mensile: piu1.nettoMensile - r.nettoMensile,
       quota: annuo / 1_000,
       ral: base.ral,
       passo1: piu5.nettoMensile - r.nettoMensile,

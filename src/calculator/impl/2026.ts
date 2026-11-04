@@ -3,10 +3,12 @@ import {
   AutoAziendale,
   BenefitNonTassati,
   BorsaDiStudio,
+  BustaPaga,
   CategoriaEntrata,
   ConiugeACarico,
   DettaglioBenefitNonTassati,
   DettaglioBorsaDiStudio,
+  DettaglioBustePaga,
   DettaglioContributiInps,
   DettaglioCuneoFiscale,
   DettaglioDetrazioniFamiliari,
@@ -16,6 +18,7 @@ import {
   DettaglioPremioRisultato,
   DettaglioRegimeImpatriati,
   DettaglioRimborsiTrasferta,
+  DettaglioRimborsoAffittoNeoassunto,
   DettaglioTrattamentoIntegrativo,
   DestinazioneVoce,
   DettaglioAddizionali,
@@ -26,7 +29,10 @@ import {
   PremioRisultato,
   RiepilogoDetrazioni,
   RimborsiTrasferta,
+  RimborsoAffittoNeoassunto,
   TipoContratto,
+  Trasferta,
+  VittoAlloggioACarico,
   VoceEntrata,
   VoceTrattenuta,
 } from '../types';
@@ -34,7 +40,11 @@ import { StipendioCalculator } from '../calculator';
 import { calcolaAddizionali } from '../addizionali/2026';
 import { calcolaFondi, dettagliFondi } from '../fondi/2026';
 import { calcolaCostiDatore } from '../datore/2026';
+import { calcolaTfr } from '../tfr/2026';
 import { ripartisci, somma, totali } from '../ripartizione';
+
+/** Descrizione della trattenuta dei contributi INPS a carico del lavoratore */
+export const VOCE_CONTRIBUTI_INPS = 'Contributi INPS';
 
 /** Scaglioni IRPEF 2026 (aliquota intermedia ridotta) */
 const IRPEF_SCAGLIONI = [
@@ -47,6 +57,15 @@ const IRPEF_SCAGLIONI = [
 const FRINGE_BENEFIT = {
   sogliaSenzaFigli: 1_000,
   sogliaConFigli: 2_000,
+} as const;
+
+/**
+ * Limite annuo di non concorrenza al reddito del rimborso affitto ai neoassunti a tempo
+ * indeterminato nel 2025 (art. 1, c. 386, L. 207/2024). È una franchigia: l'eccedenza è
+ * imponibile (Circ. AdE 4/E/2025, par. 2.7)
+ */
+const RIMBORSO_AFFITTO_NEOASSUNTO = {
+  limiteEsenzione: 5_000,
 } as const;
 
 /** Soglia buoni pasto elettronici 2026 (aumentata) */
@@ -146,8 +165,7 @@ const DETRAZIONE_CONIUGE = {
 const RIMBORSI_TRASFERTA = {
   forfettarioItalia: 46.48,
   forfettarioEstero: 77.47,
-  riduzioneUnTerzo: 1 / 3,
-  riduzioneDueTerzi: 2 / 3,
+  riduzione: { nessuno: 0, uno: 1 / 3, entrambi: 2 / 3 },
 } as const;
 
 /** Limiti benefit esenti da tassazione */
@@ -307,6 +325,29 @@ function calcolaFringeBenefit(
   };
 }
 
+/** Sistemi di rimborso che erogano un'indennità giornaliera */
+export function conIndennitaTrasferta(modalitaRimborso: string | undefined): boolean {
+  return modalitaRimborso === 'forfettario' || modalitaRimborso === 'misto';
+}
+
+/**
+ * Limite giornaliero esente dell'indennità di trasferta (art. 51, c. 5, TUIR).
+ * Solo il sistema misto lo riduce. Il limite ridotto è arrotondato al centesimo,
+ * come i valori ufficiali: 30,99 e 15,49 € in Italia, 51,65 e 25,82 € all'estero.
+ */
+export function limiteIndennitaTrasferta(
+  trasferta: Pick<Trasferta, 'destinazione' | 'vittoAlloggioACarico'>,
+  modalitaRimborso: string | undefined,
+): number {
+  const limite =
+    trasferta.destinazione === 'estero'
+      ? RIMBORSI_TRASFERTA.forfettarioEstero
+      : RIMBORSI_TRASFERTA.forfettarioItalia;
+  const vittoAlloggio: VittoAlloggioACarico =
+    modalitaRimborso === 'misto' ? (trasferta.vittoAlloggioACarico ?? 'nessuno') : 'nessuno';
+  return Math.round(limite * (1 - RIMBORSI_TRASFERTA.riduzione[vittoAlloggio]) * 100) / 100;
+}
+
 function calcolaRimborsiTrasferta(
   rimborsi: RimborsiTrasferta | undefined,
 ): DettaglioRimborsiTrasferta {
@@ -314,6 +355,8 @@ function calcolaRimborsiTrasferta(
     return {
       rimborsoForfettarioEsente: 0,
       rimborsoDocumentatoEsente: 0,
+      indennitaEccedente: 0,
+      rimborsiSpeseTassati: 0,
       rimborsiTassati: 0,
       totaleEsente: 0,
       totaleRimborsi: 0,
@@ -322,29 +365,25 @@ function calcolaRimborsiTrasferta(
 
   let rimborsoForfettarioEsente = 0;
   let rimborsoDocumentatoEsente = 0;
-  let rimborsiTassati = 0;
+  let indennitaEccedente = 0;
+  let rimborsiSpeseTassati = 0;
 
-  const giorniItalia = rimborsi.giorniTrasfertaItalia ?? 0;
-  const giorniEstero = rimborsi.giorniTrasfertaEstero ?? 0;
+  const forfettario = rimborsi.modalitaRimborso === 'forfettario';
 
-  if (rimborsi.modalitaRimborso === 'forfettario') {
-    rimborsoForfettarioEsente =
-      giorniItalia * RIMBORSI_TRASFERTA.forfettarioItalia +
-      giorniEstero * RIMBORSI_TRASFERTA.forfettarioEstero;
-  } else if (rimborsi.modalitaRimborso === 'misto') {
-    const vitto = rimborsi.rimborsoVitto ?? 0;
-    const alloggio = rimborsi.rimborsoAlloggio ?? 0;
+  if (conIndennitaTrasferta(rimborsi.modalitaRimborso)) {
+    for (const trasferta of rimborsi.trasferte ?? []) {
+      // Il limite si riduce anche con vitto o alloggio forniti gratuitamente (Circ. AE 15/E/2025)
+      const limite =
+        trasferta.giorni * limiteIndennitaTrasferta(trasferta, rimborsi.modalitaRimborso);
+      const erogato =
+        trasferta.indennitaGiornaliera === undefined
+          ? limite
+          : trasferta.giorni * trasferta.indennitaGiornaliera;
 
-    let riduzione = 0;
-    if (vitto > 0 && alloggio > 0) {
-      riduzione = RIMBORSI_TRASFERTA.riduzioneDueTerzi;
-    } else if (vitto > 0 || alloggio > 0) {
-      riduzione = RIMBORSI_TRASFERTA.riduzioneUnTerzo;
+      // Oltre il limite l'indennità concorre al reddito (art. 51, c. 5, TUIR)
+      rimborsoForfettarioEsente += Math.min(erogato, limite);
+      indennitaEccedente += Math.max(0, erogato - limite);
     }
-
-    rimborsoForfettarioEsente =
-      giorniItalia * RIMBORSI_TRASFERTA.forfettarioItalia * (1 - riduzione) +
-      giorniEstero * RIMBORSI_TRASFERTA.forfettarioEstero * (1 - riduzione);
   }
 
   const rimborsoVitto = rimborsi.rimborsoVitto ?? 0;
@@ -356,20 +395,24 @@ function calcolaRimborsiTrasferta(
 
   const pagamentiTracciabili = rimborsi.pagamentiTracciabili ?? true;
 
-  if (pagamentiTracciabili) {
+  // Nel sistema forfettario vitto e alloggio rimborsati sono tassati (Circ. AE 15/E/2025)
+  if (pagamentiTracciabili && !forfettario) {
     rimborsoDocumentatoEsente = rimborsoVitto + rimborsoAlloggio + rimborsoViaggio + rimborsoKm;
-    rimborsiTassati = rimborsoKmImponibile;
+    rimborsiSpeseTassati = rimborsoKmImponibile;
   } else {
-    rimborsiTassati = rimborsoVitto + rimborsoAlloggio + rimborsoKmImponibile;
+    rimborsiSpeseTassati = rimborsoVitto + rimborsoAlloggio + rimborsoKmImponibile;
     rimborsoDocumentatoEsente = rimborsoViaggio + rimborsoKm;
   }
 
+  const rimborsiTassati = rimborsiSpeseTassati + indennitaEccedente;
   const totaleEsente = rimborsoForfettarioEsente + rimborsoDocumentatoEsente;
   const totaleRimborsi = totaleEsente + rimborsiTassati;
 
   return {
     rimborsoForfettarioEsente,
     rimborsoDocumentatoEsente,
+    indennitaEccedente,
+    rimborsiSpeseTassati,
     rimborsiTassati,
     totaleEsente,
     totaleRimborsi,
@@ -433,6 +476,32 @@ function calcolaBenefitNonTassati(
     altriWelfare,
     totaleEsente,
     totaleTassato,
+  };
+}
+
+/**
+ * Rimborso affitto neoassunti 2025 (art. 1, c. 386-389, L. 207/2024). Per i primi due anni
+ * dall'assunzione le somme non concorrono al reddito IRPEF entro €5.000 per annualità; la
+ * franchigia non vale ai fini contributivi, quindi l'intero importo entra nell'imponibile
+ * previdenziale. La misura è autonoma dalla soglia fringe benefit dei commi 390-391
+ * (Circ. AdE 4/E/2025, par. 2.7)
+ */
+function calcolaRimborsoAffittoNeoassunto(
+  rimborso: RimborsoAffittoNeoassunto | undefined,
+): DettaglioRimborsoAffittoNeoassunto | null {
+  const importo = rimborso?.importo ?? 0;
+  if (importo <= 0) return null;
+
+  const requisiti = rimborso?.requisiti ?? false;
+  const limiteEsenzione = RIMBORSO_AFFITTO_NEOASSUNTO.limiteEsenzione;
+  const importoEsente = requisiti ? Math.min(importo, limiteEsenzione) : 0;
+
+  return {
+    importo,
+    requisiti,
+    limiteEsenzione,
+    importoEsente,
+    importoImponibile: importo - importoEsente,
   };
 }
 
@@ -811,6 +880,7 @@ function vociBenefit(
   fringeBenefit: DettaglioFringeBenefit,
   rimborsiTrasferta: DettaglioRimborsiTrasferta,
   benefitNonTassati: DettaglioBenefitNonTassati,
+  rimborsoAffittoNeoassunto: DettaglioRimborsoAffittoNeoassunto | null,
 ): VoceEntrata[] {
   const voce = (
     descrizione: string,
@@ -850,6 +920,19 @@ function vociBenefit(
       'inNatura',
     ),
     voce('Welfare esente', benefitNonTassati.totaleEsente, 'welfare', 'esente'),
+    // Pagato in denaro: la quota esente IRPEF sconta comunque i contributi INPS
+    voce(
+      'Affitto neoassunto imponibile',
+      rimborsoAffittoNeoassunto?.importoImponibile ?? 0,
+      'affittoNeoassunto',
+      'netto',
+    ),
+    voce(
+      'Affitto neoassunto esente',
+      rimborsoAffittoNeoassunto?.importoEsente ?? 0,
+      'affittoNeoassunto',
+      'esente',
+    ),
   ];
 }
 
@@ -1060,6 +1143,16 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
   const { costoAziendale, totaleTrattenute, totaleBonus, nettoAnnuo, totalePercepito } =
     totali(ripartizione);
   const nettoMensile = nettoAnnuo / 12;
+  const bustePaga: DettaglioBustePaga = {
+    numeroAggiuntive: 0,
+    ordinaria: {
+      ...BUSTA_VUOTA,
+      lordo: importoLordo / 12,
+      contributiInps: contributoGSBorsista / 12,
+      netto: nettoMensile,
+    },
+    aggiuntiva: null,
+  };
 
   // Dettaglio contributi INPS (GS borsista)
   const contributiInps: DettaglioContributiInps = {
@@ -1098,6 +1191,8 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
   const zeroRimborsiTrasferta: DettaglioRimborsiTrasferta = {
     rimborsoForfettarioEsente: 0,
     rimborsoDocumentatoEsente: 0,
+    indennitaEccedente: 0,
+    rimborsiSpeseTassati: 0,
     rimborsiTassati: 0,
     totaleEsente: 0,
     totaleRimborsi: 0,
@@ -1122,6 +1217,7 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     fringeBenefit: zeroFringeBenefit,
     rimborsiTrasferta: zeroRimborsiTrasferta,
     benefitNonTassati: zeroBenefitNonTassati,
+    rimborsoAffittoNeoassunto: null,
     fondiContrattuali: [],
     fondoPensioneIntegrativo: null,
     assistenzaSanitaria: null,
@@ -1144,6 +1240,7 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
       tfrLordo: 0,
       riduzioneTfr: 0,
     },
+    tfr: null,
     costoAziendale,
     irpef: { imponibileIrpef: 0, irpefLorda: 0, dettaglioScaglioni: [] },
     detrazioniLavoro: {
@@ -1189,6 +1286,8 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     nettoAnnuo,
     nettoMensile,
     nettoMensilePercepito: nettoMensile,
+    nettoMensilitaAggiuntiva: 0,
+    bustePaga,
     aliquotaEffettiva: totaleTrattenute / importoLordo,
     totalePercepito,
   };
@@ -1401,6 +1500,126 @@ function caricoFiscale(imposte: RisultatoImposte): number {
   );
 }
 
+/** Voci annue da ripartire tra mensilità ordinarie e aggiuntive */
+interface ContestoBustePaga {
+  ral: number;
+  mensilita: number;
+  /** Imponibile previdenziale annuo, prima del massimale */
+  imponibilePrevidenziale: number;
+  contributiInps: number;
+  /** Contributo annuo al fondo pensione a carico del lavoratore, se ripartito per mensilità */
+  fondoPensionePerMensilita: { contributoAnnuo: number; quotaDedotta: number } | null;
+  /** Trattenute annue per fondi contrattuali e fondo pensione */
+  fondi: number;
+  /** Quota del reddito di lavoro dipendente esente per il regime impatriati (0 se non attivo) */
+  quotaEsenteImpatriati: number;
+  imponibileIrpef: number;
+  irpefLorda: number;
+  irpefFinale: number;
+  addizionali: number;
+  bonus: number;
+  /** Voci tassate pagate in busta oltre alla RAL e ai bonus */
+  altreEntrate: number;
+  /** Trattenute diverse da INPS, IRPEF, addizionali e fondi */
+  altreTrattenute: number;
+  nettoAnnuo: number;
+}
+
+const BUSTA_VUOTA: BustaPaga = {
+  lordo: 0,
+  contributiInps: 0,
+  fondi: 0,
+  imponibileIrpef: 0,
+  irpefLorda: 0,
+  detrazioni: 0,
+  irpef: 0,
+  addizionali: 0,
+  bonus: 0,
+  altreEntrate: 0,
+  altreTrattenute: 0,
+  netto: 0,
+};
+
+/**
+ * Tredicesima o quattordicesima: stesso lordo e stessa aliquota contributiva delle altre
+ * mensilità, IRPEF sugli scaglioni mensili (annui / 12) senza detrazioni, niente addizionali né
+ * bonus. Le detrazioni spettano infatti solo sulle dodici mensilità ordinarie, le addizionali
+ * sono trattenute a rate sulle mensilità ordinarie e i bonus sono riconosciuti mese per mese.
+ */
+function calcolaBustaAggiuntiva(
+  ctx: ContestoBustePaga,
+  lordo: number,
+  numeroAggiuntive: number,
+): BustaPaga {
+  const aliquotaInps =
+    ctx.imponibilePrevidenziale > 0 ? ctx.contributiInps / ctx.imponibilePrevidenziale : 0;
+  const contributiInps = lordo * aliquotaInps;
+
+  // Il contributo al fondo pensione grava sulle mensilità aggiuntive solo se ripartito su tutte
+  const fondi = ctx.fondoPensionePerMensilita
+    ? ctx.fondoPensionePerMensilita.contributoAnnuo / ctx.mensilita
+    : 0;
+  const deduzione = fondi * (ctx.fondoPensionePerMensilita?.quotaDedotta ?? 0);
+
+  const imponibileIrpef =
+    Math.max(0, lordo - contributiInps - deduzione) * (1 - ctx.quotaEsenteImpatriati);
+  const irpefLorda = calcolaIrpefLorda(imponibileIrpef * 12).irpefLorda / 12;
+
+  // Il conguaglio di fine anno restituisce la ritenuta che eccede l'IRPEF dovuta nell'anno:
+  // quando le detrazioni azzerano l'imposta, anche la tredicesima ne beneficia
+  const irpef = Math.min(irpefLorda, ctx.irpefFinale / numeroAggiuntive);
+
+  return {
+    lordo,
+    contributiInps,
+    fondi,
+    imponibileIrpef,
+    irpefLorda,
+    detrazioni: irpefLorda - irpef,
+    irpef,
+    addizionali: 0,
+    bonus: 0,
+    altreEntrate: 0,
+    altreTrattenute: 0,
+    netto: lordo - contributiInps - fondi - irpef,
+  };
+}
+
+/**
+ * Ripartisce le voci annue tra le dodici mensilità ordinarie e le mensilità aggiuntive: la
+ * mensilità aggiuntiva è calcolata a sé, la ordinaria riceve il resto, così che
+ * 12 × ordinaria + aggiuntive = importo annuo per ogni voce e per il netto.
+ */
+function calcolaBustePaga(ctx: ContestoBustePaga): DettaglioBustePaga {
+  const numeroAggiuntive = Math.max(0, ctx.mensilita - 12);
+  const lordo = ctx.ral / ctx.mensilita;
+  const aggiuntiva =
+    numeroAggiuntive > 0 ? calcolaBustaAggiuntiva(ctx, lordo, numeroAggiuntive) : null;
+
+  const agg = aggiuntiva ?? BUSTA_VUOTA;
+  const residuo = (annuo: number, mensilitaAggiuntiva: number) =>
+    (annuo - numeroAggiuntive * mensilitaAggiuntiva) / 12;
+
+  const irpefLorda = residuo(ctx.irpefLorda, agg.irpefLorda);
+  const irpef = residuo(ctx.irpefFinale, agg.irpef);
+  const ordinaria: BustaPaga = {
+    lordo,
+    contributiInps: residuo(ctx.contributiInps, agg.contributiInps),
+    fondi: residuo(ctx.fondi, agg.fondi),
+    imponibileIrpef: residuo(ctx.imponibileIrpef, agg.imponibileIrpef),
+    irpefLorda,
+    detrazioni: irpefLorda - irpef,
+    irpef,
+    addizionali: ctx.addizionali / 12,
+    bonus: ctx.bonus / 12,
+    altreEntrate: ctx.altreEntrate / 12,
+    altreTrattenute: ctx.altreTrattenute / 12,
+    netto: residuo(ctx.nettoAnnuo, agg.netto),
+  };
+
+  return { numeroAggiuntive, ordinaria, aggiuntiva };
+}
+
 export class Calculator2026 implements StipendioCalculator {
   calcolaStipendioNetto(input: InputCalcoloStipendio): OutputCalcoloStipendio {
     // Borsa di studio come contratto: calcolo semplificato (solo GS INPS, esente IRPEF)
@@ -1428,6 +1647,7 @@ export class Calculator2026 implements StipendioCalculator {
       haFigliACarico = false,
       rimborsiTrasferta: rimborsiTrasfertaInput,
       benefitNonTassati: benefitNonTassatiInput,
+      rimborsoAffittoNeoassunto: rimborsoAffittoNeoassuntoInput,
       regimeImpatriati: regimeImpatriatiFlag = false,
       regimeImpatriatiMinorenni = false,
       borsaDiStudio: borsaDiStudioInput,
@@ -1460,15 +1680,23 @@ export class Calculator2026 implements StipendioCalculator {
     // 3c. PREMIO DI RISULTATO: quota in denaro e conversioni in welfare e previdenza
     const quotePremio = ripartisciPremioRisultato(input.premioRisultato);
 
+    // 3d. CALCOLO RIMBORSO AFFITTO NEOASSUNTI 2025
+    const rimborsoAffittoNeoassunto = calcolaRimborsoAffittoNeoassunto(
+      rimborsoAffittoNeoassuntoInput,
+    );
+
     // 4. CALCOLO IMPONIBILE PREVIDENZIALE
-    // Il premio in denaro e le conversioni oltre il limite sono imponibili per lavoratore e datore
+    // Il premio in denaro e le conversioni oltre il limite sono imponibili per lavoratore e datore.
+    // Il rimborso affitto ai neoassunti entra per intero: la non concorrenza al reddito vale
+    // solo ai fini fiscali (art. 1, c. 386, L. 207/2024)
     const imponibilePrevidenziale =
       ral +
       fringeBenefit.valoreImponibile +
       rimborsiTrasferta.rimborsiTassati +
       benefitNonTassati.totaleTassato +
       quotePremio.quotaDenaro +
-      quotePremio.conversioniTassate;
+      quotePremio.conversioniTassate +
+      (rimborsoAffittoNeoassunto?.importo ?? 0);
 
     // 5. CALCOLO CONTRIBUTI INPS
     // Il lavoratore non versa contributi sulla quota decontribuita del premio (art. 55 D.L. 50/2017)
@@ -1488,11 +1716,13 @@ export class Calculator2026 implements StipendioCalculator {
     // I contributi datore, EBITEMP e welfare al fondo pensione sono reddito per il dipendente (Art. 51 TUIR)
     // ma è deducibile entro il plafond (Art. 10 TUIR): effetto netto zero se entro il limite.
     // I contributi sanitari del datore oltre €3.615,20 sono reddito imponibile IRPEF, non INPS.
+    // La quota esente del rimborso affitto ai neoassunti è nell'imponibile INPS ma non IRPEF
     // La quota del premio a imposta sostitutiva non concorre al reddito complessivo
     const redditoLavoroDipendenteLordo =
       imponibilePrevidenziale +
       fondi.redditoFondoPensione +
       fondi.redditoAssistenzaSanitaria -
+      (rimborsoAffittoNeoassunto?.importoEsente ?? 0) -
       contributiInps.totaleContributi -
       fondi.deduzione -
       imponibileSostitutiva;
@@ -1592,7 +1822,12 @@ export class Calculator2026 implements StipendioCalculator {
       },
       ...costiDatore.entrate,
       ...fondi.entrate,
-      ...vociBenefit(fringeBenefit, rimborsiTrasferta, benefitNonTassati),
+      ...vociBenefit(
+        fringeBenefit,
+        rimborsiTrasferta,
+        benefitNonTassati,
+        rimborsoAffittoNeoassunto,
+      ),
       ...vociPremio.entrate,
       {
         descrizione: 'Borsa di Studio',
@@ -1618,7 +1853,7 @@ export class Calculator2026 implements StipendioCalculator {
     ];
     const trattenute: VoceTrattenuta[] = [
       {
-        descrizione: 'Contributi INPS',
+        descrizione: VOCE_CONTRIBUTI_INPS,
         importo: contributiInps.totaleContributi,
         categoria: 'contributi',
       },
@@ -1651,6 +1886,13 @@ export class Calculator2026 implements StipendioCalculator {
     const { costoAziendale, totaleTrattenute, totaleBonus, nettoAnnuo, totalePercepito } =
       totali(ripartizione);
 
+    // 17. TFR NETTO (stima alla cessazione, fuori dal netto annuo)
+    const tfr = calcolaTfr({
+      quotaAnnua: costiDatore.dettaglio.tfrLordo - costiDatore.dettaglio.riduzioneTfr,
+      opzioni: input.tfr,
+      irpefLorda: (imponibile) => calcolaIrpefLorda(imponibile).irpefLorda,
+    });
+
     // Calcolo netto annuo borsa di studio (se presente)
     // Il netto borsa = importo lordo − contributo GS borsista − quota IRPEF/addizionali sulla borsa
     // La quota IRPEF/addizionali è proporzionale: (imponibileBorsa / redditoComplessivo) × (irpefFinale + addizionali)
@@ -1669,8 +1911,56 @@ export class Calculator2026 implements StipendioCalculator {
       };
     }
 
-    // Stipendio netto mensile
-    const nettoMensile = nettoAnnuo / mensilita;
+    // 17. MENSILITÀ ORDINARIA, TREDICESIMA E QUATTORDICESIMA
+    // Detrazioni, bonus e addizionali competono alle sole mensilità ordinarie: il netto del mese
+    // ordinario è più alto della media annua, la tredicesima più bassa
+    const fondoPensione = fondi.fondoPensioneIntegrativo;
+    const bustePaga = calcolaBustePaga({
+      ral,
+      mensilita,
+      imponibilePrevidenziale,
+      contributiInps: contributiInps.totaleContributi,
+      fondoPensionePerMensilita:
+        fondoPensione && input.fondoPensioneIntegrativo?.ripartizionePerMensilita
+          ? {
+              contributoAnnuo: fondoPensione.contributoLavoratoreAnnuo,
+              quotaDedotta:
+                fondoPensione.totaleContributi > 0
+                  ? fondoPensione.deduzioneEffettiva / fondoPensione.totaleContributi
+                  : 0,
+            }
+          : null,
+      fondi: somma(ripartizione.trattenute.filter((voce) => voce.categoria === 'fondi')),
+      quotaEsenteImpatriati:
+        dettaglioRegimeImpatriati && redditoLavoroDipendenteLordo > 0
+          ? dettaglioRegimeImpatriati.importoEsente / redditoLavoroDipendenteLordo
+          : 0,
+      imponibileIrpef: irpef.imponibileIrpef,
+      irpefLorda: irpef.irpefLorda,
+      irpefFinale,
+      addizionali: addizionali.totaleAddizionali,
+      bonus: totaleBonus,
+      altreEntrate: somma(
+        ripartizione.entrate.filter(
+          (voce) =>
+            voce.destinazione === 'netto' &&
+            voce.categoria !== 'retribuzione' &&
+            voce.categoria !== 'bonus',
+        ),
+      ),
+      altreTrattenute: somma(
+        ripartizione.trattenute.filter(
+          (voce) =>
+            voce.categoria === 'autoAziendale' ||
+            voce.categoria === 'impostaSostitutiva' ||
+            (voce.categoria === 'contributi' && voce.descrizione !== VOCE_CONTRIBUTI_INPS),
+        ),
+      ),
+      nettoAnnuo,
+    });
+
+    // Stipendio netto mensile: la mensilità ordinaria
+    const nettoMensile = bustePaga.ordinaria.netto;
 
     // Il percepito mensile aggiunge al netto le entrate esenti, ripartite su 12 mesi.
     // I fringe benefit esenti restano fuori perché includono il valore dell'auto aziendale.
@@ -1693,6 +1983,7 @@ export class Calculator2026 implements StipendioCalculator {
       fringeBenefit,
       rimborsiTrasferta,
       benefitNonTassati,
+      rimborsoAffittoNeoassunto,
       fondiContrattuali,
       fondoPensioneIntegrativo,
       assistenzaSanitaria: fondi.assistenzaSanitaria,
@@ -1701,6 +1992,7 @@ export class Calculator2026 implements StipendioCalculator {
       premioRisultato: dettaglioPremioRisultato,
       ripartizione,
       contributiDatore: costiDatore.dettaglio,
+      tfr,
       costoAziendale,
       irpef,
       detrazioniLavoro,
@@ -1716,6 +2008,8 @@ export class Calculator2026 implements StipendioCalculator {
       nettoAnnuo,
       nettoMensile,
       nettoMensilePercepito,
+      nettoMensilitaAggiuntiva: bustePaga.aggiuntiva?.netto ?? 0,
+      bustePaga,
       aliquotaEffettiva,
       totalePercepito,
     };

@@ -40,12 +40,16 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Fringe Benefit](#7-fringe-benefit)
   - [Rimborsi Spese](#8-rimborsi-spese)
   - [Benefit Non Tassati](#9-benefit-non-tassati-welfare)
+    - [Rimborso Affitto Neoassunti 2025](#rimborso-affitto-neoassunti-2025-l-2072024-art-1-c-386-389)
   - [Fondi Contrattuali (CCNL)](#10-fondi-contrattuali-ccnl)
   - [Previdenza Complementare](#11-previdenza-complementare-fondo-pensione-integrativo)
   - [Regime Impatriati](#12-regime-impatriati-rientro-cervelli)
   - [Costo Aziendale](#13-costo-aziendale)
   - [Borse di Studio](#14-borse-di-studio-dottoratopost-laurea)
-  - [Premi di Risultato](#16-premi-di-risultato)
+  - [Borsa di Studio come Tipo di Contratto](#15-borsa-di-studio-come-tipo-di-contratto-dottorato-di-ricerca)
+  - [Mensilità Ordinaria, Tredicesima e Quattordicesima](#16-mensilità-ordinaria-tredicesima-e-quattordicesima)
+  - [TFR Netto](#17-tfr-netto-tassazione-separata-e-rivalutazione)
+  - [Premi di Risultato](#18-premi-di-risultato)
 - [Sequenza di Calcolo](#sequenza-di-calcolo)
 - [Riferimenti Normativi](#riferimenti-normativi)
 
@@ -59,8 +63,8 @@ STIPENDIO NETTO = Imponibile − Contributi INPS − IRPEF Finale − Imposta So
 
 Dove:
 
-- `IMPONIBILE = RAL + Fringe Benefit Tassabili + Rimborsi Tassati + Benefit Eccedenti + Premio di Risultato in denaro`
-- `IMPONIBILE IRPEF = IMPONIBILE − Contributi INPS − Contributi obbligatori per qualifica − Quota premio a imposta sostitutiva`
+- `IMPONIBILE = RAL + Fringe Benefit Tassabili + Rimborsi Tassati + Benefit Eccedenti + Rimborso Affitto Neoassunti + Premio di Risultato in denaro`
+- `IMPONIBILE IRPEF = IMPONIBILE − Contributi INPS − Contributi obbligatori per qualifica − Rimborso Affitto Neoassunti Esente − Quota premio a imposta sostitutiva`
 - `IRPEF NETTA = IRPEF Lorda − Detrazioni Lavoro − Detrazioni Familiari − Altre Detrazioni`
 - `IRPEF FINALE = MAX(0, IRPEF Netta − Detrazione Cuneo Fiscale)`
 - `BONUS = Indennità Cuneo Fiscale + Trattamento Integrativo`
@@ -68,7 +72,13 @@ Dove:
 Il **Totale percepito** include anche le componenti esenti:
 
 ```
-TOTALE PERCEPITO = Stipendio Netto + Fringe Benefit Esenti + Rimborsi Esenti + Welfare Esente + Premio convertito in Welfare
+TOTALE PERCEPITO = Stipendio Netto + Fringe Benefit Esenti + Rimborsi Esenti + Welfare Esente + Rimborso Affitto Neoassunti Esente + Premio convertito in Welfare
+```
+
+Il **Netto mensile** è quello della mensilità ordinaria, non la media sulle mensilità: con tredicesima e quattordicesima il mese ordinario è più alto della media e la mensilità aggiuntiva più bassa, perché detrazioni, bonus e addizionali competono alle sole dodici mensilità ordinarie (vedi [sezione 16](#16-mensilità-ordinaria-tredicesima-e-quattordicesima)).
+
+```
+NETTO ANNUO = 12 × Netto Mensilità Ordinaria + (Mensilità − 12) × Netto Mensilità Aggiuntiva
 ```
 
 ---
@@ -355,8 +365,21 @@ Fringe Benefit = (Costo €/km ACI × 15.000 km × Percentuale) × (Mesi / 12) �
 
 **Riduzioni con rimborso misto:**
 
-- Vitto O alloggio rimborsati: −1/3
-- Vitto E alloggio rimborsati: −2/3
+- Vitto O alloggio rimborsati o forniti gratuitamente: −1/3 (€30,99 Italia, €51,65 estero)
+- Vitto E alloggio rimborsati o forniti gratuitamente: −2/3 (€15,49 Italia, €25,82 estero)
+
+I limiti ridotti sono arrotondati al centesimo, come i valori ufficiali.
+
+**Indennità diversa dal limite:**
+
+```
+Esente = MIN(Indennità × Giorni, Limite × Giorni)
+Tassata = Indennità × Giorni − Esente
+```
+
+La parte eccedente concorre all'imponibile IRPEF e previdenziale. Il calcolo si fa per gruppi di giorni con lo stesso trattamento, perché destinazione, importo e riduzione possono cambiare da una trasferta all'altra. Se l'indennità non è indicata, si assume pari al limite.
+
+Nel sistema forfettario i rimborsi di vitto e alloggio sono tassati, anche se documentati e tracciabili (Circ. AE 15/E/2025): se sono previsti, il sistema da indicare è il misto.
 
 **Rimborso Analitico:**
 Totalmente esente se documentato e con pagamento tracciabile (dal 2025).
@@ -402,6 +425,37 @@ Voci completamente esenti o con limiti specifici (art. 51 comma 2 TUIR).
 > (\*) I contributi al fondo pensione versati dall'azienda tramite welfare sono gestiti nella [previdenza complementare](#11-previdenza-complementare-fondo-pensione-integrativo): concorrono al plafond di €5.300 insieme ai contributi di lavoratore e datore e non sono una trattenuta dal netto.
 >
 > (†) Il limite di €3.615,20 è unico per tutti i contributi a casse e fondi sanitari (art. 51, c. 2, lett. a, TUIR): l'assistenza sanitaria welfare lo condivide con i [fondi contrattuali sanitari](#limite-di-esenzione-dei-contributi-sanitari) (quota azienda e quota lavoratore). L'eccedenza è reddito imponibile IRPEF ma non entra in busta né nell'imponibile previdenziale (art. 12, c. 4, lett. f, L. 153/1969), e il datore versa su di essa il contributo di solidarietà del 10%.
+
+##### Rimborso Affitto Neoassunti 2025 (L. 207/2024, art. 1, c. 386-389)
+
+Le somme erogate o rimborsate dal datore per i **canoni di locazione** (da contratto registrato) e le **spese di manutenzione** dell'immobile preso in affitto nel comune di lavoro non concorrono a formare il reddito di lavoro dipendente, per i **primi due anni dalla data di assunzione**, entro il limite di **€5.000 per annualità**. È una misura distinta dal rimborso affitto dei [fringe benefit](#7-fringe-benefit): nel calcolo si attiva dalla sezione "Rimborso affitto neoassunti 2025", con l'importo annuo e la conferma dei requisiti.
+
+**Requisiti (c. 387):**
+
+| Requisito  | Condizione                                                                                           |
+| ---------- | ---------------------------------------------------------------------------------------------------- |
+| Assunzione | Contratto a tempo indeterminato stipulato tra il 1° gennaio e il 31 dicembre 2025                    |
+| Reddito    | Reddito di lavoro dipendente 2024 (anno precedente l'assunzione) non superiore a €35.000             |
+| Residenza  | Trasferita nel comune di lavoro, distante più di 100 km dal comune di precedente residenza           |
+| Documenti  | Autocertificazione della residenza nei 6 mesi precedenti l'assunzione (c. 389, art. 46 DPR 445/2000) |
+
+**Trattamento nel calcolo:**
+
+| Quota                              | IRPEF      | INPS (lavoratore e datore) | Ripartizione                      |
+| ---------------------------------- | ---------- | -------------------------- | --------------------------------- |
+| Entro €5.000 l'anno, con requisiti | Esente     | Imponibile                 | Voce esente, nel totale percepito |
+| Eccedenza oltre €5.000             | Imponibile | Imponibile                 | Voce in busta, tassata            |
+| Intero importo, senza requisiti    | Imponibile | Imponibile                 | Voce in busta, tassata            |
+
+- **Franchigia, non soglia secca:** se il rimborso supera €5.000, solo l'eccedenza concorre al reddito (Circ. AdE 4/E/2025, par. 2.7). Diversamente dai fringe benefit, il superamento del limite non rende imponibile l'intero importo.
+- **Contributi:** la non concorrenza al reddito "non rileva ai fini contributivi" (c. 386): l'intero rimborso, quota esente compresa, entra nell'imponibile previdenziale di lavoratore e datore (INPS, addizionale NASpI e INAIL) e sconta i contributi ordinari. Il netto in busta scende quindi dei contributi dovuti sulla quota esente, mentre il totale percepito sale dell'importo esente.
+- **Limite per annualità:** i €5.000 valgono per ciascuno dei 24 mesi dall'assunzione, in due periodi di 12 mesi (es. assunzione il 1° ottobre 2025: dal 1° ottobre 2025 al 30 settembre 2026 e dal 1° ottobre 2026 al 30 settembre 2027). Le annualità non si cumulano: la quota non usata nel primo anno non aumenta il limite del secondo. Il calcolo, su base annua, applica il limite all'importo indicato.
+- **Autonomia dai fringe benefit:** la misura è autonoma e cumulabile con la soglia di €1.000/€2.000 dei commi 390-391, anche per spese della stessa natura: il rimborso ai neoassunti non concorre alla soglia fringe benefit e un ulteriore rimborso affitto può restare esente come fringe benefit, fermo restando che il rimborso complessivo non può superare la spesa sostenuta.
+- **Altre agevolazioni:** per le spese rimborsate non spettano la detrazione per canoni di locazione (art. 16 TUIR) né quelle per ristrutturazioni ed ecobonus; le somme rilevano ai fini ISEE e dell'accesso alle prestazioni previdenziali e assistenziali (c. 388).
+- **Durata:** la Legge di Bilancio 2026 non ha esteso la misura alle assunzioni del 2026, ma chi è stato assunto nel 2025 ne beneficia per 24 mesi dall'assunzione, quindi anche nel 2026 e, per le assunzioni successive a gennaio, nel 2027.
+- **Costo aziendale:** il rimborso è pagato dal datore e rientra per intero nel costo aziendale, insieme ai contributi datore dovuti su di esso.
+
+> ℹ️ Fonti: art. 1, c. 386-389, L. 207/2024; Circolare Agenzia delle Entrate n. 4/E del 16 maggio 2025, par. 2.7 ("Misure fiscali per il welfare aziendale"); risposta a interpello n. 17/2025 (autocertificazione).
 
 ---
 
@@ -747,6 +801,7 @@ Il costo aziendale include anche le componenti variabili erogate dall'azienda, s
 - **Fringe Benefit:** il valore totale dei fringe benefit erogati (buoni acquisto, buoni carburante, rimborsi utenze/affitto/mutuo, auto aziendale, altri). Per l'auto aziendale, viene utilizzato il valore convenzionale ai fini fiscali.
 - **Rimborsi Trasferta:** il totale dei rimborsi spese per trasferte (forfettari ed analitici, sia esenti che tassati).
 - **Benefit Non Tassati (Welfare):** il totale dei benefit di welfare aziendale erogati (buoni pasto, assistenza sanitaria, abbonamento trasporti, servizi welfare). La previdenza complementare da welfare è inclusa nella voce Fondo Pensione (datore/welfare).
+- **Rimborso Affitto Neoassunti 2025:** l'intero rimborso (quota esente ed eccedenza), su cui il datore paga anche i contributi, perché la franchigia di €5.000 vale solo ai fini IRPEF.
 
 > Queste voci contribuiscono anche all'imponibile previdenziale per le eventuali parti tassabili, e il relativo costo INPS datore è già incluso nella voce "Contributi INPS Datore".
 
@@ -895,7 +950,140 @@ Costo per l'Ente:      € 20.036,55
 
 ---
 
-#### 16. Premi di Risultato
+#### 16. Mensilità Ordinaria, Tredicesima e Quattordicesima
+
+Il netto annuo non si distribuisce in parti uguali tra le mensilità. In busta paga:
+
+- le **detrazioni** (lavoro dipendente, carichi familiari, cuneo fiscale, altre detrazioni) sono riconosciute per dodicesimi sulle sole mensilità ordinarie;
+- i **bonus** (indennità cuneo fiscale e trattamento integrativo) sono erogati mese per mese sulle mensilità ordinarie;
+- le **addizionali** regionale e comunale sono trattenute a rate sulle mensilità ordinarie (dell'anno successivo, per il saldo);
+- **tredicesima e quattordicesima** subiscono contributi e IRPEF, ma senza detrazioni, addizionali né bonus. L'IRPEF è calcolata applicando gli scaglioni mensili (scaglioni annui / 12) all'imponibile della sola mensilità aggiuntiva.
+
+Il mese ordinario reale è quindi più alto della media `Netto Annuo / Mensilità` e la tredicesima più bassa. Il calcolatore mostra entrambi i valori: il **Netto mensile** è quello della mensilità ordinaria, accanto compare il netto della tredicesima (o di tredicesima e quattordicesima).
+
+##### Mensilità aggiuntiva
+
+```
+Lordo             = RAL / Mensilità
+Contributi INPS   = Lordo × (Contributi INPS annui / Imponibile previdenziale annuo)
+Fondo pensione    = Contributo lavoratore annuo / Mensilità   (solo se ripartito per mensilità)
+Imponibile IRPEF  = (Lordo − Contributi − Quota dedotta fondo) × (1 − Quota esente impatriati)
+IRPEF lorda       = IRPEF(Imponibile × 12) / 12                (scaglioni mensili)
+IRPEF trattenuta  = MIN(IRPEF lorda, IRPEF Finale annua / Mensilità aggiuntive)
+Netto             = Lordo − Contributi − Fondo pensione − IRPEF trattenuta
+```
+
+Il minimo sull'IRPEF riproduce il conguaglio di fine anno: quando le detrazioni azzerano l'imposta dovuta nell'anno, la ritenuta della tredicesima viene restituita e anche la tredicesima risulta senza IRPEF.
+
+##### Mensilità ordinaria
+
+Ogni voce annua è ripartita per differenza, così che `12 × ordinaria + aggiuntive = importo annuo` per ogni voce e per il netto:
+
+```
+Voce ordinaria = (Voce annua − Mensilità aggiuntive × Voce aggiuntiva) / 12
+```
+
+Addizionali, bonus, fringe benefit e rimborsi tassati, welfare oltre soglia, premio di risultato e relativa imposta sostitutiva, borsa di studio, trattenuta auto e Gestione Separata del borsista gravano per intero sulle dodici mensilità ordinarie. I contributi ai fondi contrattuali sono mensili su dodici mesi; il contributo al fondo pensione segue l'opzione "ripartisci per mensilità".
+
+##### Esempio: RAL €30.000, 13 mensilità, Lombardia, Milano
+
+```
+                        Ordinaria    Tredicesima
+Lordo                   € 2.307,69   € 2.307,69
+Contributi INPS 9,19%   € -212,08    € -212,08
+Imponibile IRPEF        € 2.095,62   € 2.095,62
+IRPEF lorda (23%)       €  481,99    €  481,99
+Detrazioni              € -253,69    €      —
+IRPEF trattenuta        € -228,30    € -481,99
+Addizionali             €  -49,66    €      —
+─────────────────────────────────────────────────
+Netto                   € 1.817,66   € 1.613,62
+
+Controllo: 12 × 1.817,66 + 1.613,62 = 23.425,52 = Netto Annuo
+Media semplice (23.425,52 / 13) = 1.801,96
+```
+
+Il conguaglio di fine anno e le rate delle addizionali spostano gli importi tra i mesi, non il totale: il cedolino di dicembre e quelli dell'anno successivo possono discostarsi dalla mensilità ordinaria qui stimata.
+
+---
+
+#### 17. TFR Netto (Tassazione Separata e Rivalutazione)
+
+Il TFR compare nel [costo aziendale](#tfr-trattamento-di-fine-rapporto) come accantonamento lordo, ma chi valuta un'offerta vuole sapere quanto ne incasserà. La sezione **TFR** dei risultati stima il netto alla cessazione, a RAL costante: senza input aggiuntivi per un anno di servizio con TFR in azienda; la sezione opzionale **TFR** del form aggiunge gli anni di servizio previsti, la destinazione (azienda o fondo pensione) e l'inflazione attesa. Il TFR **non entra nel netto annuo in busta** né nel percepito: matura come accantonamento del datore ed è tassato a parte alla liquidazione.
+
+##### Accantonamento e Rivalutazione (TFR in Azienda)
+
+```
+Quota Annua = RAL / 13,5 − 0,50% × MIN(Imponibile, Massimale)
+Tasso di Rivalutazione = 1,5% + 75% × Inflazione FOI (dicembre su dicembre)
+Rivalutazione Anno N = Fondo al 31/12 dell'anno N−1 × Tasso
+Imposta Sostitutiva = 17% × Rivalutazione (trattenuta dal fondo)
+TFR Lordo alla Cessazione = Σ Quote + Σ Rivalutazioni − Σ Imposta Sostitutiva
+```
+
+La rivalutazione (art. 2120, c. 4, c.c.) si applica al fondo accantonato al 31 dicembre dell'anno precedente, quindi il primo anno non si rivaluta; se l'indice FOI scende, resta solo l'1,5% fisso. Nel 2025 l'inflazione FOI dicembre su dicembre è stata 1,08% e il coefficiente 2,311148% (fonte ISTAT, 16 gennaio 2026). L'imposta sostitutiva (art. 11, c. 3, D.Lgs. 47/2000) è al 17% dal 2015 (art. 1, c. 623, L. 190/2014). Lo stesso trattamento vale per il TFR versato al Fondo di Tesoreria INPS (aziende con almeno 50 dipendenti). L'inflazione attesa predefinita è il 2%.
+
+##### Tassazione Separata (art. 17, c. 1, lett. a, e art. 19 TUIR)
+
+```
+Imponibile = Σ Quote accantonate (TFR al netto delle rivalutazioni già tassate)
+Reddito di Riferimento = Imponibile × 12 / Anni di servizio
+Aliquota Media = IRPEF per scaglioni (Reddito di Riferimento) / Reddito di Riferimento
+Imposta = Imponibile × Aliquota Media − Detrazione D.M. 20/03/2008
+TFR Netto = TFR Lordo alla Cessazione − Imposta
+```
+
+Il TFR è imponibile al netto delle rivalutazioni già assoggettate a imposta sostitutiva (art. 19, c. 1, TUIR). L'aliquota si determina sul **reddito di riferimento**, cioè l'imponibile diviso per gli anni e frazioni di anno di servizio e moltiplicato per dodici, con gli scaglioni IRPEF in vigore nell'anno in cui matura il diritto alla percezione: è l'aliquota media, senza detrazioni, che il reddito avrebbe scontato se percepito anno per anno. A RAL costante il reddito di riferimento è la quota annua × 12 e non cambia con gli anni di servizio. Il calcolatore considera anni interi.
+
+Il datore applica questa imposta come ritenuta; l'Agenzia delle Entrate **riliquida** poi l'imposta con l'aliquota media IRPEF dei cinque anni precedenti la cessazione, iscrivendo a ruolo la differenza o rimborsando l'eccedenza (art. 19, c. 1, TUIR). Se in nessuno dei cinque anni c'è stato reddito imponibile si applica l'aliquota del primo scaglione (c. 1-bis). Il calcolatore si ferma alla ritenuta del datore e segnala la riliquidazione in una nota.
+
+| Reddito di Riferimento | Detrazione D.M. 20 marzo 2008        |
+| ---------------------- | ------------------------------------ |
+| ≤ €7.500               | €70                                  |
+| €7.500 − €28.000       | €50 + €20 × (€28.000 − RR) / €20.500 |
+| €28.000 − €30.000      | €50 × (€30.000 − RR) / €2.000        |
+| > €30.000              | €0                                   |
+
+La detrazione (art. 2, c. 514, L. 244/2007 e D.M. 20 marzo 2008) spetta per i rapporti cessati dal 1° aprile 2008, senza scadenza, una sola volta per cessazione, e si sottrae all'imposta fino ad azzerarla. La detrazione di €61,97 per anno dell'art. 19, c. 1-ter, TUIR riguarda solo i rapporti a tempo determinato di durata effettiva non superiore a due anni e non è calcolata. Per il TFR maturato fino al 31 dicembre 2000 valgono le regole previgenti (riduzione di €309,87 per anno), fuori dall'ambito del calcolatore.
+
+##### TFR al Fondo Pensione (art. 11, c. 6, D.Lgs. 252/2005)
+
+```
+Aliquota = MAX(9%, 15% − 0,30% × MAX(0, Anni di partecipazione − 15))
+TFR Netto = Σ Quote × (1 − Aliquota)
+```
+
+Il TFR conferito al fondo pensione non si rivaluta con il meccanismo dell'art. 2120 c.c. e la prestazione finale è tassata con una ritenuta a titolo d'imposta del 15%, ridotta di 0,30 punti per ogni anno di partecipazione oltre il quindicesimo, fino al 9% (riduzione massima di 6 punti, raggiunta al 35° anno). Il calcolatore assume che l'anzianità di iscrizione coincida con gli anni di servizio e non stima i rendimenti del fondo, tassati a parte con imposta sostitutiva del 20% (12,5% sulla quota in titoli di Stato) ed esclusi dalla base imponibile della prestazione. Non si applica la detrazione del D.M. 20 marzo 2008. Per chi era iscritto prima del 2007 i montanti maturati fino al 2006 seguono le regole previgenti, non calcolate.
+
+##### Esempio: RAL €30.000, un anno di servizio, TFR in azienda
+
+```
+Quota annua (30.000 / 13,5 − 150):     € 2.072,22
+Reddito di riferimento (× 12):          € 24.866,67
+Aliquota media (23% su 24.866,67):           23,00%
+Imposta lorda:                          €   476,61
+Detrazione D.M. 20/03/2008:             −€   53,06
+────────────────────────────────────────────────────
+Imposta:                                €   423,55
+TFR netto stimato:                      € 1.648,67
+```
+
+##### Esempio: RAL €30.000, 3 anni di servizio, inflazione 2%
+
+```
+Tasso di rivalutazione (1,5% + 75% × 2%):      3,00%
+Quote accantonate (3 × 2.072,22):          € 6.216,67
+Rivalutazione (anno 2 e anno 3):           € 188,05
+Imposta sostitutiva 17%:                   −€  31,97
+TFR lordo alla cessazione:                 € 6.372,74
+Imposta (23% × 6.216,67 − 53,06):          −€ 1.376,78
+──────────────────────────────────────────────────────
+TFR netto stimato:                         € 4.995,96   (€ 1.665,32 per anno)
+```
+
+---
+
+#### 18. Premi di Risultato
 
 I premi di risultato di ammontare variabile, legati a incrementi di produttività, redditività, qualità, efficienza o innovazione e previsti da contratti aziendali o territoriali depositati, godono di un'imposta sostitutiva dell'IRPEF e delle addizionali (art. 1, c. 182-190, L. 208/2015). Lo stesso regime vale per le somme erogate come partecipazione agli utili.
 
@@ -1007,6 +1195,7 @@ Con tassazione ordinaria gli stessi €2.724,30 avrebbero pagato IRPEF al 23%, a
 │  4. CALCOLO BENEFIT WELFARE                                     │
 │     → Verifica limiti per categoria                             │
 │     → Determina eccedenze tassabili                             │
+│     → Rimborso affitto neoassunti: esente IRPEF entro €5.000    │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -1021,6 +1210,7 @@ Con tassazione ordinaria gli stessi €2.724,30 avrebbero pagato IRPEF al 23%, a
 ┌─────────────────────────────────────────────────────────────────┐
 │  5. IMPONIBILE PREVIDENZIALE                                    │
 │     = RAL + Fringe Imponibili + Rimborsi Tassati + Eccedenze    │
+│       + Rimborso Affitto Neoassunti (per intero)                │
 │       + Premio in denaro (− €800 decontribuiti, lavoratore)     │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -1124,6 +1314,15 @@ Con tassazione ordinaria gli stessi €2.724,30 avrebbero pagato IRPEF al 23%, a
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
+│  13b. MENSILITÀ                                                 │
+│      Tredicesima/quattordicesima: lordo, contributi, IRPEF      │
+│      sugli scaglioni mensili senza detrazioni, né addizionali   │
+│      né bonus. Ordinaria = (annuo − aggiuntive) / 12            │
+│      Netto Mensile = netto della mensilità ordinaria            │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
 │  14. COSTO AZIENDALE                                            │
 │      = RAL + INPS Datore − Esonero + Addizionale NASpI          │
 │        + Solidarietà 10% + INAIL + TFR (− 0,50% IVS)            │
@@ -1131,39 +1330,54 @@ Con tassazione ordinaria gli stessi €2.724,30 avrebbero pagato IRPEF al 23%, a
 │        + Fringe Benefit + Rimborsi Trasferta + Benefit Non Tass.│
 │        + Premio di Risultato − Decontribuzione €800 × 20%       │
 └─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  15. TFR NETTO (stima alla cessazione, fuori dal netto)         │
+│      → Quote × anni, rivalutazione 1,5% + 75% FOI, −17%         │
+│      → Azienda: aliquota media IRPEF sul reddito di riferimento │
+│        (quote × 12 / anni) − detrazione D.M. 20/03/2008         │
+│      → Fondo pensione: 15% − 0,30% per anno oltre il 15°, ≥ 9%  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Riferimenti Normativi
 
-| Normativa                 | Contenuto                                |
-| ------------------------- | ---------------------------------------- |
-| **TUIR (DPR 917/1986)**   | Testo Unico Imposte sui Redditi          |
-| **Art. 51 TUIR**          | Determinazione reddito lavoro dipendente |
-| **Art. 13 TUIR**          | Detrazioni lavoro dipendente             |
-| **Art. 12 TUIR**          | Detrazioni carichi familiari             |
-| **L. 207/2024**           | Legge di Bilancio 2025                   |
-| **L. 199/2025**           | Legge di Bilancio 2026                   |
-| **D.Lgs. 192/2024**       | Riforma IRPEF-IRES                       |
-| **L. 438/1992**           | Contributo aggiuntivo 1%                 |
-| **Circ. AE 5/E/2024**     | Chiarimenti fringe benefit               |
-| **Circ. AE 10/E/2025**    | Auto aziendali uso promiscuo             |
-| **Circ. AE 15/E/2025**    | Rimborsi trasferta e tracciabilità       |
-| **D.Lgs. 252/2005**       | Previdenza complementare                 |
-| **Art. 10 TUIR**          | Deduzioni dal reddito complessivo        |
-| **D.Lgs. 209/2023**       | Regime impatriati (rientro cervelli)     |
-| **Art. 2120 c.c.**        | Trattamento di Fine Rapporto (TFR)       |
-| **L. 297/1982**           | Contributo 0,50% IVS recuperato sul TFR  |
-| **L. 92/2012**            | Contributo addizionale NASpI             |
-| **D.L. 87/2018**          | Aumento addizionale NASpI per rinnovo    |
-| **D.L. 103/1991**         | Contributo di solidarietà 10%            |
-| **L. 153/1969, art. 12**  | Imponibile previdenziale, esclusioni     |
-| **Ris. AE 78/E/2004**     | Contributi FASI per pensionati e limite  |
-| **L. 296/2006**           | Contribuzione apprendisti                |
-| **D.L. 60/2024**          | Esoneri Bonus Giovani, Donne e ZES       |
-| **L. 208/2015, art. 1**   | Premi di risultato, c. 182-190           |
-| **D.L. 50/2017, art. 55** | Decontribuzione premi, coinv. paritetico |
-| **Circ. AE 28/E/2016**    | Premi di risultato e welfare sostitutivo |
-| **Ris. AE 22/E/2026**     | Limite €5.000 anche alle conversioni     |
+| Normativa                   | Contenuto                                |
+| --------------------------- | ---------------------------------------- |
+| **TUIR (DPR 917/1986)**     | Testo Unico Imposte sui Redditi          |
+| **Art. 51 TUIR**            | Determinazione reddito lavoro dipendente |
+| **Art. 13 TUIR**            | Detrazioni lavoro dipendente             |
+| **Art. 12 TUIR**            | Detrazioni carichi familiari             |
+| **L. 207/2024**             | Legge di Bilancio 2025                   |
+| **L. 199/2025**             | Legge di Bilancio 2026                   |
+| **D.Lgs. 192/2024**         | Riforma IRPEF-IRES                       |
+| **L. 438/1992**             | Contributo aggiuntivo 1%                 |
+| **Circ. AE 5/E/2024**       | Chiarimenti fringe benefit               |
+| **Circ. AE 4/E/2025**       | Chiarimenti LB 2025, affitto neoassunti  |
+| **Circ. AE 10/E/2025**      | Auto aziendali uso promiscuo             |
+| **Circ. AE 15/E/2025**      | Rimborsi trasferta e tracciabilità       |
+| **D.Lgs. 252/2005**         | Previdenza complementare                 |
+| **Art. 10 TUIR**            | Deduzioni dal reddito complessivo        |
+| **D.Lgs. 209/2023**         | Regime impatriati (rientro cervelli)     |
+| **Art. 2120 c.c.**          | Trattamento di Fine Rapporto (TFR)       |
+| **L. 297/1982**             | Contributo 0,50% IVS recuperato sul TFR  |
+| **Art. 17 e 19 TUIR**       | Tassazione separata del TFR              |
+| **D.Lgs. 47/2000**          | Imposta sostitutiva sulla rivalutazione  |
+| **L. 190/2014**             | Imposta sostitutiva TFR al 17%           |
+| **D.M. 20 marzo 2008**      | Detrazione sul TFR (L. 244/2007, c. 514) |
+| **Art. 11 D.Lgs. 252/2005** | Tassazione prestazioni fondo pensione    |
+| **L. 92/2012**              | Contributo addizionale NASpI             |
+| **D.L. 87/2018**            | Aumento addizionale NASpI per rinnovo    |
+| **D.L. 103/1991**           | Contributo di solidarietà 10%            |
+| **L. 153/1969, art. 12**    | Imponibile previdenziale, esclusioni     |
+| **Ris. AE 78/E/2004**       | Contributi FASI per pensionati e limite  |
+| **L. 296/2006**             | Contribuzione apprendisti                |
+| **D.L. 60/2024**            | Esoneri Bonus Giovani, Donne e ZES       |
+| **L. 208/2015, art. 1**     | Premi di risultato, c. 182-190           |
+| **D.L. 50/2017, art. 55**   | Decontribuzione premi, coinv. paritetico |
+| **Circ. AE 28/E/2016**      | Premi di risultato e welfare sostitutivo |
+| **Ris. AE 22/E/2026**       | Limite €5.000 anche alle conversioni     |
 
 ---
 

@@ -38,14 +38,27 @@ export interface FringeBenefit {
   altri?: number;
 }
 
+/** Quante tra vitto e alloggio sono rimborsate o fornite gratuitamente */
+export type VittoAlloggioACarico = 'nessuno' | 'uno' | 'entrambi';
+
+export type DestinazioneTrasferta = 'italia' | 'estero';
+
+/** Giorni di trasferta fuori comune con lo stesso trattamento */
+export interface Trasferta {
+  destinazione: DestinazioneTrasferta;
+  giorni: number;
+  /** Indennità giornaliera erogata; se assente, è pari al limite esente */
+  indennitaGiornaliera?: number;
+  /** Riduce il limite esente di 1/3 o 2/3 (solo sistema misto) */
+  vittoAlloggioACarico?: VittoAlloggioACarico;
+}
+
 /** Dettaglio rimborsi spese trasferta */
 export interface RimborsiTrasferta {
   /** Modalità rimborso trasferte fuori comune */
   modalitaRimborso?: 'forfettario' | 'misto' | 'analitico';
-  /** Giorni trasferta Italia (per calcolo forfettario) */
-  giorniTrasfertaItalia?: number;
-  /** Giorni trasferta estero (per calcolo forfettario) */
-  giorniTrasfertaEstero?: number;
+  /** Giorni di trasferta con indennità (forfettario/misto) */
+  trasferte?: Trasferta[];
   /** Rimborso vitto documentato (analitico/misto) */
   rimborsoVitto?: number;
   /** Rimborso alloggio documentato (analitico/misto) */
@@ -61,6 +74,21 @@ export interface RimborsiTrasferta {
   rimborsoKmImponibile?: number;
   /** Indica se i pagamenti sono tracciabili (obbligatorio dal 2025 per vitto/alloggio/taxi) */
   pagamentiTracciabili?: boolean;
+}
+
+/**
+ * Rimborso affitto per i neoassunti a tempo indeterminato nel 2025 trasferiti per lavoro
+ * (art. 1, c. 386-389, L. 207/2024; Circ. AdE 4/E/2025, par. 2.7)
+ */
+export interface RimborsoAffittoNeoassunto {
+  /** Somme erogate o rimborsate dal datore nell'anno per canoni di locazione e spese di manutenzione */
+  importo: number;
+  /**
+   * Requisiti dei commi 386-387 rispettati: assunzione a tempo indeterminato nel 2025, reddito
+   * di lavoro dipendente 2024 non superiore a €35.000 e residenza trasferita nel comune di
+   * lavoro, distante più di 100 km dal precedente. Senza requisiti l'intero importo è imponibile
+   */
+  requisiti: boolean;
 }
 
 /** Dettaglio benefit non tassati (welfare aziendale) */
@@ -219,6 +247,22 @@ export interface EsoneroContributivo {
   mesi?: number;
 }
 
+/** Dove è destinato il TFR che matura: in azienda (o al Fondo di Tesoreria INPS) o al fondo pensione */
+export type DestinazioneTfr = 'azienda' | 'fondoPensione';
+
+/** Stima del TFR netto alla cessazione, fuori dal netto annuo in busta */
+export interface OpzioniTfr {
+  /** Anni interi di servizio previsti alla cessazione (default 1) */
+  anniServizio?: number;
+  /**
+   * In azienda il TFR si rivaluta ogni anno ed è tassato alla cessazione con la tassazione
+   * separata; al fondo pensione la prestazione è tassata al 15%, ridotto fino al 9% (default azienda)
+   */
+  destinazione?: DestinazioneTfr;
+  /** Inflazione FOI annua attesa, in percentuale (es. 2 = 2%), per la rivalutazione (default 2) */
+  inflazioneAttesa?: number;
+}
+
 /** Voci a carico del datore che spostano il costo aziendale, non il netto */
 export interface OpzioniDatore {
   /** Tasso INAIL in per mille (es. 4 = 4‰), applicato all'imponibile previdenziale */
@@ -330,6 +374,11 @@ export interface InputCalcoloStipendio extends Partial<Record<FondoContrattualeI
   /** Benefit non tassati (welfare aziendale) */
   benefitNonTassati?: BenefitNonTassati;
 
+  /**
+   * Rimborso affitto neoassunti 2025 (art. 1, c. 386-389, L. 207/2024): esente da IRPEF entro
+   * €5.000 l'anno per i primi due anni dall'assunzione, fuori dalla soglia fringe benefit
+   */
+  rimborsoAffittoNeoassunto?: RimborsoAffittoNeoassunto;
   /** Premio di risultato con imposta sostitutiva - L. 208/2015, art. 1, c. 182-190 */
   premioRisultato?: PremioRisultato;
 
@@ -354,6 +403,9 @@ export interface InputCalcoloStipendio extends Partial<Record<FondoContrattualeI
 
   /** INAIL, rinnovi, esoneri e aliquote agevolate a carico del datore */
   opzioniDatore?: OpzioniDatore;
+
+  /** Anni di servizio, destinazione e inflazione attesa per la stima del TFR netto */
+  tfr?: OpzioniTfr;
 }
 
 /** Dettaglio dei contributi INPS */
@@ -399,6 +451,44 @@ export interface DettaglioContributiDatore {
   tfrLordo: number;
   /** Contributo aggiuntivo IVS 0,50% recuperato sul TFR (art. 3, c. 15-16, L. 297/1982) */
   riduzioneTfr: number;
+}
+
+/**
+ * Stima del TFR netto alla cessazione, a RAL costante. Il TFR non entra nel netto annuo: matura
+ * come accantonamento del datore ed è tassato a parte alla liquidazione.
+ */
+export interface DettaglioTfr {
+  destinazione: DestinazioneTfr;
+  /** Anni interi di servizio alla cessazione */
+  anniServizio: number;
+  /** Quota accantonata ogni anno (RAL / 13,5 meno lo 0,50% IVS) */
+  quotaAnnua: number;
+  /** Quote accantonate negli anni di servizio, imponibile della tassazione separata */
+  quoteAccantonate: number;
+  /** Tasso di rivalutazione annuo (1,5% + 75% dell'inflazione FOI), 0 al fondo pensione */
+  tassoRivalutazione: number;
+  /** Rivalutazioni lorde maturate (art. 2120 c.c.) */
+  rivalutazione: number;
+  /** Imposta sostitutiva del 17% sulle rivalutazioni, trattenuta dal fondo */
+  impostaSostitutiva: number;
+  /** TFR lordo alla cessazione: quote più rivalutazioni, meno l'imposta sostitutiva */
+  montanteLordo: number;
+  /** Reddito di riferimento (art. 19 TUIR): quote accantonate / anni di servizio × 12 */
+  redditoRiferimento: number;
+  /** Aliquota media IRPEF sul reddito di riferimento, o aliquota 15%-9% del fondo pensione */
+  aliquota: number;
+  /** Imposta prima della detrazione (quote accantonate × aliquota) */
+  impostaLorda: number;
+  /** Detrazione del D.M. 20 marzo 2008, solo in tassazione separata */
+  detrazione: number;
+  /** Imposta alla cessazione, al netto della detrazione */
+  imposta: number;
+  /** TFR netto stimato alla cessazione */
+  nettoTotale: number;
+  /** TFR netto per anno di servizio */
+  nettoAnnuo: number;
+  /** (Imposta + imposta sostitutiva) / (quote + rivalutazioni) */
+  aliquotaEffettiva: number;
 }
 
 /** Dettaglio del calcolo IRPEF */
@@ -521,7 +611,11 @@ export interface DettaglioRimborsiTrasferta {
   rimborsoForfettarioEsente: number;
   /** Totale rimborsi documentati esenti */
   rimborsoDocumentatoEsente: number;
-  /** Rimborsi tassati (pagamenti non tracciabili) */
+  /** Parte dell'indennità di trasferta oltre il limite esente */
+  indennitaEccedente: number;
+  /** Rimborsi spese tassati: vitto e alloggio non tracciabili o nel forfettario, km imponibili */
+  rimborsiSpeseTassati: number;
+  /** Totale tassato: indennità eccedente + rimborsi spese tassati */
   rimborsiTassati: number;
   /** Totale rimborsi esenti */
   totaleEsente: number;
@@ -551,6 +645,20 @@ export interface DettaglioBenefitNonTassati {
   totaleEsente: number;
   /** Totale benefit tassati che entrano in busta (eccedenze buoni pasto) */
   totaleTassato: number;
+}
+
+/** Dettaglio rimborso affitto neoassunti 2025 */
+export interface DettaglioRimborsoAffittoNeoassunto {
+  /** Somme erogate o rimborsate nell'anno (per intero nell'imponibile previdenziale) */
+  importo: number;
+  /** Requisiti dei commi 386-387 rispettati */
+  requisiti: boolean;
+  /** Limite annuo di non concorrenza al reddito (€5.000), franchigia */
+  limiteEsenzione: number;
+  /** Quota esente da IRPEF (entro il limite, se i requisiti sono rispettati) */
+  importoEsente: number;
+  /** Quota imponibile IRPEF: eccedenza oltre il limite, o intero importo senza requisiti */
+  importoImponibile: number;
 }
 
 /** Dettaglio del premio di risultato */
@@ -692,6 +800,7 @@ export type CategoriaEntrata =
   | 'fringeBenefit'
   | 'rimborsiTrasferta'
   | 'welfare'
+  | 'affittoNeoassunto'
   | 'premioRisultato'
   | 'borsaDiStudio'
   | 'bonus';
@@ -743,6 +852,50 @@ export interface DettaglioRegimeImpatriati {
   haFigliMinorenni: boolean;
 }
 
+/** Voci di una singola busta paga, mensilità ordinaria o aggiuntiva */
+export interface BustaPaga {
+  /** Lordo della mensilità (RAL / mensilità) */
+  lordo: number;
+  /** Contributi INPS a carico del lavoratore */
+  contributiInps: number;
+  /** Contributi ai fondi (fondo pensione, fondi contrattuali) trattenuti nel mese */
+  fondi: number;
+  /** Imponibile IRPEF della mensilità */
+  imponibileIrpef: number;
+  /** IRPEF lorda della mensilità */
+  irpefLorda: number;
+  /** Detrazioni che riducono l'IRPEF lorda del mese */
+  detrazioni: number;
+  /** IRPEF trattenuta (lorda − detrazioni) */
+  irpef: number;
+  /** Addizionali regionale e comunale */
+  addizionali: number;
+  /** Indennità cuneo fiscale e trattamento integrativo */
+  bonus: number;
+  /** Altre voci tassate pagate in busta (fringe benefit, rimborsi, welfare oltre soglia, borsa) */
+  altreEntrate: number;
+  /** Altre trattenute (auto aziendale, Gestione Separata borsista) */
+  altreTrattenute: number;
+  /** Netto della mensilità */
+  netto: number;
+}
+
+/**
+ * Mensilità ordinaria e mensilità aggiuntive (tredicesima, quattordicesima). Ogni voce annua è
+ * ripartita: 12 × ordinaria + numeroAggiuntive × aggiuntiva = importo annuo.
+ */
+export interface DettaglioBustePaga {
+  /** Mensilità oltre le dodici ordinarie (0 con 12 mensilità) */
+  numeroAggiuntive: number;
+  /** Una delle dodici mensilità ordinarie, con detrazioni, bonus e addizionali */
+  ordinaria: BustaPaga;
+  /**
+   * Tredicesima o quattordicesima: stesso lordo e contributi, IRPEF sugli scaglioni mensili
+   * senza detrazioni, niente addizionali né bonus. Assente con 12 mensilità.
+   */
+  aggiuntiva: BustaPaga | null;
+}
+
 /** Riepilogo completo detrazioni */
 export interface RiepilogoDetrazioni {
   /** Detrazioni lavoro dipendente */
@@ -778,6 +931,9 @@ export interface OutputCalcoloStipendio {
   /** Dettaglio benefit non tassati */
   benefitNonTassati: DettaglioBenefitNonTassati;
 
+  /** Dettaglio rimborso affitto neoassunti 2025 (se presente) */
+  rimborsoAffittoNeoassunto: DettaglioRimborsoAffittoNeoassunto | null;
+
   /** Fondi contrattuali selezionati */
   fondiContrattuali: DettaglioFondoContrattuale[];
 
@@ -801,6 +957,9 @@ export interface OutputCalcoloStipendio {
 
   /** Contributi, premi e accantonamenti a carico del datore */
   contributiDatore: DettaglioContributiDatore;
+
+  /** Stima del TFR netto alla cessazione (null per le borse di studio, che non maturano TFR) */
+  tfr: DettaglioTfr | null;
 
   /** Costo aziendale annuo (entrate pagate dal datore) */
   costoAziendale: number;
@@ -833,12 +992,20 @@ export interface OutputCalcoloStipendio {
 
   /** Stipendio netto annuo */
   nettoAnnuo: number;
-  /** Stipendio netto mensile */
+  /**
+   * Netto della mensilità ordinaria, quella percepita dodici volte l'anno: con tredicesima e
+   * quattordicesima è più alto della media nettoAnnuo / mensilità, perché detrazioni, bonus e
+   * addizionali competono alle sole mensilità ordinarie
+   */
   nettoMensile: number;
   /** Netto mensile più le entrate esenti ripartite su 12 mesi, fringe benefit esclusi */
   nettoMensilePercepito: number;
+  /** Netto di tredicesima o quattordicesima (0 con 12 mensilità) */
+  nettoMensilitaAggiuntiva: number;
+  /** Mensilità ordinaria e aggiuntiva, voce per voce */
+  bustePaga: DettaglioBustePaga;
   /** Aliquota effettiva totale ((trattenute esclusa auto - bonus) / RAL) */
   aliquotaEffettiva: number;
-  /** Totale percepito (netto + rimborsi esenti + benefit esenti) */
+  /** Totale percepito (netto + rimborsi esenti + benefit esenti + affitto neoassunto esente) */
   totalePercepito: number;
 }

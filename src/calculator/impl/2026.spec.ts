@@ -1,4 +1,4 @@
-import { Calculator2026 } from './2026';
+import { Calculator2026, limiteIndennitaTrasferta } from './2026';
 import { somma } from '../ripartizione';
 import type {
   CategoriaEntrata,
@@ -1957,6 +1957,147 @@ describe('Contributi INPS', () => {
 });
 
 // ============================================================================
+// RIMBORSO AFFITTO NEOASSUNTI 2025 (L. 207/2024, art. 1, c. 386-389)
+// ============================================================================
+
+describe('Rimborso affitto neoassunti 2025 (L. 207/2024, c. 386-389)', () => {
+  const ALIQUOTA_INPS = 0.0919;
+  const base = calc.calcolaStipendioNetto(baseInput);
+  const conRimborso = (importo: number, requisiti = true) =>
+    calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsoAffittoNeoassunto: { importo, requisiti },
+    });
+  const vociAffitto = (result: OutputCalcoloStipendio) =>
+    result.ripartizione.entrate.filter((voce) => voce.categoria === 'affittoNeoassunto');
+
+  it("entro €5.000 è esente da IRPEF ma entra per intero nell'imponibile INPS", () => {
+    const result = conRimborso(4_000);
+    expect(result.rimborsoAffittoNeoassunto).toEqual({
+      importo: 4_000,
+      requisiti: true,
+      limiteEsenzione: 5_000,
+      importoEsente: 4_000,
+      importoImponibile: 0,
+    });
+    // Comma 386: la non concorrenza al reddito non rileva ai fini contributivi
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(25_000 + 4_000);
+    expect(result.contributiInps.totaleContributi).toBeCloseTo(29_000 * ALIQUOTA_INPS, 2);
+    // L'imponibile IRPEF scende solo dei contributi INPS pagati sul rimborso
+    expect(result.irpef.imponibileIrpef).toBeCloseTo(
+      base.irpef.imponibileIrpef - 4_000 * ALIQUOTA_INPS,
+      2,
+    );
+  });
+
+  it("il limite di €5.000 è una franchigia: solo l'eccedenza è imponibile IRPEF", () => {
+    const result = conRimborso(6_500);
+    expect(result.rimborsoAffittoNeoassunto?.importoEsente).toBe(5_000);
+    expect(result.rimborsoAffittoNeoassunto?.importoImponibile).toBe(1_500);
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(25_000 + 6_500);
+    expect(result.irpef.imponibileIrpef).toBeCloseTo(
+      base.irpef.imponibileIrpef + 1_500 - 6_500 * ALIQUOTA_INPS,
+      2,
+    );
+  });
+
+  it("senza i requisiti del comma 387 l'intero importo è imponibile", () => {
+    const result = conRimborso(4_000, false);
+    expect(result.rimborsoAffittoNeoassunto?.requisiti).toBe(false);
+    expect(result.rimborsoAffittoNeoassunto?.importoEsente).toBe(0);
+    expect(result.rimborsoAffittoNeoassunto?.importoImponibile).toBe(4_000);
+    expect(result.irpef.imponibileIrpef).toBeCloseTo(
+      base.irpef.imponibileIrpef + 4_000 - 4_000 * ALIQUOTA_INPS,
+      2,
+    );
+    expect(vociAffitto(result)).toEqual([
+      {
+        descrizione: 'Affitto neoassunto imponibile',
+        importo: 4_000,
+        categoria: 'affittoNeoassunto',
+        pagatore: 'datore',
+        destinazione: 'netto',
+      },
+    ]);
+    expect(result.nettoAnnuo).toBeGreaterThan(base.nettoAnnuo);
+  });
+
+  it('non concorre alla soglia fringe benefit e si cumula con il rimborso affitto ordinario', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fringeBenefit: { rimborsoAffitto: 900 },
+      rimborsoAffittoNeoassunto: { importo: 5_000, requisiti: true },
+    });
+    // Circ. AdE 4/E/2025, par. 2.7: le due agevolazioni sono autonome e cumulabili
+    expect(result.fringeBenefit.sogliaSuperata).toBe(false);
+    expect(result.fringeBenefit.valoreEsente).toBe(900);
+    expect(result.rimborsoAffittoNeoassunto?.importoEsente).toBe(5_000);
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(25_000 + 5_000);
+    expect(result.totalePercepito).toBeCloseTo(result.nettoAnnuo + 900 + 5_000, 6);
+  });
+
+  it('è una voce esente pagata dal datore: nel costo aziendale e nel percepito', () => {
+    const result = conRimborso(6_000);
+    expect(vociAffitto(result)).toEqual([
+      {
+        descrizione: 'Affitto neoassunto imponibile',
+        importo: 1_000,
+        categoria: 'affittoNeoassunto',
+        pagatore: 'datore',
+        destinazione: 'netto',
+      },
+      {
+        descrizione: 'Affitto neoassunto esente',
+        importo: 5_000,
+        categoria: 'affittoNeoassunto',
+        pagatore: 'datore',
+        destinazione: 'esente',
+      },
+    ]);
+    // Il datore paga i contributi sull'intero rimborso, quota esente compresa
+    const contributiDatoreInPiu =
+      result.contributiDatore.contributiInpsLordi - base.contributiDatore.contributiInpsLordi;
+    expect(contributiDatoreInPiu).toBeCloseTo(6_000 * result.contributiDatore.aliquotaInps, 2);
+    // Lo 0,50% IVS versato sul rimborso si recupera sul TFR
+    const recuperoTfrInPiu =
+      result.contributiDatore.riduzioneTfr - base.contributiDatore.riduzioneTfr;
+    expect(recuperoTfrInPiu).toBeCloseTo(6_000 * 0.005, 2);
+    expect(result.costoAziendale - base.costoAziendale).toBeCloseTo(
+      6_000 + contributiDatoreInPiu - recuperoTfrInPiu,
+      2,
+    );
+    expect(result.totalePercepito).toBeCloseTo(result.nettoAnnuo + 5_000, 6);
+    expect(result.nettoMensilePercepito).toBeCloseTo(result.nettoMensile + 5_000 / 12, 6);
+  });
+
+  it('la quota esente riduce il netto in busta dei soli contributi INPS', () => {
+    const result = conRimborso(4_000);
+    const riduzioneNetto = base.nettoAnnuo - result.nettoAnnuo;
+    // I contributi in più abbassano a loro volta IRPEF e addizionali
+    expect(riduzioneNetto).toBeGreaterThan(0);
+    expect(riduzioneNetto).toBeLessThan(4_000 * ALIQUOTA_INPS);
+    expect(result.totalePercepito).toBeCloseTo(base.totalePercepito + 4_000 - riduzioneNetto, 6);
+  });
+
+  it.each([0, -100])('importo %d: nessun dettaglio e nessuna voce', (importo) => {
+    const result = conRimborso(importo);
+    expect(result.rimborsoAffittoNeoassunto).toBeNull();
+    expect(vociAffitto(result)).toEqual([]);
+    expect(result.nettoAnnuo).toBe(base.nettoAnnuo);
+    expect(result.costoAziendale).toBe(base.costoAziendale);
+  });
+
+  it('non si applica alla borsa di studio come contratto', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      tipoContratto: 'borsaDiStudio',
+      rimborsoAffittoNeoassunto: { importo: 4_000, requisiti: true },
+    });
+    expect(result.rimborsoAffittoNeoassunto).toBeNull();
+  });
+});
+
+// ============================================================================
 // IRPEF SCAGLIONI
 // ============================================================================
 
@@ -3358,8 +3499,10 @@ describe('Rimborsi trasferta', () => {
       ...baseInput,
       rimborsiTrasferta: {
         modalitaRimborso: 'forfettario',
-        giorniTrasfertaItalia: 10,
-        giorniTrasfertaEstero: 5,
+        trasferte: [
+          { destinazione: 'italia', giorni: 10 },
+          { destinazione: 'estero', giorni: 5 },
+        ],
       },
     });
     expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(
@@ -3374,11 +3517,11 @@ describe('Rimborsi trasferta', () => {
       ...baseInput,
       rimborsiTrasferta: {
         modalitaRimborso: 'misto',
-        giorniTrasfertaItalia: 10,
+        trasferte: [{ destinazione: 'italia', giorni: 10, vittoAlloggioACarico: 'uno' }],
         rimborsoVitto: 500,
       },
     });
-    const atteso = 10 * 46.48 * (2 / 3);
+    const atteso = 10 * 30.99;
     expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(atteso, 2);
     expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(500, 2);
   });
@@ -3388,14 +3531,207 @@ describe('Rimborsi trasferta', () => {
       ...baseInput,
       rimborsiTrasferta: {
         modalitaRimborso: 'misto',
-        giorniTrasfertaItalia: 10,
+        trasferte: [{ destinazione: 'italia', giorni: 10, vittoAlloggioACarico: 'entrambi' }],
         rimborsoVitto: 500,
         rimborsoAlloggio: 300,
       },
     });
-    const atteso = 10 * 46.48 * (1 / 3);
+    const atteso = 10 * 15.49;
     expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(atteso, 2);
     expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(800, 2);
+  });
+
+  it('misto con alloggio fornito gratuitamente: riduzione 1/3 senza rimborsi', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [{ destinazione: 'estero', giorni: 10, vittoAlloggioACarico: 'uno' }],
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(10 * 51.65, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBe(0);
+  });
+
+  it('misto con più trasferte: la riduzione vale solo per i giorni indicati', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [
+          { destinazione: 'italia', giorni: 30, vittoAlloggioACarico: 'uno' },
+          { destinazione: 'italia', giorni: 20 },
+        ],
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(
+      30 * 30.99 + 20 * 46.48,
+      2,
+    );
+  });
+
+  it('forfettario: non applica riduzioni rimaste impostate sulla trasferta', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        trasferte: [{ destinazione: 'italia', giorni: 10, vittoAlloggioACarico: 'entrambi' }],
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(10 * 46.48, 2);
+  });
+
+  it('analitico: ignora le indennità', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'analitico',
+        trasferte: [{ destinazione: 'italia', giorni: 10, indennitaGiornaliera: 60 }],
+      },
+    });
+    expect(result.rimborsiTrasferta.totaleRimborsi).toBe(0);
+  });
+
+  it('indennità oltre il limite: la parte eccedente è imponibile IRPEF e INPS', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [
+          {
+            destinazione: 'italia',
+            giorni: 10,
+            indennitaGiornaliera: 60,
+            vittoAlloggioACarico: 'uno',
+          },
+        ],
+      },
+    });
+    const esente = 10 * 30.99;
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(esente, 2);
+    expect(result.rimborsiTrasferta.indennitaEccedente).toBeCloseTo(600 - esente, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(600 - esente, 2);
+    expect(result.rimborsiTrasferta.totaleRimborsi).toBeCloseTo(600, 2);
+    expect(result.contributiInps.imponibilePrevidenziale).toBeCloseTo(
+      baseInput.ral + 600 - esente,
+      2,
+    );
+  });
+
+  it('indennità sotto il limite: è esente solo quanto erogato', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        trasferte: [{ destinazione: 'italia', giorni: 10, indennitaGiornaliera: 30 }],
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(300, 2);
+    expect(result.rimborsiTrasferta.indennitaEccedente).toBe(0);
+  });
+
+  it('indennità pari a zero: non è esente nulla, a differenza di quella assente', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        trasferte: [{ destinazione: 'italia', giorni: 10, indennitaGiornaliera: 0 }],
+      },
+    });
+    expect(result.rimborsiTrasferta.totaleRimborsi).toBe(0);
+  });
+
+  it('limite giornaliero: pieno, ridotto di 1/3 e di 2/3, al centesimo', () => {
+    const limite = (
+      destinazione: 'italia' | 'estero',
+      vittoAlloggioACarico: 'nessuno' | 'uno' | 'entrambi',
+    ) => limiteIndennitaTrasferta({ destinazione, vittoAlloggioACarico }, 'misto');
+
+    expect(limite('italia', 'nessuno')).toBe(46.48);
+    expect(limite('italia', 'uno')).toBe(30.99);
+    expect(limite('italia', 'entrambi')).toBe(15.49);
+    expect(limite('estero', 'nessuno')).toBe(77.47);
+    expect(limite('estero', 'uno')).toBe(51.65);
+    expect(limite('estero', 'entrambi')).toBe(25.82);
+  });
+
+  it('limite giornaliero: solo il sistema misto lo riduce', () => {
+    const trasferta = { destinazione: 'italia', vittoAlloggioACarico: 'entrambi' } as const;
+
+    expect(limiteIndennitaTrasferta(trasferta, 'forfettario')).toBe(46.48);
+    expect(limiteIndennitaTrasferta(trasferta, 'misto')).toBe(15.49);
+  });
+
+  it('indennità pari al limite ridotto mostrato: nessuna parte tassata', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [
+          {
+            destinazione: 'italia',
+            giorni: 100,
+            indennitaGiornaliera: 30.99,
+            vittoAlloggioACarico: 'uno',
+          },
+        ],
+      },
+    });
+    expect(result.rimborsiTrasferta.indennitaEccedente).toBe(0);
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(3_099, 2);
+  });
+
+  it("rimborsi spese tassati separati dall'indennità eccedente", () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [
+          {
+            destinazione: 'italia',
+            giorni: 10,
+            indennitaGiornaliera: 40,
+            vittoAlloggioACarico: 'uno',
+          },
+        ],
+        rimborsoVitto: 500,
+        rimborsoKmImponibile: 100,
+        pagamentiTracciabili: false,
+      },
+    });
+    expect(result.rimborsiTrasferta.indennitaEccedente).toBeCloseTo(10 * (40 - 30.99), 2);
+    expect(result.rimborsiTrasferta.rimborsiSpeseTassati).toBeCloseTo(600, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(600 + 10 * (40 - 30.99), 2);
+  });
+
+  it('forfettario: vitto e alloggio rimborsati sono tassati anche se tracciabili', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        trasferte: [{ destinazione: 'italia', giorni: 10 }],
+        rimborsoVitto: 500,
+        rimborsoViaggio: 200,
+        pagamentiTracciabili: true,
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(10 * 46.48, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(500, 2);
+    expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(200, 2);
+  });
+
+  it('misto non tracciabile: riduzione applicata e vitto tassato', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [{ destinazione: 'italia', giorni: 10, vittoAlloggioACarico: 'uno' }],
+        rimborsoVitto: 500,
+        pagamentiTracciabili: false,
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(10 * 30.99, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(500, 2);
   });
 
   it('pagamenti non tracciabili: vitto e alloggio diventano tassati', () => {
@@ -3403,7 +3739,7 @@ describe('Rimborsi trasferta', () => {
       ...baseInput,
       rimborsiTrasferta: {
         modalitaRimborso: 'forfettario',
-        giorniTrasfertaItalia: 10,
+        trasferte: [{ destinazione: 'italia', giorni: 10 }],
         rimborsoVitto: 500,
         rimborsoAlloggio: 300,
         rimborsoViaggio: 200,
@@ -3449,7 +3785,7 @@ describe('Rimborsi trasferta', () => {
       ...baseInput,
       rimborsiTrasferta: {
         modalitaRimborso: 'forfettario',
-        giorniTrasfertaItalia: 10,
+        trasferte: [{ destinazione: 'italia', giorni: 10 }],
         rimborsoVitto: 500,
         rimborsoViaggio: 200,
         pagamentiTracciabili: false,
@@ -3479,7 +3815,10 @@ describe('Rimborsi trasferta', () => {
     const base = calc.calcolaStipendioNetto(baseInput);
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
-      rimborsiTrasferta: { modalitaRimborso: 'forfettario', giorniTrasfertaItalia: 10 },
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        trasferte: [{ destinazione: 'italia', giorni: 10 }],
+      },
     });
 
     expect(result.nettoMensilePercepito).toBeCloseTo(
@@ -4132,12 +4471,15 @@ describe('Premio di risultato (art. 1, c. 182-190, L. 208/2015; L. 199/2025, art
 });
 
 describe('14 mensilità, altriRedditi, altreDetrazioni', () => {
-  it('14 mensilità: nettoMensile = nettoAnnuo / 14', () => {
+  it('14 mensilità: 12 × nettoMensile + 2 × quattordicesima = nettoAnnuo', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
       mensilita: 14,
     });
-    expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / 14, 2);
+    expect(result.nettoMensile * 12 + result.nettoMensilitaAggiuntiva * 2).toBeCloseTo(
+      result.nettoAnnuo,
+      6,
+    );
     expect(result.mensilita).toBe(14);
   });
 
@@ -4145,6 +4487,7 @@ describe('14 mensilità, altriRedditi, altreDetrazioni', () => {
     const result13 = calc.calcolaStipendioNetto({ ...baseInput, mensilita: 13 });
     const result14 = calc.calcolaStipendioNetto({ ...baseInput, mensilita: 14 });
     expect(result14.nettoMensile).toBeLessThan(result13.nettoMensile);
+    expect(result14.nettoMensilitaAggiuntiva).toBeLessThan(result13.nettoMensilitaAggiuntiva);
     // Ma il netto annuo è lo stesso
     expect(result14.nettoAnnuo).toBeCloseTo(result13.nettoAnnuo, 0);
   });
@@ -4188,6 +4531,232 @@ describe('14 mensilità, altriRedditi, altreDetrazioni', () => {
 });
 
 // ============================================================================
+// MENSILITÀ ORDINARIA, TREDICESIMA E QUATTORDICESIMA
+// ============================================================================
+
+describe('Mensilità ordinaria, tredicesima e quattordicesima', () => {
+  /** Netto di una busta come somma delle sue voci */
+  function nettoDalleVoci(busta: OutputCalcoloStipendio['bustePaga']['ordinaria']) {
+    return (
+      busta.lordo +
+      busta.altreEntrate +
+      busta.bonus -
+      busta.contributiInps -
+      busta.fondi -
+      busta.irpef -
+      busta.addizionali -
+      busta.altreTrattenute
+    );
+  }
+
+  describe('RAL 30k, 13 mensilità', () => {
+    const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 30_000, mensilita: 13 });
+    const { ordinaria, aggiuntiva } = result.bustePaga;
+
+    it('la tredicesima ha lo stesso lordo delle altre mensilità', () => {
+      expect(result.bustePaga.numeroAggiuntive).toBe(1);
+      expect(aggiuntiva).not.toBeNull();
+      expect(aggiuntiva!.lordo).toBeCloseTo(30_000 / 13, 6);
+      expect(ordinaria.lordo).toBeCloseTo(30_000 / 13, 6);
+    });
+
+    it('la tredicesima paga i contributi con la stessa aliquota', () => {
+      // 2.307,69 × 9,19% = 212,08
+      expect(aggiuntiva!.contributiInps).toBeCloseTo((30_000 / 13) * 0.0919, 2);
+    });
+
+    it('la tredicesima paga IRPEF sugli scaglioni mensili senza detrazioni', () => {
+      // Imponibile 2.095,61 × 12 = 25.147 → primo scaglione 23% → 481,99 al mese
+      const imponibile = (30_000 / 13) * (1 - 0.0919);
+      expect(aggiuntiva!.imponibileIrpef).toBeCloseTo(imponibile, 2);
+      expect(aggiuntiva!.irpefLorda).toBeCloseTo(imponibile * 0.23, 2);
+      expect(aggiuntiva!.irpef).toBeCloseTo(imponibile * 0.23, 2);
+      expect(aggiuntiva!.detrazioni).toBe(0);
+      expect(aggiuntiva!.addizionali).toBe(0);
+      expect(aggiuntiva!.bonus).toBe(0);
+    });
+
+    it('il netto della tredicesima è lordo − contributi − IRPEF', () => {
+      const lordo = 30_000 / 13;
+      const contributi = lordo * 0.0919;
+      const irpef = (lordo - contributi) * 0.23;
+      expect(aggiuntiva!.netto).toBeCloseTo(lordo - contributi - irpef, 2);
+      expect(result.nettoMensilitaAggiuntiva).toBeCloseTo(aggiuntiva!.netto, 6);
+    });
+
+    it('la mensilità ordinaria riceve detrazioni, addizionali e bonus', () => {
+      expect(ordinaria.detrazioni).toBeCloseTo(
+        (result.irpef.irpefLorda - result.irpefFinale) / 12,
+        6,
+      );
+      expect(ordinaria.addizionali).toBeCloseTo(result.addizionali.totaleAddizionali / 12, 6);
+      expect(ordinaria.bonus).toBeCloseTo(result.totaleBonus / 12, 6);
+      expect(ordinaria.irpef).toBeCloseTo(ordinaria.irpefLorda - ordinaria.detrazioni, 6);
+    });
+
+    it('il mese ordinario è più alto della media e la tredicesima più bassa', () => {
+      const media = result.nettoAnnuo / 13;
+      expect(result.nettoMensile).toBeGreaterThan(media);
+      expect(result.nettoMensilitaAggiuntiva).toBeLessThan(media);
+      expect(result.nettoMensile).toBeCloseTo(ordinaria.netto, 6);
+    });
+
+    it('12 × ordinaria + tredicesima = netto annuo, voce per voce', () => {
+      const annuo = (voce: keyof typeof ordinaria) => ordinaria[voce] * 12 + aggiuntiva![voce];
+      expect(annuo('netto')).toBeCloseTo(result.nettoAnnuo, 6);
+      expect(annuo('lordo')).toBeCloseTo(30_000, 6);
+      expect(annuo('contributiInps')).toBeCloseTo(result.contributiInps.totaleContributi, 6);
+      expect(annuo('imponibileIrpef')).toBeCloseTo(result.irpef.imponibileIrpef, 6);
+      expect(annuo('irpefLorda')).toBeCloseTo(result.irpef.irpefLorda, 6);
+      expect(annuo('irpef')).toBeCloseTo(result.irpefFinale, 6);
+      expect(annuo('addizionali')).toBeCloseTo(result.addizionali.totaleAddizionali, 6);
+      expect(annuo('bonus')).toBeCloseTo(result.totaleBonus, 6);
+    });
+
+    it('le voci di ogni busta sommano al suo netto', () => {
+      expect(nettoDalleVoci(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+      expect(nettoDalleVoci(aggiuntiva!)).toBeCloseTo(aggiuntiva!.netto, 6);
+    });
+
+    it('il percepito mensile parte dalla mensilità ordinaria', () => {
+      expect(result.nettoMensilePercepito).toBeCloseTo(result.nettoMensile, 6);
+    });
+  });
+
+  describe('12 mensilità', () => {
+    const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 30_000, mensilita: 12 });
+
+    it('non ha mensilità aggiuntive e il netto mensile è la media', () => {
+      expect(result.bustePaga.numeroAggiuntive).toBe(0);
+      expect(result.bustePaga.aggiuntiva).toBeNull();
+      expect(result.nettoMensilitaAggiuntiva).toBe(0);
+      expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / 12, 6);
+    });
+
+    it('la mensilità ordinaria riporta tutte le voci annue divise per 12', () => {
+      const { ordinaria } = result.bustePaga;
+      expect(ordinaria.lordo).toBeCloseTo(2_500, 6);
+      expect(ordinaria.contributiInps).toBeCloseTo(result.contributiInps.totaleContributi / 12, 6);
+      expect(ordinaria.irpef).toBeCloseTo(result.irpefFinale / 12, 6);
+      expect(nettoDalleVoci(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+    });
+  });
+
+  describe('14 mensilità', () => {
+    const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 42_000, mensilita: 14 });
+
+    it('tredicesima e quattordicesima sono uguali e pesano due volte', () => {
+      const { ordinaria, aggiuntiva, numeroAggiuntive } = result.bustePaga;
+      expect(numeroAggiuntive).toBe(2);
+      expect(aggiuntiva!.lordo).toBeCloseTo(3_000, 6);
+      expect(ordinaria.netto * 12 + aggiuntiva!.netto * 2).toBeCloseTo(result.nettoAnnuo, 6);
+      expect(ordinaria.irpef * 12 + aggiuntiva!.irpef * 2).toBeCloseTo(result.irpefFinale, 6);
+    });
+  });
+
+  describe("Reddito basso: le detrazioni azzerano l'IRPEF", () => {
+    const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 8_000, mensilita: 13 });
+
+    it("la tredicesima non trattiene IRPEF oltre quella dovuta nell'anno", () => {
+      const { ordinaria, aggiuntiva } = result.bustePaga;
+      expect(result.irpefFinale).toBe(0);
+      expect(aggiuntiva!.irpefLorda).toBeGreaterThan(0);
+      expect(aggiuntiva!.irpef).toBe(0);
+      expect(aggiuntiva!.detrazioni).toBeCloseTo(aggiuntiva!.irpefLorda, 6);
+      expect(ordinaria.irpef).toBe(0);
+      expect(ordinaria.netto * 12 + aggiuntiva!.netto).toBeCloseTo(result.nettoAnnuo, 6);
+    });
+  });
+
+  describe('Altre voci della busta', () => {
+    it('fringe benefit, rimborsi tassati e trattenuta auto stanno nelle mensilità ordinarie', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        fringeBenefit: {
+          buoniAcquisto: 1_500,
+          autoAziendale: { costoKmAci: 0.5, tipoAlimentazione: 'altro', trattenutaDipendente: 600 },
+        },
+        rimborsiTrasferta: { rimborsoVitto: 500, pagamentiTracciabili: false },
+      });
+      const { ordinaria, aggiuntiva } = result.bustePaga;
+      expect(ordinaria.altreEntrate).toBeCloseTo((1_500 + 500) / 12, 6);
+      expect(ordinaria.altreTrattenute).toBeCloseTo(600 / 12, 6);
+      expect(aggiuntiva!.altreEntrate).toBe(0);
+      expect(aggiuntiva!.altreTrattenute).toBe(0);
+      expect(nettoDalleVoci(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+      expect(ordinaria.netto * 12 + aggiuntiva!.netto).toBeCloseTo(result.nettoAnnuo, 6);
+    });
+
+    it('la borsa di studio e la sua Gestione Separata stanno nelle mensilità ordinarie', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        borsaDiStudio: { importoAnnuo: 12_000 },
+      });
+      const { ordinaria, aggiuntiva } = result.bustePaga;
+      expect(ordinaria.altreEntrate).toBeCloseTo(12_000 / 12, 6);
+      expect(ordinaria.altreTrattenute).toBeCloseTo(
+        result.borsaDiStudio!.contributoGestioneSeparataBorsista / 12,
+        6,
+      );
+      expect(nettoDalleVoci(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+      expect(ordinaria.netto * 12 + aggiuntiva!.netto).toBeCloseTo(result.nettoAnnuo, 6);
+    });
+
+    it('il fondo pensione grava sulla tredicesima solo se ripartito per mensilità', () => {
+      const fondo = { contributoLavoratore: 2, ralLavoratore: 30_000 };
+      const su12 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        fondoPensioneIntegrativo: fondo,
+      });
+      const su13 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        fondoPensioneIntegrativo: { ...fondo, ripartizionePerMensilita: true },
+      });
+
+      expect(su12.bustePaga.aggiuntiva!.fondi).toBe(0);
+      expect(su12.bustePaga.ordinaria.fondi).toBeCloseTo(600 / 12, 6);
+
+      expect(su13.bustePaga.aggiuntiva!.fondi).toBeCloseTo(600 / 13, 6);
+      expect(su13.bustePaga.ordinaria.fondi).toBeCloseTo(600 / 13, 6);
+      // Il contributo dedotto riduce l'imponibile della tredicesima
+      expect(su13.bustePaga.aggiuntiva!.imponibileIrpef).toBeCloseTo(
+        su12.bustePaga.aggiuntiva!.imponibileIrpef - 600 / 13,
+        6,
+      );
+      for (const result of [su12, su13]) {
+        const { ordinaria, aggiuntiva } = result.bustePaga;
+        expect(nettoDalleVoci(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+        expect(nettoDalleVoci(aggiuntiva!)).toBeCloseTo(aggiuntiva!.netto, 6);
+        expect(ordinaria.netto * 12 + aggiuntiva!.netto).toBeCloseTo(result.nettoAnnuo, 6);
+      }
+    });
+
+    it("il regime impatriati riduce l'imponibile della tredicesima", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 60_000,
+        mensilita: 13,
+        regimeImpatriati: true,
+      });
+      const { ordinaria, aggiuntiva } = result.bustePaga;
+      expect(aggiuntiva!.imponibileIrpef).toBeCloseTo(
+        (aggiuntiva!.lordo - aggiuntiva!.contributiInps) * 0.5,
+        6,
+      );
+      expect(ordinaria.netto * 12 + aggiuntiva!.netto).toBeCloseTo(result.nettoAnnuo, 6);
+    });
+  });
+});
+
+// ============================================================================
 // TEST PROPERTY-BASED (FUZZY)
 // ============================================================================
 
@@ -4223,11 +4792,14 @@ describe('Property-based (fuzzy) tests', () => {
       }
     });
 
-    it('nettoMensile = nettoAnnuo / mensilità (esattamente)', () => {
+    it('12 × nettoMensile + mensilità aggiuntive = nettoAnnuo (esattamente)', () => {
       for (const ral of rals) {
         const mensilita = randomMensilita();
         const result = calc.calcolaStipendioNetto({ ...baseInput, ral, mensilita });
-        expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / mensilita, 6);
+        expect(
+          result.nettoMensile * 12 + result.nettoMensilitaAggiuntiva * (mensilita - 12),
+        ).toBeCloseTo(result.nettoAnnuo, 6);
+        expect(result.bustePaga.numeroAggiuntive).toBe(mensilita - 12);
       }
     });
 
@@ -4320,7 +4892,14 @@ describe('Property-based (fuzzy) tests', () => {
         ...(rng() > 0.5 && {
           rimborsiTrasferta: {
             modalitaRimborso: 'misto' as const,
-            giorniTrasfertaItalia: 10,
+            trasferte: [
+              {
+                destinazione: 'italia' as const,
+                giorni: 10,
+                indennitaGiornaliera: Math.round(rng() * 80),
+                vittoAlloggioACarico: 'uno' as const,
+              },
+            ],
             rimborsoVitto: Math.round(rng() * 1_000),
             pagamentiTracciabili: rng() > 0.5,
           },
@@ -4330,6 +4909,12 @@ describe('Property-based (fuzzy) tests', () => {
             buoniPasto: Math.round(rng() * 3_000),
             assistenzaSanitaria: Math.round(rng() * 5_000),
             previdenzaComplementare: Math.round(rng() * 2_000),
+          },
+        }),
+        ...(rng() > 0.7 && {
+          rimborsoAffittoNeoassunto: {
+            importo: Math.round(rng() * 8_000),
+            requisiti: rng() > 0.3,
           },
         }),
         ...(rng() > 0.8 && { borsaDiStudio: { importoAnnuo: 16_243 } }),
@@ -4388,6 +4973,29 @@ describe('Property-based (fuzzy) tests', () => {
           6,
         );
         expect([...entrate, ...trattenute].every((voce) => voce.importo > 0)).toBe(true);
+
+        // Le buste paga ripartiscono il netto annuo senza perdere nulla
+        const { ordinaria, aggiuntiva, numeroAggiuntive } = result.bustePaga;
+        const nettoBusta = (busta: typeof ordinaria) =>
+          busta.lordo +
+          busta.altreEntrate +
+          busta.bonus -
+          busta.contributiInps -
+          busta.fondi -
+          busta.irpef -
+          busta.addizionali -
+          busta.altreTrattenute;
+        expect(numeroAggiuntive).toBe(input.mensilita - 12);
+        expect(nettoBusta(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+        expect(ordinaria.irpef).toBeGreaterThanOrEqual(0);
+        expect(ordinaria.netto * 12 + (aggiuntiva?.netto ?? 0) * numeroAggiuntive).toBeCloseTo(
+          result.nettoAnnuo,
+          6,
+        );
+        if (aggiuntiva) {
+          expect(nettoBusta(aggiuntiva)).toBeCloseTo(aggiuntiva.netto, 6);
+          expect(aggiuntiva.irpef).toBeLessThanOrEqual(aggiuntiva.irpefLorda + 1e-9);
+        }
       }
     });
 
@@ -4773,7 +5381,7 @@ describe('Costo aziendale', () => {
       ral: 30_000,
       rimborsiTrasferta: {
         modalitaRimborso: 'forfettario',
-        giorniTrasfertaItalia: 10,
+        trasferte: [{ destinazione: 'italia', giorni: 10 }],
       },
     });
 
@@ -5350,5 +5958,229 @@ describe('Agevolazioni regionali per disabilità', () => {
     });
     expect(aCarico.addizionali.aliquotaRegionale).toBeCloseTo(0.0123, 10);
     expect(nonACarico.addizionali.aliquotaRegionale).toBe(ordinario.addizionali.aliquotaRegionale);
+  });
+});
+
+describe('TFR netto (tassazione separata e rivalutazione)', () => {
+  // RAL 30k: quota annua 30.000 / 13,5 − 0,50% × 30.000
+  const quota30k = 30_000 / 13.5 - 150;
+
+  describe('Un anno di servizio, TFR in azienda (default)', () => {
+    const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 30_000 });
+    const tfr = result.tfr!;
+
+    it('è calcolato anche senza opzioni, per un anno in azienda', () => {
+      expect(tfr.destinazione).toBe('azienda');
+      expect(tfr.anniServizio).toBe(1);
+      expect(tfr.quotaAnnua).toBeCloseTo(quota30k, 6);
+      expect(tfr.quoteAccantonate).toBeCloseTo(quota30k, 6);
+    });
+
+    it('la quota annua è il TFR del costo aziendale', () => {
+      const d = result.contributiDatore;
+      expect(tfr.quotaAnnua).toBeCloseTo(d.tfrLordo - d.riduzioneTfr, 6);
+      expect(tfr.quotaAnnua).toBeCloseTo(entrateDi(result, 'tfr'), 6);
+    });
+
+    it('nel primo anno non ci sono rivalutazioni', () => {
+      expect(tfr.rivalutazione).toBe(0);
+      expect(tfr.impostaSostitutiva).toBe(0);
+      expect(tfr.montanteLordo).toBeCloseTo(quota30k, 6);
+    });
+
+    it('reddito di riferimento = quota × 12 e aliquota media del primo scaglione', () => {
+      expect(tfr.redditoRiferimento).toBeCloseTo(quota30k * 12, 6);
+      expect(tfr.aliquota).toBeCloseTo(0.23, 10);
+      expect(tfr.impostaLorda).toBeCloseTo(quota30k * 0.23, 6);
+    });
+
+    it('applica la detrazione del D.M. 20 marzo 2008 (reddito tra 7.500 e 28.000)', () => {
+      const detrazione = 50 + (20 * (28_000 - quota30k * 12)) / 20_500;
+      expect(tfr.detrazione).toBeCloseTo(detrazione, 6);
+      expect(tfr.detrazione).toBeCloseTo(53.06, 2);
+      expect(tfr.imposta).toBeCloseTo(quota30k * 0.23 - detrazione, 6);
+    });
+
+    it('netto stimato', () => {
+      expect(tfr.nettoTotale).toBeCloseTo(tfr.montanteLordo - tfr.imposta, 6);
+      expect(tfr.nettoTotale).toBeCloseTo(1648.67, 2);
+      expect(tfr.nettoAnnuo).toBeCloseTo(tfr.nettoTotale, 6);
+      expect(tfr.aliquotaEffettiva).toBeCloseTo(tfr.imposta / quota30k, 6);
+    });
+  });
+
+  describe('Aliquota media per scaglioni', () => {
+    it('RAL 50k: reddito di riferimento nel secondo scaglione, senza detrazione', () => {
+      const tfr = calc.calcolaStipendioNetto({ ...baseInput, ral: 50_000 }).tfr!;
+      const quota = 50_000 / 13.5 - 250;
+      const riferimento = quota * 12;
+      const irpef = 28_000 * 0.23 + (riferimento - 28_000) * 0.33;
+      expect(tfr.redditoRiferimento).toBeCloseTo(riferimento, 6);
+      expect(tfr.aliquota).toBeCloseTo(irpef / riferimento, 10);
+      expect(tfr.aliquota).toBeCloseTo(0.2624, 4);
+      expect(tfr.detrazione).toBe(0);
+      expect(tfr.imposta).toBeCloseTo(quota * (irpef / riferimento), 6);
+    });
+
+    it('RAL 100k: reddito di riferimento nel terzo scaglione', () => {
+      const tfr = calc.calcolaStipendioNetto({ ...baseInput, ral: 100_000 }).tfr!;
+      const quota = 100_000 / 13.5 - 500;
+      const riferimento = quota * 12;
+      const irpef = 28_000 * 0.23 + 22_000 * 0.33 + (riferimento - 50_000) * 0.43;
+      expect(tfr.aliquota).toBeCloseTo(irpef / riferimento, 10);
+      expect(tfr.aliquota).toBeLessThan(0.43);
+      expect(tfr.aliquota).toBeGreaterThan(0.33);
+    });
+
+    it('RAL bassa: detrazione piena di 70 euro fino a 7.500 di reddito di riferimento', () => {
+      const tfr = calc.calcolaStipendioNetto({ ...baseInput, ral: 8_000 }).tfr!;
+      expect(tfr.redditoRiferimento).toBeLessThan(7_500);
+      expect(tfr.detrazione).toBe(70);
+    });
+
+    it('RAL 36k: detrazione decrescente tra 28.000 e 30.000, zero oltre', () => {
+      const tfr36k = calc.calcolaStipendioNetto({ ...baseInput, ral: 36_000 }).tfr!;
+      const riferimento = (36_000 / 13.5 - 180) * 12;
+      expect(riferimento).toBeGreaterThan(28_000);
+      expect(riferimento).toBeLessThan(30_000);
+      expect(tfr36k.detrazione).toBeCloseTo((50 * (30_000 - riferimento)) / 2_000, 6);
+
+      const tfr40k = calc.calcolaStipendioNetto({ ...baseInput, ral: 40_000 }).tfr!;
+      expect(tfr40k.redditoRiferimento).toBeGreaterThan(30_000);
+      expect(tfr40k.detrazione).toBe(0);
+    });
+
+    it('apprendista: quota piena senza lo 0,50% IVS', () => {
+      const tfr = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 20_000,
+        tipoContratto: 'apprendistato',
+      }).tfr!;
+      expect(tfr.quotaAnnua).toBeCloseTo(20_000 / 13.5, 6);
+    });
+  });
+
+  describe('Più anni di servizio con rivalutazione (art. 2120 c.c.)', () => {
+    const tfr = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      tfr: { anniServizio: 3, inflazioneAttesa: 2 },
+    }).tfr!;
+
+    it('tasso di rivalutazione = 1,5% + 75% dell inflazione', () => {
+      expect(tfr.tassoRivalutazione).toBeCloseTo(0.03, 10);
+    });
+
+    it('rivaluta il fondo al 31 dicembre precedente, al netto dell imposta sostitutiva 17%', () => {
+      // Anno 1: nessuna rivalutazione. Anno 2: sul fondo di un anno. Anno 3: sul fondo di due anni
+      const riv2 = quota30k * 0.03;
+      const fondo2 = quota30k + riv2 * (1 - 0.17) + quota30k;
+      const riv3 = fondo2 * 0.03;
+      expect(tfr.rivalutazione).toBeCloseTo(riv2 + riv3, 6);
+      expect(tfr.impostaSostitutiva).toBeCloseTo((riv2 + riv3) * 0.17, 6);
+      expect(tfr.montanteLordo).toBeCloseTo(fondo2 + riv3 * (1 - 0.17) + quota30k, 6);
+    });
+
+    it('le rivalutazioni restano fuori dall imponibile e dal reddito di riferimento', () => {
+      expect(tfr.quoteAccantonate).toBeCloseTo(quota30k * 3, 6);
+      expect(tfr.redditoRiferimento).toBeCloseTo(quota30k * 12, 6);
+      expect(tfr.aliquota).toBeCloseTo(0.23, 10);
+      expect(tfr.impostaLorda).toBeCloseTo(quota30k * 3 * 0.23, 6);
+    });
+
+    it('la detrazione spetta una sola volta per cessazione', () => {
+      expect(tfr.detrazione).toBeCloseTo(53.06, 2);
+      expect(tfr.imposta).toBeCloseTo(tfr.impostaLorda - tfr.detrazione, 6);
+    });
+
+    it('netto totale e per anno', () => {
+      expect(tfr.nettoTotale).toBeCloseTo(tfr.montanteLordo - tfr.imposta, 6);
+      expect(tfr.nettoAnnuo).toBeCloseTo(tfr.nettoTotale / 3, 6);
+      expect(tfr.aliquotaEffettiva).toBeCloseTo(
+        (tfr.imposta + tfr.impostaSostitutiva) / (tfr.quoteAccantonate + tfr.rivalutazione),
+        6,
+      );
+    });
+
+    it('con inflazione negativa la quota variabile è zero', () => {
+      const deflazione = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        tfr: { anniServizio: 2, inflazioneAttesa: -1 },
+      }).tfr!;
+      expect(deflazione.tassoRivalutazione).toBeCloseTo(0.015, 10);
+      expect(deflazione.rivalutazione).toBeCloseTo(quota30k * 0.015, 6);
+    });
+
+    it('anni non validi: almeno un anno intero', () => {
+      expect(
+        calc.calcolaStipendioNetto({ ...baseInput, tfr: { anniServizio: 0 } }).tfr!.anniServizio,
+      ).toBe(1);
+      expect(
+        calc.calcolaStipendioNetto({ ...baseInput, tfr: { anniServizio: 2.4 } }).tfr!.anniServizio,
+      ).toBe(2);
+    });
+  });
+
+  describe('TFR al fondo pensione (art. 11, c. 6, D.Lgs. 252/2005)', () => {
+    const conAnni = (anniServizio: number) =>
+      calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        tfr: { anniServizio, destinazione: 'fondoPensione', inflazioneAttesa: 2 },
+      }).tfr!;
+
+    it('niente rivalutazione legale né imposta sostitutiva', () => {
+      const tfr = conAnni(10);
+      expect(tfr.destinazione).toBe('fondoPensione');
+      expect(tfr.tassoRivalutazione).toBe(0);
+      expect(tfr.rivalutazione).toBe(0);
+      expect(tfr.impostaSostitutiva).toBe(0);
+      expect(tfr.montanteLordo).toBeCloseTo(quota30k * 10, 6);
+    });
+
+    it('15% fino a 15 anni di partecipazione, senza detrazione', () => {
+      const tfr = conAnni(15);
+      expect(tfr.aliquota).toBeCloseTo(0.15, 10);
+      expect(tfr.detrazione).toBe(0);
+      expect(tfr.imposta).toBeCloseTo(quota30k * 15 * 0.15, 6);
+      expect(tfr.nettoTotale).toBeCloseTo(quota30k * 15 * 0.85, 6);
+    });
+
+    it('meno 0,30 punti per ogni anno oltre il quindicesimo', () => {
+      expect(conAnni(16).aliquota).toBeCloseTo(0.147, 10);
+      expect(conAnni(20).aliquota).toBeCloseTo(0.135, 10);
+      expect(conAnni(35).aliquota).toBeCloseTo(0.09, 10);
+    });
+
+    it('minimo 9%', () => {
+      expect(conAnni(40).aliquota).toBeCloseTo(0.09, 10);
+      expect(conAnni(40).aliquotaEffettiva).toBeCloseTo(0.09, 10);
+    });
+  });
+
+  describe('Resta fuori dal netto in busta', () => {
+    it('le opzioni TFR non cambiano netto, trattenute, percepito e costo aziendale', () => {
+      const senza = calc.calcolaStipendioNetto({ ...baseInput, ral: 40_000 });
+      const con = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        tfr: { anniServizio: 20, destinazione: 'fondoPensione', inflazioneAttesa: 3 },
+      });
+      expect(con.nettoAnnuo).toBe(senza.nettoAnnuo);
+      expect(con.totaleTrattenute).toBe(senza.totaleTrattenute);
+      expect(con.totalePercepito).toBe(senza.totalePercepito);
+      expect(con.costoAziendale).toBe(senza.costoAziendale);
+      expect(con.ripartizione).toEqual(senza.ripartizione);
+    });
+
+    it('la borsa di studio come contratto non matura TFR', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 16_243,
+        tipoContratto: 'borsaDiStudio',
+      });
+      expect(result.tfr).toBeNull();
+    });
   });
 });

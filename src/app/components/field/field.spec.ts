@@ -101,10 +101,13 @@ describe('Field', () => {
     <app-check label="Fondo EST" note="24,00 € / anno">
       <input appControl type="checkbox" [formField]="f.est" />
     </app-check>
+    <app-field label="Vitto" unit="€" noteId="avviso">
+      <input appControl type="number" [formField]="f.vitto" />
+    </app-field>
   `,
 })
 class UnitHost {
-  readonly model = signal({ ral: 35000, eta: 8, mensilita: '13', est: false });
+  readonly model = signal({ ral: 35000, eta: 8, mensilita: '13', est: false, vitto: 0 });
   readonly f = form(this.model);
   readonly mensilita = ['12', '13', '14', '15'].map((m) => ({ value: m, label: m }));
 }
@@ -153,5 +156,11 @@ describe('Field with units and groups', () => {
   it('shows a check note next to its label', () => {
     const { el } = renderUnits();
     expect(el.querySelector('app-check')!.textContent).toContain('24,00 € / anno');
+  });
+
+  it('adds a note outside the field to the description, after its own parts', () => {
+    const { inputs } = renderUnits();
+    const vitto = inputs.at(-1)!;
+    expect(vitto.getAttribute('aria-describedby')).toBe(`${vitto.id}-unit avviso`);
   });
 });

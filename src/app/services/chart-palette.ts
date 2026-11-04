@@ -22,6 +22,7 @@ export const SERIE = {
   fringeBenefit: '#4f8a8b',
   rimborsiTrasferta: '#5f9e94',
   welfare: '#3f7f8c',
+  affittoNeoassunto: '#4a6fa5',
   premioRisultato: '#a3772f',
 
   // where the busta goes

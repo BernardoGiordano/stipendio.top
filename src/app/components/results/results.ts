@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import {
+  BustaPaga,
   DettaglioFondoContrattuale,
   InputCalcoloStipendio,
   OutputCalcoloStipendio,
@@ -20,6 +21,7 @@ import {
 import { REGIONE_LABELS } from '../../../calculator/addizionali/2026.regionali';
 import { PLAFOND_PREVIDENZA_COMPLEMENTARE } from '../../../calculator/fondi/2026';
 import { VOCE_INPS_DATORE } from '../../../calculator/datore/2026';
+import { ALIQUOTA_FONDO_PENSIONE } from '../../../calculator/tfr/2026';
 import { GraphFunnel } from '../graph-funnel/graph-funnel';
 import { GraphProjection } from '../graph-projection/graph-projection';
 import { LedgerCard, LedgerRow, LedgerVoce } from '../ledger/ledger';
@@ -107,18 +109,86 @@ export class Results {
   readonly kpi = computed<Kpi[]>(() => {
     const r = this.result();
     if (!r) return [];
-    const mensilita = `su ${r.mensilita} mensilità`;
+    const aggiuntive = r.bustePaga.numeroAggiuntive;
+    const mensilita = aggiuntive > 0 ? 'mensilità ordinaria' : `su ${r.mensilita} mensilità`;
     const percepitoMensile = { label: 'Percepito mensile', value: r.nettoMensilePercepito };
     const nettoMensile = { label: 'Netto mensile', value: r.nettoMensile };
     return [
       { ...percepitoMensile, note: `${mensilita}, welfare e rimborsi compresi` },
-      { ...nettoMensile, note: 'in busta paga' },
+      {
+        ...nettoMensile,
+        note:
+          aggiuntive > 0
+            ? `${this.mensilitaAggiuntive()} ${formatCurrency(r.nettoMensilitaAggiuntiva)}`
+            : 'in busta paga',
+      },
       {
         label: 'Percepito annuo',
         value: r.totalePercepito,
         note: `netto ${formatCurrency(r.nettoAnnuo)}`,
       },
     ];
+  });
+
+  /** "tredicesima", "tredicesima e quattordicesima" or "mensilità aggiuntive", by their number */
+  readonly mensilitaAggiuntive = computed(() => {
+    const aggiuntive = this.result()?.bustePaga.numeroAggiuntive ?? 0;
+    return aggiuntive === 1
+      ? 'tredicesima'
+      : aggiuntive === 2
+        ? 'tredicesima e quattordicesima'
+        : 'mensilità aggiuntive';
+  });
+
+  /** The rows of a busta paga, read like a payslip: lordo, trattenute, bonus, netto */
+  private righeBusta(busta: BustaPaga): LedgerVoce[] {
+    const se = (condizione: boolean, voce: LedgerVoce): LedgerVoce[] => (condizione ? [voce] : []);
+    return [
+      { label: 'Lordo', amount: busta.lordo },
+      ...se(busta.altreEntrate > 0, { label: 'Altre voci tassate', amount: busta.altreEntrate }),
+      { label: 'Contributi INPS', amount: busta.contributiInps, flow: 'out' },
+      ...se(busta.fondi > 0, { label: 'Fondi', amount: busta.fondi, flow: 'out' }),
+      { label: 'IRPEF', amount: busta.irpef, flow: 'out' },
+      { label: 'Imponibile IRPEF', amount: busta.imponibileIrpef, level: 'detail' },
+      { label: 'IRPEF lorda', amount: busta.irpefLorda, level: 'detail' },
+      ...se(busta.detrazioni > 0, {
+        label: 'Detrazioni',
+        amount: busta.detrazioni,
+        flow: 'reduce',
+        level: 'detail',
+      }),
+      ...se(busta.addizionali > 0, {
+        label: 'Addizionali',
+        amount: busta.addizionali,
+        flow: 'out',
+      }),
+      ...se(busta.altreTrattenute > 0, {
+        label: 'Altre trattenute',
+        amount: busta.altreTrattenute,
+        flow: 'out',
+      }),
+      ...se(busta.bonus > 0, { label: 'Bonus fiscali', amount: busta.bonus, flow: 'in' }),
+      { label: 'Netto', amount: busta.netto, level: 'total' },
+    ];
+  }
+
+  /** The ordinary month and, with 13 or 14 mensilità, the extra one */
+  readonly bustePaga = computed(() => {
+    const r = this.result();
+    if (!r) return null;
+    const { ordinaria, aggiuntiva, numeroAggiuntive } = r.bustePaga;
+    const nome = this.mensilitaAggiuntive();
+    return {
+      ordinaria: { heading: 'Mensilità ordinaria', righe: this.righeBusta(ordinaria) },
+      aggiuntiva: aggiuntiva && {
+        heading: nome.charAt(0).toUpperCase() + nome.slice(1),
+        righe: this.righeBusta(aggiuntiva),
+      },
+      controllo:
+        numeroAggiuntive > 0
+          ? `12 × ${formatCurrency(ordinaria.netto)} + ${numeroAggiuntive} × ${formatCurrency(aggiuntiva!.netto)} = ${formatCurrency(r.nettoAnnuo)} netti l'anno`
+          : `12 × ${formatCurrency(ordinaria.netto)} = ${formatCurrency(r.nettoAnnuo)} netti l'anno`,
+    };
   });
 
   readonly stats = computed<Stat[]>(() => {
@@ -147,6 +217,14 @@ export class Results {
         value: `${formatCurrency(r.fondoPensioneIntegrativo.risparmoFiscaleStimato)} l'anno`,
         hue: 'viola',
         icon: 'sprout',
+      });
+    }
+    if (r.tfr) {
+      stats.push({
+        label: 'TFR netto stimato',
+        value: `${formatCurrency(r.tfr.nettoAnnuo)} l'anno`,
+        hue: 'ocra',
+        icon: 'check',
       });
     }
     if (r.premioRisultato && r.premioRisultato.imponibileSostitutiva > 0) {
@@ -284,6 +362,86 @@ export class Results {
       righe.splice(1, 0, ...inps);
     }
     return righe;
+  });
+
+  /**
+   * The TFR card, read like a liquidation: what is set aside, how it revalues, the tax at the
+   * end and what is left, with the per-year figure when more years of service are set
+   */
+  readonly righeTfr = computed<LedgerVoce[]>(() => {
+    const tfr = this.result()?.tfr;
+    if (!tfr) return [];
+    const anni = tfr.anniServizio;
+    const azienda = tfr.destinazione === 'azienda';
+    const righe: LedgerVoce[] = [{ label: 'Accantonamento annuo', amount: tfr.quotaAnnua }];
+    if (anni > 1) {
+      righe.push({ label: `Quote accantonate in ${anni} anni`, amount: tfr.quoteAccantonate });
+    }
+    if (tfr.rivalutazione > 0) {
+      righe.push(
+        {
+          label: `Rivalutazione (${formatPercent(tfr.tassoRivalutazione)} l'anno)`,
+          amount: tfr.rivalutazione,
+          flow: 'in',
+        },
+        {
+          label: 'imposta sostitutiva 17%',
+          amount: tfr.impostaSostitutiva,
+          flow: 'out',
+          level: 'detail',
+        },
+      );
+    }
+    righe.push({
+      label: azienda ? 'Imposta (tassazione separata)' : 'Imposta sulla prestazione',
+      amount: tfr.imposta,
+      flow: 'out',
+    });
+    if (azienda) {
+      righe.push({
+        label: `aliquota media ${formatPercent(tfr.aliquota)} sul reddito di riferimento`,
+        amount: tfr.redditoRiferimento,
+        level: 'detail',
+      });
+      if (tfr.detrazione > 0) {
+        righe.push({
+          label: 'detrazione D.M. 20 marzo 2008',
+          amount: tfr.detrazione,
+          flow: 'reduce',
+          level: 'detail',
+        });
+      }
+    } else {
+      const base = formatPercent(ALIQUOTA_FONDO_PENSIONE.base, 0);
+      righe.push({
+        label:
+          anni > ALIQUOTA_FONDO_PENSIONE.anniPieni
+            ? `${base} meno 0,30 punti per ${anni - ALIQUOTA_FONDO_PENSIONE.anniPieni} anni oltre il 15°`
+            : `${base} fino a 15 anni di iscrizione`,
+        percent: tfr.aliquota,
+        level: 'detail',
+      });
+    }
+    righe.push({
+      label: anni > 1 ? `TFR netto stimato in ${anni} anni` : 'TFR netto stimato',
+      amount: tfr.nettoTotale,
+      level: 'total',
+    });
+    if (anni > 1) {
+      righe.push({ label: 'per anno di servizio', amount: tfr.nettoAnnuo, level: 'detail' });
+    }
+    righe.push({ label: 'aliquota effettiva', percent: tfr.aliquotaEffettiva, level: 'detail' });
+    return righe;
+  });
+
+  /** What the TFR estimate leaves out, under its rows */
+  readonly notaTfr = computed(() => {
+    const tfr = this.result()?.tfr;
+    if (!tfr) return undefined;
+    const busta = 'Fuori dal netto in busta, a RAL costante.';
+    return tfr.destinazione === 'azienda'
+      ? `${busta} L'Agenzia delle Entrate riliquida l'imposta con l'aliquota media IRPEF dei 5 anni precedenti la cessazione`
+      : `${busta} Senza i rendimenti del fondo, tassati a parte al 20%`;
   });
 
   /** INPS the employer pays on top of the worker's share */
