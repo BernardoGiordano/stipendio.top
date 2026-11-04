@@ -671,6 +671,50 @@ export interface DettaglioRegimeImpatriati {
   haFigliMinorenni: boolean;
 }
 
+/** Voci di una singola busta paga, mensilità ordinaria o aggiuntiva */
+export interface BustaPaga {
+  /** Lordo della mensilità (RAL / mensilità) */
+  lordo: number;
+  /** Contributi INPS a carico del lavoratore */
+  contributiInps: number;
+  /** Contributi ai fondi (fondo pensione, fondi contrattuali) trattenuti nel mese */
+  fondi: number;
+  /** Imponibile IRPEF della mensilità */
+  imponibileIrpef: number;
+  /** IRPEF lorda della mensilità */
+  irpefLorda: number;
+  /** Detrazioni che riducono l'IRPEF lorda del mese */
+  detrazioni: number;
+  /** IRPEF trattenuta (lorda − detrazioni) */
+  irpef: number;
+  /** Addizionali regionale e comunale */
+  addizionali: number;
+  /** Indennità cuneo fiscale e trattamento integrativo */
+  bonus: number;
+  /** Altre voci tassate pagate in busta (fringe benefit, rimborsi, welfare oltre soglia, borsa) */
+  altreEntrate: number;
+  /** Altre trattenute (auto aziendale, Gestione Separata borsista) */
+  altreTrattenute: number;
+  /** Netto della mensilità */
+  netto: number;
+}
+
+/**
+ * Mensilità ordinaria e mensilità aggiuntive (tredicesima, quattordicesima). Ogni voce annua è
+ * ripartita: 12 × ordinaria + numeroAggiuntive × aggiuntiva = importo annuo.
+ */
+export interface DettaglioBustePaga {
+  /** Mensilità oltre le dodici ordinarie (0 con 12 mensilità) */
+  numeroAggiuntive: number;
+  /** Una delle dodici mensilità ordinarie, con detrazioni, bonus e addizionali */
+  ordinaria: BustaPaga;
+  /**
+   * Tredicesima o quattordicesima: stesso lordo e contributi, IRPEF sugli scaglioni mensili
+   * senza detrazioni, niente addizionali né bonus. Assente con 12 mensilità.
+   */
+  aggiuntiva: BustaPaga | null;
+}
+
 /** Riepilogo completo detrazioni */
 export interface RiepilogoDetrazioni {
   /** Detrazioni lavoro dipendente */
@@ -758,10 +802,18 @@ export interface OutputCalcoloStipendio {
 
   /** Stipendio netto annuo */
   nettoAnnuo: number;
-  /** Stipendio netto mensile */
+  /**
+   * Netto della mensilità ordinaria, quella percepita dodici volte l'anno: con tredicesima e
+   * quattordicesima è più alto della media nettoAnnuo / mensilità, perché detrazioni, bonus e
+   * addizionali competono alle sole mensilità ordinarie
+   */
   nettoMensile: number;
   /** Netto mensile più le entrate esenti ripartite su 12 mesi, fringe benefit esclusi */
   nettoMensilePercepito: number;
+  /** Netto di tredicesima o quattordicesima (0 con 12 mensilità) */
+  nettoMensilitaAggiuntiva: number;
+  /** Mensilità ordinaria e aggiuntiva, voce per voce */
+  bustePaga: DettaglioBustePaga;
   /** Aliquota effettiva totale ((trattenute esclusa auto - bonus) / RAL) */
   aliquotaEffettiva: number;
   /** Totale percepito (netto + rimborsi esenti + benefit esenti) */

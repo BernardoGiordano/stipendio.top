@@ -44,6 +44,7 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Regime Impatriati](#12-regime-impatriati-rientro-cervelli)
   - [Costo Aziendale](#13-costo-aziendale)
   - [Borse di Studio](#14-borse-di-studio-dottoratopost-laurea)
+  - [Mensilità Ordinaria, Tredicesima e Quattordicesima](#16-mensilità-ordinaria-tredicesima-e-quattordicesima)
 - [Sequenza di Calcolo](#sequenza-di-calcolo)
 - [Riferimenti Normativi](#riferimenti-normativi)
 
@@ -67,6 +68,12 @@ Il **Totale percepito** include anche le componenti esenti:
 
 ```
 TOTALE PERCEPITO = Stipendio Netto + Fringe Benefit Esenti + Rimborsi Esenti + Welfare Esente
+```
+
+Il **Netto mensile** è quello della mensilità ordinaria, non la media sulle mensilità: con tredicesima e quattordicesima il mese ordinario è più alto della media e la mensilità aggiuntiva più bassa, perché detrazioni, bonus e addizionali competono alle sole dodici mensilità ordinarie (vedi [sezione 16](#16-mensilità-ordinaria-tredicesima-e-quattordicesima)).
+
+```
+NETTO ANNUO = 12 × Netto Mensilità Ordinaria + (Mensilità − 12) × Netto Mensilità Aggiuntiva
 ```
 
 ---
@@ -893,6 +900,63 @@ Costo per l'Ente:      € 20.036,55
 
 ---
 
+#### 16. Mensilità Ordinaria, Tredicesima e Quattordicesima
+
+Il netto annuo non si distribuisce in parti uguali tra le mensilità. In busta paga:
+
+- le **detrazioni** (lavoro dipendente, carichi familiari, cuneo fiscale, altre detrazioni) sono riconosciute per dodicesimi sulle sole mensilità ordinarie;
+- i **bonus** (indennità cuneo fiscale e trattamento integrativo) sono erogati mese per mese sulle mensilità ordinarie;
+- le **addizionali** regionale e comunale sono trattenute a rate sulle mensilità ordinarie (dell'anno successivo, per il saldo);
+- **tredicesima e quattordicesima** subiscono contributi e IRPEF, ma senza detrazioni, addizionali né bonus. L'IRPEF è calcolata applicando gli scaglioni mensili (scaglioni annui / 12) all'imponibile della sola mensilità aggiuntiva.
+
+Il mese ordinario reale è quindi più alto della media `Netto Annuo / Mensilità` e la tredicesima più bassa. Il calcolatore mostra entrambi i valori: il **Netto mensile** è quello della mensilità ordinaria, accanto compare il netto della tredicesima (o di tredicesima e quattordicesima).
+
+##### Mensilità aggiuntiva
+
+```
+Lordo             = RAL / Mensilità
+Contributi INPS   = Lordo × (Contributi INPS annui / Imponibile previdenziale annuo)
+Fondo pensione    = Contributo lavoratore annuo / Mensilità   (solo se ripartito per mensilità)
+Imponibile IRPEF  = (Lordo − Contributi − Quota dedotta fondo) × (1 − Quota esente impatriati)
+IRPEF lorda       = IRPEF(Imponibile × 12) / 12                (scaglioni mensili)
+IRPEF trattenuta  = MIN(IRPEF lorda, IRPEF Finale annua / Mensilità aggiuntive)
+Netto             = Lordo − Contributi − Fondo pensione − IRPEF trattenuta
+```
+
+Il minimo sull'IRPEF riproduce il conguaglio di fine anno: quando le detrazioni azzerano l'imposta dovuta nell'anno, la ritenuta della tredicesima viene restituita e anche la tredicesima risulta senza IRPEF.
+
+##### Mensilità ordinaria
+
+Ogni voce annua è ripartita per differenza, così che `12 × ordinaria + aggiuntive = importo annuo` per ogni voce e per il netto:
+
+```
+Voce ordinaria = (Voce annua − Mensilità aggiuntive × Voce aggiuntiva) / 12
+```
+
+Addizionali, bonus, fringe benefit e rimborsi tassati, welfare oltre soglia, borsa di studio, trattenuta auto e Gestione Separata del borsista gravano per intero sulle dodici mensilità ordinarie. I contributi ai fondi contrattuali sono mensili su dodici mesi; il contributo al fondo pensione segue l'opzione "ripartisci per mensilità".
+
+##### Esempio: RAL €30.000, 13 mensilità, Lombardia, Milano
+
+```
+                        Ordinaria    Tredicesima
+Lordo                   € 2.307,69   € 2.307,69
+Contributi INPS 9,19%   € -212,08    € -212,08
+Imponibile IRPEF        € 2.095,62   € 2.095,62
+IRPEF lorda (23%)       €  481,99    €  481,99
+Detrazioni              € -253,69    €      —
+IRPEF trattenuta        € -228,30    € -481,99
+Addizionali             €  -49,66    €      —
+─────────────────────────────────────────────────
+Netto                   € 1.817,66   € 1.613,62
+
+Controllo: 12 × 1.817,66 + 1.613,62 = 23.425,52 = Netto Annuo
+Media semplice (23.425,52 / 13) = 1.801,96
+```
+
+Il conguaglio di fine anno e le rate delle addizionali spostano gli importi tra i mesi, non il totale: il cedolino di dicembre e quelli dell'anno successivo possono discostarsi dalla mensilità ordinaria qui stimata.
+
+---
+
 ### Sequenza di Calcolo
 
 ```
@@ -1020,6 +1084,15 @@ Costo per l'Ente:      € 20.036,55
 │     + Bonus                                                     │
 │                                                                 │
 │      Totale Percepito = Netto + Esenti                          │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  13b. MENSILITÀ                                                 │
+│      Tredicesima/quattordicesima: lordo, contributi, IRPEF      │
+│      sugli scaglioni mensili senza detrazioni, né addizionali   │
+│      né bonus. Ordinaria = (annuo − aggiuntive) / 12            │
+│      Netto Mensile = netto della mensilità ordinaria            │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼

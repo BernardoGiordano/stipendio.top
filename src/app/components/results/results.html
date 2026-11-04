@@ -95,6 +95,63 @@
           </dl>
         </app-ledger-card>
 
+        <!-- Mensilità ordinaria, tredicesima e quattordicesima -->
+        @if (bustePaga(); as buste) {
+          <div class="border-t border-hair">
+            <p
+              class="flex justify-between px-4 pt-3 pb-0.5 font-mono text-[11px]/4 font-semibold tracking-widest text-faint uppercase sm:px-6"
+            >
+              <span>Busta paga</span>
+              <span>Importo mensile</span>
+            </p>
+            <div class="grid md:grid-cols-2">
+              <app-ledger-card
+                [heading]="buste.ordinaria.heading"
+                [total]="buste.ordinaria.righe.at(-1)!.amount"
+              >
+                <dl>
+                  @for (voce of buste.ordinaria.righe; track voce.label) {
+                    <div
+                      appLedgerRow
+                      [label]="voce.label"
+                      [amount]="voce.amount"
+                      [flow]="voce.flow"
+                      [level]="voce.level ?? 'row'"
+                    ></div>
+                  }
+                </dl>
+                <p [class]="note">Con detrazioni, bonus fiscali e addizionali a rate</p>
+              </app-ledger-card>
+              @if (buste.aggiuntiva; as aggiuntiva) {
+                <app-ledger-card
+                  class="md:border-t-0 md:border-l"
+                  [heading]="aggiuntiva.heading"
+                  [total]="aggiuntiva.righe.at(-1)!.amount"
+                >
+                  <dl>
+                    @for (voce of aggiuntiva.righe; track voce.label) {
+                      <div
+                        appLedgerRow
+                        [label]="voce.label"
+                        [amount]="voce.amount"
+                        [flow]="voce.flow"
+                        [level]="voce.level ?? 'row'"
+                      ></div>
+                    }
+                  </dl>
+                  <p [class]="note">
+                    IRPEF sugli scaglioni mensili senza detrazioni, niente addizionali né bonus
+                  </p>
+                </app-ledger-card>
+              }
+            </div>
+            <p class="px-4 pb-4 text-[13px]/[18px] text-muted tabular-nums sm:px-6">
+              {{ buste.controllo }}. Il conguaglio di fine anno e le rate delle addizionali spostano
+              gli importi tra i mesi, non il totale.
+            </p>
+          </div>
+        }
+
         <!-- Contributi INPS -->
         <app-ledger-card
           heading="Contributi INPS"

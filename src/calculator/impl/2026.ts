@@ -3,10 +3,12 @@ import {
   AutoAziendale,
   BenefitNonTassati,
   BorsaDiStudio,
+  BustaPaga,
   CategoriaEntrata,
   ConiugeACarico,
   DettaglioBenefitNonTassati,
   DettaglioBorsaDiStudio,
+  DettaglioBustePaga,
   DettaglioContributiInps,
   DettaglioCuneoFiscale,
   DettaglioDetrazioniFamiliari,
@@ -33,6 +35,9 @@ import { calcolaAddizionali } from '../addizionali/2026';
 import { calcolaFondi, dettagliFondi } from '../fondi/2026';
 import { calcolaCostiDatore } from '../datore/2026';
 import { ripartisci, somma, totali } from '../ripartizione';
+
+/** Descrizione della trattenuta dei contributi INPS a carico del lavoratore */
+export const VOCE_CONTRIBUTI_INPS = 'Contributi INPS';
 
 /** Scaglioni IRPEF 2026 (aliquota intermedia ridotta) */
 const IRPEF_SCAGLIONI = [
@@ -901,6 +906,16 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
   const { costoAziendale, totaleTrattenute, totaleBonus, nettoAnnuo, totalePercepito } =
     totali(ripartizione);
   const nettoMensile = nettoAnnuo / 12;
+  const bustePaga: DettaglioBustePaga = {
+    numeroAggiuntive: 0,
+    ordinaria: {
+      ...BUSTA_VUOTA,
+      lordo: importoLordo / 12,
+      contributiInps: contributoGSBorsista / 12,
+      netto: nettoMensile,
+    },
+    aggiuntiva: null,
+  };
 
   // Dettaglio contributi INPS (GS borsista)
   const contributiInps: DettaglioContributiInps = {
@@ -1028,6 +1043,8 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     nettoAnnuo,
     nettoMensile,
     nettoMensilePercepito: nettoMensile,
+    nettoMensilitaAggiuntiva: 0,
+    bustePaga,
     aliquotaEffettiva: totaleTrattenute / importoLordo,
     totalePercepito,
   };
@@ -1240,6 +1257,126 @@ function caricoFiscale(imposte: RisultatoImposte): number {
   );
 }
 
+/** Voci annue da ripartire tra mensilità ordinarie e aggiuntive */
+interface ContestoBustePaga {
+  ral: number;
+  mensilita: number;
+  /** Imponibile previdenziale annuo, prima del massimale */
+  imponibilePrevidenziale: number;
+  contributiInps: number;
+  /** Contributo annuo al fondo pensione a carico del lavoratore, se ripartito per mensilità */
+  fondoPensionePerMensilita: { contributoAnnuo: number; quotaDedotta: number } | null;
+  /** Trattenute annue per fondi contrattuali e fondo pensione */
+  fondi: number;
+  /** Quota del reddito di lavoro dipendente esente per il regime impatriati (0 se non attivo) */
+  quotaEsenteImpatriati: number;
+  imponibileIrpef: number;
+  irpefLorda: number;
+  irpefFinale: number;
+  addizionali: number;
+  bonus: number;
+  /** Voci tassate pagate in busta oltre alla RAL e ai bonus */
+  altreEntrate: number;
+  /** Trattenute diverse da INPS, IRPEF, addizionali e fondi */
+  altreTrattenute: number;
+  nettoAnnuo: number;
+}
+
+const BUSTA_VUOTA: BustaPaga = {
+  lordo: 0,
+  contributiInps: 0,
+  fondi: 0,
+  imponibileIrpef: 0,
+  irpefLorda: 0,
+  detrazioni: 0,
+  irpef: 0,
+  addizionali: 0,
+  bonus: 0,
+  altreEntrate: 0,
+  altreTrattenute: 0,
+  netto: 0,
+};
+
+/**
+ * Tredicesima o quattordicesima: stesso lordo e stessa aliquota contributiva delle altre
+ * mensilità, IRPEF sugli scaglioni mensili (annui / 12) senza detrazioni, niente addizionali né
+ * bonus. Le detrazioni spettano infatti solo sulle dodici mensilità ordinarie, le addizionali
+ * sono trattenute a rate sulle mensilità ordinarie e i bonus sono riconosciuti mese per mese.
+ */
+function calcolaBustaAggiuntiva(
+  ctx: ContestoBustePaga,
+  lordo: number,
+  numeroAggiuntive: number,
+): BustaPaga {
+  const aliquotaInps =
+    ctx.imponibilePrevidenziale > 0 ? ctx.contributiInps / ctx.imponibilePrevidenziale : 0;
+  const contributiInps = lordo * aliquotaInps;
+
+  // Il contributo al fondo pensione grava sulle mensilità aggiuntive solo se ripartito su tutte
+  const fondi = ctx.fondoPensionePerMensilita
+    ? ctx.fondoPensionePerMensilita.contributoAnnuo / ctx.mensilita
+    : 0;
+  const deduzione = fondi * (ctx.fondoPensionePerMensilita?.quotaDedotta ?? 0);
+
+  const imponibileIrpef =
+    Math.max(0, lordo - contributiInps - deduzione) * (1 - ctx.quotaEsenteImpatriati);
+  const irpefLorda = calcolaIrpefLorda(imponibileIrpef * 12).irpefLorda / 12;
+
+  // Il conguaglio di fine anno restituisce la ritenuta che eccede l'IRPEF dovuta nell'anno:
+  // quando le detrazioni azzerano l'imposta, anche la tredicesima ne beneficia
+  const irpef = Math.min(irpefLorda, ctx.irpefFinale / numeroAggiuntive);
+
+  return {
+    lordo,
+    contributiInps,
+    fondi,
+    imponibileIrpef,
+    irpefLorda,
+    detrazioni: irpefLorda - irpef,
+    irpef,
+    addizionali: 0,
+    bonus: 0,
+    altreEntrate: 0,
+    altreTrattenute: 0,
+    netto: lordo - contributiInps - fondi - irpef,
+  };
+}
+
+/**
+ * Ripartisce le voci annue tra le dodici mensilità ordinarie e le mensilità aggiuntive: la
+ * mensilità aggiuntiva è calcolata a sé, la ordinaria riceve il resto, così che
+ * 12 × ordinaria + aggiuntive = importo annuo per ogni voce e per il netto.
+ */
+function calcolaBustePaga(ctx: ContestoBustePaga): DettaglioBustePaga {
+  const numeroAggiuntive = Math.max(0, ctx.mensilita - 12);
+  const lordo = ctx.ral / ctx.mensilita;
+  const aggiuntiva =
+    numeroAggiuntive > 0 ? calcolaBustaAggiuntiva(ctx, lordo, numeroAggiuntive) : null;
+
+  const agg = aggiuntiva ?? BUSTA_VUOTA;
+  const residuo = (annuo: number, mensilitaAggiuntiva: number) =>
+    (annuo - numeroAggiuntive * mensilitaAggiuntiva) / 12;
+
+  const irpefLorda = residuo(ctx.irpefLorda, agg.irpefLorda);
+  const irpef = residuo(ctx.irpefFinale, agg.irpef);
+  const ordinaria: BustaPaga = {
+    lordo,
+    contributiInps: residuo(ctx.contributiInps, agg.contributiInps),
+    fondi: residuo(ctx.fondi, agg.fondi),
+    imponibileIrpef: residuo(ctx.imponibileIrpef, agg.imponibileIrpef),
+    irpefLorda,
+    detrazioni: irpefLorda - irpef,
+    irpef,
+    addizionali: ctx.addizionali / 12,
+    bonus: ctx.bonus / 12,
+    altreEntrate: ctx.altreEntrate / 12,
+    altreTrattenute: ctx.altreTrattenute / 12,
+    netto: residuo(ctx.nettoAnnuo, agg.netto),
+  };
+
+  return { numeroAggiuntive, ordinaria, aggiuntiva };
+}
+
 export class Calculator2026 implements StipendioCalculator {
   calcolaStipendioNetto(input: InputCalcoloStipendio): OutputCalcoloStipendio {
     // Borsa di studio come contratto: calcolo semplificato (solo GS INPS, esente IRPEF)
@@ -1421,7 +1558,7 @@ export class Calculator2026 implements StipendioCalculator {
     ];
     const trattenute: VoceTrattenuta[] = [
       {
-        descrizione: 'Contributi INPS',
+        descrizione: VOCE_CONTRIBUTI_INPS,
         importo: contributiInps.totaleContributi,
         categoria: 'contributi',
       },
@@ -1471,8 +1608,55 @@ export class Calculator2026 implements StipendioCalculator {
       };
     }
 
-    // Stipendio netto mensile
-    const nettoMensile = nettoAnnuo / mensilita;
+    // 17. MENSILITÀ ORDINARIA, TREDICESIMA E QUATTORDICESIMA
+    // Detrazioni, bonus e addizionali competono alle sole mensilità ordinarie: il netto del mese
+    // ordinario è più alto della media annua, la tredicesima più bassa
+    const fondoPensione = fondi.fondoPensioneIntegrativo;
+    const bustePaga = calcolaBustePaga({
+      ral,
+      mensilita,
+      imponibilePrevidenziale,
+      contributiInps: contributiInps.totaleContributi,
+      fondoPensionePerMensilita:
+        fondoPensione && input.fondoPensioneIntegrativo?.ripartizionePerMensilita
+          ? {
+              contributoAnnuo: fondoPensione.contributoLavoratoreAnnuo,
+              quotaDedotta:
+                fondoPensione.totaleContributi > 0
+                  ? fondoPensione.deduzioneEffettiva / fondoPensione.totaleContributi
+                  : 0,
+            }
+          : null,
+      fondi: somma(ripartizione.trattenute.filter((voce) => voce.categoria === 'fondi')),
+      quotaEsenteImpatriati:
+        dettaglioRegimeImpatriati && redditoLavoroDipendenteLordo > 0
+          ? dettaglioRegimeImpatriati.importoEsente / redditoLavoroDipendenteLordo
+          : 0,
+      imponibileIrpef: irpef.imponibileIrpef,
+      irpefLorda: irpef.irpefLorda,
+      irpefFinale,
+      addizionali: addizionali.totaleAddizionali,
+      bonus: totaleBonus,
+      altreEntrate: somma(
+        ripartizione.entrate.filter(
+          (voce) =>
+            voce.destinazione === 'netto' &&
+            voce.categoria !== 'retribuzione' &&
+            voce.categoria !== 'bonus',
+        ),
+      ),
+      altreTrattenute: somma(
+        ripartizione.trattenute.filter(
+          (voce) =>
+            voce.categoria === 'autoAziendale' ||
+            (voce.categoria === 'contributi' && voce.descrizione !== VOCE_CONTRIBUTI_INPS),
+        ),
+      ),
+      nettoAnnuo,
+    });
+
+    // Stipendio netto mensile: la mensilità ordinaria
+    const nettoMensile = bustePaga.ordinaria.netto;
 
     // Il percepito mensile aggiunge al netto le entrate esenti, ripartite su 12 mesi.
     // I fringe benefit esenti restano fuori perché includono il valore dell'auto aziendale.
@@ -1517,6 +1701,8 @@ export class Calculator2026 implements StipendioCalculator {
       nettoAnnuo,
       nettoMensile,
       nettoMensilePercepito,
+      nettoMensilitaAggiuntiva: bustePaga.aggiuntiva?.netto ?? 0,
+      bustePaga,
       aliquotaEffettiva,
       totalePercepito,
     };

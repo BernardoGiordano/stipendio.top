@@ -3745,12 +3745,15 @@ describe('Fringe benefit monetari', () => {
 // ============================================================================
 
 describe('14 mensilità, altriRedditi, altreDetrazioni', () => {
-  it('14 mensilità: nettoMensile = nettoAnnuo / 14', () => {
+  it('14 mensilità: 12 × nettoMensile + 2 × quattordicesima = nettoAnnuo', () => {
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
       mensilita: 14,
     });
-    expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / 14, 2);
+    expect(result.nettoMensile * 12 + result.nettoMensilitaAggiuntiva * 2).toBeCloseTo(
+      result.nettoAnnuo,
+      6,
+    );
     expect(result.mensilita).toBe(14);
   });
 
@@ -3758,6 +3761,7 @@ describe('14 mensilità, altriRedditi, altreDetrazioni', () => {
     const result13 = calc.calcolaStipendioNetto({ ...baseInput, mensilita: 13 });
     const result14 = calc.calcolaStipendioNetto({ ...baseInput, mensilita: 14 });
     expect(result14.nettoMensile).toBeLessThan(result13.nettoMensile);
+    expect(result14.nettoMensilitaAggiuntiva).toBeLessThan(result13.nettoMensilitaAggiuntiva);
     // Ma il netto annuo è lo stesso
     expect(result14.nettoAnnuo).toBeCloseTo(result13.nettoAnnuo, 0);
   });
@@ -3801,6 +3805,232 @@ describe('14 mensilità, altriRedditi, altreDetrazioni', () => {
 });
 
 // ============================================================================
+// MENSILITÀ ORDINARIA, TREDICESIMA E QUATTORDICESIMA
+// ============================================================================
+
+describe('Mensilità ordinaria, tredicesima e quattordicesima', () => {
+  /** Netto di una busta come somma delle sue voci */
+  function nettoDalleVoci(busta: OutputCalcoloStipendio['bustePaga']['ordinaria']) {
+    return (
+      busta.lordo +
+      busta.altreEntrate +
+      busta.bonus -
+      busta.contributiInps -
+      busta.fondi -
+      busta.irpef -
+      busta.addizionali -
+      busta.altreTrattenute
+    );
+  }
+
+  describe('RAL 30k, 13 mensilità', () => {
+    const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 30_000, mensilita: 13 });
+    const { ordinaria, aggiuntiva } = result.bustePaga;
+
+    it('la tredicesima ha lo stesso lordo delle altre mensilità', () => {
+      expect(result.bustePaga.numeroAggiuntive).toBe(1);
+      expect(aggiuntiva).not.toBeNull();
+      expect(aggiuntiva!.lordo).toBeCloseTo(30_000 / 13, 6);
+      expect(ordinaria.lordo).toBeCloseTo(30_000 / 13, 6);
+    });
+
+    it('la tredicesima paga i contributi con la stessa aliquota', () => {
+      // 2.307,69 × 9,19% = 212,08
+      expect(aggiuntiva!.contributiInps).toBeCloseTo((30_000 / 13) * 0.0919, 2);
+    });
+
+    it('la tredicesima paga IRPEF sugli scaglioni mensili senza detrazioni', () => {
+      // Imponibile 2.095,61 × 12 = 25.147 → primo scaglione 23% → 481,99 al mese
+      const imponibile = (30_000 / 13) * (1 - 0.0919);
+      expect(aggiuntiva!.imponibileIrpef).toBeCloseTo(imponibile, 2);
+      expect(aggiuntiva!.irpefLorda).toBeCloseTo(imponibile * 0.23, 2);
+      expect(aggiuntiva!.irpef).toBeCloseTo(imponibile * 0.23, 2);
+      expect(aggiuntiva!.detrazioni).toBe(0);
+      expect(aggiuntiva!.addizionali).toBe(0);
+      expect(aggiuntiva!.bonus).toBe(0);
+    });
+
+    it('il netto della tredicesima è lordo − contributi − IRPEF', () => {
+      const lordo = 30_000 / 13;
+      const contributi = lordo * 0.0919;
+      const irpef = (lordo - contributi) * 0.23;
+      expect(aggiuntiva!.netto).toBeCloseTo(lordo - contributi - irpef, 2);
+      expect(result.nettoMensilitaAggiuntiva).toBeCloseTo(aggiuntiva!.netto, 6);
+    });
+
+    it('la mensilità ordinaria riceve detrazioni, addizionali e bonus', () => {
+      expect(ordinaria.detrazioni).toBeCloseTo(
+        (result.irpef.irpefLorda - result.irpefFinale) / 12,
+        6,
+      );
+      expect(ordinaria.addizionali).toBeCloseTo(result.addizionali.totaleAddizionali / 12, 6);
+      expect(ordinaria.bonus).toBeCloseTo(result.totaleBonus / 12, 6);
+      expect(ordinaria.irpef).toBeCloseTo(ordinaria.irpefLorda - ordinaria.detrazioni, 6);
+    });
+
+    it('il mese ordinario è più alto della media e la tredicesima più bassa', () => {
+      const media = result.nettoAnnuo / 13;
+      expect(result.nettoMensile).toBeGreaterThan(media);
+      expect(result.nettoMensilitaAggiuntiva).toBeLessThan(media);
+      expect(result.nettoMensile).toBeCloseTo(ordinaria.netto, 6);
+    });
+
+    it('12 × ordinaria + tredicesima = netto annuo, voce per voce', () => {
+      const annuo = (voce: keyof typeof ordinaria) => ordinaria[voce] * 12 + aggiuntiva![voce];
+      expect(annuo('netto')).toBeCloseTo(result.nettoAnnuo, 6);
+      expect(annuo('lordo')).toBeCloseTo(30_000, 6);
+      expect(annuo('contributiInps')).toBeCloseTo(result.contributiInps.totaleContributi, 6);
+      expect(annuo('imponibileIrpef')).toBeCloseTo(result.irpef.imponibileIrpef, 6);
+      expect(annuo('irpefLorda')).toBeCloseTo(result.irpef.irpefLorda, 6);
+      expect(annuo('irpef')).toBeCloseTo(result.irpefFinale, 6);
+      expect(annuo('addizionali')).toBeCloseTo(result.addizionali.totaleAddizionali, 6);
+      expect(annuo('bonus')).toBeCloseTo(result.totaleBonus, 6);
+    });
+
+    it('le voci di ogni busta sommano al suo netto', () => {
+      expect(nettoDalleVoci(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+      expect(nettoDalleVoci(aggiuntiva!)).toBeCloseTo(aggiuntiva!.netto, 6);
+    });
+
+    it('il percepito mensile parte dalla mensilità ordinaria', () => {
+      expect(result.nettoMensilePercepito).toBeCloseTo(result.nettoMensile, 6);
+    });
+  });
+
+  describe('12 mensilità', () => {
+    const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 30_000, mensilita: 12 });
+
+    it('non ha mensilità aggiuntive e il netto mensile è la media', () => {
+      expect(result.bustePaga.numeroAggiuntive).toBe(0);
+      expect(result.bustePaga.aggiuntiva).toBeNull();
+      expect(result.nettoMensilitaAggiuntiva).toBe(0);
+      expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / 12, 6);
+    });
+
+    it('la mensilità ordinaria riporta tutte le voci annue divise per 12', () => {
+      const { ordinaria } = result.bustePaga;
+      expect(ordinaria.lordo).toBeCloseTo(2_500, 6);
+      expect(ordinaria.contributiInps).toBeCloseTo(result.contributiInps.totaleContributi / 12, 6);
+      expect(ordinaria.irpef).toBeCloseTo(result.irpefFinale / 12, 6);
+      expect(nettoDalleVoci(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+    });
+  });
+
+  describe('14 mensilità', () => {
+    const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 42_000, mensilita: 14 });
+
+    it('tredicesima e quattordicesima sono uguali e pesano due volte', () => {
+      const { ordinaria, aggiuntiva, numeroAggiuntive } = result.bustePaga;
+      expect(numeroAggiuntive).toBe(2);
+      expect(aggiuntiva!.lordo).toBeCloseTo(3_000, 6);
+      expect(ordinaria.netto * 12 + aggiuntiva!.netto * 2).toBeCloseTo(result.nettoAnnuo, 6);
+      expect(ordinaria.irpef * 12 + aggiuntiva!.irpef * 2).toBeCloseTo(result.irpefFinale, 6);
+    });
+  });
+
+  describe("Reddito basso: le detrazioni azzerano l'IRPEF", () => {
+    const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 8_000, mensilita: 13 });
+
+    it("la tredicesima non trattiene IRPEF oltre quella dovuta nell'anno", () => {
+      const { ordinaria, aggiuntiva } = result.bustePaga;
+      expect(result.irpefFinale).toBe(0);
+      expect(aggiuntiva!.irpefLorda).toBeGreaterThan(0);
+      expect(aggiuntiva!.irpef).toBe(0);
+      expect(aggiuntiva!.detrazioni).toBeCloseTo(aggiuntiva!.irpefLorda, 6);
+      expect(ordinaria.irpef).toBe(0);
+      expect(ordinaria.netto * 12 + aggiuntiva!.netto).toBeCloseTo(result.nettoAnnuo, 6);
+    });
+  });
+
+  describe('Altre voci della busta', () => {
+    it('fringe benefit, rimborsi tassati e trattenuta auto stanno nelle mensilità ordinarie', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        fringeBenefit: {
+          buoniAcquisto: 1_500,
+          autoAziendale: { costoKmAci: 0.5, tipoAlimentazione: 'altro', trattenutaDipendente: 600 },
+        },
+        rimborsiTrasferta: { rimborsoVitto: 500, pagamentiTracciabili: false },
+      });
+      const { ordinaria, aggiuntiva } = result.bustePaga;
+      expect(ordinaria.altreEntrate).toBeCloseTo((1_500 + 500) / 12, 6);
+      expect(ordinaria.altreTrattenute).toBeCloseTo(600 / 12, 6);
+      expect(aggiuntiva!.altreEntrate).toBe(0);
+      expect(aggiuntiva!.altreTrattenute).toBe(0);
+      expect(nettoDalleVoci(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+      expect(ordinaria.netto * 12 + aggiuntiva!.netto).toBeCloseTo(result.nettoAnnuo, 6);
+    });
+
+    it('la borsa di studio e la sua Gestione Separata stanno nelle mensilità ordinarie', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        borsaDiStudio: { importoAnnuo: 12_000 },
+      });
+      const { ordinaria, aggiuntiva } = result.bustePaga;
+      expect(ordinaria.altreEntrate).toBeCloseTo(12_000 / 12, 6);
+      expect(ordinaria.altreTrattenute).toBeCloseTo(
+        result.borsaDiStudio!.contributoGestioneSeparataBorsista / 12,
+        6,
+      );
+      expect(nettoDalleVoci(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+      expect(ordinaria.netto * 12 + aggiuntiva!.netto).toBeCloseTo(result.nettoAnnuo, 6);
+    });
+
+    it('il fondo pensione grava sulla tredicesima solo se ripartito per mensilità', () => {
+      const fondo = { contributoLavoratore: 2, ralLavoratore: 30_000 };
+      const su12 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        fondoPensioneIntegrativo: fondo,
+      });
+      const su13 = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        mensilita: 13,
+        fondoPensioneIntegrativo: { ...fondo, ripartizionePerMensilita: true },
+      });
+
+      expect(su12.bustePaga.aggiuntiva!.fondi).toBe(0);
+      expect(su12.bustePaga.ordinaria.fondi).toBeCloseTo(600 / 12, 6);
+
+      expect(su13.bustePaga.aggiuntiva!.fondi).toBeCloseTo(600 / 13, 6);
+      expect(su13.bustePaga.ordinaria.fondi).toBeCloseTo(600 / 13, 6);
+      // Il contributo dedotto riduce l'imponibile della tredicesima
+      expect(su13.bustePaga.aggiuntiva!.imponibileIrpef).toBeCloseTo(
+        su12.bustePaga.aggiuntiva!.imponibileIrpef - 600 / 13,
+        6,
+      );
+      for (const result of [su12, su13]) {
+        const { ordinaria, aggiuntiva } = result.bustePaga;
+        expect(nettoDalleVoci(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+        expect(nettoDalleVoci(aggiuntiva!)).toBeCloseTo(aggiuntiva!.netto, 6);
+        expect(ordinaria.netto * 12 + aggiuntiva!.netto).toBeCloseTo(result.nettoAnnuo, 6);
+      }
+    });
+
+    it("il regime impatriati riduce l'imponibile della tredicesima", () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 60_000,
+        mensilita: 13,
+        regimeImpatriati: true,
+      });
+      const { ordinaria, aggiuntiva } = result.bustePaga;
+      expect(aggiuntiva!.imponibileIrpef).toBeCloseTo(
+        (aggiuntiva!.lordo - aggiuntiva!.contributiInps) * 0.5,
+        6,
+      );
+      expect(ordinaria.netto * 12 + aggiuntiva!.netto).toBeCloseTo(result.nettoAnnuo, 6);
+    });
+  });
+});
+
+// ============================================================================
 // TEST PROPERTY-BASED (FUZZY)
 // ============================================================================
 
@@ -3836,11 +4066,14 @@ describe('Property-based (fuzzy) tests', () => {
       }
     });
 
-    it('nettoMensile = nettoAnnuo / mensilità (esattamente)', () => {
+    it('12 × nettoMensile + mensilità aggiuntive = nettoAnnuo (esattamente)', () => {
       for (const ral of rals) {
         const mensilita = randomMensilita();
         const result = calc.calcolaStipendioNetto({ ...baseInput, ral, mensilita });
-        expect(result.nettoMensile).toBeCloseTo(result.nettoAnnuo / mensilita, 6);
+        expect(
+          result.nettoMensile * 12 + result.nettoMensilitaAggiuntiva * (mensilita - 12),
+        ).toBeCloseTo(result.nettoAnnuo, 6);
+        expect(result.bustePaga.numeroAggiuntive).toBe(mensilita - 12);
       }
     });
 
@@ -3992,6 +4225,29 @@ describe('Property-based (fuzzy) tests', () => {
           6,
         );
         expect([...entrate, ...trattenute].every((voce) => voce.importo > 0)).toBe(true);
+
+        // Le buste paga ripartiscono il netto annuo senza perdere nulla
+        const { ordinaria, aggiuntiva, numeroAggiuntive } = result.bustePaga;
+        const nettoBusta = (busta: typeof ordinaria) =>
+          busta.lordo +
+          busta.altreEntrate +
+          busta.bonus -
+          busta.contributiInps -
+          busta.fondi -
+          busta.irpef -
+          busta.addizionali -
+          busta.altreTrattenute;
+        expect(numeroAggiuntive).toBe(input.mensilita - 12);
+        expect(nettoBusta(ordinaria)).toBeCloseTo(ordinaria.netto, 6);
+        expect(ordinaria.irpef).toBeGreaterThanOrEqual(0);
+        expect(ordinaria.netto * 12 + (aggiuntiva?.netto ?? 0) * numeroAggiuntive).toBeCloseTo(
+          result.nettoAnnuo,
+          6,
+        );
+        if (aggiuntiva) {
+          expect(nettoBusta(aggiuntiva)).toBeCloseTo(aggiuntiva.netto, 6);
+          expect(aggiuntiva.irpef).toBeLessThanOrEqual(aggiuntiva.irpefLorda + 1e-9);
+        }
       }
     });
 
