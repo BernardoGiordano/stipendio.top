@@ -1,4 +1,4 @@
-import { Calculator2026 } from './2026';
+import { Calculator2026, limiteIndennitaTrasferta } from './2026';
 import { somma } from '../ripartizione';
 import type {
   CategoriaEntrata,
@@ -3358,8 +3358,10 @@ describe('Rimborsi trasferta', () => {
       ...baseInput,
       rimborsiTrasferta: {
         modalitaRimborso: 'forfettario',
-        giorniTrasfertaItalia: 10,
-        giorniTrasfertaEstero: 5,
+        trasferte: [
+          { destinazione: 'italia', giorni: 10 },
+          { destinazione: 'estero', giorni: 5 },
+        ],
       },
     });
     expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(
@@ -3374,11 +3376,11 @@ describe('Rimborsi trasferta', () => {
       ...baseInput,
       rimborsiTrasferta: {
         modalitaRimborso: 'misto',
-        giorniTrasfertaItalia: 10,
+        trasferte: [{ destinazione: 'italia', giorni: 10, vittoAlloggioACarico: 'uno' }],
         rimborsoVitto: 500,
       },
     });
-    const atteso = 10 * 46.48 * (2 / 3);
+    const atteso = 10 * 30.99;
     expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(atteso, 2);
     expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(500, 2);
   });
@@ -3388,14 +3390,207 @@ describe('Rimborsi trasferta', () => {
       ...baseInput,
       rimborsiTrasferta: {
         modalitaRimborso: 'misto',
-        giorniTrasfertaItalia: 10,
+        trasferte: [{ destinazione: 'italia', giorni: 10, vittoAlloggioACarico: 'entrambi' }],
         rimborsoVitto: 500,
         rimborsoAlloggio: 300,
       },
     });
-    const atteso = 10 * 46.48 * (1 / 3);
+    const atteso = 10 * 15.49;
     expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(atteso, 2);
     expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(800, 2);
+  });
+
+  it('misto con alloggio fornito gratuitamente: riduzione 1/3 senza rimborsi', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [{ destinazione: 'estero', giorni: 10, vittoAlloggioACarico: 'uno' }],
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(10 * 51.65, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBe(0);
+  });
+
+  it('misto con più trasferte: la riduzione vale solo per i giorni indicati', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [
+          { destinazione: 'italia', giorni: 30, vittoAlloggioACarico: 'uno' },
+          { destinazione: 'italia', giorni: 20 },
+        ],
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(
+      30 * 30.99 + 20 * 46.48,
+      2,
+    );
+  });
+
+  it('forfettario: non applica riduzioni rimaste impostate sulla trasferta', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        trasferte: [{ destinazione: 'italia', giorni: 10, vittoAlloggioACarico: 'entrambi' }],
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(10 * 46.48, 2);
+  });
+
+  it('analitico: ignora le indennità', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'analitico',
+        trasferte: [{ destinazione: 'italia', giorni: 10, indennitaGiornaliera: 60 }],
+      },
+    });
+    expect(result.rimborsiTrasferta.totaleRimborsi).toBe(0);
+  });
+
+  it('indennità oltre il limite: la parte eccedente è imponibile IRPEF e INPS', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [
+          {
+            destinazione: 'italia',
+            giorni: 10,
+            indennitaGiornaliera: 60,
+            vittoAlloggioACarico: 'uno',
+          },
+        ],
+      },
+    });
+    const esente = 10 * 30.99;
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(esente, 2);
+    expect(result.rimborsiTrasferta.indennitaEccedente).toBeCloseTo(600 - esente, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(600 - esente, 2);
+    expect(result.rimborsiTrasferta.totaleRimborsi).toBeCloseTo(600, 2);
+    expect(result.contributiInps.imponibilePrevidenziale).toBeCloseTo(
+      baseInput.ral + 600 - esente,
+      2,
+    );
+  });
+
+  it('indennità sotto il limite: è esente solo quanto erogato', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        trasferte: [{ destinazione: 'italia', giorni: 10, indennitaGiornaliera: 30 }],
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(300, 2);
+    expect(result.rimborsiTrasferta.indennitaEccedente).toBe(0);
+  });
+
+  it('indennità pari a zero: non è esente nulla, a differenza di quella assente', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        trasferte: [{ destinazione: 'italia', giorni: 10, indennitaGiornaliera: 0 }],
+      },
+    });
+    expect(result.rimborsiTrasferta.totaleRimborsi).toBe(0);
+  });
+
+  it('limite giornaliero: pieno, ridotto di 1/3 e di 2/3, al centesimo', () => {
+    const limite = (
+      destinazione: 'italia' | 'estero',
+      vittoAlloggioACarico: 'nessuno' | 'uno' | 'entrambi',
+    ) => limiteIndennitaTrasferta({ destinazione, vittoAlloggioACarico }, 'misto');
+
+    expect(limite('italia', 'nessuno')).toBe(46.48);
+    expect(limite('italia', 'uno')).toBe(30.99);
+    expect(limite('italia', 'entrambi')).toBe(15.49);
+    expect(limite('estero', 'nessuno')).toBe(77.47);
+    expect(limite('estero', 'uno')).toBe(51.65);
+    expect(limite('estero', 'entrambi')).toBe(25.82);
+  });
+
+  it('limite giornaliero: solo il sistema misto lo riduce', () => {
+    const trasferta = { destinazione: 'italia', vittoAlloggioACarico: 'entrambi' } as const;
+
+    expect(limiteIndennitaTrasferta(trasferta, 'forfettario')).toBe(46.48);
+    expect(limiteIndennitaTrasferta(trasferta, 'misto')).toBe(15.49);
+  });
+
+  it('indennità pari al limite ridotto mostrato: nessuna parte tassata', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [
+          {
+            destinazione: 'italia',
+            giorni: 100,
+            indennitaGiornaliera: 30.99,
+            vittoAlloggioACarico: 'uno',
+          },
+        ],
+      },
+    });
+    expect(result.rimborsiTrasferta.indennitaEccedente).toBe(0);
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(3_099, 2);
+  });
+
+  it("rimborsi spese tassati separati dall'indennità eccedente", () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [
+          {
+            destinazione: 'italia',
+            giorni: 10,
+            indennitaGiornaliera: 40,
+            vittoAlloggioACarico: 'uno',
+          },
+        ],
+        rimborsoVitto: 500,
+        rimborsoKmImponibile: 100,
+        pagamentiTracciabili: false,
+      },
+    });
+    expect(result.rimborsiTrasferta.indennitaEccedente).toBeCloseTo(10 * (40 - 30.99), 2);
+    expect(result.rimborsiTrasferta.rimborsiSpeseTassati).toBeCloseTo(600, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(600 + 10 * (40 - 30.99), 2);
+  });
+
+  it('forfettario: vitto e alloggio rimborsati sono tassati anche se tracciabili', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        trasferte: [{ destinazione: 'italia', giorni: 10 }],
+        rimborsoVitto: 500,
+        rimborsoViaggio: 200,
+        pagamentiTracciabili: true,
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(10 * 46.48, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(500, 2);
+    expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBeCloseTo(200, 2);
+  });
+
+  it('misto non tracciabile: riduzione applicata e vitto tassato', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: {
+        modalitaRimborso: 'misto',
+        trasferte: [{ destinazione: 'italia', giorni: 10, vittoAlloggioACarico: 'uno' }],
+        rimborsoVitto: 500,
+        pagamentiTracciabili: false,
+      },
+    });
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBeCloseTo(10 * 30.99, 2);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBeCloseTo(500, 2);
   });
 
   it('pagamenti non tracciabili: vitto e alloggio diventano tassati', () => {
@@ -3403,7 +3598,7 @@ describe('Rimborsi trasferta', () => {
       ...baseInput,
       rimborsiTrasferta: {
         modalitaRimborso: 'forfettario',
-        giorniTrasfertaItalia: 10,
+        trasferte: [{ destinazione: 'italia', giorni: 10 }],
         rimborsoVitto: 500,
         rimborsoAlloggio: 300,
         rimborsoViaggio: 200,
@@ -3449,7 +3644,7 @@ describe('Rimborsi trasferta', () => {
       ...baseInput,
       rimborsiTrasferta: {
         modalitaRimborso: 'forfettario',
-        giorniTrasfertaItalia: 10,
+        trasferte: [{ destinazione: 'italia', giorni: 10 }],
         rimborsoVitto: 500,
         rimborsoViaggio: 200,
         pagamentiTracciabili: false,
@@ -3479,7 +3674,10 @@ describe('Rimborsi trasferta', () => {
     const base = calc.calcolaStipendioNetto(baseInput);
     const result = calc.calcolaStipendioNetto({
       ...baseInput,
-      rimborsiTrasferta: { modalitaRimborso: 'forfettario', giorniTrasfertaItalia: 10 },
+      rimborsiTrasferta: {
+        modalitaRimborso: 'forfettario',
+        trasferte: [{ destinazione: 'italia', giorni: 10 }],
+      },
     });
 
     expect(result.nettoMensilePercepito).toBeCloseTo(
@@ -4166,7 +4364,14 @@ describe('Property-based (fuzzy) tests', () => {
         ...(rng() > 0.5 && {
           rimborsiTrasferta: {
             modalitaRimborso: 'misto' as const,
-            giorniTrasfertaItalia: 10,
+            trasferte: [
+              {
+                destinazione: 'italia' as const,
+                giorni: 10,
+                indennitaGiornaliera: Math.round(rng() * 80),
+                vittoAlloggioACarico: 'uno' as const,
+              },
+            ],
             rimborsoVitto: Math.round(rng() * 1_000),
             pagamentiTracciabili: rng() > 0.5,
           },
@@ -4592,7 +4797,7 @@ describe('Costo aziendale', () => {
       ral: 30_000,
       rimborsiTrasferta: {
         modalitaRimborso: 'forfettario',
-        giorniTrasfertaItalia: 10,
+        trasferte: [{ destinazione: 'italia', giorni: 10 }],
       },
     });
 

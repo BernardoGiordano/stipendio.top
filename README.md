@@ -360,8 +360,21 @@ Fringe Benefit = (Costo €/km ACI × 15.000 km × Percentuale) × (Mesi / 12) �
 
 **Riduzioni con rimborso misto:**
 
-- Vitto O alloggio rimborsati: −1/3
-- Vitto E alloggio rimborsati: −2/3
+- Vitto O alloggio rimborsati o forniti gratuitamente: −1/3 (€30,99 Italia, €51,65 estero)
+- Vitto E alloggio rimborsati o forniti gratuitamente: −2/3 (€15,49 Italia, €25,82 estero)
+
+I limiti ridotti sono arrotondati al centesimo, come i valori ufficiali.
+
+**Indennità diversa dal limite:**
+
+```
+Esente = MIN(Indennità × Giorni, Limite × Giorni)
+Tassata = Indennità × Giorni − Esente
+```
+
+La parte eccedente concorre all'imponibile IRPEF e previdenziale. Il calcolo si fa per gruppi di giorni con lo stesso trattamento, perché destinazione, importo e riduzione possono cambiare da una trasferta all'altra. Se l'indennità non è indicata, si assume pari al limite.
+
+Nel sistema forfettario i rimborsi di vitto e alloggio sono tassati, anche se documentati e tracciabili (Circ. AE 15/E/2025): se sono previsti, il sistema da indicare è il misto.
 
 **Rimborso Analitico:**
 Totalmente esente se documentato e con pagamento tracciabile (dal 2025).

@@ -608,11 +608,18 @@
                   [amount]="r.rimborsiTrasferta.rimborsoDocumentatoEsente"
                 ></div>
               }
-              @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
+              @if (r.rimborsiTrasferta.indennitaEccedente > 0) {
+                <div
+                  appLedgerRow
+                  label="Indennità eccedente (tassata)"
+                  [amount]="r.rimborsiTrasferta.indennitaEccedente"
+                ></div>
+              }
+              @if (r.rimborsiTrasferta.rimborsiSpeseTassati > 0) {
                 <div
                   appLedgerRow
                   label="Rimborsi tassati"
-                  [amount]="r.rimborsiTrasferta.rimborsiTassati"
+                  [amount]="r.rimborsiTrasferta.rimborsiSpeseTassati"
                 ></div>
               }
               <div
@@ -622,7 +629,21 @@
                 flow="in"
                 level="total"
               ></div>
+              @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
+                <div
+                  appLedgerRow
+                  label="Totale tassato"
+                  [amount]="r.rimborsiTrasferta.rimborsiTassati"
+                  level="total"
+                ></div>
+              }
             </dl>
+            @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
+              <p [class]="note">
+                Il totale tassato si somma all'imponibile: paga INPS, IRPEF e addizionali, e il
+                resto entra nel netto.
+              </p>
+            }
           </app-ledger-card>
         }
 

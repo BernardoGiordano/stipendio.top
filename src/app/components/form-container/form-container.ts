@@ -6,15 +6,18 @@ import {
   createDefaultAscendente,
   createDefaultFiglio,
   createDefaultFondoPersonalizzato,
+  createDefaultTrasferta,
   StipendioFieldTree,
   StipendioFormModel,
 } from './form-group';
 import {
+  DestinazioneTrasferta,
   OutputCalcoloStipendio,
   TipoAlimentazioneAuto,
   TipoContratto,
   TipoEsoneroContributivo,
   TrattamentoFiscaleFondo,
+  VittoAlloggioACarico,
 } from '../../../calculator/types';
 import { Check, Control, Field } from '../field/field';
 import { Icon } from '../icon/icon';
@@ -37,8 +40,9 @@ import {
   PRESET_FONDI_PENSIONE,
 } from '../../../calculator/fondi/2026';
 import { ESONERI_CONTRIBUTIVI } from '../../../calculator/datore/2026';
+import { conIndennitaTrasferta, limiteIndennitaTrasferta } from '../../../calculator/impl/2026';
 import { HUE } from '../../services/chart-palette';
-import { formatCurrency } from '../../utils/intl';
+import { formatCurrency, formatNumber } from '../../utils/intl';
 
 const ALTRO_OPTION = { value: 'DEFAULT', label: 'Non specificato' } as const;
 
@@ -280,9 +284,16 @@ export class FormContainer {
             ? `${eur(fringe.valoreEsente)} esenti`
             : undefined,
       rimborsi:
-        r.rimborsiTrasferta.totaleEsente > 0
-          ? `+ ${eur(r.rimborsiTrasferta.totaleEsente)} esenti`
-          : undefined,
+        [
+          r.rimborsiTrasferta.totaleEsente > 0
+            ? `+ ${eur(r.rimborsiTrasferta.totaleEsente)} esenti`
+            : '',
+          r.rimborsiTrasferta.rimborsiTassati > 0
+            ? `${eur(r.rimborsiTrasferta.rimborsiTassati)} tassati`
+            : '',
+        ]
+          .filter(Boolean)
+          .join(' · ') || undefined,
       benefit:
         r.benefitNonTassati.totaleEsente > 0
           ? `+ ${eur(r.benefitNonTassati.totaleEsente)} esenti`
@@ -354,10 +365,73 @@ export class FormContainer {
     label: string;
   }[] = [
     { value: 'nessuna', label: '-- Seleziona --' },
-    { value: 'forfettario', label: 'Forfettario' },
-    { value: 'misto', label: 'Misto' },
-    { value: 'analitico', label: 'Analitico' },
+    { value: 'forfettario', label: 'Forfettario (solo indennità)' },
+    { value: 'misto', label: 'Misto (indennità con vitto o alloggio)' },
+    { value: 'analitico', label: 'Analitico (solo rimborsi)' },
   ];
+
+  readonly destinazioni: { value: DestinazioneTrasferta; label: string }[] = [
+    { value: 'italia', label: 'Italia' },
+    { value: 'estero', label: 'Estero' },
+  ];
+
+  readonly vittoAlloggio: { value: VittoAlloggioACarico; label: string }[] = [
+    { value: 'nessuno', label: 'Nessuno' },
+    { value: 'uno', label: 'Uno dei due (−1/3)' },
+    { value: 'entrambi', label: 'Entrambi (−2/3)' },
+  ];
+
+  /** Two aligned lines in the form column, one line where the four fields fit */
+  readonly grigliaMisto =
+    'grid grid-cols-2 gap-x-2.5 gap-y-2 @min-[36rem]:grid-cols-[6rem_4rem_1fr_1fr]';
+  /** The allowance takes its own line where the three fields don't fit */
+  readonly grigliaForfettario =
+    'grid grid-cols-2 gap-x-2.5 gap-y-2 @min-[24rem]:grid-cols-[1fr_4rem_1.2fr]';
+  readonly indennitaForfettario = 'col-span-2 @min-[24rem]:col-span-1';
+  /** Allowance and meals take a line each where two columns would cut their text */
+  readonly campoMisto = 'col-span-2 @min-[20rem]:col-span-1';
+
+  /** Per trip row: the exempt daily ceiling and the texts of the allowance field */
+  readonly righeTrasferta = computed(() => {
+    const rimborsi = this.formModel()().rimborsiTrasferta;
+    return rimborsi.trasferte.map((trasferta) => {
+      const limite = limiteIndennitaTrasferta(trasferta, rimborsi.modalitaRimborso);
+      const eccedente = trasferta.indennitaGiornaliera - limite;
+      return {
+        limite: formatNumber(limite, 2),
+        info: `Importo giornaliero erogato. Se lo lasci vuoto vale il limite esente di ${formatCurrency(limite)}. La parte oltre il limite si somma all'imponibile: paga INPS, IRPEF e addizionali.`,
+        tassata:
+          eccedente > 0
+            ? `${formatCurrency(limite)} esenti, ${formatCurrency(eccedente)} tassati`
+            : undefined,
+      };
+    });
+  });
+
+  /** Whether the reimbursement method pays a daily allowance */
+  readonly conIndennita = computed(() =>
+    conIndennitaTrasferta(this.formModel()().rimborsiTrasferta.modalitaRimborso),
+  );
+
+  /** Meal and lodging reimbursements that don't match the selected method */
+  readonly avvisoVittoAlloggio = computed(() => {
+    const rimborsi = this.formModel()().rimborsiTrasferta;
+    if (!(rimborsi.rimborsoVitto > 0 || rimborsi.rimborsoAlloggio > 0)) return null;
+    const trasferte = rimborsi.trasferte.filter((trasferta) => trasferta.giorni > 0);
+    if (rimborsi.modalitaRimborso === 'forfettario') {
+      return trasferte.length > 0
+        ? 'Con vitto o alloggio rimborsati il sistema è misto: seleziona «Misto». Nel forfettario questi rimborsi sono tassati.'
+        : 'Senza giorni di indennità il sistema è analitico: seleziona «Analitico». Nel forfettario questi rimborsi sono tassati.';
+    }
+    if (
+      rimborsi.modalitaRimborso === 'misto' &&
+      trasferte.length > 0 &&
+      trasferte.every((trasferta) => trasferta.vittoAlloggioACarico === 'nessuno')
+    ) {
+      return 'Con vitto o alloggio rimborsati il limite esente si riduce: indica i giorni interessati in «Vitto e alloggio».';
+    }
+    return null;
+  });
 
   readonly tipiAlimentazione: { value: TipoAlimentazioneAuto; label: string }[] = [
     { value: 'elettrico', label: 'Elettrico' },
@@ -384,6 +458,26 @@ export class FormContainer {
     this.formModel().update((model) => ({
       ...model,
       figli: model.figli.filter((_, i) => i !== index),
+    }));
+  }
+
+  addTrasferta(): void {
+    this.formModel().update((model) => ({
+      ...model,
+      rimborsiTrasferta: {
+        ...model.rimborsiTrasferta,
+        trasferte: [...model.rimborsiTrasferta.trasferte, createDefaultTrasferta()],
+      },
+    }));
+  }
+
+  removeTrasferta(index: number): void {
+    this.formModel().update((model) => ({
+      ...model,
+      rimborsiTrasferta: {
+        ...model.rimborsiTrasferta,
+        trasferte: model.rimborsiTrasferta.trasferte.filter((_, i) => i !== index),
+      },
     }));
   }
 

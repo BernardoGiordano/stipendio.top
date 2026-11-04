@@ -27,6 +27,8 @@ import {
   RiepilogoDetrazioni,
   RimborsiTrasferta,
   TipoContratto,
+  Trasferta,
+  VittoAlloggioACarico,
   VoceEntrata,
   VoceTrattenuta,
 } from '../types';
@@ -149,8 +151,7 @@ const DETRAZIONE_CONIUGE = {
 const RIMBORSI_TRASFERTA = {
   forfettarioItalia: 46.48,
   forfettarioEstero: 77.47,
-  riduzioneUnTerzo: 1 / 3,
-  riduzioneDueTerzi: 2 / 3,
+  riduzione: { nessuno: 0, uno: 1 / 3, entrambi: 2 / 3 },
 } as const;
 
 /** Limiti benefit esenti da tassazione */
@@ -291,6 +292,29 @@ function calcolaFringeBenefit(
   };
 }
 
+/** Sistemi di rimborso che erogano un'indennità giornaliera */
+export function conIndennitaTrasferta(modalitaRimborso: string | undefined): boolean {
+  return modalitaRimborso === 'forfettario' || modalitaRimborso === 'misto';
+}
+
+/**
+ * Limite giornaliero esente dell'indennità di trasferta (art. 51, c. 5, TUIR).
+ * Solo il sistema misto lo riduce. Il limite ridotto è arrotondato al centesimo,
+ * come i valori ufficiali: 30,99 e 15,49 € in Italia, 51,65 e 25,82 € all'estero.
+ */
+export function limiteIndennitaTrasferta(
+  trasferta: Pick<Trasferta, 'destinazione' | 'vittoAlloggioACarico'>,
+  modalitaRimborso: string | undefined,
+): number {
+  const limite =
+    trasferta.destinazione === 'estero'
+      ? RIMBORSI_TRASFERTA.forfettarioEstero
+      : RIMBORSI_TRASFERTA.forfettarioItalia;
+  const vittoAlloggio: VittoAlloggioACarico =
+    modalitaRimborso === 'misto' ? (trasferta.vittoAlloggioACarico ?? 'nessuno') : 'nessuno';
+  return Math.round(limite * (1 - RIMBORSI_TRASFERTA.riduzione[vittoAlloggio]) * 100) / 100;
+}
+
 function calcolaRimborsiTrasferta(
   rimborsi: RimborsiTrasferta | undefined,
 ): DettaglioRimborsiTrasferta {
@@ -298,6 +322,8 @@ function calcolaRimborsiTrasferta(
     return {
       rimborsoForfettarioEsente: 0,
       rimborsoDocumentatoEsente: 0,
+      indennitaEccedente: 0,
+      rimborsiSpeseTassati: 0,
       rimborsiTassati: 0,
       totaleEsente: 0,
       totaleRimborsi: 0,
@@ -306,29 +332,25 @@ function calcolaRimborsiTrasferta(
 
   let rimborsoForfettarioEsente = 0;
   let rimborsoDocumentatoEsente = 0;
-  let rimborsiTassati = 0;
+  let indennitaEccedente = 0;
+  let rimborsiSpeseTassati = 0;
 
-  const giorniItalia = rimborsi.giorniTrasfertaItalia ?? 0;
-  const giorniEstero = rimborsi.giorniTrasfertaEstero ?? 0;
+  const forfettario = rimborsi.modalitaRimborso === 'forfettario';
 
-  if (rimborsi.modalitaRimborso === 'forfettario') {
-    rimborsoForfettarioEsente =
-      giorniItalia * RIMBORSI_TRASFERTA.forfettarioItalia +
-      giorniEstero * RIMBORSI_TRASFERTA.forfettarioEstero;
-  } else if (rimborsi.modalitaRimborso === 'misto') {
-    const vitto = rimborsi.rimborsoVitto ?? 0;
-    const alloggio = rimborsi.rimborsoAlloggio ?? 0;
+  if (conIndennitaTrasferta(rimborsi.modalitaRimborso)) {
+    for (const trasferta of rimborsi.trasferte ?? []) {
+      // Il limite si riduce anche con vitto o alloggio forniti gratuitamente (Circ. AE 15/E/2025)
+      const limite =
+        trasferta.giorni * limiteIndennitaTrasferta(trasferta, rimborsi.modalitaRimborso);
+      const erogato =
+        trasferta.indennitaGiornaliera === undefined
+          ? limite
+          : trasferta.giorni * trasferta.indennitaGiornaliera;
 
-    let riduzione = 0;
-    if (vitto > 0 && alloggio > 0) {
-      riduzione = RIMBORSI_TRASFERTA.riduzioneDueTerzi;
-    } else if (vitto > 0 || alloggio > 0) {
-      riduzione = RIMBORSI_TRASFERTA.riduzioneUnTerzo;
+      // Oltre il limite l'indennità concorre al reddito (art. 51, c. 5, TUIR)
+      rimborsoForfettarioEsente += Math.min(erogato, limite);
+      indennitaEccedente += Math.max(0, erogato - limite);
     }
-
-    rimborsoForfettarioEsente =
-      giorniItalia * RIMBORSI_TRASFERTA.forfettarioItalia * (1 - riduzione) +
-      giorniEstero * RIMBORSI_TRASFERTA.forfettarioEstero * (1 - riduzione);
   }
 
   const rimborsoVitto = rimborsi.rimborsoVitto ?? 0;
@@ -340,20 +362,24 @@ function calcolaRimborsiTrasferta(
 
   const pagamentiTracciabili = rimborsi.pagamentiTracciabili ?? true;
 
-  if (pagamentiTracciabili) {
+  // Nel sistema forfettario vitto e alloggio rimborsati sono tassati (Circ. AE 15/E/2025)
+  if (pagamentiTracciabili && !forfettario) {
     rimborsoDocumentatoEsente = rimborsoVitto + rimborsoAlloggio + rimborsoViaggio + rimborsoKm;
-    rimborsiTassati = rimborsoKmImponibile;
+    rimborsiSpeseTassati = rimborsoKmImponibile;
   } else {
-    rimborsiTassati = rimborsoVitto + rimborsoAlloggio + rimborsoKmImponibile;
+    rimborsiSpeseTassati = rimborsoVitto + rimborsoAlloggio + rimborsoKmImponibile;
     rimborsoDocumentatoEsente = rimborsoViaggio + rimborsoKm;
   }
 
+  const rimborsiTassati = rimborsiSpeseTassati + indennitaEccedente;
   const totaleEsente = rimborsoForfettarioEsente + rimborsoDocumentatoEsente;
   const totaleRimborsi = totaleEsente + rimborsiTassati;
 
   return {
     rimborsoForfettarioEsente,
     rimborsoDocumentatoEsente,
+    indennitaEccedente,
+    rimborsiSpeseTassati,
     rimborsiTassati,
     totaleEsente,
     totaleRimborsi,
@@ -954,6 +980,8 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
   const zeroRimborsiTrasferta: DettaglioRimborsiTrasferta = {
     rimborsoForfettarioEsente: 0,
     rimborsoDocumentatoEsente: 0,
+    indennitaEccedente: 0,
+    rimborsiSpeseTassati: 0,
     rimborsiTassati: 0,
     totaleEsente: 0,
     totaleRimborsi: 0,
