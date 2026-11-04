@@ -1957,6 +1957,147 @@ describe('Contributi INPS', () => {
 });
 
 // ============================================================================
+// RIMBORSO AFFITTO NEOASSUNTI 2025 (L. 207/2024, art. 1, c. 386-389)
+// ============================================================================
+
+describe('Rimborso affitto neoassunti 2025 (L. 207/2024, c. 386-389)', () => {
+  const ALIQUOTA_INPS = 0.0919;
+  const base = calc.calcolaStipendioNetto(baseInput);
+  const conRimborso = (importo: number, requisiti = true) =>
+    calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsoAffittoNeoassunto: { importo, requisiti },
+    });
+  const vociAffitto = (result: OutputCalcoloStipendio) =>
+    result.ripartizione.entrate.filter((voce) => voce.categoria === 'affittoNeoassunto');
+
+  it("entro €5.000 è esente da IRPEF ma entra per intero nell'imponibile INPS", () => {
+    const result = conRimborso(4_000);
+    expect(result.rimborsoAffittoNeoassunto).toEqual({
+      importo: 4_000,
+      requisiti: true,
+      limiteEsenzione: 5_000,
+      importoEsente: 4_000,
+      importoImponibile: 0,
+    });
+    // Comma 386: la non concorrenza al reddito non rileva ai fini contributivi
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(25_000 + 4_000);
+    expect(result.contributiInps.totaleContributi).toBeCloseTo(29_000 * ALIQUOTA_INPS, 2);
+    // L'imponibile IRPEF scende solo dei contributi INPS pagati sul rimborso
+    expect(result.irpef.imponibileIrpef).toBeCloseTo(
+      base.irpef.imponibileIrpef - 4_000 * ALIQUOTA_INPS,
+      2,
+    );
+  });
+
+  it("il limite di €5.000 è una franchigia: solo l'eccedenza è imponibile IRPEF", () => {
+    const result = conRimborso(6_500);
+    expect(result.rimborsoAffittoNeoassunto?.importoEsente).toBe(5_000);
+    expect(result.rimborsoAffittoNeoassunto?.importoImponibile).toBe(1_500);
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(25_000 + 6_500);
+    expect(result.irpef.imponibileIrpef).toBeCloseTo(
+      base.irpef.imponibileIrpef + 1_500 - 6_500 * ALIQUOTA_INPS,
+      2,
+    );
+  });
+
+  it("senza i requisiti del comma 387 l'intero importo è imponibile", () => {
+    const result = conRimborso(4_000, false);
+    expect(result.rimborsoAffittoNeoassunto?.requisiti).toBe(false);
+    expect(result.rimborsoAffittoNeoassunto?.importoEsente).toBe(0);
+    expect(result.rimborsoAffittoNeoassunto?.importoImponibile).toBe(4_000);
+    expect(result.irpef.imponibileIrpef).toBeCloseTo(
+      base.irpef.imponibileIrpef + 4_000 - 4_000 * ALIQUOTA_INPS,
+      2,
+    );
+    expect(vociAffitto(result)).toEqual([
+      {
+        descrizione: 'Affitto neoassunto imponibile',
+        importo: 4_000,
+        categoria: 'affittoNeoassunto',
+        pagatore: 'datore',
+        destinazione: 'netto',
+      },
+    ]);
+    expect(result.nettoAnnuo).toBeGreaterThan(base.nettoAnnuo);
+  });
+
+  it('non concorre alla soglia fringe benefit e si cumula con il rimborso affitto ordinario', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      fringeBenefit: { rimborsoAffitto: 900 },
+      rimborsoAffittoNeoassunto: { importo: 5_000, requisiti: true },
+    });
+    // Circ. AdE 4/E/2025, par. 2.7: le due agevolazioni sono autonome e cumulabili
+    expect(result.fringeBenefit.sogliaSuperata).toBe(false);
+    expect(result.fringeBenefit.valoreEsente).toBe(900);
+    expect(result.rimborsoAffittoNeoassunto?.importoEsente).toBe(5_000);
+    expect(result.contributiInps.imponibilePrevidenziale).toBe(25_000 + 5_000);
+    expect(result.totalePercepito).toBeCloseTo(result.nettoAnnuo + 900 + 5_000, 6);
+  });
+
+  it('è una voce esente pagata dal datore: nel costo aziendale e nel percepito', () => {
+    const result = conRimborso(6_000);
+    expect(vociAffitto(result)).toEqual([
+      {
+        descrizione: 'Affitto neoassunto imponibile',
+        importo: 1_000,
+        categoria: 'affittoNeoassunto',
+        pagatore: 'datore',
+        destinazione: 'netto',
+      },
+      {
+        descrizione: 'Affitto neoassunto esente',
+        importo: 5_000,
+        categoria: 'affittoNeoassunto',
+        pagatore: 'datore',
+        destinazione: 'esente',
+      },
+    ]);
+    // Il datore paga i contributi sull'intero rimborso, quota esente compresa
+    const contributiDatoreInPiu =
+      result.contributiDatore.contributiInpsLordi - base.contributiDatore.contributiInpsLordi;
+    expect(contributiDatoreInPiu).toBeCloseTo(6_000 * result.contributiDatore.aliquotaInps, 2);
+    // Lo 0,50% IVS versato sul rimborso si recupera sul TFR
+    const recuperoTfrInPiu =
+      result.contributiDatore.riduzioneTfr - base.contributiDatore.riduzioneTfr;
+    expect(recuperoTfrInPiu).toBeCloseTo(6_000 * 0.005, 2);
+    expect(result.costoAziendale - base.costoAziendale).toBeCloseTo(
+      6_000 + contributiDatoreInPiu - recuperoTfrInPiu,
+      2,
+    );
+    expect(result.totalePercepito).toBeCloseTo(result.nettoAnnuo + 5_000, 6);
+    expect(result.nettoMensilePercepito).toBeCloseTo(result.nettoMensile + 5_000 / 12, 6);
+  });
+
+  it('la quota esente riduce il netto in busta dei soli contributi INPS', () => {
+    const result = conRimborso(4_000);
+    const riduzioneNetto = base.nettoAnnuo - result.nettoAnnuo;
+    // I contributi in più abbassano a loro volta IRPEF e addizionali
+    expect(riduzioneNetto).toBeGreaterThan(0);
+    expect(riduzioneNetto).toBeLessThan(4_000 * ALIQUOTA_INPS);
+    expect(result.totalePercepito).toBeCloseTo(base.totalePercepito + 4_000 - riduzioneNetto, 6);
+  });
+
+  it.each([0, -100])('importo %d: nessun dettaglio e nessuna voce', (importo) => {
+    const result = conRimborso(importo);
+    expect(result.rimborsoAffittoNeoassunto).toBeNull();
+    expect(vociAffitto(result)).toEqual([]);
+    expect(result.nettoAnnuo).toBe(base.nettoAnnuo);
+    expect(result.costoAziendale).toBe(base.costoAziendale);
+  });
+
+  it('non si applica alla borsa di studio come contratto', () => {
+    const result = calc.calcolaStipendioNetto({
+      ...baseInput,
+      tipoContratto: 'borsaDiStudio',
+      rimborsoAffittoNeoassunto: { importo: 4_000, requisiti: true },
+    });
+    expect(result.rimborsoAffittoNeoassunto).toBeNull();
+  });
+});
+
+// ============================================================================
 // IRPEF SCAGLIONI
 // ============================================================================
 
@@ -4381,6 +4522,12 @@ describe('Property-based (fuzzy) tests', () => {
             buoniPasto: Math.round(rng() * 3_000),
             assistenzaSanitaria: Math.round(rng() * 5_000),
             previdenzaComplementare: Math.round(rng() * 2_000),
+          },
+        }),
+        ...(rng() > 0.7 && {
+          rimborsoAffittoNeoassunto: {
+            importo: Math.round(rng() * 8_000),
+            requisiti: rng() > 0.3,
           },
         }),
         ...(rng() > 0.8 && { borsaDiStudio: { importoAnnuo: 16_243 } }),

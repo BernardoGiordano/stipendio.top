@@ -56,6 +56,7 @@ type Riga =
   | 'fringeBenefit'
   | 'rimborsi'
   | 'benefit'
+  | 'affittoNeoassunto'
   | 'borsa'
   | GruppoFondiId
   | 'fondiPersonalizzati'
@@ -232,6 +233,7 @@ export class FormContainer {
       fringeBenefit: m.fringeBenefit.enabled,
       rimborsi: m.rimborsiTrasferta.enabled,
       benefit: m.benefitNonTassati.enabled,
+      affittoNeoassunto: m.rimborsoAffittoNeoassunto.enabled,
       borsa: m.borsaDiStudio.enabled,
       ...(Object.fromEntries(
         this.gruppiFondi.map((gruppo) => [gruppo.id, gruppo.fondi.some((fondo) => m[fondo.id])]),
@@ -260,6 +262,7 @@ export class FormContainer {
 
     const fp = r.fondoPensioneIntegrativo;
     const fringe = r.fringeBenefit;
+    const affitto = r.rimborsoAffittoNeoassunto;
     const famiglia = r.detrazioniFamiliari;
     const datore = r.contributiDatore;
     return {
@@ -298,6 +301,14 @@ export class FormContainer {
         r.benefitNonTassati.totaleEsente > 0
           ? `+ ${eur(r.benefitNonTassati.totaleEsente)} esenti`
           : undefined,
+      affittoNeoassunto: affitto
+        ? [
+            affitto.importoEsente > 0 ? `+ ${eur(affitto.importoEsente)} esenti` : '',
+            affitto.importoImponibile > 0 ? `${eur(affitto.importoImponibile)} imponibili` : '',
+          ]
+            .filter(Boolean)
+            .join(' · ')
+        : undefined,
       borsa: r.borsaDiStudio ? `+ ${eur(r.borsaDiStudio.nettoAnnuo)} netti` : undefined,
       ...(Object.fromEntries(
         this.gruppiFondi.map((gruppo) => [

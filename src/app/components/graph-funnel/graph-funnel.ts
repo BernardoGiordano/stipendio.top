@@ -49,6 +49,7 @@ const ENTRATE: Record<CategoriaEntrata, NodeStyle> = {
   fringeBenefit: { label: 'Fringe Benefit', color: SERIE.fringeBenefit },
   rimborsiTrasferta: { label: 'Rimborsi', color: SERIE.rimborsiTrasferta },
   welfare: { label: 'Welfare', color: SERIE.welfare },
+  affittoNeoassunto: { label: 'Affitto Neoassunto', color: SERIE.affittoNeoassunto },
   borsaDiStudio: { label: 'Borsa di Studio', color: SERIE.ente },
   bonus: { label: 'Bonus Fiscali', color: SERIE.stato },
 };
