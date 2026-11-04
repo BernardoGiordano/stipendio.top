@@ -30,7 +30,7 @@ const riferimento: InputCalcoloStipendio = {
 describe('proiezione', () => {
   it('reproduces the reference scenario at its own RAL', () => {
     const r = conRal(riferimento, 35_000)!;
-    expect(r.nettoMensilePercepito).toBeCloseTo(2_138.92, 2);
+    expect(r.nettoMensilePercepito).toBeCloseTo(2_148.99, 2);
     expect(r.nettoAnnuo).toBeCloseTo(25_899.25, 2);
     expect(r.costoAziendale).toBeCloseTo(49_898.09, 2);
   });
@@ -65,8 +65,8 @@ describe('projection grids', () => {
     expect(serie.at(-1)!.ral).toBe(80_000);
     expect(serie.length).toBe(14);
     const tu = serie.find((p) => p.ral === 35_000)!;
-    expect(tu.nettoMensile).toBeCloseTo(1_992.25, 2);
-    expect(tu.percepitoMensile).toBeCloseTo(2_138.92, 2);
+    expect(tu.nettoMensile).toBeCloseTo(2_002.32, 2);
+    expect(tu.percepitoMensile).toBeCloseTo(2_148.99, 2);
   });
 
   it('widens the series around a RAL outside the default range', () => {
@@ -84,7 +84,7 @@ describe('projection grids', () => {
     const tu = righe.filter((r) => r.attuale);
     expect(tu).toHaveLength(1);
     expect(tu[0].nettoAnnuo).toBeCloseTo(25_899.25, 2);
-    expect(righe[4].nettoMensile - tu[0].nettoMensile).toBeCloseTo(151.7, 2);
+    expect(righe[4].nettoMensile - tu[0].nettoMensile).toBeCloseTo(144.84, 2);
   });
 
   it('floors the other comparison RALs at 10.000 €', () => {
@@ -101,7 +101,7 @@ describe('projection grids', () => {
     ]);
     const tu = griglia.righe.find((r) => r.attuale)!;
     expect(tu.ral).toBe(35_000);
-    expect(tu.celle[0].mensile).toBeCloseTo(2_138.92, 2);
+    expect(tu.celle[0].mensile).toBeCloseTo(2_148.99, 2);
     expect(tu.celle[0].annuale).toBeCloseTo(27_659.25, 2);
     // 1.000 € more welfare reaches the percepito in full
     expect(tu.celle[1].annuale - tu.celle[0].annuale).toBeCloseTo(1_000, 2);

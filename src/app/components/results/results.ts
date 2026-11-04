@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import {
+  BustaPaga,
   DettaglioFondoContrattuale,
   InputCalcoloStipendio,
   OutputCalcoloStipendio,
@@ -108,18 +109,86 @@ export class Results {
   readonly kpi = computed<Kpi[]>(() => {
     const r = this.result();
     if (!r) return [];
-    const mensilita = `su ${r.mensilita} mensilità`;
+    const aggiuntive = r.bustePaga.numeroAggiuntive;
+    const mensilita = aggiuntive > 0 ? 'mensilità ordinaria' : `su ${r.mensilita} mensilità`;
     const percepitoMensile = { label: 'Percepito mensile', value: r.nettoMensilePercepito };
     const nettoMensile = { label: 'Netto mensile', value: r.nettoMensile };
     return [
       { ...percepitoMensile, note: `${mensilita}, welfare e rimborsi compresi` },
-      { ...nettoMensile, note: 'in busta paga' },
+      {
+        ...nettoMensile,
+        note:
+          aggiuntive > 0
+            ? `${this.mensilitaAggiuntive()} ${formatCurrency(r.nettoMensilitaAggiuntiva)}`
+            : 'in busta paga',
+      },
       {
         label: 'Percepito annuo',
         value: r.totalePercepito,
         note: `netto ${formatCurrency(r.nettoAnnuo)}`,
       },
     ];
+  });
+
+  /** "tredicesima", "tredicesima e quattordicesima" or "mensilità aggiuntive", by their number */
+  readonly mensilitaAggiuntive = computed(() => {
+    const aggiuntive = this.result()?.bustePaga.numeroAggiuntive ?? 0;
+    return aggiuntive === 1
+      ? 'tredicesima'
+      : aggiuntive === 2
+        ? 'tredicesima e quattordicesima'
+        : 'mensilità aggiuntive';
+  });
+
+  /** The rows of a busta paga, read like a payslip: lordo, trattenute, bonus, netto */
+  private righeBusta(busta: BustaPaga): LedgerVoce[] {
+    const se = (condizione: boolean, voce: LedgerVoce): LedgerVoce[] => (condizione ? [voce] : []);
+    return [
+      { label: 'Lordo', amount: busta.lordo },
+      ...se(busta.altreEntrate > 0, { label: 'Altre voci tassate', amount: busta.altreEntrate }),
+      { label: 'Contributi INPS', amount: busta.contributiInps, flow: 'out' },
+      ...se(busta.fondi > 0, { label: 'Fondi', amount: busta.fondi, flow: 'out' }),
+      { label: 'IRPEF', amount: busta.irpef, flow: 'out' },
+      { label: 'Imponibile IRPEF', amount: busta.imponibileIrpef, level: 'detail' },
+      { label: 'IRPEF lorda', amount: busta.irpefLorda, level: 'detail' },
+      ...se(busta.detrazioni > 0, {
+        label: 'Detrazioni',
+        amount: busta.detrazioni,
+        flow: 'reduce',
+        level: 'detail',
+      }),
+      ...se(busta.addizionali > 0, {
+        label: 'Addizionali',
+        amount: busta.addizionali,
+        flow: 'out',
+      }),
+      ...se(busta.altreTrattenute > 0, {
+        label: 'Altre trattenute',
+        amount: busta.altreTrattenute,
+        flow: 'out',
+      }),
+      ...se(busta.bonus > 0, { label: 'Bonus fiscali', amount: busta.bonus, flow: 'in' }),
+      { label: 'Netto', amount: busta.netto, level: 'total' },
+    ];
+  }
+
+  /** The ordinary month and, with 13 or 14 mensilità, the extra one */
+  readonly bustePaga = computed(() => {
+    const r = this.result();
+    if (!r) return null;
+    const { ordinaria, aggiuntiva, numeroAggiuntive } = r.bustePaga;
+    const nome = this.mensilitaAggiuntive();
+    return {
+      ordinaria: { heading: 'Mensilità ordinaria', righe: this.righeBusta(ordinaria) },
+      aggiuntiva: aggiuntiva && {
+        heading: nome.charAt(0).toUpperCase() + nome.slice(1),
+        righe: this.righeBusta(aggiuntiva),
+      },
+      controllo:
+        numeroAggiuntive > 0
+          ? `12 × ${formatCurrency(ordinaria.netto)} + ${numeroAggiuntive} × ${formatCurrency(aggiuntiva!.netto)} = ${formatCurrency(r.nettoAnnuo)} netti l'anno`
+          : `12 × ${formatCurrency(ordinaria.netto)} = ${formatCurrency(r.nettoAnnuo)} netti l'anno`,
+    };
   });
 
   readonly stats = computed<Stat[]>(() => {

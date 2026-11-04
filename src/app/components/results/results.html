@@ -95,6 +95,63 @@
           </dl>
         </app-ledger-card>
 
+        <!-- Mensilità ordinaria, tredicesima e quattordicesima -->
+        @if (bustePaga(); as buste) {
+          <div class="border-t border-hair">
+            <p
+              class="flex justify-between px-4 pt-3 pb-0.5 font-mono text-[11px]/4 font-semibold tracking-widest text-faint uppercase sm:px-6"
+            >
+              <span>Busta paga</span>
+              <span>Importo mensile</span>
+            </p>
+            <div class="grid md:grid-cols-2">
+              <app-ledger-card
+                [heading]="buste.ordinaria.heading"
+                [total]="buste.ordinaria.righe.at(-1)!.amount"
+              >
+                <dl>
+                  @for (voce of buste.ordinaria.righe; track voce.label) {
+                    <div
+                      appLedgerRow
+                      [label]="voce.label"
+                      [amount]="voce.amount"
+                      [flow]="voce.flow"
+                      [level]="voce.level ?? 'row'"
+                    ></div>
+                  }
+                </dl>
+                <p [class]="note">Con detrazioni, bonus fiscali e addizionali a rate</p>
+              </app-ledger-card>
+              @if (buste.aggiuntiva; as aggiuntiva) {
+                <app-ledger-card
+                  class="md:border-t-0 md:border-l"
+                  [heading]="aggiuntiva.heading"
+                  [total]="aggiuntiva.righe.at(-1)!.amount"
+                >
+                  <dl>
+                    @for (voce of aggiuntiva.righe; track voce.label) {
+                      <div
+                        appLedgerRow
+                        [label]="voce.label"
+                        [amount]="voce.amount"
+                        [flow]="voce.flow"
+                        [level]="voce.level ?? 'row'"
+                      ></div>
+                    }
+                  </dl>
+                  <p [class]="note">
+                    IRPEF sugli scaglioni mensili senza detrazioni, niente addizionali né bonus
+                  </p>
+                </app-ledger-card>
+              }
+            </div>
+            <p class="px-4 pb-4 text-[13px]/[18px] text-muted tabular-nums sm:px-6">
+              {{ buste.controllo }}. Il conguaglio di fine anno e le rate delle addizionali spostano
+              gli importi tra i mesi, non il totale.
+            </p>
+          </div>
+        }
+
         <!-- Contributi INPS -->
         <app-ledger-card
           heading="Contributi INPS"
@@ -551,11 +608,18 @@
                   [amount]="r.rimborsiTrasferta.rimborsoDocumentatoEsente"
                 ></div>
               }
-              @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
+              @if (r.rimborsiTrasferta.indennitaEccedente > 0) {
+                <div
+                  appLedgerRow
+                  label="Indennità eccedente (tassata)"
+                  [amount]="r.rimborsiTrasferta.indennitaEccedente"
+                ></div>
+              }
+              @if (r.rimborsiTrasferta.rimborsiSpeseTassati > 0) {
                 <div
                   appLedgerRow
                   label="Rimborsi tassati"
-                  [amount]="r.rimborsiTrasferta.rimborsiTassati"
+                  [amount]="r.rimborsiTrasferta.rimborsiSpeseTassati"
                 ></div>
               }
               <div
@@ -565,7 +629,21 @@
                 flow="in"
                 level="total"
               ></div>
+              @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
+                <div
+                  appLedgerRow
+                  label="Totale tassato"
+                  [amount]="r.rimborsiTrasferta.rimborsiTassati"
+                  level="total"
+                ></div>
+              }
             </dl>
+            @if (r.rimborsiTrasferta.rimborsiTassati > 0) {
+              <p [class]="note">
+                Il totale tassato si somma all'imponibile: paga INPS, IRPEF e addizionali, e il
+                resto entra nel netto.
+              </p>
+            }
           </app-ledger-card>
         }
 
@@ -631,6 +709,49 @@
                   [amount]="r.benefitNonTassati.totaleTassato"
                 ></div>
               }
+            </dl>
+          </app-ledger-card>
+        }
+
+        <!-- Rimborso affitto neoassunti 2025 -->
+        @if (r.rimborsoAffittoNeoassunto; as affitto) {
+          <app-ledger-card
+            heading="Rimborso affitto neoassunto"
+            [total]="affitto.importoEsente"
+            flow="in"
+          >
+            <dl>
+              <div
+                appLedgerRow
+                label="Rimborso affitto e manutenzione"
+                [amount]="affitto.importo"
+              ></div>
+              <div
+                appLedgerRow
+                label="Limite esenzione annuo"
+                [amount]="affitto.limiteEsenzione"
+                level="detail"
+              ></div>
+              <div
+                appLedgerRow
+                label="Requisiti (c. 387, L. 207/2024)"
+                [value]="affitto.requisiti ? 'Sì' : 'No'"
+                level="detail"
+              ></div>
+              <div appLedgerRow label="Quota esente IRPEF" [amount]="affitto.importoEsente"></div>
+              @if (affitto.importoImponibile > 0) {
+                <div
+                  appLedgerRow
+                  label="Quota imponibile IRPEF"
+                  [amount]="affitto.importoImponibile"
+                ></div>
+              }
+              <div
+                appLedgerRow
+                label="Contributi INPS dovuti sull'intero importo"
+                value=""
+                level="detail"
+              ></div>
             </dl>
           </app-ledger-card>
         }

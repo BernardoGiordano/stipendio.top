@@ -38,14 +38,27 @@ export interface FringeBenefit {
   altri?: number;
 }
 
+/** Quante tra vitto e alloggio sono rimborsate o fornite gratuitamente */
+export type VittoAlloggioACarico = 'nessuno' | 'uno' | 'entrambi';
+
+export type DestinazioneTrasferta = 'italia' | 'estero';
+
+/** Giorni di trasferta fuori comune con lo stesso trattamento */
+export interface Trasferta {
+  destinazione: DestinazioneTrasferta;
+  giorni: number;
+  /** Indennità giornaliera erogata; se assente, è pari al limite esente */
+  indennitaGiornaliera?: number;
+  /** Riduce il limite esente di 1/3 o 2/3 (solo sistema misto) */
+  vittoAlloggioACarico?: VittoAlloggioACarico;
+}
+
 /** Dettaglio rimborsi spese trasferta */
 export interface RimborsiTrasferta {
   /** Modalità rimborso trasferte fuori comune */
   modalitaRimborso?: 'forfettario' | 'misto' | 'analitico';
-  /** Giorni trasferta Italia (per calcolo forfettario) */
-  giorniTrasfertaItalia?: number;
-  /** Giorni trasferta estero (per calcolo forfettario) */
-  giorniTrasfertaEstero?: number;
+  /** Giorni di trasferta con indennità (forfettario/misto) */
+  trasferte?: Trasferta[];
   /** Rimborso vitto documentato (analitico/misto) */
   rimborsoVitto?: number;
   /** Rimborso alloggio documentato (analitico/misto) */
@@ -61,6 +74,21 @@ export interface RimborsiTrasferta {
   rimborsoKmImponibile?: number;
   /** Indica se i pagamenti sono tracciabili (obbligatorio dal 2025 per vitto/alloggio/taxi) */
   pagamentiTracciabili?: boolean;
+}
+
+/**
+ * Rimborso affitto per i neoassunti a tempo indeterminato nel 2025 trasferiti per lavoro
+ * (art. 1, c. 386-389, L. 207/2024; Circ. AdE 4/E/2025, par. 2.7)
+ */
+export interface RimborsoAffittoNeoassunto {
+  /** Somme erogate o rimborsate dal datore nell'anno per canoni di locazione e spese di manutenzione */
+  importo: number;
+  /**
+   * Requisiti dei commi 386-387 rispettati: assunzione a tempo indeterminato nel 2025, reddito
+   * di lavoro dipendente 2024 non superiore a €35.000 e residenza trasferita nel comune di
+   * lavoro, distante più di 100 km dal precedente. Senza requisiti l'intero importo è imponibile
+   */
+  requisiti: boolean;
 }
 
 /** Dettaglio benefit non tassati (welfare aziendale) */
@@ -319,6 +347,12 @@ export interface InputCalcoloStipendio extends Partial<Record<FondoContrattualeI
   /** Benefit non tassati (welfare aziendale) */
   benefitNonTassati?: BenefitNonTassati;
 
+  /**
+   * Rimborso affitto neoassunti 2025 (art. 1, c. 386-389, L. 207/2024): esente da IRPEF entro
+   * €5.000 l'anno per i primi due anni dall'assunzione, fuori dalla soglia fringe benefit
+   */
+  rimborsoAffittoNeoassunto?: RimborsoAffittoNeoassunto;
+
   /** Regime impatriati (rientro cervelli) - D.Lgs. 209/2023, art. 5 */
   regimeImpatriati?: boolean;
 
@@ -543,7 +577,11 @@ export interface DettaglioRimborsiTrasferta {
   rimborsoForfettarioEsente: number;
   /** Totale rimborsi documentati esenti */
   rimborsoDocumentatoEsente: number;
-  /** Rimborsi tassati (pagamenti non tracciabili) */
+  /** Parte dell'indennità di trasferta oltre il limite esente */
+  indennitaEccedente: number;
+  /** Rimborsi spese tassati: vitto e alloggio non tracciabili o nel forfettario, km imponibili */
+  rimborsiSpeseTassati: number;
+  /** Totale tassato: indennità eccedente + rimborsi spese tassati */
   rimborsiTassati: number;
   /** Totale rimborsi esenti */
   totaleEsente: number;
@@ -573,6 +611,20 @@ export interface DettaglioBenefitNonTassati {
   totaleEsente: number;
   /** Totale benefit tassati che entrano in busta (eccedenze buoni pasto) */
   totaleTassato: number;
+}
+
+/** Dettaglio rimborso affitto neoassunti 2025 */
+export interface DettaglioRimborsoAffittoNeoassunto {
+  /** Somme erogate o rimborsate nell'anno (per intero nell'imponibile previdenziale) */
+  importo: number;
+  /** Requisiti dei commi 386-387 rispettati */
+  requisiti: boolean;
+  /** Limite annuo di non concorrenza al reddito (€5.000), franchigia */
+  limiteEsenzione: number;
+  /** Quota esente da IRPEF (entro il limite, se i requisiti sono rispettati) */
+  importoEsente: number;
+  /** Quota imponibile IRPEF: eccedenza oltre il limite, o intero importo senza requisiti */
+  importoImponibile: number;
 }
 
 /** Input borsa di studio (dottorato/post-laurea, tassata dal 7/6/2025 - D.L. 45/2025, L. 79/2025) */
@@ -679,6 +731,7 @@ export type CategoriaEntrata =
   | 'fringeBenefit'
   | 'rimborsiTrasferta'
   | 'welfare'
+  | 'affittoNeoassunto'
   | 'borsaDiStudio'
   | 'bonus';
 
@@ -728,6 +781,50 @@ export interface DettaglioRegimeImpatriati {
   haFigliMinorenni: boolean;
 }
 
+/** Voci di una singola busta paga, mensilità ordinaria o aggiuntiva */
+export interface BustaPaga {
+  /** Lordo della mensilità (RAL / mensilità) */
+  lordo: number;
+  /** Contributi INPS a carico del lavoratore */
+  contributiInps: number;
+  /** Contributi ai fondi (fondo pensione, fondi contrattuali) trattenuti nel mese */
+  fondi: number;
+  /** Imponibile IRPEF della mensilità */
+  imponibileIrpef: number;
+  /** IRPEF lorda della mensilità */
+  irpefLorda: number;
+  /** Detrazioni che riducono l'IRPEF lorda del mese */
+  detrazioni: number;
+  /** IRPEF trattenuta (lorda − detrazioni) */
+  irpef: number;
+  /** Addizionali regionale e comunale */
+  addizionali: number;
+  /** Indennità cuneo fiscale e trattamento integrativo */
+  bonus: number;
+  /** Altre voci tassate pagate in busta (fringe benefit, rimborsi, welfare oltre soglia, borsa) */
+  altreEntrate: number;
+  /** Altre trattenute (auto aziendale, Gestione Separata borsista) */
+  altreTrattenute: number;
+  /** Netto della mensilità */
+  netto: number;
+}
+
+/**
+ * Mensilità ordinaria e mensilità aggiuntive (tredicesima, quattordicesima). Ogni voce annua è
+ * ripartita: 12 × ordinaria + numeroAggiuntive × aggiuntiva = importo annuo.
+ */
+export interface DettaglioBustePaga {
+  /** Mensilità oltre le dodici ordinarie (0 con 12 mensilità) */
+  numeroAggiuntive: number;
+  /** Una delle dodici mensilità ordinarie, con detrazioni, bonus e addizionali */
+  ordinaria: BustaPaga;
+  /**
+   * Tredicesima o quattordicesima: stesso lordo e contributi, IRPEF sugli scaglioni mensili
+   * senza detrazioni, niente addizionali né bonus. Assente con 12 mensilità.
+   */
+  aggiuntiva: BustaPaga | null;
+}
+
 /** Riepilogo completo detrazioni */
 export interface RiepilogoDetrazioni {
   /** Detrazioni lavoro dipendente */
@@ -762,6 +859,9 @@ export interface OutputCalcoloStipendio {
 
   /** Dettaglio benefit non tassati */
   benefitNonTassati: DettaglioBenefitNonTassati;
+
+  /** Dettaglio rimborso affitto neoassunti 2025 (se presente) */
+  rimborsoAffittoNeoassunto: DettaglioRimborsoAffittoNeoassunto | null;
 
   /** Fondi contrattuali selezionati */
   fondiContrattuali: DettaglioFondoContrattuale[];
@@ -818,12 +918,20 @@ export interface OutputCalcoloStipendio {
 
   /** Stipendio netto annuo */
   nettoAnnuo: number;
-  /** Stipendio netto mensile */
+  /**
+   * Netto della mensilità ordinaria, quella percepita dodici volte l'anno: con tredicesima e
+   * quattordicesima è più alto della media nettoAnnuo / mensilità, perché detrazioni, bonus e
+   * addizionali competono alle sole mensilità ordinarie
+   */
   nettoMensile: number;
   /** Netto mensile più le entrate esenti ripartite su 12 mesi, fringe benefit esclusi */
   nettoMensilePercepito: number;
+  /** Netto di tredicesima o quattordicesima (0 con 12 mensilità) */
+  nettoMensilitaAggiuntiva: number;
+  /** Mensilità ordinaria e aggiuntiva, voce per voce */
+  bustePaga: DettaglioBustePaga;
   /** Aliquota effettiva totale ((trattenute esclusa auto - bonus) / RAL) */
   aliquotaEffettiva: number;
-  /** Totale percepito (netto + rimborsi esenti + benefit esenti) */
+  /** Totale percepito (netto + rimborsi esenti + benefit esenti + affitto neoassunto esente) */
   totalePercepito: number;
 }
