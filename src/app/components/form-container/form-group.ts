@@ -19,6 +19,7 @@ import {
   BenefitNonTassati,
   BorsaDiStudio,
   ConiugeACarico,
+  DestinazioneTfr,
   DestinazioneTrasferta,
   FiglioACarico,
   FondoContrattualeId,
@@ -27,6 +28,7 @@ import {
   FringeBenefit,
   InputCalcoloStipendio,
   OpzioniDatore,
+  OpzioniTfr,
   RimborsiTrasferta,
   RimborsoAffittoNeoassunto,
   TipoAlimentazioneAuto,
@@ -46,6 +48,7 @@ import {
   FondoPensionePresetId,
   PRESET_FONDI_PENSIONE,
 } from '../../../calculator/fondi/2026';
+import { INFLAZIONE_ATTESA_DEFAULT } from '../../../calculator/tfr/2026';
 
 export interface AutoAziendaleFormModel {
   costoKmAci: number;
@@ -149,6 +152,15 @@ export interface BorsaDiStudioFormModel {
   importoAnnuo: number;
 }
 
+export interface TfrFormModel {
+  enabled: boolean;
+  /** Anni interi di servizio previsti alla cessazione */
+  anniServizio: number;
+  destinazione: DestinazioneTfr;
+  /** Inflazione FOI annua attesa, in percentuale */
+  inflazioneAttesa: number;
+}
+
 export interface ConiugeACaricoFormModel {
   enabled: boolean;
   redditoAnnuo: number;
@@ -200,6 +212,7 @@ export interface StipendioFormModel extends Record<FondoContrattualeId, boolean>
   benefitNonTassati: BenefitNonTassatiFormModel;
   rimborsoAffittoNeoassunto: RimborsoAffittoNeoassuntoFormModel;
   opzioniDatore: OpzioniDatoreFormModel;
+  tfr: TfrFormModel;
 
   // Dynamic arrays
   figli: FiglioACaricoFormModel[];
@@ -312,6 +325,15 @@ function createDefaultBorsaDiStudio(): BorsaDiStudioFormModel {
   };
 }
 
+function createDefaultTfr(): TfrFormModel {
+  return {
+    enabled: false,
+    anniServizio: 1,
+    destinazione: 'azienda',
+    inflazioneAttesa: INFLAZIONE_ATTESA_DEFAULT,
+  };
+}
+
 function createDefaultConiuge(): ConiugeACaricoFormModel {
   return {
     enabled: false,
@@ -384,6 +406,7 @@ export function createDefaultFormModel(): StipendioFormModel {
     benefitNonTassati: createDefaultBenefitNonTassati(),
     rimborsoAffittoNeoassunto: createDefaultRimborsoAffittoNeoassunto(),
     opzioniDatore: createDefaultOpzioniDatore(),
+    tfr: createDefaultTfr(),
     figli: [],
     ascendenti: [],
     fondiPersonalizzati: [],
@@ -491,6 +514,19 @@ const borsaDiStudioSchema = schema<BorsaDiStudioFormModel>((path) => {
   min(path.importoAnnuo, 0, { message: "L'importo non può essere negativo" });
 });
 
+const tfrSchema = schema<TfrFormModel>((path) => {
+  validate(path.anniServizio, ({ value, valueOf }) => {
+    if (!valueOf(path).enabled) return null;
+    const v = value();
+    if (!Number.isInteger(v) || v < 1 || v > 50) {
+      return { kind: 'range', message: 'Anni interi tra 1 e 50' };
+    }
+    return null;
+  });
+  min(path.inflazioneAttesa, 0, { message: 'Valore tra 0 e 30' });
+  max(path.inflazioneAttesa, 30, { message: 'Valore tra 0 e 30' });
+});
+
 function validaMesi({ value }: { value: () => number }) {
   const v = value();
   if (!Number.isInteger(v) || v < 0 || v > 12) {
@@ -593,6 +629,7 @@ export const stipendioFormSchema = schema<StipendioFormModel>((path) => {
   apply(path.benefitNonTassati, benefitNonTassatiSchema);
   apply(path.rimborsoAffittoNeoassunto, rimborsoAffittoNeoassuntoSchema);
   apply(path.opzioniDatore, opzioniDatoreSchema);
+  apply(path.tfr, tfrSchema);
 
   // Arrays
   applyEach(path.figli, figlioSchema);
@@ -764,6 +801,20 @@ function toOpzioniDatore(
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
+/** Keeps the TFR options that differ from the defaults of the calculator */
+function toTfr(model: TfrFormModel): OpzioniTfr | undefined {
+  if (!model.enabled) return undefined;
+
+  const result: OpzioniTfr = {};
+  if (model.anniServizio > 1) result.anniServizio = model.anniServizio;
+  if (model.destinazione !== 'azienda') result.destinazione = model.destinazione;
+  if (model.destinazione === 'azienda' && model.inflazioneAttesa !== INFLAZIONE_ATTESA_DEFAULT) {
+    result.inflazioneAttesa = model.inflazioneAttesa;
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
 function toBorsaDiStudio(model: BorsaDiStudioFormModel): BorsaDiStudio | undefined {
   if (!model.enabled || model.importoAnnuo <= 0) return undefined;
 
@@ -907,6 +958,10 @@ export function toInputCalcoloStipendio(model: StipendioFormModel): InputCalcolo
     ...(() => {
       const opzioniDatore = toOpzioniDatore(model.opzioniDatore, model.tipoContratto);
       return opzioniDatore ? { opzioniDatore } : {};
+    })(),
+    ...(() => {
+      const tfr = toTfr(model.tfr);
+      return tfr ? { tfr } : {};
     })(),
 
     // Arrays

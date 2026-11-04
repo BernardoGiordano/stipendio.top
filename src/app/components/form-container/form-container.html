@@ -1123,6 +1123,53 @@
       </button>
     </app-section>
 
+    <!-- TFR -->
+    <app-section
+      variant="row"
+      heading="TFR"
+      [active]="attive().tfr"
+      [toggle]="form.tfr.enabled"
+      [summary]="riepilogo.tfr"
+      description="Stima del TFR netto alla cessazione, a RAL costante. Non entra nel netto annuo in busta."
+      info="Il TFR matura ogni anno (RAL / 13,5 meno lo 0,50% IVS) e viene liquidato alla cessazione con la tassazione separata (art. 19 TUIR), non con l'IRPEF della busta paga. Senza questa sezione la stima vale per un anno di servizio con TFR in azienda. Qui puoi indicare gli anni di servizio previsti, la destinazione e l'inflazione attesa per la rivalutazione."
+    >
+      @if (model.tfr.enabled) {
+        <div class="flex flex-wrap items-end gap-3">
+          <app-field
+            label="Anni di servizio"
+            info="Anni interi di servizio previsti alla cessazione, con la RAL inserita. Determinano le quote accantonate, la rivalutazione e, al fondo pensione, l'anzianità di iscrizione che riduce l'aliquota dal 15% fino al 9%. Il reddito di riferimento della tassazione separata (TFR × 12 / anni) a RAL costante non cambia con gli anni."
+            class="flex-[1_1_130px]"
+          >
+            <input appControl type="number" step="1" [formField]="form.tfr.anniServizio" />
+          </app-field>
+          <app-field
+            label="Destinazione"
+            group
+            info="In azienda (o al Fondo di Tesoreria INPS nelle aziende con almeno 50 dipendenti) il TFR si rivaluta ogni anno dell'1,5% più il 75% dell'inflazione FOI, con imposta sostitutiva del 17% sulla rivalutazione, ed è tassato alla cessazione con l'aliquota media IRPEF del reddito di riferimento (art. 19 TUIR). Al fondo pensione non c'è rivalutazione legale, i rendimenti del fondo non sono stimati e la prestazione è tassata al 15%, ridotto di 0,30 punti per ogni anno di iscrizione oltre il 15°, fino al 9% (art. 11, c. 6, D.Lgs. 252/2005)."
+            class="flex-[1_1_220px]"
+          >
+            <app-segmented [formField]="form.tfr.destinazione" [options]="destinazioniTfr" />
+          </app-field>
+          @if (model.tfr.destinazione === 'azienda') {
+            <app-field
+              label="Inflazione attesa"
+              unit="% / anno"
+              info="Variazione annua attesa dell'indice FOI ISTAT, dicembre su dicembre. Il tasso di rivalutazione del TFR è 1,5% più il 75% di questa variazione (art. 2120 c.c.): nel 2025 l'inflazione FOI è stata 1,08% e il coefficiente 2,311%. Con inflazione negativa resta l'1,5%."
+              class="flex-[1_1_130px]"
+            >
+              <input
+                appControl
+                type="number"
+                step="0.1"
+                [formField]="form.tfr.inflazioneAttesa"
+                placeholder="2"
+              />
+            </app-field>
+          }
+        </div>
+      }
+    </app-section>
+
     <!-- Costo aziendale -->
     <app-section
       variant="row"

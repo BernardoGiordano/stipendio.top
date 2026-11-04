@@ -5523,3 +5523,227 @@ describe('Agevolazioni regionali per disabilità', () => {
     expect(nonACarico.addizionali.aliquotaRegionale).toBe(ordinario.addizionali.aliquotaRegionale);
   });
 });
+
+describe('TFR netto (tassazione separata e rivalutazione)', () => {
+  // RAL 30k: quota annua 30.000 / 13,5 − 0,50% × 30.000
+  const quota30k = 30_000 / 13.5 - 150;
+
+  describe('Un anno di servizio, TFR in azienda (default)', () => {
+    const result = calc.calcolaStipendioNetto({ ...baseInput, ral: 30_000 });
+    const tfr = result.tfr!;
+
+    it('è calcolato anche senza opzioni, per un anno in azienda', () => {
+      expect(tfr.destinazione).toBe('azienda');
+      expect(tfr.anniServizio).toBe(1);
+      expect(tfr.quotaAnnua).toBeCloseTo(quota30k, 6);
+      expect(tfr.quoteAccantonate).toBeCloseTo(quota30k, 6);
+    });
+
+    it('la quota annua è il TFR del costo aziendale', () => {
+      const d = result.contributiDatore;
+      expect(tfr.quotaAnnua).toBeCloseTo(d.tfrLordo - d.riduzioneTfr, 6);
+      expect(tfr.quotaAnnua).toBeCloseTo(entrateDi(result, 'tfr'), 6);
+    });
+
+    it('nel primo anno non ci sono rivalutazioni', () => {
+      expect(tfr.rivalutazione).toBe(0);
+      expect(tfr.impostaSostitutiva).toBe(0);
+      expect(tfr.montanteLordo).toBeCloseTo(quota30k, 6);
+    });
+
+    it('reddito di riferimento = quota × 12 e aliquota media del primo scaglione', () => {
+      expect(tfr.redditoRiferimento).toBeCloseTo(quota30k * 12, 6);
+      expect(tfr.aliquota).toBeCloseTo(0.23, 10);
+      expect(tfr.impostaLorda).toBeCloseTo(quota30k * 0.23, 6);
+    });
+
+    it('applica la detrazione del D.M. 20 marzo 2008 (reddito tra 7.500 e 28.000)', () => {
+      const detrazione = 50 + (20 * (28_000 - quota30k * 12)) / 20_500;
+      expect(tfr.detrazione).toBeCloseTo(detrazione, 6);
+      expect(tfr.detrazione).toBeCloseTo(53.06, 2);
+      expect(tfr.imposta).toBeCloseTo(quota30k * 0.23 - detrazione, 6);
+    });
+
+    it('netto stimato', () => {
+      expect(tfr.nettoTotale).toBeCloseTo(tfr.montanteLordo - tfr.imposta, 6);
+      expect(tfr.nettoTotale).toBeCloseTo(1648.67, 2);
+      expect(tfr.nettoAnnuo).toBeCloseTo(tfr.nettoTotale, 6);
+      expect(tfr.aliquotaEffettiva).toBeCloseTo(tfr.imposta / quota30k, 6);
+    });
+  });
+
+  describe('Aliquota media per scaglioni', () => {
+    it('RAL 50k: reddito di riferimento nel secondo scaglione, senza detrazione', () => {
+      const tfr = calc.calcolaStipendioNetto({ ...baseInput, ral: 50_000 }).tfr!;
+      const quota = 50_000 / 13.5 - 250;
+      const riferimento = quota * 12;
+      const irpef = 28_000 * 0.23 + (riferimento - 28_000) * 0.33;
+      expect(tfr.redditoRiferimento).toBeCloseTo(riferimento, 6);
+      expect(tfr.aliquota).toBeCloseTo(irpef / riferimento, 10);
+      expect(tfr.aliquota).toBeCloseTo(0.2624, 4);
+      expect(tfr.detrazione).toBe(0);
+      expect(tfr.imposta).toBeCloseTo(quota * (irpef / riferimento), 6);
+    });
+
+    it('RAL 100k: reddito di riferimento nel terzo scaglione', () => {
+      const tfr = calc.calcolaStipendioNetto({ ...baseInput, ral: 100_000 }).tfr!;
+      const quota = 100_000 / 13.5 - 500;
+      const riferimento = quota * 12;
+      const irpef = 28_000 * 0.23 + 22_000 * 0.33 + (riferimento - 50_000) * 0.43;
+      expect(tfr.aliquota).toBeCloseTo(irpef / riferimento, 10);
+      expect(tfr.aliquota).toBeLessThan(0.43);
+      expect(tfr.aliquota).toBeGreaterThan(0.33);
+    });
+
+    it('RAL bassa: detrazione piena di 70 euro fino a 7.500 di reddito di riferimento', () => {
+      const tfr = calc.calcolaStipendioNetto({ ...baseInput, ral: 8_000 }).tfr!;
+      expect(tfr.redditoRiferimento).toBeLessThan(7_500);
+      expect(tfr.detrazione).toBe(70);
+    });
+
+    it('RAL 36k: detrazione decrescente tra 28.000 e 30.000, zero oltre', () => {
+      const tfr36k = calc.calcolaStipendioNetto({ ...baseInput, ral: 36_000 }).tfr!;
+      const riferimento = (36_000 / 13.5 - 180) * 12;
+      expect(riferimento).toBeGreaterThan(28_000);
+      expect(riferimento).toBeLessThan(30_000);
+      expect(tfr36k.detrazione).toBeCloseTo((50 * (30_000 - riferimento)) / 2_000, 6);
+
+      const tfr40k = calc.calcolaStipendioNetto({ ...baseInput, ral: 40_000 }).tfr!;
+      expect(tfr40k.redditoRiferimento).toBeGreaterThan(30_000);
+      expect(tfr40k.detrazione).toBe(0);
+    });
+
+    it('apprendista: quota piena senza lo 0,50% IVS', () => {
+      const tfr = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 20_000,
+        tipoContratto: 'apprendistato',
+      }).tfr!;
+      expect(tfr.quotaAnnua).toBeCloseTo(20_000 / 13.5, 6);
+    });
+  });
+
+  describe('Più anni di servizio con rivalutazione (art. 2120 c.c.)', () => {
+    const tfr = calc.calcolaStipendioNetto({
+      ...baseInput,
+      ral: 30_000,
+      tfr: { anniServizio: 3, inflazioneAttesa: 2 },
+    }).tfr!;
+
+    it('tasso di rivalutazione = 1,5% + 75% dell inflazione', () => {
+      expect(tfr.tassoRivalutazione).toBeCloseTo(0.03, 10);
+    });
+
+    it('rivaluta il fondo al 31 dicembre precedente, al netto dell imposta sostitutiva 17%', () => {
+      // Anno 1: nessuna rivalutazione. Anno 2: sul fondo di un anno. Anno 3: sul fondo di due anni
+      const riv2 = quota30k * 0.03;
+      const fondo2 = quota30k + riv2 * (1 - 0.17) + quota30k;
+      const riv3 = fondo2 * 0.03;
+      expect(tfr.rivalutazione).toBeCloseTo(riv2 + riv3, 6);
+      expect(tfr.impostaSostitutiva).toBeCloseTo((riv2 + riv3) * 0.17, 6);
+      expect(tfr.montanteLordo).toBeCloseTo(fondo2 + riv3 * (1 - 0.17) + quota30k, 6);
+    });
+
+    it('le rivalutazioni restano fuori dall imponibile e dal reddito di riferimento', () => {
+      expect(tfr.quoteAccantonate).toBeCloseTo(quota30k * 3, 6);
+      expect(tfr.redditoRiferimento).toBeCloseTo(quota30k * 12, 6);
+      expect(tfr.aliquota).toBeCloseTo(0.23, 10);
+      expect(tfr.impostaLorda).toBeCloseTo(quota30k * 3 * 0.23, 6);
+    });
+
+    it('la detrazione spetta una sola volta per cessazione', () => {
+      expect(tfr.detrazione).toBeCloseTo(53.06, 2);
+      expect(tfr.imposta).toBeCloseTo(tfr.impostaLorda - tfr.detrazione, 6);
+    });
+
+    it('netto totale e per anno', () => {
+      expect(tfr.nettoTotale).toBeCloseTo(tfr.montanteLordo - tfr.imposta, 6);
+      expect(tfr.nettoAnnuo).toBeCloseTo(tfr.nettoTotale / 3, 6);
+      expect(tfr.aliquotaEffettiva).toBeCloseTo(
+        (tfr.imposta + tfr.impostaSostitutiva) / (tfr.quoteAccantonate + tfr.rivalutazione),
+        6,
+      );
+    });
+
+    it('con inflazione negativa la quota variabile è zero', () => {
+      const deflazione = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        tfr: { anniServizio: 2, inflazioneAttesa: -1 },
+      }).tfr!;
+      expect(deflazione.tassoRivalutazione).toBeCloseTo(0.015, 10);
+      expect(deflazione.rivalutazione).toBeCloseTo(quota30k * 0.015, 6);
+    });
+
+    it('anni non validi: almeno un anno intero', () => {
+      expect(
+        calc.calcolaStipendioNetto({ ...baseInput, tfr: { anniServizio: 0 } }).tfr!.anniServizio,
+      ).toBe(1);
+      expect(
+        calc.calcolaStipendioNetto({ ...baseInput, tfr: { anniServizio: 2.4 } }).tfr!.anniServizio,
+      ).toBe(2);
+    });
+  });
+
+  describe('TFR al fondo pensione (art. 11, c. 6, D.Lgs. 252/2005)', () => {
+    const conAnni = (anniServizio: number) =>
+      calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 30_000,
+        tfr: { anniServizio, destinazione: 'fondoPensione', inflazioneAttesa: 2 },
+      }).tfr!;
+
+    it('niente rivalutazione legale né imposta sostitutiva', () => {
+      const tfr = conAnni(10);
+      expect(tfr.destinazione).toBe('fondoPensione');
+      expect(tfr.tassoRivalutazione).toBe(0);
+      expect(tfr.rivalutazione).toBe(0);
+      expect(tfr.impostaSostitutiva).toBe(0);
+      expect(tfr.montanteLordo).toBeCloseTo(quota30k * 10, 6);
+    });
+
+    it('15% fino a 15 anni di partecipazione, senza detrazione', () => {
+      const tfr = conAnni(15);
+      expect(tfr.aliquota).toBeCloseTo(0.15, 10);
+      expect(tfr.detrazione).toBe(0);
+      expect(tfr.imposta).toBeCloseTo(quota30k * 15 * 0.15, 6);
+      expect(tfr.nettoTotale).toBeCloseTo(quota30k * 15 * 0.85, 6);
+    });
+
+    it('meno 0,30 punti per ogni anno oltre il quindicesimo', () => {
+      expect(conAnni(16).aliquota).toBeCloseTo(0.147, 10);
+      expect(conAnni(20).aliquota).toBeCloseTo(0.135, 10);
+      expect(conAnni(35).aliquota).toBeCloseTo(0.09, 10);
+    });
+
+    it('minimo 9%', () => {
+      expect(conAnni(40).aliquota).toBeCloseTo(0.09, 10);
+      expect(conAnni(40).aliquotaEffettiva).toBeCloseTo(0.09, 10);
+    });
+  });
+
+  describe('Resta fuori dal netto in busta', () => {
+    it('le opzioni TFR non cambiano netto, trattenute, percepito e costo aziendale', () => {
+      const senza = calc.calcolaStipendioNetto({ ...baseInput, ral: 40_000 });
+      const con = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 40_000,
+        tfr: { anniServizio: 20, destinazione: 'fondoPensione', inflazioneAttesa: 3 },
+      });
+      expect(con.nettoAnnuo).toBe(senza.nettoAnnuo);
+      expect(con.totaleTrattenute).toBe(senza.totaleTrattenute);
+      expect(con.totalePercepito).toBe(senza.totalePercepito);
+      expect(con.costoAziendale).toBe(senza.costoAziendale);
+      expect(con.ripartizione).toEqual(senza.ripartizione);
+    });
+
+    it('la borsa di studio come contratto non matura TFR', () => {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        ral: 16_243,
+        tipoContratto: 'borsaDiStudio',
+      });
+      expect(result.tfr).toBeNull();
+    });
+  });
+});

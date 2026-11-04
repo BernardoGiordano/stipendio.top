@@ -45,7 +45,9 @@ Eventuali incongruenze, correzioni, imprecisioni o suggerimenti sono ben accetti
   - [Regime Impatriati](#12-regime-impatriati-rientro-cervelli)
   - [Costo Aziendale](#13-costo-aziendale)
   - [Borse di Studio](#14-borse-di-studio-dottoratopost-laurea)
+  - [Borsa di Studio come Tipo di Contratto](#15-borsa-di-studio-come-tipo-di-contratto-dottorato-di-ricerca)
   - [Mensilità Ordinaria, Tredicesima e Quattordicesima](#16-mensilità-ordinaria-tredicesima-e-quattordicesima)
+  - [TFR Netto](#17-tfr-netto-tassazione-separata-e-rivalutazione)
 - [Sequenza di Calcolo](#sequenza-di-calcolo)
 - [Riferimenti Normativi](#riferimenti-normativi)
 
@@ -1003,6 +1005,82 @@ Il conguaglio di fine anno e le rate delle addizionali spostano gli importi tra 
 
 ---
 
+#### 17. TFR Netto (Tassazione Separata e Rivalutazione)
+
+Il TFR compare nel [costo aziendale](#tfr-trattamento-di-fine-rapporto) come accantonamento lordo, ma chi valuta un'offerta vuole sapere quanto ne incasserà. La sezione **TFR** dei risultati stima il netto alla cessazione, a RAL costante: senza input aggiuntivi per un anno di servizio con TFR in azienda; la sezione opzionale **TFR** del form aggiunge gli anni di servizio previsti, la destinazione (azienda o fondo pensione) e l'inflazione attesa. Il TFR **non entra nel netto annuo in busta** né nel percepito: matura come accantonamento del datore ed è tassato a parte alla liquidazione.
+
+##### Accantonamento e Rivalutazione (TFR in Azienda)
+
+```
+Quota Annua = RAL / 13,5 − 0,50% × MIN(Imponibile, Massimale)
+Tasso di Rivalutazione = 1,5% + 75% × Inflazione FOI (dicembre su dicembre)
+Rivalutazione Anno N = Fondo al 31/12 dell'anno N−1 × Tasso
+Imposta Sostitutiva = 17% × Rivalutazione (trattenuta dal fondo)
+TFR Lordo alla Cessazione = Σ Quote + Σ Rivalutazioni − Σ Imposta Sostitutiva
+```
+
+La rivalutazione (art. 2120, c. 4, c.c.) si applica al fondo accantonato al 31 dicembre dell'anno precedente, quindi il primo anno non si rivaluta; se l'indice FOI scende, resta solo l'1,5% fisso. Nel 2025 l'inflazione FOI dicembre su dicembre è stata 1,08% e il coefficiente 2,311148% (fonte ISTAT, 16 gennaio 2026). L'imposta sostitutiva (art. 11, c. 3, D.Lgs. 47/2000) è al 17% dal 2015 (art. 1, c. 623, L. 190/2014). Lo stesso trattamento vale per il TFR versato al Fondo di Tesoreria INPS (aziende con almeno 50 dipendenti). L'inflazione attesa predefinita è il 2%.
+
+##### Tassazione Separata (art. 17, c. 1, lett. a, e art. 19 TUIR)
+
+```
+Imponibile = Σ Quote accantonate (TFR al netto delle rivalutazioni già tassate)
+Reddito di Riferimento = Imponibile × 12 / Anni di servizio
+Aliquota Media = IRPEF per scaglioni (Reddito di Riferimento) / Reddito di Riferimento
+Imposta = Imponibile × Aliquota Media − Detrazione D.M. 20/03/2008
+TFR Netto = TFR Lordo alla Cessazione − Imposta
+```
+
+Il TFR è imponibile al netto delle rivalutazioni già assoggettate a imposta sostitutiva (art. 19, c. 1, TUIR). L'aliquota si determina sul **reddito di riferimento**, cioè l'imponibile diviso per gli anni e frazioni di anno di servizio e moltiplicato per dodici, con gli scaglioni IRPEF in vigore nell'anno in cui matura il diritto alla percezione: è l'aliquota media, senza detrazioni, che il reddito avrebbe scontato se percepito anno per anno. A RAL costante il reddito di riferimento è la quota annua × 12 e non cambia con gli anni di servizio. Il calcolatore considera anni interi.
+
+Il datore applica questa imposta come ritenuta; l'Agenzia delle Entrate **riliquida** poi l'imposta con l'aliquota media IRPEF dei cinque anni precedenti la cessazione, iscrivendo a ruolo la differenza o rimborsando l'eccedenza (art. 19, c. 1, TUIR). Se in nessuno dei cinque anni c'è stato reddito imponibile si applica l'aliquota del primo scaglione (c. 1-bis). Il calcolatore si ferma alla ritenuta del datore e segnala la riliquidazione in una nota.
+
+| Reddito di Riferimento | Detrazione D.M. 20 marzo 2008        |
+| ---------------------- | ------------------------------------ |
+| ≤ €7.500               | €70                                  |
+| €7.500 − €28.000       | €50 + €20 × (€28.000 − RR) / €20.500 |
+| €28.000 − €30.000      | €50 × (€30.000 − RR) / €2.000        |
+| > €30.000              | €0                                   |
+
+La detrazione (art. 2, c. 514, L. 244/2007 e D.M. 20 marzo 2008) spetta per i rapporti cessati dal 1° aprile 2008, senza scadenza, una sola volta per cessazione, e si sottrae all'imposta fino ad azzerarla. La detrazione di €61,97 per anno dell'art. 19, c. 1-ter, TUIR riguarda solo i rapporti a tempo determinato di durata effettiva non superiore a due anni e non è calcolata. Per il TFR maturato fino al 31 dicembre 2000 valgono le regole previgenti (riduzione di €309,87 per anno), fuori dall'ambito del calcolatore.
+
+##### TFR al Fondo Pensione (art. 11, c. 6, D.Lgs. 252/2005)
+
+```
+Aliquota = MAX(9%, 15% − 0,30% × MAX(0, Anni di partecipazione − 15))
+TFR Netto = Σ Quote × (1 − Aliquota)
+```
+
+Il TFR conferito al fondo pensione non si rivaluta con il meccanismo dell'art. 2120 c.c. e la prestazione finale è tassata con una ritenuta a titolo d'imposta del 15%, ridotta di 0,30 punti per ogni anno di partecipazione oltre il quindicesimo, fino al 9% (riduzione massima di 6 punti, raggiunta al 35° anno). Il calcolatore assume che l'anzianità di iscrizione coincida con gli anni di servizio e non stima i rendimenti del fondo, tassati a parte con imposta sostitutiva del 20% (12,5% sulla quota in titoli di Stato) ed esclusi dalla base imponibile della prestazione. Non si applica la detrazione del D.M. 20 marzo 2008. Per chi era iscritto prima del 2007 i montanti maturati fino al 2006 seguono le regole previgenti, non calcolate.
+
+##### Esempio: RAL €30.000, un anno di servizio, TFR in azienda
+
+```
+Quota annua (30.000 / 13,5 − 150):     € 2.072,22
+Reddito di riferimento (× 12):          € 24.866,67
+Aliquota media (23% su 24.866,67):           23,00%
+Imposta lorda:                          €   476,61
+Detrazione D.M. 20/03/2008:             −€   53,06
+────────────────────────────────────────────────────
+Imposta:                                €   423,55
+TFR netto stimato:                      € 1.648,67
+```
+
+##### Esempio: RAL €30.000, 3 anni di servizio, inflazione 2%
+
+```
+Tasso di rivalutazione (1,5% + 75% × 2%):      3,00%
+Quote accantonate (3 × 2.072,22):          € 6.216,67
+Rivalutazione (anno 2 e anno 3):           € 188,05
+Imposta sostitutiva 17%:                   −€  31,97
+TFR lordo alla cessazione:                 € 6.372,74
+Imposta (23% × 6.216,67 − 53,06):          −€ 1.376,78
+──────────────────────────────────────────────────────
+TFR netto stimato:                         € 4.995,96   (€ 1.665,32 per anno)
+```
+
+---
+
 ### Sequenza di Calcolo
 
 ```
@@ -1151,36 +1229,50 @@ Il conguaglio di fine anno e le rate delle addizionali spostano gli importi tra 
 │        + Fondi Contrattuali (datore) + Fondo Pensione (datore)  │
 │        + Fringe Benefit + Rimborsi Trasferta + Benefit Non Tass.│
 └─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  15. TFR NETTO (stima alla cessazione, fuori dal netto)         │
+│      → Quote × anni, rivalutazione 1,5% + 75% FOI, −17%         │
+│      → Azienda: aliquota media IRPEF sul reddito di riferimento │
+│        (quote × 12 / anni) − detrazione D.M. 20/03/2008         │
+│      → Fondo pensione: 15% − 0,30% per anno oltre il 15°, ≥ 9%  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Riferimenti Normativi
 
-| Normativa                | Contenuto                                |
-| ------------------------ | ---------------------------------------- |
-| **TUIR (DPR 917/1986)**  | Testo Unico Imposte sui Redditi          |
-| **Art. 51 TUIR**         | Determinazione reddito lavoro dipendente |
-| **Art. 13 TUIR**         | Detrazioni lavoro dipendente             |
-| **Art. 12 TUIR**         | Detrazioni carichi familiari             |
-| **L. 207/2024**          | Legge di Bilancio 2025                   |
-| **L. 199/2025**          | Legge di Bilancio 2026                   |
-| **D.Lgs. 192/2024**      | Riforma IRPEF-IRES                       |
-| **L. 438/1992**          | Contributo aggiuntivo 1%                 |
-| **Circ. AE 5/E/2024**    | Chiarimenti fringe benefit               |
-| **Circ. AE 4/E/2025**    | Chiarimenti LB 2025, affitto neoassunti  |
-| **Circ. AE 10/E/2025**   | Auto aziendali uso promiscuo             |
-| **Circ. AE 15/E/2025**   | Rimborsi trasferta e tracciabilità       |
-| **D.Lgs. 252/2005**      | Previdenza complementare                 |
-| **Art. 10 TUIR**         | Deduzioni dal reddito complessivo        |
-| **D.Lgs. 209/2023**      | Regime impatriati (rientro cervelli)     |
-| **Art. 2120 c.c.**       | Trattamento di Fine Rapporto (TFR)       |
-| **L. 297/1982**          | Contributo 0,50% IVS recuperato sul TFR  |
-| **L. 92/2012**           | Contributo addizionale NASpI             |
-| **D.L. 87/2018**         | Aumento addizionale NASpI per rinnovo    |
-| **D.L. 103/1991**        | Contributo di solidarietà 10%            |
-| **L. 153/1969, art. 12** | Imponibile previdenziale, esclusioni     |
-| **Ris. AE 78/E/2004**    | Contributi FASI per pensionati e limite  |
-| **L. 296/2006**          | Contribuzione apprendisti                |
-| **D.L. 60/2024**         | Esoneri Bonus Giovani, Donne e ZES       |
+| Normativa                   | Contenuto                                |
+| --------------------------- | ---------------------------------------- |
+| **TUIR (DPR 917/1986)**     | Testo Unico Imposte sui Redditi          |
+| **Art. 51 TUIR**            | Determinazione reddito lavoro dipendente |
+| **Art. 13 TUIR**            | Detrazioni lavoro dipendente             |
+| **Art. 12 TUIR**            | Detrazioni carichi familiari             |
+| **L. 207/2024**             | Legge di Bilancio 2025                   |
+| **L. 199/2025**             | Legge di Bilancio 2026                   |
+| **D.Lgs. 192/2024**         | Riforma IRPEF-IRES                       |
+| **L. 438/1992**             | Contributo aggiuntivo 1%                 |
+| **Circ. AE 5/E/2024**       | Chiarimenti fringe benefit               |
+| **Circ. AE 4/E/2025**       | Chiarimenti LB 2025, affitto neoassunti  |
+| **Circ. AE 10/E/2025**      | Auto aziendali uso promiscuo             |
+| **Circ. AE 15/E/2025**      | Rimborsi trasferta e tracciabilità       |
+| **D.Lgs. 252/2005**         | Previdenza complementare                 |
+| **Art. 10 TUIR**            | Deduzioni dal reddito complessivo        |
+| **D.Lgs. 209/2023**         | Regime impatriati (rientro cervelli)     |
+| **Art. 2120 c.c.**          | Trattamento di Fine Rapporto (TFR)       |
+| **L. 297/1982**             | Contributo 0,50% IVS recuperato sul TFR  |
+| **Art. 17 e 19 TUIR**       | Tassazione separata del TFR              |
+| **D.Lgs. 47/2000**          | Imposta sostitutiva sulla rivalutazione  |
+| **L. 190/2014**             | Imposta sostitutiva TFR al 17%           |
+| **D.M. 20 marzo 2008**      | Detrazione sul TFR (L. 244/2007, c. 514) |
+| **Art. 11 D.Lgs. 252/2005** | Tassazione prestazioni fondo pensione    |
+| **L. 92/2012**              | Contributo addizionale NASpI             |
+| **D.L. 87/2018**            | Aumento addizionale NASpI per rinnovo    |
+| **D.L. 103/1991**           | Contributo di solidarietà 10%            |
+| **L. 153/1969, art. 12**    | Imponibile previdenziale, esclusioni     |
+| **Ris. AE 78/E/2004**       | Contributi FASI per pensionati e limite  |
+| **L. 296/2006**             | Contribuzione apprendisti                |
+| **D.L. 60/2024**            | Esoneri Bonus Giovani, Donne e ZES       |
 
 ---
 
