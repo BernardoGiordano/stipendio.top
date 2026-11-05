@@ -110,6 +110,8 @@ export const ESONERI_CONTRIBUTIVI: readonly EsoneroPredefinito[] = [
 
 export interface InputCostiDatore {
   ral: number;
+  /** Indennità non occasionale oltre la RAL, utile al TFR (art. 2120, c. 2, c.c.) */
+  indennitaUtileTfr?: number;
   tipoContratto: TipoContratto;
   aziendaConCigs: boolean;
   isDirigente: boolean;
@@ -208,6 +210,7 @@ function aliquotaAddizionaleNaspi(
 export function calcolaCostiDatore(input: InputCostiDatore): CalcoloCostiDatore {
   const {
     ral,
+    indennitaUtileTfr = 0,
     tipoContratto,
     aziendaConCigs,
     isDirigente,
@@ -252,7 +255,7 @@ export function calcolaCostiDatore(input: InputCostiDatore): CalcoloCostiDatore 
   // TFR al netto dello 0,50% IVS già versato con i contributi datore. Se l'esonero copre i
   // contributi, lo 0,50% non è versato e non si recupera (Messaggio INPS 1817/2019): la riduzione
   // segue la quota di contributi non esonerata
-  const tfrLordo = ral / TFR.divisore;
+  const tfrLordo = (ral + indennitaUtileTfr) / TFR.divisore;
   const quotaNonEsonerata = contributiInpsLordi > 0 ? 1 - esonero / contributiInpsLordi : 1;
   const riduzioneTfr = apprendista
     ? 0

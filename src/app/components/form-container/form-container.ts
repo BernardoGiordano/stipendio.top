@@ -7,6 +7,7 @@ import {
   createDefaultFiglio,
   createDefaultFondoPersonalizzato,
   createDefaultTrasferta,
+  RimborsiTrasfertaFormModel,
   StipendioFieldTree,
   StipendioFormModel,
 } from './form-group';
@@ -41,7 +42,12 @@ import {
   PRESET_FONDI_PENSIONE,
 } from '../../../calculator/fondi/2026';
 import { ESONERI_CONTRIBUTIVI } from '../../../calculator/datore/2026';
-import { conIndennitaTrasferta, limiteIndennitaTrasferta } from '../../../calculator/impl/2026';
+import {
+  conIndennitaTrasferta,
+  limiteIndennitaTrasferta,
+  QUOTA_IMPONIBILE_TRASFERTISTA,
+  regimeTrasfertista,
+} from '../../../calculator/impl/2026';
 import { HUE } from '../../services/chart-palette';
 import { formatCurrency, formatNumber, formatPercent } from '../../utils/intl';
 
@@ -296,8 +302,8 @@ export class FormContainer {
           r.rimborsiTrasferta.totaleEsente > 0
             ? `+ ${eur(r.rimborsiTrasferta.totaleEsente)} esenti`
             : '',
-          r.rimborsiTrasferta.rimborsiTassati > 0
-            ? `${eur(r.rimborsiTrasferta.rimborsiTassati)} tassati`
+          r.rimborsiTrasferta.totaleTassato > 0
+            ? `${eur(r.rimborsiTrasferta.totaleTassato)} tassati`
             : '',
         ]
           .filter(Boolean)
@@ -390,13 +396,14 @@ export class FormContainer {
   ];
 
   readonly modalitaRimborso: {
-    value: 'nessuna' | 'forfettario' | 'misto' | 'analitico';
+    value: RimborsiTrasfertaFormModel['modalitaRimborso'];
     label: string;
   }[] = [
     { value: 'nessuna', label: '-- Seleziona --' },
     { value: 'forfettario', label: 'Forfettario (solo indennità)' },
     { value: 'misto', label: 'Misto (indennità con vitto o alloggio)' },
     { value: 'analitico', label: 'Analitico (solo rimborsi)' },
+    { value: 'trasfertista', label: 'Trasfertista (indennità fissa)' },
   ];
 
   readonly destinazioni: { value: DestinazioneTrasferta; label: string }[] = [
@@ -442,9 +449,26 @@ export class FormContainer {
     conIndennitaTrasferta(this.formModel()().rimborsiTrasferta.modalitaRimborso),
   );
 
-  /** Meal and lodging reimbursements that don't match the selected method */
-  readonly avvisoVittoAlloggio = computed(() => {
+  /** Whether the trasfertista regime replaces daily allowances and exemptions */
+  readonly trasfertista = computed(() =>
+    regimeTrasfertista(this.formModel()().rimborsiTrasferta.modalitaRimborso),
+  );
+
+  /** Taxable share of the trasfertista allowance, for the tooltips */
+  readonly quotaTrasfertista = formatPercent(QUOTA_IMPONIBILE_TRASFERTISTA, 0);
+
+  /** Reimbursements that the selected method taxes in full or doesn't expect */
+  readonly avvisoRimborsi = computed(() => {
     const rimborsi = this.formModel()().rimborsiTrasferta;
+    if (
+      this.trasfertista() &&
+      (rimborsi.rimborsoVitto > 0 ||
+        rimborsi.rimborsoAlloggio > 0 ||
+        rimborsi.rimborsoViaggio > 0 ||
+        rimborsi.rimborsoKm > 0)
+    ) {
+      return "Per i trasfertisti i rimborsi spese non sono esenti: si sommano per intero all'imponibile e pagano INPS, IRPEF e addizionali.";
+    }
     if (!(rimborsi.rimborsoVitto > 0 || rimborsi.rimborsoAlloggio > 0)) return null;
     const trasferte = rimborsi.trasferte.filter((trasferta) => trasferta.giorni > 0);
     if (rimborsi.modalitaRimborso === 'forfettario') {

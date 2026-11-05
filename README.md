@@ -384,6 +384,19 @@ Nel sistema forfettario i rimborsi di vitto e alloggio sono tassati, anche se do
 **Rimborso Analitico:**
 Totalmente esente se documentato e con pagamento tracciabile (dal 2025).
 
+##### Trasfertisti (art. 51, c. 6, TUIR)
+
+Il regime è alternativo a quello delle trasferte e si applica solo se ricorrono insieme tre condizioni (art. 7-quinquies D.L. 193/2016): il contratto o la lettera di assunzione non indicano la sede di lavoro, l'attività richiede la continua mobilità del dipendente e viene corrisposta un'indennità o maggiorazione in misura fissa, senza distinguere se la trasferta è avvenuta e dove. Se ne manca anche una sola si applica il comma 5 (Cass. SS.UU. 27093/2017).
+
+```
+Indennità imponibile IRPEF e INPS = Indennità annua × 50%
+Indennità esente = Indennità annua × 50%
+```
+
+Non si applicano i limiti giornalieri né altre esclusioni: vitto, alloggio, trasporto e rimborsi chilometrici concorrono per intero all'imponibile, anche se pagati direttamente dall'azienda (Cass. 24148/2025). Le spese pagate dall'azienda non sono denaro percepito, quindi riducono il netto per le imposte e i contributi che generano.
+
+L'indennità si indica oltre la RAL ed è considerata utile al TFR per intero, perché non occasionale (art. 2120, c. 2, c.c.), salvo diversa previsione del contratto collettivo.
+
 ##### Rimborso Chilometrico
 
 L'indennità chilometrica per l'uso dell'auto propria è esente solo per le trasferte **fuori** dal comune sede di lavoro ed entro i limiti delle tariffe ACI (art. 51, c. 5, TUIR). Concorrono invece al reddito, e all'imponibile previdenziale, i rimborsi chilometrici per gli spostamenti nel comune e la quota eccedente le tariffe ACI: nel calcolo vanno indicati come "rimborso chilometrico imponibile".
@@ -738,7 +751,7 @@ Non si applica ai contributi del lavoratore, al TFR conferito al fondo pensione 
 ##### TFR (Trattamento di Fine Rapporto)
 
 ```
-TFR Annuo = RAL / 13,5 − 0,50% × MIN(Imponibile, Massimale)
+TFR Annuo = (RAL + Indennità Trasfertista) / 13,5 − 0,50% × MIN(Imponibile, Massimale)
 ```
 
 Il TFR è un accantonamento obbligatorio a carico del datore (Art. 2120 c.c.), indipendentemente da dove viene destinato (azienda, INPS o fondo pensione). La quota annua si riduce del contributo aggiuntivo IVS dello 0,50% (art. 3, c. 15-16, L. 297/1982): il datore lo versa all'INPS insieme agli altri contributi, già compreso nel 23,81% IVS, e lo recupera sul TFR. Contare il TFR pieno conterebbe due volte lo 0,50%.

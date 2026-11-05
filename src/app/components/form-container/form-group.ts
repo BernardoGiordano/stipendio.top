@@ -27,6 +27,7 @@ import {
   FondoPersonalizzato,
   FringeBenefit,
   InputCalcoloStipendio,
+  ModalitaRimborso,
   OpzioniDatore,
   OpzioniTfr,
   PremioRisultato,
@@ -37,13 +38,14 @@ import {
   TipoEsoneroContributivo,
   TrattamentoFiscaleFondo,
   Trasferta,
+  Trasfertista,
   VittoAlloggioACarico,
 } from '../../../calculator/types';
 import {
   haAgevolazioneContribuenteDisabile,
   haRedditiSostitutiviInSoglia,
 } from '../../../calculator/addizionali/2026';
-import { conIndennitaTrasferta } from '../../../calculator/impl/2026';
+import { conIndennitaTrasferta, regimeTrasfertista } from '../../../calculator/impl/2026';
 import {
   FONDI_CONTRATTUALI,
   FondoPensionePresetId,
@@ -80,10 +82,16 @@ export interface TrasfertaFormModel {
   vittoAlloggioACarico: VittoAlloggioACarico;
 }
 
+export interface TrasfertistaFormModel {
+  indennitaAnnua: number;
+  speseAzienda: number;
+}
+
 export interface RimborsiTrasfertaFormModel {
   enabled: boolean;
-  modalitaRimborso: 'nessuna' | 'forfettario' | 'misto' | 'analitico';
+  modalitaRimborso: ModalitaRimborso | 'nessuna';
   trasferte: TrasfertaFormModel[];
+  trasfertista: TrasfertistaFormModel;
   rimborsoVitto: number;
   rimborsoAlloggio: number;
   rimborsoViaggio: number;
@@ -274,6 +282,7 @@ function createDefaultRimborsiTrasferta(): RimborsiTrasfertaFormModel {
     enabled: false,
     modalitaRimborso: 'nessuna',
     trasferte: [createDefaultTrasferta()],
+    trasfertista: { indennitaAnnua: 0, speseAzienda: 0 },
     rimborsoVitto: 0,
     rimborsoAlloggio: 0,
     rimborsoViaggio: 0,
@@ -494,6 +503,14 @@ const rimborsiTrasfertaSchema = schema<RimborsiTrasfertaFormModel>((path) => {
     path.trasferte,
     ({ valueOf }) => conIndennitaTrasferta(valueOf(path.modalitaRimborso)),
     (trasferte) => applyEach(trasferte, trasfertaSchema),
+  );
+  applyWhen(
+    path.trasfertista,
+    ({ valueOf }) => regimeTrasfertista(valueOf(path.modalitaRimborso)),
+    (trasfertista) => {
+      min(trasfertista.indennitaAnnua, 0, { message: 'Valore non valido' });
+      min(trasfertista.speseAzienda, 0, { message: 'Valore non valido' });
+    },
   );
 
   min(path.rimborsoVitto, 0, { message: 'Valore non valido' });
@@ -747,6 +764,13 @@ function toTrasferta(model: TrasfertaFormModel): Trasferta {
   };
 }
 
+function toTrasfertista(model: TrasfertistaFormModel): Trasfertista | undefined {
+  const result: Trasfertista = {};
+  if (model.indennitaAnnua > 0) result.indennitaAnnua = model.indennitaAnnua;
+  if (model.speseAzienda > 0) result.speseAzienda = model.speseAzienda;
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
 function toRimborsiTrasferta(model: RimborsiTrasfertaFormModel): RimborsiTrasferta | undefined {
   if (!model.enabled) return undefined;
 
@@ -755,6 +779,8 @@ function toRimborsiTrasferta(model: RimborsiTrasfertaFormModel): RimborsiTrasfer
   if (model.modalitaRimborso !== 'nessuna') result.modalitaRimborso = model.modalitaRimborso;
   const trasferte = model.trasferte.filter((t) => t.giorni > 0).map(toTrasferta);
   if (trasferte.length > 0) result.trasferte = trasferte;
+  const trasfertista = toTrasfertista(model.trasfertista);
+  if (trasfertista) result.trasfertista = trasfertista;
   if (model.rimborsoVitto > 0) result.rimborsoVitto = model.rimborsoVitto;
   if (model.rimborsoAlloggio > 0) result.rimborsoAlloggio = model.rimborsoAlloggio;
   if (model.rimborsoViaggio > 0) result.rimborsoViaggio = model.rimborsoViaggio;

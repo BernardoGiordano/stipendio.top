@@ -5,6 +5,8 @@ import type {
   FondoContrattualeId,
   InputCalcoloStipendio,
   OutputCalcoloStipendio,
+  RimborsiTrasferta,
+  Trasfertista,
 } from '../types';
 
 const calc = new Calculator2026();
@@ -3855,6 +3857,153 @@ describe('Rimborsi trasferta', () => {
     });
 
     expect(result.nettoMensilePercepito).toBeCloseTo(result.nettoMensile + 900 / 12, 6);
+  });
+});
+
+describe('Trasfertisti (art. 51, c. 6, TUIR)', () => {
+  const base = calc.calcolaStipendioNetto(baseInput);
+  const trasfertista = (dati: Trasfertista, rimborsi: Partial<RimborsiTrasferta> = {}) =>
+    calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: { modalitaRimborso: 'trasfertista', trasfertista: dati, ...rimborsi },
+    });
+
+  it("il 50% dell'indennità concorre a imponibile e contributi, il resto è esente", () => {
+    const result = trasfertista({ indennitaAnnua: 6_000 });
+
+    expect(result.rimborsiTrasferta.trasfertista?.indennitaTassata).toBe(3_000);
+    expect(result.rimborsiTrasferta.trasfertista?.indennitaEsente).toBe(3_000);
+    expect(result.rimborsiTrasferta.totaleTassato).toBe(3_000);
+    expect(result.rimborsiTrasferta.totaleEsente).toBe(3_000);
+    expect(result.rimborsiTrasferta.totaleRimborsi).toBe(6_000);
+    expect(result.contributiInps.imponibilePrevidenziale).toBeCloseTo(baseInput.ral + 3_000, 2);
+  });
+
+  it('coincide con un aumento imponibile della metà, più la metà esente', () => {
+    const result = trasfertista({ indennitaAnnua: 6_000 });
+    const conAltrettantoImponibile = calc.calcolaStipendioNetto({
+      ...baseInput,
+      rimborsiTrasferta: { rimborsoKmImponibile: 3_000 },
+    });
+
+    expect(result.nettoAnnuo).toBeCloseTo(conAltrettantoImponibile.nettoAnnuo, 6);
+    expect(result.totalePercepito).toBeCloseTo(result.nettoAnnuo + 3_000, 6);
+    expect(result.nettoMensilePercepito).toBeCloseTo(result.nettoMensile + 3_000 / 12, 6);
+  });
+
+  it('non applica i limiti giornalieri né le righe di trasferta', () => {
+    const result = trasfertista(
+      { indennitaAnnua: 6_000 },
+      { trasferte: [{ destinazione: 'italia', giorni: 100, indennitaGiornaliera: 60 }] },
+    );
+
+    expect(result.rimborsiTrasferta.rimborsoForfettarioEsente).toBe(0);
+    expect(result.rimborsiTrasferta.indennitaEccedente).toBe(0);
+    expect(result.rimborsiTrasferta.totaleRimborsi).toBe(6_000);
+  });
+
+  it('rimborsi spese e chilometrici sono tassati per intero, anche se tracciabili', () => {
+    const result = trasfertista(
+      {},
+      {
+        rimborsoVitto: 100,
+        rimborsoAlloggio: 200,
+        rimborsoViaggio: 300,
+        rimborsoKm: 400,
+        rimborsoKmImponibile: 500,
+        pagamentiTracciabili: true,
+      },
+    );
+
+    expect(result.rimborsiTrasferta.rimborsoDocumentatoEsente).toBe(0);
+    expect(result.rimborsiTrasferta.rimborsiSpeseTassati).toBe(1_500);
+    expect(result.rimborsiTrasferta.totaleEsente).toBe(0);
+    expect(result.contributiInps.imponibilePrevidenziale).toBeCloseTo(baseInput.ral + 1_500, 2);
+  });
+
+  it('la tracciabilità non cambia il risultato', () => {
+    const dati = { indennitaAnnua: 6_000 };
+    const rimborsi = { rimborsoVitto: 500, rimborsoViaggio: 200 };
+
+    expect(trasfertista(dati, { ...rimborsi, pagamentiTracciabili: false }).nettoAnnuo).toBeCloseTo(
+      trasfertista(dati, { ...rimborsi, pagamentiTracciabili: true }).nettoAnnuo,
+      6,
+    );
+  });
+
+  it("le spese pagate dall'azienda sono imponibili ma non entrano nel netto", () => {
+    const result = trasfertista({ speseAzienda: 1_000 });
+    const voce = result.ripartizione.entrate.find(
+      (v) => v.descrizione === "Spese Trasferta pagate dall'azienda",
+    );
+
+    expect(voce?.destinazione).toBe('inNatura');
+    expect(voce?.pagatore).toBe('datore');
+    expect(result.contributiInps.imponibilePrevidenziale).toBeCloseTo(baseInput.ral + 1_000, 2);
+    expect(result.rimborsiTrasferta.trasfertista?.speseAzienda).toBe(1_000);
+    expect(result.rimborsiTrasferta.rimborsiTassati).toBe(0);
+    expect(result.rimborsiTrasferta.totaleTassato).toBe(1_000);
+    expect(result.nettoAnnuo).toBeLessThan(base.nettoAnnuo);
+    expect(result.totalePercepito).toBeCloseTo(result.nettoAnnuo, 6);
+    expect(result.costoAziendale).toBeGreaterThan(base.costoAziendale + 1_000);
+  });
+
+  it("l'intera indennità è utile al TFR, la RAL resta la base senza indennità", () => {
+    const result = trasfertista({ indennitaAnnua: 6_000 });
+
+    expect(base.contributiDatore.tfrLordo).toBeCloseTo(baseInput.ral / 13.5, 6);
+    expect(result.contributiDatore.tfrLordo).toBeCloseTo((baseInput.ral + 6_000) / 13.5, 6);
+    expect(trasfertista({ speseAzienda: 6_000 }).contributiDatore.tfrLordo).toBeCloseTo(
+      baseInput.ral / 13.5,
+      6,
+    );
+  });
+
+  it("il costo aziendale comprende l'intera indennità e i contributi sulla metà", () => {
+    const result = trasfertista({ indennitaAnnua: 6_000 });
+    const entrate = (r: OutputCalcoloStipendio) => entrateDi(r, 'rimborsiTrasferta');
+
+    expect(entrate(result)).toBe(6_000);
+    expect(result.contributiDatore.contributiInpsLordi).toBeCloseTo(
+      (base.contributiDatore.contributiInpsLordi / baseInput.ral) * (baseInput.ral + 3_000),
+      2,
+    );
+  });
+
+  it('con le altre modalità i campi del trasfertista non contano', () => {
+    for (const modalitaRimborso of ['forfettario', 'misto', 'analitico'] as const) {
+      const result = calc.calcolaStipendioNetto({
+        ...baseInput,
+        rimborsiTrasferta: {
+          modalitaRimborso,
+          trasfertista: { indennitaAnnua: 6_000, speseAzienda: 1_000 },
+        },
+      });
+
+      expect(result.rimborsiTrasferta.trasfertista).toBeNull();
+      expect(result.rimborsiTrasferta.totaleRimborsi).toBe(0);
+      expect(result.contributiDatore.tfrLordo).toBeCloseTo(base.contributiDatore.tfrLordo, 6);
+      expect(result.nettoAnnuo).toBeCloseTo(base.nettoAnnuo, 6);
+    }
+  });
+
+  it('i totali restano somme delle voci', () => {
+    const result = trasfertista(
+      { indennitaAnnua: 6_000, speseAzienda: 1_000 },
+      { rimborsoViaggio: 300 },
+    );
+    const verso = (destinazione: string) =>
+      somma(result.ripartizione.entrate.filter((v) => v.destinazione === destinazione));
+
+    expect(verso('netto') - somma(result.ripartizione.trattenute)).toBeCloseTo(
+      result.nettoAnnuo,
+      6,
+    );
+    expect(result.nettoAnnuo + verso('esente')).toBeCloseTo(result.totalePercepito, 6);
+    expect(entrateDi(result, 'rimborsiTrasferta')).toBeCloseTo(
+      result.rimborsiTrasferta.totaleRimborsi,
+      6,
+    );
   });
 });
 

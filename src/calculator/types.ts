@@ -53,12 +53,25 @@ export interface Trasferta {
   vittoAlloggioACarico?: VittoAlloggioACarico;
 }
 
+/** Modalità di rimborso delle trasferte fuori comune */
+export type ModalitaRimborso = 'forfettario' | 'misto' | 'analitico' | 'trasfertista';
+
+/** Regime dei trasfertisti (art. 51, c. 6, TUIR) */
+export interface Trasfertista {
+  /** Indennità fissa annua, oltre la RAL */
+  indennitaAnnua?: number;
+  /** Spese di trasferta pagate direttamente dall'azienda (imponibili) */
+  speseAzienda?: number;
+}
+
 /** Dettaglio rimborsi spese trasferta */
 export interface RimborsiTrasferta {
   /** Modalità rimborso trasferte fuori comune */
-  modalitaRimborso?: 'forfettario' | 'misto' | 'analitico';
+  modalitaRimborso?: ModalitaRimborso;
   /** Giorni di trasferta con indennità (forfettario/misto) */
   trasferte?: Trasferta[];
+  /** Indennità e spese del trasfertista (solo modalità trasfertista) */
+  trasfertista?: Trasfertista;
   /** Rimborso vitto documentato (analitico/misto) */
   rimborsoVitto?: number;
   /** Rimborso alloggio documentato (analitico/misto) */
@@ -605,6 +618,18 @@ export interface DettaglioFringeBenefit {
   valoreAutoImponibile: number;
 }
 
+/** Dettaglio del regime del trasfertista */
+export interface DettaglioTrasfertista {
+  /** Indennità fissa annua */
+  indennita: number;
+  /** Quota dell'indennità che non concorre al reddito */
+  indennitaEsente: number;
+  /** Quota dell'indennità che concorre al reddito */
+  indennitaTassata: number;
+  /** Spese pagate dall'azienda: tassate ma non percepite in denaro */
+  speseAzienda: number;
+}
+
 /** Dettaglio rimborsi trasferta */
 export interface DettaglioRimborsiTrasferta {
   /** Totale rimborsi forfettari esenti */
@@ -615,8 +640,12 @@ export interface DettaglioRimborsiTrasferta {
   indennitaEccedente: number;
   /** Rimborsi spese tassati: vitto e alloggio non tracciabili o nel forfettario, km imponibili */
   rimborsiSpeseTassati: number;
-  /** Totale tassato: indennità eccedente + rimborsi spese tassati */
+  /** Regime del trasfertista, null con le altre modalità */
+  trasfertista: DettaglioTrasfertista | null;
+  /** Tassato e pagato in denaro: indennità eccedente o del trasfertista + rimborsi spese tassati */
   rimborsiTassati: number;
+  /** Totale tassato: rimborsi tassati + spese pagate dall'azienda */
+  totaleTassato: number;
   /** Totale rimborsi esenti */
   totaleEsente: number;
   /** Totale rimborsi */
