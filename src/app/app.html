@@ -191,9 +191,20 @@
         Calcolo dello stipendio netto
       </h1>
     </div>
-    @if (loadedFromUrl()) {
-      <p class="text-sm text-muted">Configurazione caricata da link condiviso.</p>
-    }
+    <div class="text-sm text-muted">
+      @if (loadedFromUrl()) {
+        <p>Configurazione caricata da link condiviso.</p>
+      }
+      <!-- Always rendered, so screen readers announce the reset -->
+      <p role="status">
+        @if (canUndoReset()) {
+          Valori predefiniti ripristinati.
+          <button type="button" (click)="undoReset()" [class]="creditLink + ' ml-2 cursor-pointer'">
+            Annulla
+          </button>
+        }
+      </p>
+    </div>
   </div>
 
   <div class="flex flex-col gap-4 lg:flex-row lg:gap-0" [style.--split-ratio]="splitRatio()">

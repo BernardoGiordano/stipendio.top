@@ -42,7 +42,14 @@ export class FormMemory {
     // An empty value is a saved form with only default values
     const encoded = stored.slice(STORAGE_VERSION.length);
     const partial = encoded ? this.formStateShare.deserializeFormState(encoded) : {};
-    return partial && this.formStateShare.mergeWithDefaults(partial);
+    if (!partial) return null;
+
+    // The app loads this value on startup, so a shape that fails to merge would break every reload
+    try {
+      return this.formStateShare.mergeWithDefaults(partial);
+    } catch {
+      return null;
+    }
   }
 
   /**

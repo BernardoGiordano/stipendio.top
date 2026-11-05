@@ -98,4 +98,14 @@ describe('FormMemory', () => {
 
     expect(TestBed.inject(FormMemory).load()).toBeNull();
   });
+
+  it.each([
+    ['an array field saved as an object', 'v1:eyJmaWdsaSI6e319'],
+    ['a null', 'v1:bnVsbA'],
+    ['a number', 'v1:NDI'],
+  ])('ignores %s instead of throwing', (_, stored) => {
+    localStorage.setItem(KEY, stored);
+
+    expect(TestBed.inject(FormMemory).load()).toBeNull();
+  });
 });
