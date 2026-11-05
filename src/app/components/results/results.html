@@ -695,17 +695,19 @@
                   [amount]="r.rimborsiTrasferta.rimborsoDocumentatoEsente"
                 ></div>
               }
-              @if (r.rimborsiTrasferta.indennitaTrasfertistaEsente > 0) {
-                <div
-                  appLedgerRow
-                  label="Indennità trasfertista (50% esente)"
-                  [amount]="r.rimborsiTrasferta.indennitaTrasfertistaEsente"
-                ></div>
-                <div
-                  appLedgerRow
-                  label="Indennità trasfertista (50% tassata)"
-                  [amount]="r.rimborsiTrasferta.indennitaTrasfertistaTassata"
-                ></div>
+              @if (r.rimborsiTrasferta.trasfertista; as trasfertista) {
+                @if (trasfertista.indennita > 0) {
+                  <div
+                    appLedgerRow
+                    label="Indennità trasfertista ({{ quoteTrasfertista.esente }} esente)"
+                    [amount]="trasfertista.indennitaEsente"
+                  ></div>
+                  <div
+                    appLedgerRow
+                    label="Indennità trasfertista ({{ quoteTrasfertista.tassata }} tassata)"
+                    [amount]="trasfertista.indennitaTassata"
+                  ></div>
+                }
               }
               @if (r.rimborsiTrasferta.indennitaEccedente > 0) {
                 <div
@@ -721,12 +723,14 @@
                   [amount]="r.rimborsiTrasferta.rimborsiSpeseTassati"
                 ></div>
               }
-              @if (r.rimborsiTrasferta.speseAziendaTassate > 0) {
-                <div
-                  appLedgerRow
-                  label="Spese pagate dall'azienda (tassate)"
-                  [amount]="r.rimborsiTrasferta.speseAziendaTassate"
-                ></div>
+              @if (r.rimborsiTrasferta.trasfertista; as trasfertista) {
+                @if (trasfertista.speseAzienda > 0) {
+                  <div
+                    appLedgerRow
+                    label="Spese pagate dall'azienda (tassate)"
+                    [amount]="trasfertista.speseAzienda"
+                  ></div>
+                }
               }
               <div
                 appLedgerRow
@@ -748,7 +752,7 @@
               <p [class]="note">
                 Il totale tassato si somma all'imponibile: paga INPS, IRPEF e addizionali, e il
                 resto entra nel netto.
-                @if (r.rimborsiTrasferta.speseAziendaTassate > 0) {
+                @if ((r.rimborsiTrasferta.trasfertista?.speseAzienda ?? 0) > 0) {
                   Le spese pagate dall'azienda non sono denaro che ricevi, quindi riducono il netto.
                 }
               </p>

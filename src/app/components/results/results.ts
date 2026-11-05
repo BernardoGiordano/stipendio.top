@@ -19,6 +19,7 @@ import {
   TrattamentoFiscaleFondo,
 } from '../../../calculator/types';
 import { REGIONE_LABELS } from '../../../calculator/addizionali/2026.regionali';
+import { QUOTA_IMPONIBILE_TRASFERTISTA } from '../../../calculator/impl/2026';
 import { PLAFOND_PREVIDENZA_COMPLEMENTARE } from '../../../calculator/fondi/2026';
 import { VOCE_INPS_DATORE } from '../../../calculator/datore/2026';
 import { ALIQUOTA_FONDO_PENSIONE } from '../../../calculator/tfr/2026';
@@ -75,6 +76,11 @@ export class Results {
   readonly formatPercent = formatPercent;
   readonly formatCurrency = formatCurrency;
   readonly plafond = PLAFOND_PREVIDENZA_COMPLEMENTARE;
+  /** Shares of the trasfertista allowance, for the ledger labels */
+  readonly quoteTrasfertista = {
+    esente: formatPercent(1 - QUOTA_IMPONIBILE_TRASFERTISTA, 0),
+    tassata: formatPercent(QUOTA_IMPONIBILE_TRASFERTISTA, 0),
+  };
   readonly tabs = TABS;
   /** A line of context under a card's rows */
   readonly note = 'pt-0.5 pb-1.5 pl-3.5 text-[13px]/[18px] text-muted';
@@ -330,7 +336,7 @@ export class Results {
         return [
           {
             label:
-              r.rimborsiTrasferta.indennitaTrasfertistaEsente > 0
+              (r.rimborsiTrasferta.trasfertista?.indennita ?? 0) > 0
                 ? 'TFR ((RAL + indennità trasfertista) / 13,5)'
                 : 'TFR (RAL / 13,5)',
             amount: d.tfrLordo,

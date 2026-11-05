@@ -18,6 +18,7 @@ import {
   DettaglioPremioRisultato,
   DettaglioRegimeImpatriati,
   DettaglioRimborsiTrasferta,
+  DettaglioTrasfertista,
   DettaglioRimborsoAffittoNeoassunto,
   DettaglioTrattamentoIntegrativo,
   DestinazioneVoce,
@@ -28,10 +29,12 @@ import {
   OutputCalcoloStipendio,
   PremioRisultato,
   RiepilogoDetrazioni,
+  ModalitaRimborso,
   RimborsiTrasferta,
   RimborsoAffittoNeoassunto,
   TipoContratto,
   Trasferta,
+  Trasfertista,
   VittoAlloggioACarico,
   VoceEntrata,
   VoceTrattenuta,
@@ -166,9 +169,10 @@ const RIMBORSI_TRASFERTA = {
   forfettarioItalia: 46.48,
   forfettarioEstero: 77.47,
   riduzione: { nessuno: 0, uno: 1 / 3, entrambi: 2 / 3 },
-  /** Quota dell'indennità del trasfertista che concorre al reddito (art. 51, c. 6, TUIR) */
-  quotaImponibileTrasfertista: 0.5,
 } as const;
+
+/** Quota dell'indennità del trasfertista che concorre al reddito (art. 51, c. 6, TUIR) */
+export const QUOTA_IMPONIBILE_TRASFERTISTA = 0.5;
 
 /** Limiti benefit esenti da tassazione */
 const BENEFIT_ESENTI = {
@@ -327,9 +331,17 @@ function calcolaFringeBenefit(
   };
 }
 
+/** Modalità di rimborso, anche come scelta nel form («nessuna» se non indicata) */
+type ModalitaRimborsoScelta = ModalitaRimborso | 'nessuna' | undefined;
+
 /** Sistemi di rimborso che erogano un'indennità giornaliera */
-export function conIndennitaTrasferta(modalitaRimborso: string | undefined): boolean {
+export function conIndennitaTrasferta(modalitaRimborso: ModalitaRimborsoScelta): boolean {
   return modalitaRimborso === 'forfettario' || modalitaRimborso === 'misto';
+}
+
+/** Regime dei trasfertisti (art. 51, c. 6, TUIR), alternativo ai sistemi del c. 5 */
+export function regimeTrasfertista(modalitaRimborso: ModalitaRimborsoScelta): boolean {
+  return modalitaRimborso === 'trasfertista';
 }
 
 /**
@@ -339,7 +351,7 @@ export function conIndennitaTrasferta(modalitaRimborso: string | undefined): boo
  */
 export function limiteIndennitaTrasferta(
   trasferta: Pick<Trasferta, 'destinazione' | 'vittoAlloggioACarico'>,
-  modalitaRimborso: string | undefined,
+  modalitaRimborso: ModalitaRimborsoScelta,
 ): number {
   const limite =
     trasferta.destinazione === 'estero'
@@ -348,6 +360,18 @@ export function limiteIndennitaTrasferta(
   const vittoAlloggio: VittoAlloggioACarico =
     modalitaRimborso === 'misto' ? (trasferta.vittoAlloggioACarico ?? 'nessuno') : 'nessuno';
   return Math.round(limite * (1 - RIMBORSI_TRASFERTA.riduzione[vittoAlloggio]) * 100) / 100;
+}
+
+/** Indennità divisa tra quota imponibile ed esente, più le spese pagate dall'azienda */
+function calcolaTrasfertista(trasfertista: Trasfertista | undefined): DettaglioTrasfertista {
+  const indennita = trasfertista?.indennitaAnnua ?? 0;
+  const indennitaTassata = indennita * QUOTA_IMPONIBILE_TRASFERTISTA;
+  return {
+    indennita,
+    indennitaEsente: indennita - indennitaTassata,
+    indennitaTassata,
+    speseAzienda: trasfertista?.speseAzienda ?? 0,
+  };
 }
 
 function calcolaRimborsiTrasferta(
@@ -359,10 +383,8 @@ function calcolaRimborsiTrasferta(
       rimborsoDocumentatoEsente: 0,
       indennitaEccedente: 0,
       rimborsiSpeseTassati: 0,
-      indennitaTrasfertistaEsente: 0,
-      indennitaTrasfertistaTassata: 0,
+      trasfertista: null,
       rimborsiTassati: 0,
-      speseAziendaTassate: 0,
       totaleTassato: 0,
       totaleEsente: 0,
       totaleRimborsi: 0,
@@ -375,7 +397,9 @@ function calcolaRimborsiTrasferta(
   let rimborsiSpeseTassati = 0;
 
   const forfettario = rimborsi.modalitaRimborso === 'forfettario';
-  const trasfertista = rimborsi.modalitaRimborso === 'trasfertista';
+  const trasfertista = regimeTrasfertista(rimborsi.modalitaRimborso)
+    ? calcolaTrasfertista(rimborsi.trasfertista)
+    : null;
 
   if (conIndennitaTrasferta(rimborsi.modalitaRimborso)) {
     for (const trasferta of rimborsi.trasferte ?? []) {
@@ -416,16 +440,11 @@ function calcolaRimborsiTrasferta(
     rimborsoDocumentatoEsente = rimborsoViaggio + rimborsoKm;
   }
 
-  const indennitaTrasfertista = trasfertista ? (rimborsi.indennitaTrasfertista ?? 0) : 0;
-  const indennitaTrasfertistaTassata =
-    indennitaTrasfertista * RIMBORSI_TRASFERTA.quotaImponibileTrasfertista;
-  const indennitaTrasfertistaEsente = indennitaTrasfertista - indennitaTrasfertistaTassata;
-  const speseAziendaTassate = trasfertista ? (rimborsi.speseAziendaTrasfertista ?? 0) : 0;
-
-  const rimborsiTassati = rimborsiSpeseTassati + indennitaEccedente + indennitaTrasfertistaTassata;
-  const totaleTassato = rimborsiTassati + speseAziendaTassate;
+  const rimborsiTassati =
+    rimborsiSpeseTassati + indennitaEccedente + (trasfertista?.indennitaTassata ?? 0);
+  const totaleTassato = rimborsiTassati + (trasfertista?.speseAzienda ?? 0);
   const totaleEsente =
-    rimborsoForfettarioEsente + rimborsoDocumentatoEsente + indennitaTrasfertistaEsente;
+    rimborsoForfettarioEsente + rimborsoDocumentatoEsente + (trasfertista?.indennitaEsente ?? 0);
   const totaleRimborsi = totaleEsente + totaleTassato;
 
   return {
@@ -433,10 +452,8 @@ function calcolaRimborsiTrasferta(
     rimborsoDocumentatoEsente,
     indennitaEccedente,
     rimborsiSpeseTassati,
-    indennitaTrasfertistaEsente,
-    indennitaTrasfertistaTassata,
+    trasfertista,
     rimborsiTassati,
-    speseAziendaTassate,
     totaleTassato,
     totaleEsente,
     totaleRimborsi,
@@ -938,7 +955,7 @@ function vociBenefit(
     // Pagate dall'azienda per il trasfertista: tassate ma non percepite in denaro
     voce(
       "Spese Trasferta pagate dall'azienda",
-      rimborsiTrasferta.speseAziendaTassate,
+      rimborsiTrasferta.trasfertista?.speseAzienda ?? 0,
       'rimborsiTrasferta',
       'inNatura',
     ),
@@ -1219,19 +1236,7 @@ function calcolaBorsaDiStudioContratto(input: InputCalcoloStipendio): OutputCalc
     valoreAutoImponibile: 0,
   };
 
-  const zeroRimborsiTrasferta: DettaglioRimborsiTrasferta = {
-    rimborsoForfettarioEsente: 0,
-    rimborsoDocumentatoEsente: 0,
-    indennitaEccedente: 0,
-    rimborsiSpeseTassati: 0,
-    indennitaTrasfertistaEsente: 0,
-    indennitaTrasfertistaTassata: 0,
-    rimborsiTassati: 0,
-    speseAziendaTassate: 0,
-    totaleTassato: 0,
-    totaleEsente: 0,
-    totaleRimborsi: 0,
-  };
+  const zeroRimborsiTrasferta = calcolaRimborsiTrasferta(undefined);
 
   const zeroBenefitNonTassati: DettaglioBenefitNonTassati = {
     previdenzaComplementare: 0,
@@ -1838,9 +1843,7 @@ export class Calculator2026 implements StipendioCalculator {
     // sul premio versato alla previdenza complementare (art. 16 D.Lgs. 252/2005)
     const costiDatore = calcolaCostiDatore({
       ral,
-      indennitaUtileTfr:
-        rimborsiTrasferta.indennitaTrasfertistaEsente +
-        rimborsiTrasferta.indennitaTrasfertistaTassata,
+      indennitaUtileTfr: rimborsiTrasferta.trasfertista?.indennita ?? 0,
       tipoContratto,
       aziendaConCigs,
       isDirigente: fondi.isDirigente,

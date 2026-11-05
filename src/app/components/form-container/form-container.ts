@@ -7,6 +7,7 @@ import {
   createDefaultFiglio,
   createDefaultFondoPersonalizzato,
   createDefaultTrasferta,
+  RimborsiTrasfertaFormModel,
   StipendioFieldTree,
   StipendioFormModel,
 } from './form-group';
@@ -41,7 +42,12 @@ import {
   PRESET_FONDI_PENSIONE,
 } from '../../../calculator/fondi/2026';
 import { ESONERI_CONTRIBUTIVI } from '../../../calculator/datore/2026';
-import { conIndennitaTrasferta, limiteIndennitaTrasferta } from '../../../calculator/impl/2026';
+import {
+  conIndennitaTrasferta,
+  limiteIndennitaTrasferta,
+  QUOTA_IMPONIBILE_TRASFERTISTA,
+  regimeTrasfertista,
+} from '../../../calculator/impl/2026';
 import { HUE } from '../../services/chart-palette';
 import { formatCurrency, formatNumber, formatPercent } from '../../utils/intl';
 
@@ -390,7 +396,7 @@ export class FormContainer {
   ];
 
   readonly modalitaRimborso: {
-    value: 'nessuna' | 'forfettario' | 'misto' | 'analitico' | 'trasfertista';
+    value: RimborsiTrasfertaFormModel['modalitaRimborso'];
     label: string;
   }[] = [
     { value: 'nessuna', label: '-- Seleziona --' },
@@ -443,12 +449,16 @@ export class FormContainer {
     conIndennitaTrasferta(this.formModel()().rimborsiTrasferta.modalitaRimborso),
   );
 
-  readonly trasfertista = computed(
-    () => this.formModel()().rimborsiTrasferta.modalitaRimborso === 'trasfertista',
+  /** Whether the trasfertista regime replaces daily allowances and exemptions */
+  readonly trasfertista = computed(() =>
+    regimeTrasfertista(this.formModel()().rimborsiTrasferta.modalitaRimborso),
   );
 
-  /** Meal and lodging reimbursements that don't match the selected method */
-  readonly avvisoVittoAlloggio = computed(() => {
+  /** Taxable share of the trasfertista allowance, for the tooltips */
+  readonly quotaTrasfertista = formatPercent(QUOTA_IMPONIBILE_TRASFERTISTA, 0);
+
+  /** Reimbursements that the selected method taxes in full or doesn't expect */
+  readonly avvisoRimborsi = computed(() => {
     const rimborsi = this.formModel()().rimborsiTrasferta;
     if (
       this.trasfertista() &&

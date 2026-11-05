@@ -679,7 +679,9 @@
         <div class="flex flex-wrap items-end gap-3">
           <app-field
             label="Modalità rimborso"
-            info="Forfettario: solo indennità giornaliera, senza vitto o alloggio a carico dell'azienda. Misto: indennità con vitto o alloggio rimborsati o forniti gratuitamente, e il limite esente si riduce. Analitico: solo rimborsi a pie' di lista documentati. Trasfertista: indennità fissa per chi lavora in luoghi sempre variabili, imponibile al 50%."
+            info="Forfettario: solo indennità giornaliera, senza vitto o alloggio a carico dell'azienda. Misto: indennità con vitto o alloggio rimborsati o forniti gratuitamente, e il limite esente si riduce. Analitico: solo rimborsi a pie' di lista documentati. Trasfertista: indennità fissa per chi lavora in luoghi sempre variabili, imponibile al {{
+              quotaTrasfertista
+            }}."
             class="flex-[2_1_160px]"
           >
             <select appControl [formField]="form.rimborsiTrasferta.modalitaRimborso">
@@ -787,13 +789,15 @@
             <app-field
               label="Indennità annua"
               unit="€ / anno"
-              info="Indennità o maggiorazione fissa dell'anno (art. 51, c. 6, TUIR), da non includere anche nella RAL. Il 50% si somma all'imponibile e paga INPS, IRPEF e addizionali; il resto è esente. Conta per il TFR, salvo esclusione del contratto collettivo."
+              info="Indennità o maggiorazione fissa dell'anno (art. 51, c. 6, TUIR), da non includere anche nella RAL. Il {{
+                quotaTrasfertista
+              }} si somma all'imponibile e paga INPS, IRPEF e addizionali; il resto è esente. Conta per il TFR, salvo esclusione del contratto collettivo."
               class="flex-[1_1_150px]"
             >
               <input
                 appControl
                 type="number"
-                [formField]="form.rimborsiTrasferta.indennitaTrasfertista"
+                [formField]="form.rimborsiTrasferta.trasfertista.indennitaAnnua"
               />
             </app-field>
             <app-field
@@ -805,7 +809,7 @@
               <input
                 appControl
                 type="number"
-                [formField]="form.rimborsiTrasferta.speseAziendaTrasfertista"
+                [formField]="form.rimborsiTrasferta.trasfertista.speseAzienda"
               />
             </app-field>
           </div>
@@ -816,7 +820,7 @@
             label="Vitto documentato"
             unit="€ / anno"
             info="Esente se il pagamento è tracciabile. Nel sistema forfettario, per i trasfertisti o senza tracciabilità è tassato: si somma all'imponibile e paga INPS, IRPEF e addizionali."
-            noteId="avviso-vitto-alloggio"
+            noteId="avviso-rimborsi"
             class="flex-[1_1_150px]"
           >
             <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoVitto" />
@@ -825,7 +829,7 @@
             label="Alloggio documentato"
             unit="€ / anno"
             info="Esente se il pagamento è tracciabile. Nel sistema forfettario, per i trasfertisti o senza tracciabilità è tassato: si somma all'imponibile e paga INPS, IRPEF e addizionali."
-            noteId="avviso-vitto-alloggio"
+            noteId="avviso-rimborsi"
             class="flex-[1_1_150px]"
           >
             <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoAlloggio" />
@@ -834,6 +838,7 @@
             label="Viaggio"
             unit="€ / anno"
             info="Treno, aereo e altri trasporti documentati: esenti con qualsiasi modalità di rimborso. Taxi e NCC sono esenti solo se pagati con mezzi tracciabili. Per i trasfertisti è tassato."
+            [noteId]="trasfertista() ? 'avviso-rimborsi' : undefined"
             class="flex-[1_1_150px]"
           >
             <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoViaggio" />
@@ -842,6 +847,7 @@
             label="Chilometrico fuori comune"
             unit="€ / anno"
             info="Indennità chilometrica per l'uso dell'auto propria in trasferte fuori dal comune sede di lavoro, entro le tariffe ACI: esente da imposte e contributi. Non richiede pagamento tracciabile. Per i trasfertisti è tassata."
+            [noteId]="trasfertista() ? 'avviso-rimborsi' : undefined"
             class="flex-[1_1_150px]"
           >
             <input appControl type="number" [formField]="form.rimborsiTrasferta.rimborsoKm" />
@@ -861,8 +867,8 @@
         </div>
 
         <!-- The live region stays in the DOM so the warning is announced when it appears -->
-        <div id="avviso-vitto-alloggio" role="status">
-          @if (avvisoVittoAlloggio(); as avviso) {
+        <div id="avviso-rimborsi" role="status">
+          @if (avvisoRimborsi(); as avviso) {
             <p class="mt-2 text-xs text-neg">{{ avviso }}</p>
           }
         </div>
