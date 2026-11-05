@@ -54,6 +54,15 @@
         <app-icon [name]="themeMode.isDark() ? 'sun' : 'moon'" class="size-5 shrink-0" />
         <span [class]="barLabel">{{ themeMode.isDark() ? 'Tema chiaro' : 'Tema scuro' }}</span>
       </button>
+      <button
+        type="button"
+        [class]="barItem + ' cursor-pointer'"
+        aria-label="Impostazioni"
+        [cdkMenuTriggerFor]="settings"
+      >
+        <app-icon name="cog" class="size-5 shrink-0" />
+        <span [class]="barLabel">Impostazioni</span>
+      </button>
 
       <button
         type="button"
@@ -63,6 +72,34 @@
       >
         <app-icon name="menu" class="size-[22px]" />
       </button>
+
+      <ng-template #settings>
+        <div
+          cdkMenu
+          class="min-w-[200px] rounded-xl bg-surface p-1 shadow-lg ring-1 ring-ring focus:outline-none"
+        >
+          <div cdkMenuGroup>
+            <button
+              cdkMenuItemCheckbox
+              [cdkMenuItemChecked]="formMemory.remember()"
+              (cdkMenuItemTriggered)="toggleRemember()"
+              [class]="menuItem"
+            >
+              <span class="size-4">
+                @if (formMemory.remember()) {
+                  <app-icon name="check" class="size-4" />
+                }
+              </span>
+              Ricorda i miei dati
+            </button>
+            <button cdkMenuItem (cdkMenuItemTriggered)="resetForm()" [class]="menuItem">
+              <span class="size-4"></span>
+              Ripristina valori predefiniti
+            </button>
+          </div>
+          <p class="max-w-[280px] px-3 py-2 text-xs text-muted">{{ settingsNote }}</p>
+        </div>
+      </ng-template>
 
       <ng-template #menu>
         <div
@@ -86,6 +123,29 @@
               </button>
             }
           </div>
+
+          <div class="my-1 border-t border-hair"></div>
+
+          <div cdkMenuGroup>
+            <button
+              cdkMenuItemCheckbox
+              [cdkMenuItemChecked]="formMemory.remember()"
+              (cdkMenuItemTriggered)="toggleRemember()"
+              [class]="menuItem"
+            >
+              <span class="size-4">
+                @if (formMemory.remember()) {
+                  <app-icon name="check" class="size-4" />
+                }
+              </span>
+              Ricorda i miei dati
+            </button>
+            <button cdkMenuItem (cdkMenuItemTriggered)="resetForm()" [class]="menuItem">
+              <span class="size-4"></span>
+              Ripristina valori predefiniti
+            </button>
+          </div>
+          <p class="max-w-[280px] px-3 py-2 text-xs text-muted">{{ settingsNote }}</p>
 
           <div class="my-1 border-t border-hair"></div>
 
@@ -131,9 +191,20 @@
         Calcolo dello stipendio netto
       </h1>
     </div>
-    @if (loadedFromUrl()) {
-      <p class="text-sm text-muted">Configurazione caricata da link condiviso.</p>
-    }
+    <div class="text-sm text-muted">
+      @if (loadedFromUrl()) {
+        <p>Configurazione caricata da link condiviso.</p>
+      }
+      <!-- Always rendered, so screen readers announce the reset -->
+      <p role="status">
+        @if (canUndoReset()) {
+          Valori predefiniti ripristinati.
+          <button type="button" (click)="undoReset()" [class]="creditLink + ' ml-2 cursor-pointer'">
+            Annulla
+          </button>
+        }
+      </p>
+    </div>
   </div>
 
   <div class="flex flex-col gap-4 lg:flex-row lg:gap-0" [style.--split-ratio]="splitRatio()">

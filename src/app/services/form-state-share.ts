@@ -41,7 +41,11 @@ export class FormStateShare {
 
     try {
       const json = this.fromUrlSafeBase64(encoded);
-      return JSON.parse(json) as DeepPartial<StipendioFormModel>;
+      // An empty number field is NaN, which JSON stores as null. This applies to every null,
+      // so a nullable field added to the model would come back as NaN and needs handling here.
+      return JSON.parse(json, (_, value) =>
+        value === null ? NaN : value,
+      ) as DeepPartial<StipendioFormModel>;
     } catch {
       return null;
     }
