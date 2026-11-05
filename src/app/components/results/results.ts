@@ -176,7 +176,7 @@ export class Results {
   readonly bustePaga = computed(() => {
     const r = this.result();
     if (!r) return null;
-    const { ordinaria, aggiuntiva, numeroAggiuntive } = r.bustePaga;
+    const { ordinaria, aggiuntiva } = r.bustePaga;
     const nome = this.mensilitaAggiuntive();
     return {
       ordinaria: { heading: 'Mensilità ordinaria', righe: this.righeBusta(ordinaria) },
@@ -184,10 +184,6 @@ export class Results {
         heading: nome.charAt(0).toUpperCase() + nome.slice(1),
         righe: this.righeBusta(aggiuntiva),
       },
-      controllo:
-        numeroAggiuntive > 0
-          ? `12 × ${formatCurrency(ordinaria.netto)} + ${numeroAggiuntive} × ${formatCurrency(aggiuntiva!.netto)} = ${formatCurrency(r.nettoAnnuo)} netti l'anno`
-          : `12 × ${formatCurrency(ordinaria.netto)} = ${formatCurrency(r.nettoAnnuo)} netti l'anno`,
     };
   });
 
