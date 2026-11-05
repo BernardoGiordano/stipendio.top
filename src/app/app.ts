@@ -28,10 +28,12 @@ import { calcolaStipendioNetto } from '../calculator/calculator';
 import { InputCalcoloStipendio, OutputCalcoloStipendio } from '../calculator/types';
 import { ThemeMode } from './services/theme-mode';
 import { FormStateShare } from './services/form-state-share';
+import { FormMemory } from './services/form-memory';
 import {
   CdkMenu,
   CdkMenuGroup,
   CdkMenuItem,
+  CdkMenuItemCheckbox,
   CdkMenuItemRadio,
   CdkMenuTrigger,
 } from '@angular/cdk/menu';
@@ -52,6 +54,7 @@ const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
     ShareLink,
     CdkMenu,
     CdkMenuItem,
+    CdkMenuItemCheckbox,
     CdkMenuItemRadio,
     CdkMenuGroup,
     CdkMenuTrigger,
@@ -88,9 +91,25 @@ export class App {
 
   readonly themeMode = inject(ThemeMode);
   readonly formStateShare = inject(FormStateShare);
+  readonly formMemory = inject(FormMemory);
+
+  readonly settingsNote =
+    'I dati restano in questo browser e non vengono inviati a nessun server. Con "Ricorda i miei dati" restano anche dopo la chiusura della scheda.';
+
+  /** The model opened from a shared URL, until the first edit, reset or change of the memory option */
+  private readonly unsavedSharedModel = signal<StipendioFormModel | null>(null);
 
   readonly formModel = signal<StipendioFormModel>(this.loadInitialFormState());
   readonly stipendioForm = createStipendioForm(this.formModel);
+
+  /** The fields before the last reset and the values it set */
+  private readonly lastReset = signal<{
+    before: StipendioFormModel;
+    after: StipendioFormModel;
+  } | null>(null);
+
+  /** The reset can be undone until the next edit */
+  readonly canUndoReset = computed(() => this.lastReset()?.after === this.formModel());
 
   readonly isBorsaDiStudio = computed(() => this.formModel().tipoContratto === 'borsaDiStudio');
 
@@ -138,6 +157,17 @@ export class App {
         this.calculationResult();
       }
     });
+    // save() reads remember(), so this also runs when the option changes
+    // and moves the fields to the other storage
+    effect(() => {
+      const model = this.formModel();
+
+      // An unedited shared link stays in the URL and out of storage, so a reload reopens it
+      if (model === this.unsavedSharedModel()) return;
+
+      this.formMemory.save(model);
+      this.formStateShare.clearUrlState();
+    });
 
     const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
@@ -156,6 +186,29 @@ export class App {
     this.formStateShare.copyToClipboard(this.formModel());
   }
 
+  toggleRemember(): void {
+    // The choice applies to the fields on screen, even if they come from a shared link
+    this.unsavedSharedModel.set(null);
+    this.formMemory.remember.update((remember) => !remember);
+  }
+
+  resetForm(): void {
+    const after = { ...createDefaultFormModel(), ral: RAL_ESEMPIO };
+    this.lastReset.set({ before: this.formModel(), after });
+
+    // The reset replaces the saved fields, so an undo must save the shared ones too
+    this.unsavedSharedModel.set(null);
+    this.loadedFromUrl.set(false);
+    this.formModel.set(after);
+  }
+
+  undoReset(): void {
+    const reset = this.lastReset();
+    if (!reset) return;
+    this.lastReset.set(null);
+    this.formModel.set(reset.before);
+  }
+
   onResize(delta: number): void {
     // Limit splitRatio: min 0.3 for left side, max 0.5 so right side is always at least 50%
     const newRatio = Math.min(0.5, Math.max(0.3, this.splitRatio() + delta));
@@ -165,13 +218,13 @@ export class App {
   private loadInitialFormState(): StipendioFormModel {
     const urlState = this.formStateShare.getStateFromUrl();
     if (urlState) {
-      // Mark as loaded from URL and clear the URL param
-      setTimeout(() => {
-        this.loadedFromUrl.set(true);
-        this.formStateShare.clearUrlState();
-      });
-      return this.formStateShare.mergeWithDefaults(urlState);
+      // The saving effect clears the URL param on the first edit
+      setTimeout(() => this.loadedFromUrl.set(true));
+      const sharedModel = this.formStateShare.mergeWithDefaults(urlState);
+      this.unsavedSharedModel.set(sharedModel);
+      return sharedModel;
     }
-    return { ...createDefaultFormModel(), ral: RAL_ESEMPIO };
+    const model = this.formMemory.load() ?? createDefaultFormModel();
+    return { ...model, ral: model.ral || RAL_ESEMPIO };
   }
 }
