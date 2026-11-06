@@ -13396,7 +13396,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   H078: { n: "Provaglio D'Iseo", p: 'BS', r: 'LO', a: 0.008, e: 10_000 },
   H085: { n: 'Prunetto', p: 'CN', r: 'PI', a: 0.008 },
   H086: { n: 'Puegnago Sul Garda', p: 'BS', r: 'LO', a: 0.008, e: 15_000 },
-  H087: { n: 'Puglianello', p: 'BN', r: 'CM', a: 0.004 },
+  H087: { n: 'Puglianello', p: 'BN', r: 'CM', a: 0.008, e: 8_500 },
   H088: { n: 'Pula', p: 'CA', r: 'SA', a: 0.004 },
   H089: {
     n: 'Pulfero',
@@ -14434,7 +14434,17 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   H644: { n: 'Rutino', p: 'SA', r: 'CM', a: 0.008 },
   H645: { n: 'Ruvo Di Puglia', p: 'BA', r: 'PU', a: 0.008 },
   H646: { n: 'Ruvo Del Monte', p: 'PZ', r: 'BA', a: 0.004 },
-  H647: { n: 'Sabaudia', p: 'LT', r: 'LA', a: 0.008, e: 15_000 },
+  H647: {
+    n: 'Sabaudia',
+    p: 'LT',
+    r: 'LA',
+    s: [
+      { l: 28_000, a: 0.007 },
+      { l: 50_000, a: 0.008 },
+      { l: Infinity, a: 0.008 },
+    ],
+    e: 15_000,
+  },
   H648: { n: 'Sabbia', p: 'VC', r: 'PI', a: 0.004 },
   H650: { n: 'Sabbio Chiese', p: 'BS', r: 'LO', a: 0.007 },
   H652: { n: 'Sabbioneta', p: 'MN', r: 'LO', a: 0.008, e: 12_000 },
