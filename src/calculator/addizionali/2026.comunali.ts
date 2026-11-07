@@ -12874,12 +12874,10 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     p: 'PI',
     r: 'TO',
     s: [
-      { l: 15_000, a: 0.006 },
-      { l: 28_000, a: 0.0061 },
+      { l: 28_000, a: 0.0065 },
       { l: 50_000, a: 0.0078 },
       { l: Infinity, a: 0.008 },
     ],
-    e: 10_000,
   },
   G823: {
     n: 'Ponso',
@@ -13353,7 +13351,17 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     ],
     e: 12_000,
   },
-  H043: { n: 'Preseglie', p: 'BS', r: 'LO', a: 0.005 },
+  H043: {
+    n: 'Preseglie',
+    p: 'BS',
+    r: 'LO',
+    s: [
+      { l: 15_000, a: 0.005 },
+      { l: 28_000, a: 0.006 },
+      { l: 50_000, a: 0.008 },
+      { l: Infinity, a: 0.008 },
+    ],
+  },
   H046: { n: 'Presezzo', p: 'BG', r: 'LO', a: 0.008 },
   H047: { n: 'Presicce', p: 'LE', r: 'PU', a: 0.007 },
   H048: { n: 'Pressana', p: 'VR', r: 'VE', a: 0.008, e: 8_000 },
