@@ -6268,8 +6268,8 @@ I165;SAN SOSTI;CS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I166;SAN SPERATE;SU;64;22/12/2025;20/08/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I373;SAN STINO DI LIVENZA;VE;45;30/12/2025;24/04/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 5.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;5000
 I261;SAN TAMMARO;CE;34;29/12/2025;05/11/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-I328;SAN TEODORO;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I329;SAN TEODORO;SS;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I328;SAN TEODORO;ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I347;SAN TOMASO AGORDINO;BL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I376;SAN VALENTINO IN ABRUZZO CITERIORE;PE;16;30/12/2025;26/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I377;SAN VALENTINO TORIO;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -6663,7 +6663,7 @@ I654;SERRA SANT'ABBONDIO;PU;6;24/02/2026;04/03/2026;CONFERMA;NO;0,8;Aliquota uni
 I641;SERRACAPRIOLA;FG;22;21/11/2025;02/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I644;SERRADIFALCO;CL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I646;SERRALUNGA D'ALBA;CN;31;29/12/2025;04/02/2026;CONFERMA;NO;0,4;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-I645;SERRALUNGA DI CREA;AL;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+I645;SERRALUNGA DI CREA;AL;14;12/12/2025;09/11/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 I647;SERRAMANNA;SU;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F357;SERRAMAZZONI;MO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 I648;SERRAMEZZANA;SA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
