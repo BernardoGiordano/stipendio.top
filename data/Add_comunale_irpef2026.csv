@@ -1325,7 +1325,7 @@ B730;CARATE URIO;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B731;CARAVAGGIO;BG;64;10/12/2025;05/01/2026;CONFERMA;NO;0,78;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B732;CARAVATE;VA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B733;CARAVINO;TO;29;15/12/2025;23/10/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-B734;CARAVONICA;IM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B734;CARAVONICA;IM;26;10/12/2025;10/11/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B735;CARBOGNANO;VT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B741;CARBONARA AL TICINO;PV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B740;CARBONARA DI NOLA;NA;33;30/12/2025;17/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
@@ -3944,7 +3944,7 @@ F147;MERI';ME;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F148;MERLARA;PD;23;22/12/2025;17/06/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 12.500,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;12500
 F149;MERLINO;LO;17;20/12/2025;14/10/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,65;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 F151;MERONE;CO;46;22/12/2025;15/09/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 5.000,00;,75;Applicabile a scaglione di reddito fino a euro 28.000,00;,78;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;5000
-F152;MESAGNE;BR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+F152;MESAGNE;BR;13;09/12/2025;10/11/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 F153;MESE;SO;51;23/12/2025;07/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F154;MESENZANA;VA;28;24/11/2025;02/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 9.999,99;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;9999,99
 F155;MESERO;MI;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -5248,7 +5248,7 @@ G809;POMBIA;NO;25;29/12/2025;02/09/2026;CONFERMA;NO;0,65;Aliquota unica;;;;;;;;;
 G811;POMEZIA;RM;4;16/01/2026;13/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 10.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;10000
 G812;POMIGLIANO D'ARCO;NA;63;13/12/2025;27/05/2026;CONFERMA;SI;0,48;Applicabile a scaglione di reddito fino a euro 15.000,00 ;,66;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00 ;,76;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00 ;,79;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per redditi imponibili fino a euro 5.000,00;;;;;;;;;;;;;;;0;0
 G813;POMPEI;NA;44;22/12/2025;26/02/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
-G814;POMPEIANA;IM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+G814;POMPEIANA;IM;32;29/12/2025;10/11/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G815;POMPIANO;BS;40;29/12/2025;22/01/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 7.500,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;7500
 G816;POMPONESCO;MN;28;29/12/2025;09/02/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 12.000,00;,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,78;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;12000
 G817;POMPU;OR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
