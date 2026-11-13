@@ -6613,7 +6613,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   },
   D496: { n: 'Fara Vicentino', p: 'VI', r: 'VE', a: 0.006 },
   D497: { n: 'Fardella', p: 'PZ', r: 'BA', a: 0.003 },
-  D499: { n: 'Farigliano', p: 'CN', r: 'PI', a: 0.007 },
+  D499: { n: 'Farigliano', p: 'CN', r: 'PI', a: 0.008 },
   D501: { n: 'Farindola', p: 'PE', r: 'AB', a: 0.008 },
   D502: { n: 'Farini', p: 'PC', r: 'ER', a: 0.008, e: 10_000 },
   D503: { n: 'Farnese', p: 'VT', r: 'LA', a: 0.007 },
