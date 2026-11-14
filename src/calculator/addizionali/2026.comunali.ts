@@ -2857,16 +2857,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   B580: { n: 'Cancellara', p: 'PZ', r: 'BA', a: 0.008 },
   B581: { n: 'Cancello Ed Arnone', p: 'CE', r: 'CM', a: 0.008, e: 185.92 },
   B582: { n: 'Canda', p: 'RO', r: 'VE', a: 0.008, e: 9_500 },
-  B584: {
-    n: 'Candela',
-    p: 'FG',
-    r: 'PU',
-    s: [
-      { l: 28_000, a: 0.005 },
-      { l: 50_000, a: 0.006 },
-      { l: Infinity, a: 0.008 },
-    ],
-  },
+  B584: { n: 'Candela', p: 'FG', r: 'PU', a: 0.008 },
   B586: { n: 'Candelo', p: 'BI', r: 'PI', a: 0.008 },
   B587: { n: 'Candia Lomellina', p: 'PV', r: 'LO', a: 0.008 },
   B588: { n: 'Candia Canavese', p: 'TO', r: 'PI', a: 0.008 },

@@ -156,7 +156,7 @@ A195;ALIA;PA;57;29/12/2025;21/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;
 A196;ALIANO;MT;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A197;ALICE BEL COLLE;AL;25;16/12/2025;29/09/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A198;ALICE CASTELLO;VC;89;14/11/2025;24/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 9.999,99;,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;9999,99
-A200;ALIFE;CE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+A200;ALIFE;CE;4;27/02/2026;13/11/2026;CONFERMA;NO;0,65;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A202;ALIMENA;PA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A203;ALIMINUSA;PA;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 A204;ALLAI;OR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -1205,7 +1205,7 @@ B579;CANAZEI;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B580;CANCELLARA;PZ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B581;CANCELLO ED ARNONE;CE;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 B582;CANDA;RO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-B584;CANDELA;FG;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+B584;CANDELA;FG;2;26/02/2026;13/11/2026;MODIFICA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B586;CANDELO;BI;52;18/12/2025;22/05/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B588;CANDIA CANAVESE;TO;21;15/12/2025;30/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 B587;CANDIA LOMELLINA;PV;15;22/12/2025;07/10/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
@@ -4926,8 +4926,8 @@ G408;PEDEROBBA;TV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G410;PEDESINA;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G411;PEDIVIGLIANO;CS;3;10/03/2026;20/10/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G412;PEDRENGO;BG;37;17/12/2025;02/03/2026;CONFERMA;SI;0,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,75;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
-G416;PEGLIO;PU;32;29/12/2025;22/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G415;PEGLIO;CO;21;23/12/2025;20/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
+G416;PEGLIO;PU;32;29/12/2025;22/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G417;PEGOGNAGA;MN;60;29/12/2025;28/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 G418;PEIA;BG;37;18/12/2025;12/01/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G419;PEIO;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
@@ -7466,7 +7466,7 @@ L629;VALLO TORINESE;TO;25;25/11/2025;04/06/2026;CONFERMA;SI;0;Esenzione per redd
 L631;VALLORIATE;CN;27;22/12/2025;22/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L633;VALMACCA;AL;38;22/12/2025;16/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 L634;VALMADRERA;LC;44;29/12/2025;31/03/2026;MODIFICA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,6;Applicabile a scaglione di reddito fino a euro 28.000,00;,78;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;4;15000
-L639;VALMONTONE;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+L639;VALMONTONE;RM;70;17/12/2025;13/11/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 6.999,99;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;6999,99
 L640;VALMOREA;CO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L641;VALMOZZOLA;PR;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 L642;VALNEGRA;BG;19;19/12/2025;21/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
