@@ -3402,7 +3402,7 @@ C767;LANUVIO;RM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E443;LANZADA;SO;2;02/02/2026;05/03/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 E445;LANZO TORINESE;TO;40;26/11/2025;17/02/2026;CONFERMA;SI;0,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 E447;LAPEDONA;FM;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-E448;LAPIO;AV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
+E448;LAPIO;AV;29;27/11/2025;16/11/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 E450;LAPPANO;CS;3;27/02/2026;21/10/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 A345;L'AQUILA;AQ;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 E451;LARCIANO;PT;47;10/11/2025;20/05/2026;CONFERMA;SI;0,55;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;0;Esenzione per tutti i contribuenti titolari di un reddito complessivo annuo imponibile non superiore ad € 12.000,00. Tale reddito dovra' essere esclusivamente derivante da reddito di lavoro dipendente o reddito di pensione e reddito per abitazione principale;;;;;;;;;;;;;;;;;6;0
@@ -4287,7 +4287,7 @@ F563;MONTEMESOLA;TA;40;18/12/2025;08/01/2026;CONFERMA;SI;0;Esenzione per redditi
 F564;MONTEMEZZO;CO;13;09/12/2025;14/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 12.000,00;,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;12000
 F565;MONTEMIGNAIO;AR;23;29/12/2025;28/01/2026;CONFERMA;NO;0,5;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 F566;MONTEMILETTO;AV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
-F568;MONTEMILONE;PZ;4;27/02/2026;15/05/2026;CONFERMA;SI;0,6;Applicabile a scaglione di reddito fino a euro 15.000,00;,7;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;0;0
+F568;MONTEMILONE;PZ;4;27/02/2026;15/05/2026;DELIBERA ADOTTATA EX ART. 1, COMMA 751, L. 207/2024;SI;0,6;Applicabile a scaglione di reddito fino a euro 15.000,00;,7;Applicabile a scaglione di reddito da euro 15.000,01 fino a euro 28.000,00;,75;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,8;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;0;0
 F569;MONTEMITRO;CB;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 F570;MONTEMONACO;AP;39;29/12/2025;08/10/2026;CONFERMA;SI;0,45;Applicabile a scaglione di reddito fino a euro 28.000,00;,5;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,55;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
 F572;MONTEMURLO;PO;6;27/02/2026;31/03/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 11.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;11000
@@ -4926,8 +4926,8 @@ G408;PEDEROBBA;TV;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G410;PEDESINA;SO;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
 G411;PEDIVIGLIANO;CS;3;10/03/2026;20/10/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G412;PEDRENGO;BG;37;17/12/2025;02/03/2026;CONFERMA;SI;0,65;Applicabile a scaglione di reddito fino a euro 28.000,00;,7;Applicabile a scaglione di reddito da euro 28.000,01 fino a euro 50.000,00;,75;Applicabile a scaglione di reddito oltre euro 50.000,00;;;;;;;;;;;;;;;;;;;3;0
-G416;PEGLIO;PU;32;29/12/2025;22/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G415;PEGLIO;CO;21;23/12/2025;20/01/2026;CONFERMA;NO;0,2;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
+G416;PEGLIO;PU;32;29/12/2025;22/01/2026;CONFERMA;NO;0,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G417;PEGOGNAGA;MN;60;29/12/2025;28/01/2026;CONFERMA;SI;0;Esenzione per redditi imponibili fino a euro 15.000,00;,8;Aliquota unica;;;;;;;;;;;;;;;;;;;;;2;15000
 G418;PEIA;BG;37;18/12/2025;12/01/2026;CONFERMA;NO;0,7;Aliquota unica;;;;;;;;;;;;;;;;;;;;;;;1;0
 G419;PEIO;TN;;;;;NO;0*;;;;;;;;;;;;;;;;;;;;;;;;;0
