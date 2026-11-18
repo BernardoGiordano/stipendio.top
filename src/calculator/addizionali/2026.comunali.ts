@@ -4574,18 +4574,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
   C446: { n: 'Celleno', p: 'VT', r: 'LA', a: 0.008 },
   C447: { n: 'Cellere', p: 'VT', r: 'LA', a: 0.008 },
   C448: { n: 'Cellino San Marco', p: 'BR', r: 'PU', a: 0.008 },
-  C449: {
-    n: 'Cellino Attanasio',
-    p: 'TE',
-    r: 'AB',
-    s: [
-      { l: 15_000, a: 0.004 },
-      { l: 28_000, a: 0.005 },
-      { l: 50_000, a: 0.006 },
-      { l: Infinity, a: 0.007 },
-    ],
-    e: 8_000,
-  },
+  C449: { n: 'Cellino Attanasio', p: 'TE', r: 'AB', a: 0.006 },
   C450: { n: 'Cellio', p: 'VC', r: 'PI', a: 0.006 },
   C453: { n: 'Cenadi', p: 'CZ', r: 'CL', a: 0.008 },
   C456: { n: 'Cenate Sopra', p: 'BG', r: 'LO', a: 0.005 },
@@ -9321,7 +9310,7 @@ export const ADDIZIONALI_COMUNALI: Record<string, AddizionaleComunale> = {
     r: 'LO',
     s: [
       { l: 28_000, a: 0.0055 },
-      { l: 50_000, a: 0.0078 },
+      { l: 50_000, a: 0.0079 },
       { l: Infinity, a: 0.008 },
     ],
   },
